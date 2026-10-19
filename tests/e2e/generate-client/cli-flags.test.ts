@@ -1,6 +1,6 @@
-// The other tests call `generateClient` directly, so this file proves the CLI layer:
-// `redocly generate-client` with a flag writes the same files as the API with the
-// matching option. If the CLI drops or renames a flag, the two outputs differ.
+// `redocly generate-client` with a flag must write the same files as `generateClient` with the
+// matching option. If the CLI drops or renames a flag, the two outputs differ. The tests in
+// packages/client-generator/tests call `generateClient` directly, so this file proves the CLI layer.
 import { generateClient, type GenerateClientConfig } from '@redocly/client-generator';
 import { logger } from '@redocly/openapi-core';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
@@ -21,8 +21,16 @@ const cases: Array<{ flags: string[]; options: GenerateClientConfig }> = [
   },
   { flags: ['--output-mode', 'split'], options: { outputMode: 'split' } },
   { flags: ['--runtime', 'module'], options: { runtime: 'module' } },
-  { flags: ['--import-ext', 'ts'], options: { importExt: 'ts' } },
-  { flags: ['--args-style', 'grouped'], options: { argsStyle: 'grouped' } },
+  {
+    flags: ['--output-mode', 'split', '--import-ext', 'ts'],
+    options: { outputMode: 'split', importExt: 'ts' },
+  },
+  { flags: ['--args-style', 'flat'], options: { argsStyle: 'flat' } },
+  // The CLI resolves a relative path against the cwd, which is this folder.
+  {
+    flags: ['--setup', 'client-setup/consumer/setup.ts'],
+    options: { setup: join(__dirname, 'client-setup/consumer/setup.ts') },
+  },
   { flags: ['--error-mode', 'result'], options: { errorMode: 'result' } },
   {
     flags: ['--generator', 'go', '--go-package', 'cafe'],

@@ -1,5 +1,5 @@
 # Runtime smoke for stream request bodies in the generated Python SDK. Run by
-# stream-bodies.python.test.ts with the echo server's base URL as the only argument. It
+# python/stream-bodies.test.ts with the echo server's base URL as the only argument. It
 # only makes the calls, in a fixed order; the test reads what the server received.
 import io
 import os

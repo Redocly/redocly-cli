@@ -81,7 +81,7 @@
    A separate CI job keeps that cost out of the shared e2e job.
    There is one project per toolchain, and one folder per project: `client-generators` runs `typescript/`,
    and `client-generators-go`, `-php`, and `-python` run `go/`, `php/`, and `python/`.
-   The tests of the `generate-client` and `eject-generator` commands stay e2e tests in `tests/e2e/generate-client`.
+   The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
    A language project runs a setup that checks its toolchain and stops the run when the toolchain is missing.
    Apart from that check, the projects only select test files: they compile and resolve code the same way as every other suite.
 1. Smoke tests (`tests/smoke`, run by the `smoke-*` workflows) cover only what can fail an entire release: a Node.js version, a platform, a package manager, or the production bundle.

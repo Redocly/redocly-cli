@@ -43,6 +43,14 @@ async function runScript(script: string): Promise<{ stdout: string }> {
 describe('generate-client pagination consumer', () => {
   beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
+    // Extension arm: NO pagination config — `x-redoclyPagination` alone drives `listOrders`.
+    await generateClient({ api: fixture, output: join(workDir, 'api.ts') });
+    // Convention arm: an offset rule applied to every operation it structurally fits.
+    await generateClient({
+      api: fixture,
+      output: join(workDir, 'api-offset.ts'),
+      pagination: { style: 'offset', offsetParam: 'offset', limitParam: 'limit', items: '/items' },
+    });
     server = await MockServer.start(fixture, {
       handlers: {
         listOrders: ({ request }) => {
@@ -71,26 +79,15 @@ describe('generate-client pagination consumer', () => {
         },
       },
     });
-  }, 30_000);
+  }, 60_000);
 
   afterAll(async () => {
     await server.close();
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  test('generate both arms and assert the emitted pagination surface', async () => {
-    const apiFile = join(workDir, 'api.ts');
-    const apiOffsetFile = join(workDir, 'api-offset.ts');
-    // Extension arm: NO pagination config — `x-redoclyPagination` alone drives `listOrders`.
-    await generateClient({ api: fixture, output: apiFile });
-    // Convention arm: an offset rule applied to every operation it structurally fits.
-    await generateClient({
-      api: fixture,
-      output: apiOffsetFile,
-      pagination: { style: 'offset', offsetParam: 'offset', limitParam: 'limit', items: '/items' },
-    });
-
-    const api = readFileSync(apiFile, 'utf-8');
+  test('both arms emit the pagination surface', () => {
+    const api = readFileSync(join(workDir, 'api.ts'), 'utf-8');
     // The extension is normalized into the descriptor (param unified, stable key order).
     expect(api).toContain(
       'listOrders: { id: "listOrders", method: "GET", path: "/orders", params: [{ name: "cursor", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" } }'
@@ -118,7 +115,7 @@ describe('generate-client pagination consumer', () => {
     expect(api).toContain('// ─── Embedded runtime');
     expect(api).toContain('Pagination did not advance');
 
-    const offset = readFileSync(apiOffsetFile, 'utf-8');
+    const offset = readFileSync(join(workDir, 'api-offset.ts'), 'utf-8');
     // The convention lands on listMenuItems (it fits)…
     expect(offset).toContain(
       'listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "offset", param: "offset", limitParam: "limit", items: "/items" } }'
@@ -135,7 +132,7 @@ describe('generate-client pagination consumer', () => {
     expect(offset).toContain(
       'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
     );
-  }, 60_000);
+  });
 
   test('typecheck gate: both generated clients + consumer scripts, strict', () => {
     expectTscPasses(['--noEmit', '-p', workDir]);

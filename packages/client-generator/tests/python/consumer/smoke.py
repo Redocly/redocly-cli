@@ -1,5 +1,5 @@
 # Runtime smoke for the generated Python SDK, exercised against the same Node
-# mock server the TypeScript base consumer uses. Run by python.test.ts with:
+# mock server the TypeScript base consumer uses. Run by python/client.test.ts with:
 #   python3 smoke.py <path-to-generated-client.py> <server-base-url>
 import importlib.util
 import sys

@@ -1,9 +1,10 @@
+import { generateClient } from '@redocly/client-generator';
 import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { startCafeServer } from '../../helpers/cafe-server.js';
-import { copyConsumer, expectTscPasses, runGenerateClient, runTsx } from '../../helpers/helpers.js';
+import { copyConsumer, expectTscPasses, runTsx } from '../../helpers/helpers.js';
 import type { MockServer } from '../../helpers/mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -26,10 +27,8 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   let server: MockServer;
   let results: StepResult[] = [];
   let log: LogEntry[] = [];
-  /** Raw generator output — what the CLI emits from cafe.yaml without any overrides. */
+  /** The generator output from cafe.yaml with no options, for the file snapshot. */
   let rawGenerated = '';
-  /** Generator output the consumer imports — same source, but serverUrl pinned at the mock via --server-url. */
-  let generated = '';
   let workDir = '';
 
   beforeAll(async () => {
@@ -38,30 +37,11 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
 
     server = await startCafeServer();
 
-    // First pass: capture the *canonical* output (spec-derived serverUrl) for the file snapshot.
-    // We don't keep this on disk — the consumer needs the mock-targeted variant.
-    const snapshotGen = runGenerateClient([fixture, '--output', generatedFile]);
-    if (snapshotGen.status !== 0) {
-      throw new Error(`generate-client (snapshot pass) failed:\n${snapshotGen.stderr}`);
-    }
+    // The snapshot keeps the serverUrl from the description. The consumer imports a second
+    // generation that points at the mock server.
+    await generateClient({ api: fixture, output: generatedFile });
     rawGenerated = readFileSync(generatedFile, 'utf-8');
-
-    // Second pass: regenerate with --server-url so the consumer's import targets the mock.
-    // This is the file the consumer actually loads — and replaces the old string-replace hack.
-    const consumerGen = runGenerateClient([
-      fixture,
-      '--output',
-      generatedFile,
-      '--server-url',
-      server.url,
-    ]);
-    if (consumerGen.status !== 0) {
-      throw new Error(`generate-client (consumer pass) failed:\n${consumerGen.stderr}`);
-    }
-    generated = readFileSync(generatedFile, 'utf-8');
-    if (!generated.includes(`serverUrl: "${server.url}"`)) {
-      throw new Error(`--server-url was not honoured; expected \`serverUrl: "${server.url}"\``);
-    }
+    await generateClient({ api: fixture, output: generatedFile, serverUrl: server.url });
 
     // Type-check the consumer.
     expectTscPasses(['--noEmit', '-p', workDir]);
@@ -71,9 +51,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       cwd: workDir,
       env: { ...process.env, CAFE_BASE: server.url },
     });
-    if (run.status !== 0) {
-      throw new Error(`consumer failed:\nstdout:\n${run.stdout}\nstderr:\n${run.stderr}`);
-    }
+    expect(run.status, `consumer failed:\nstdout:\n${run.stdout}\nstderr:\n${run.stderr}`).toBe(0);
     results = JSON.parse(run.stdout.trim()) as StepResult[];
 
     for (const request of server.requests) {
@@ -97,9 +75,8 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   });
 
   test('generated file matches the committed snapshot (cafe.snapshot.ts)', async () => {
-    // Full-file guard against accidental emitter regressions. The PR diff against this
-    // snapshot is the single most informative signal when the IR builder or emitter changes.
-    // After an intentional emitter change, regenerate with: `npm run client-generators -- -u`.
+    // A full-file guard against unintended emitter changes.
+    // After an intended emitter change, regenerate with: `npm run client-generators -- -u`.
     await expect(rawGenerated).toMatchFileSnapshot(snapshotFile);
   });
 
@@ -134,20 +111,11 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
 
   test('getMenuItemPhoto reads a binary response as Blob', () => {
     const photoStep = results.find((r) => r.name === 'getMenuItemPhoto');
-    expect(photoStep?.kind).toBe('ok');
-    if (photoStep?.kind === 'ok') {
-      // The mock server generates the body from the OpenAPI spec. The exact size
-      // and MIME depend on sampler internals (mock-server's supported-media-type
-      // allowlist may pick text/plain over image/png), so we assert only on the
-      // contract that matters here: the binary path returns a non-empty Blob.
-      const data = photoStep.data as {
-        kind: string;
-        size: number;
-        type: string;
-      };
-      expect(data.kind).toBe('blob');
-      expect(data.size).toBeGreaterThan(0);
-    }
+    // The mock server generates the body from the OpenAPI description, so the exact size and
+    // MIME type can change. The contract is that the binary path returns a non-empty Blob.
+    expect(photoStep).toMatchObject({ kind: 'ok', data: { kind: 'blob' } });
+    const data = (photoStep as { data: { size: number } }).data;
+    expect(data.size).toBeGreaterThan(0);
   });
 
   test('createOrder POSTs JSON body with Content-Type: application/json', () => {
@@ -205,24 +173,12 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   // discriminant and be mutually exclusive.
   test('isBeverage/isDessert narrow a MenuItem from the server response', () => {
     const step = results.find((r) => r.name === 'menuItemGuards');
-    expect(step?.kind).toBe('ok');
-    if (step?.kind === 'ok') {
-      const data = step.data as {
-        category: string;
-        isBeverage: boolean;
-        isDessert: boolean;
-        agree: boolean;
-        exclusive: boolean;
-      };
-      expect(data.agree).toBe(true);
-      expect(data.exclusive).toBe(true);
-    }
+    expect(step).toMatchObject({ kind: 'ok', data: { agree: true, exclusive: true } });
   });
 
   test('204 No Content paths return void (deleteOrder)', () => {
     const step = results.find((r) => r.name === 'deleteOrder');
-    expect(step?.kind).toBe('ok');
-    if (step?.kind === 'ok') expect(step.data).toBeUndefined();
+    expect(step).toEqual({ kind: 'ok', name: 'deleteOrder' });
   });
 
   test('listOrderItems serialises query filter and returns an array', () => {
@@ -230,8 +186,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(entry).toBeDefined();
     expect(entry!.url).toContain('filter=orderId%3Aord_01h1s5z6vf2mm1mz3hevnn9va7');
     const step = results.find((r) => r.name === 'listOrderItems');
-    expect(step?.kind).toBe('ok');
-    if (step?.kind === 'ok') expect(Array.isArray(step.data)).toBe(true);
+    expect(step).toMatchObject({ kind: 'ok', data: expect.any(Array) });
   });
 
   test('getRevenue serialises ISO date strings as query params', () => {

@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(__dirname, '../../../..');
-export const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 export const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 export const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 
@@ -22,13 +21,6 @@ export const STRICT_TSCONFIG = {
     types: [],
   },
 };
-
-export function runGenerateClient(
-  args: string[],
-  cwd: string = repoRoot
-): SpawnSyncReturns<string> {
-  return spawnSync('node', [cliEntry, 'generate-client', ...args], { encoding: 'utf-8', cwd });
-}
 
 export function runTsc(args: string[], cwd: string = repoRoot): SpawnSyncReturns<string> {
   return spawnSync(tscBin, args, { encoding: 'utf-8', cwd });

@@ -106,11 +106,15 @@ describe('generate-client --docs (end-to-end)', () => {
       expect(lines.filter((line) => line.startsWith('```')).length % 2).toBe(0);
       expect(page).not.toContain('\t');
       expect(lines.filter((line) => /\s$/.test(line))).toEqual([]);
+      // A table must start after a blank line, or Markdown renders it as plain text.
+      const tablesWithoutBlankLine: string[] = [];
       for (let index = 1; index < lines.length; index++) {
-        if (lines[index].startsWith('|') && lines[index - 1] !== '') {
-          expect(lines[index - 1].startsWith('|')).toBe(true);
+        const previous = lines[index - 1];
+        if (lines[index].startsWith('|') && previous !== '' && !previous.startsWith('|')) {
+          tablesWithoutBlankLine.push(lines[index]);
         }
       }
+      expect(tablesWithoutBlankLine).toEqual([]);
     }
   });
 });

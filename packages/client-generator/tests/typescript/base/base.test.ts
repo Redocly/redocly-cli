@@ -1,5 +1,5 @@
 import { generateClient } from '@redocly/client-generator';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,6 +15,8 @@ describe('generate-client base consumer (single-file output)', () => {
 
   beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
+    await generateClient({ api: fixture, output: join(workDir, 'api.ts') });
+    expectTscPasses(['--noEmit', '-p', workDir]);
     server = await MockServer.start(fixture, {
       handlers: {
         // The cancel consumer aborts this call, so the answer must be slow enough to abort.
@@ -29,19 +31,15 @@ describe('generate-client base consumer (single-file output)', () => {
         },
       },
     });
-  }, 30_000);
+  }, 60_000);
 
   afterAll(async () => {
     await server.close();
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  test('end-to-end: generate single file, type-check, run, assert real call', async () => {
-    const generatedFile = join(workDir, 'api.ts');
-    await generateClient({ api: fixture, output: generatedFile });
-
-    expect(existsSync(generatedFile)).toBe(true);
-    const generated = readFileSync(generatedFile, 'utf-8');
+  test('the single-file client renders the base.yaml shapes', () => {
+    const generated = readFileSync(join(workDir, 'api.ts'), 'utf-8');
     expect(generated).toContain('export type Pet');
     expect(generated).toContain('export class ApiError');
     // The descriptor wiring with the embedded runtime, plus one binding per operation.
@@ -79,9 +77,9 @@ describe('generate-client base consumer (single-file output)', () => {
     expect(generated).toContain('export type ExtendedPet =');
     expect(generated).toMatch(/kind:\s*"extended";/);
     expect(generated).toContain('} & Pet;');
+  });
 
-    expectTscPasses(['--noEmit', '-p', workDir]);
-
+  test('the consumer makes real calls against the mock server', async () => {
     const runResult = await runTsx(join(workDir, 'index.ts'), [server.url], { cwd: workDir });
     expect(
       runResult.status,
@@ -108,10 +106,6 @@ describe('generate-client base consumer (single-file output)', () => {
   }, 60_000);
 
   test('cancel: AbortController aborts the underlying request', async () => {
-    expect(existsSync(join(workDir, 'api.ts')), 'previous test must have produced api.ts').toBe(
-      true
-    );
-
     const cancelResult = await runTsx(join(workDir, 'index-cancel.ts'), [server.url], {
       cwd: workDir,
     });

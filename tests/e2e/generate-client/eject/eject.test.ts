@@ -1,4 +1,3 @@
-import { spawnSync } from 'node:child_process';
 import {
   appendFileSync,
   copyFileSync,
@@ -15,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, repoRoot, runTsx } from '../helpers.js';
+import { repoRoot, runCli, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -32,19 +31,20 @@ function makeProject(): string {
 }
 
 function run(cwd: string, args: string[]) {
-  return spawnSync('node', [cliEntry, ...args], { cwd, encoding: 'utf-8' });
+  return runCli(args, cwd);
 }
 
 describe('eject-generator (end-to-end)', () => {
-  let project: string;
+  // Each test gets its own project, so a test never reads what an earlier test ejected.
+  let project = '';
 
-  beforeAll(() => {
+  beforeEach(() => {
     project = makeProject();
-  }, 60_000);
+  });
 
-  afterAll(() => {
+  afterEach(() => {
     rmSync(project, { recursive: true, force: true });
-  }, 60_000);
+  });
 
   it('ejects php: the generator, both skills, a pointer beside the code; re-eject needs --force', () => {
     const eject = run(project, ['eject-generator', 'php']);
@@ -132,26 +132,22 @@ describe('eject-generator (end-to-end)', () => {
   }, 60_000);
 
   it('tells the reader how to run what it just ejected', () => {
-    const project = makeProject();
-    try {
-      copyFileSync(join(__dirname, 'apis-config.yaml'), join(project, 'redocly.yaml'));
-      const eject = run(project, ['eject-generator', 'python']);
-      expect(eject.status, eject.stderr).toBe(0);
-      const output = eject.stderr + eject.stdout;
-      // Wired into the config, the generator needs no flag — only an api and an output.
-      expect(output).toContain('Run it: redocly generate-client <api> --output <path>\n');
-      expect(output).toContain('Edit generators/python/ and run that again');
-      expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
-      // And that command works as printed.
-      const generated = run(project, ['generate-client', 'openapi.yaml', '--output', 'client.ts']);
-      expect(generated.status, generated.stderr).toBe(0);
-      expect(existsSync(join(project, 'client.py'))).toBe(true);
-    } finally {
-      rmSync(project, { recursive: true, force: true });
-    }
+    copyFileSync(join(__dirname, 'apis-config.yaml'), join(project, 'redocly.yaml'));
+    const eject = run(project, ['eject-generator', 'python']);
+    expect(eject.status, eject.stderr).toBe(0);
+    const output = eject.stderr + eject.stdout;
+    // Wired into the config, the generator needs no flag — only an api and an output.
+    expect(output).toContain('Run it: redocly generate-client <api> --output <path>\n');
+    expect(output).toContain('Edit generators/python/ and run that again');
+    expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
+    // And that command works as printed.
+    const generated = run(project, ['generate-client', 'openapi.yaml', '--output', 'client.ts']);
+    expect(generated.status, generated.stderr).toBe(0);
+    expect(existsSync(join(project, 'client.py'))).toBe(true);
   }, 60_000);
 
-  it('THE headline: an ejected-unmodified generator produces byte-identical output', () => {
+  it('an ejected, unmodified php generator writes byte-identical output', () => {
+    expect(run(project, ['eject-generator', 'php']).status).toBe(0);
     const builtin = run(project, [
       'generate-client',
       'openapi.yaml',
@@ -176,7 +172,7 @@ describe('eject-generator (end-to-end)', () => {
     );
   }, 60_000);
 
-  it('THE headline holds for a TypeScript-family generator too', () => {
+  it('an ejected, unmodified zod generator writes byte-identical output', () => {
     const eject = run(project, ['eject-generator', 'zod']);
     expect(eject.status, eject.stderr).toBe(0);
 
@@ -216,6 +212,7 @@ describe('eject-generator (end-to-end)', () => {
   }, 60_000);
 
   it('--update merges a folder generator per file, keeping local edits', () => {
+    expect(run(project, ['eject-generator', 'php']).status).toBe(0);
     appendFileSync(join(project, 'generators/php/index.ts'), '// my local customization\n');
     appendFileSync(join(project, 'generators/php/naming.ts'), '// naming tweak\n');
     // The skill is edit-first too — an update must merge around a design note, not drop it.
@@ -232,7 +229,8 @@ describe('eject-generator (end-to-end)', () => {
     expect(readFileSync(skillPath, 'utf-8')).toContain('We keep the legacy auth header.');
   }, 60_000);
 
-  it('--update marks real conflicts, and a legacy single-file eject says to re-eject', () => {
+  it('--update keeps a local edit, and a legacy single-file eject says to re-eject', () => {
+    expect(run(project, ['eject-generator', 'zod']).status).toBe(0);
     const indexFile = join(project, 'generators/zod/index.ts');
     const base = readFileSync(indexFile, 'utf-8').split('\n');
     const mine = [...base];

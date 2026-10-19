@@ -300,7 +300,7 @@ brew install go php
 pip3 install httpx pydantic
 
 # Ubuntu
-sudo apt-get install golang-go php-cli python3-pip
+sudo apt-get install golang-go php-cli php-curl python3-pip
 pip3 install httpx pydantic
 ```
 

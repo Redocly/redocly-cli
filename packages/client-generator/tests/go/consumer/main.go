@@ -1,5 +1,5 @@
 // Runtime smoke for the generated Go SDK, exercised against the same Node mock
-// server the other consumers use. Built and run by go.test.ts with the server
+// server the other consumers use. Built and run by go/client.test.ts with the server
 // base URL as the only argument.
 package main
 

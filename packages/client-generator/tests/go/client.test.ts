@@ -46,30 +46,28 @@ describe('generate-client go generator (end-to-end)', () => {
   });
 
   it(
-    'the generated client compiles (go build)',
-    () => {
-      const result = spawnSync('go', ['build', '-o', 'smoke', '.'], {
+    'the generated client compiles (go build) and the smoke runs real HTTP: hydration, bodies, APIError',
+    async () => {
+      const build = spawnSync('go', ['build', '-o', 'smoke', '.'], {
         cwd: workDir,
         encoding: 'utf-8',
       });
-      expect(result.status, result.stderr).toBe(0);
+      expect(build.status, build.stderr).toBe(0);
+
+      const server = await MockServer.start(fixture);
+      try {
+        const result = await runCommand(join(workDir, 'smoke'), [server.url]);
+        expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+        expect(result.stdout).toContain('GO_SMOKE_OK');
+        expect(server.handlerErrors).toEqual([]);
+      } finally {
+        await server.close();
+      }
     },
     // The first build on a cold CI cache compiles the stdlib and takes well over
     // the 5s default.
     180_000
   );
-
-  it('the compiled smoke runs real HTTP: hydration, bodies, APIError', async () => {
-    const server = await MockServer.start(fixture);
-    try {
-      const result = await runCommand(join(workDir, 'smoke'), [server.url]);
-      expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
-      expect(result.stdout).toContain('GO_SMOKE_OK');
-      expect(server.handlerErrors).toEqual([]);
-    } finally {
-      await server.close();
-    }
-  }, 60_000);
 });
 
 describe('generate-client go generator, parameter names an SDK cannot take literally', () => {

@@ -1,7 +1,7 @@
 <?php
 
 // Runtime smoke for the generated PHP SDK, exercised against the same Node mock
-// server the other consumers use. Run by php.test.ts with the server base URL
+// server the other consumers use. Run by php/client.test.ts with the server base URL
 // as the only argument.
 
 declare(strict_types=1);
@@ -9,7 +9,7 @@ declare(strict_types=1);
 use BaseConsumer\{ApiError, Client, Config, Pet};
 
 // Like a Composer classmap autoloader: the file is loaded only when its classes are
-// not already there, which they are when php.test.ts preloads it through OPcache.
+// not already there, which they are when php/client.test.ts preloads it through OPcache.
 // With `preloaded` as the second argument, that must already have happened.
 $preloaded = class_exists(Client::class, false);
 if (($argv[2] ?? null) === 'preloaded' && !$preloaded) {

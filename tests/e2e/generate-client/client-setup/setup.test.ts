@@ -5,7 +5,7 @@
  * that the baked setup also applies in the split two-file layout.
  */
 
-import { existsSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,10 +52,10 @@ describe('--setup bakes publisher defaults into the single-file client', () => {
   beforeAll(() => {
     const generated = generateWithSetup();
     dir = generated.dir;
-    if (generated.status !== 0) throw new Error(`generate failed:\n${generated.stderr}`);
+    expect(generated.status, generated.stderr).toBe(0);
   }, 60_000);
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('a consumer with no configure/use still sends the baked URL + header', async () => {

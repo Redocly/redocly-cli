@@ -22,20 +22,18 @@ describe('generate-client end-to-end (--output-mode split)', () => {
   let entry = '';
   let schemasFile = '';
 
-  beforeAll(() => {
+  beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     entry = join(workDir, 'client.ts');
     schemasFile = join(workDir, 'client.schemas.ts');
-  });
+    await generateClient({ api: fixture, output: entry, outputMode: 'split' });
+  }, 90_000);
 
   afterAll(() => {
-    if (workDir && existsSync(workDir)) {
-      rmSync(workDir, { recursive: true, force: true });
-    }
+    rmSync(workDir, { recursive: true, force: true });
   });
 
-  test('writes two sibling files derived from --output', async () => {
-    await generateClient({ api: fixture, output: entry, outputMode: 'split' });
+  test('writes two sibling files derived from --output', () => {
     expect(existsSync(entry)).toBe(true);
     expect(existsSync(schemasFile)).toBe(true);
     // Split is exactly two files: no `.http.ts` module anymore.
@@ -52,17 +50,14 @@ describe('generate-client end-to-end (--output-mode split)', () => {
       'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'
     );
     expect(entrySrc).toContain('export const { configure, use } = client;');
-    expect(entrySrc).toContain('export const { configure, use } = client;');
 
     // Schemas holds the model types and the discriminated-union guards.
     const schemasSrc = readFileSync(schemasFile, 'utf-8');
     expect(schemasSrc).toContain('export type ');
     expect(schemasSrc).toContain('export function isBeverage(');
-  }, 90_000);
+  });
 
   test('the two-file set type-checks under strict mode with no unused imports', () => {
-    expect(existsSync(entry), 'generation test must run first').toBe(true);
-
     expectTscPasses(
       [
         '--noEmit',

@@ -5,23 +5,30 @@
 // sanitize names and escape comments such that the output is inert and strict-`tsc`
 // clean — every payload trapped inside an identifier or a comment, never a statement.
 
+import { generateClient } from '@redocly/client-generator';
+import { logger } from '@redocly/openapi-core';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { expectTscPasses, runGenerateClient } from '../../helpers/helpers.js';
+import { strictTypecheck } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 describe('generate-client identifier / comment injection', () => {
-  it('sanitizes hostile names and escapes comments; output is strict-tsc clean', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-injection-'));
+  let dir = '';
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('sanitizes hostile names and escapes comments; output is strict-tsc clean', async () => {
+    dir = mkdtempSync(join(tmpdir(), 'injection-'));
     const entry = join(dir, 'client.ts');
-    const res = runGenerateClient([join(__dirname, 'openapi.yaml'), '--output', entry]);
-    expect(res.status, res.stderr).toBe(0);
+    await generateClient({ api: join(__dirname, 'openapi.yaml'), output: entry });
     // The unsafe operationId is reported and rewritten, not silently accepted.
-    expect(res.stderr).toMatch(/is not a usable identifier/);
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('is not a usable identifier'));
 
     const src = readFileSync(entry, 'utf-8');
     // No live comment-breakout: the payload's `*/` is neutralized to `*\/`.
@@ -37,22 +44,6 @@ describe('generate-client identifier / comment injection', () => {
     }
 
     // Strongest proof: the whole file type-checks. Injected statements would not.
-    expectTscPasses(
-      [
-        '--noEmit',
-        '--strict',
-        '--target',
-        'ES2020',
-        '--module',
-        'esnext',
-        '--moduleResolution',
-        'bundler',
-        '--lib',
-        'ES2020,DOM',
-        entry,
-      ],
-      dir
-    );
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
+    strictTypecheck(dir);
+  });
 });

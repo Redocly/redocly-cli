@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(__dirname, '../../..');
-export const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
+const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 
@@ -25,11 +25,24 @@ const STRICT_TSCONFIG = {
   },
 };
 
+/**
+ * Run the redocly CLI. The default cwd is this folder, which has no redocly.yaml, so a local
+ * redocly.yaml in the repository root does not change the result. `NODE_ENV=test` turns off
+ * the update notifier, and the color variables keep the output plain.
+ */
+export function runCli(args: string[], cwd: string = __dirname): SpawnSyncReturns<string> {
+  return spawnSync('node', [cliEntry, ...args], {
+    encoding: 'utf-8',
+    cwd,
+    env: { ...process.env, NODE_ENV: 'test', NO_COLOR: 'TRUE', FORCE_COLOR: '0' },
+  });
+}
+
 export function runGenerateClient(
   args: string[],
-  cwd: string = repoRoot
+  cwd: string = __dirname
 ): SpawnSyncReturns<string> {
-  return spawnSync('node', [cliEntry, 'generate-client', ...args], { encoding: 'utf-8', cwd });
+  return runCli(['generate-client', ...args], cwd);
 }
 
 export function runTsc(args: string[], cwd: string = repoRoot): SpawnSyncReturns<string> {
