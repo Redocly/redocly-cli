@@ -278,7 +278,7 @@ Each language has its own Vitest project, and a missing tool stops the run with 
 npm run client-generators                                         # everything
 npx vitest run --project client-generators                        # TypeScript only, no toolchains needed
 npx vitest run --project client-generators-go                     # one language (-go, -php, -python)
-npm run client-generators -- tests/e2e/generate-client/go.test.ts # one file
+npm run client-generators -- tests/e2e/generate-client/go/go.test.ts # one file
 ```
 
 Install the toolchains:

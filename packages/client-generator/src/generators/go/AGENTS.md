@@ -103,5 +103,5 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
    `go vet ./...` it, then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
    `npx vitest run packages/client-generator/src/generators/__tests__/go.test.ts`
-   (real `go build` + `go vet` bars), the e2e smoke (`tests/e2e/generate-client/go.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.go.test.ts`).
+   (real `go build` + `go vet` bars), the e2e smoke (`tests/e2e/generate-client/go/go.test.ts`),
+   and the large-description bars (`tests/e2e/generate-client/large-descriptions/large-descriptions.go.test.ts`).

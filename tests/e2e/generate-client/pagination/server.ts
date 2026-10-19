@@ -1,0 +1,91 @@
+import * as http from 'node:http';
+
+import { answerTestRoute, listen } from '../servers/support.js';
+
+// A hand-written pagination server: three cursor pages of orders keyed by an opaque
+// cursor (the last page carries no nextCursor — the stop signal), the same orders as
+// receipts whose `next` field is the next page's path and query (null on the last page),
+// and an offset-sliced menu that returns an empty page past the end. Every API request lands in a log the
+// test reads back, with a reset hook so each consumer run asserts over its own slice.
+
+type LogEntry = { method: string; url: string };
+type Order = { id: string; status: string };
+
+const PORT = Number.parseInt(process.env.PAGINATION_SERVER_PORT ?? '3131', 10);
+
+const requestLog: LogEntry[] = [];
+
+const ORDERS: Order[] = ['o-1', 'o-2', 'o-3', 'o-4', 'o-5'].map((id) => ({
+  id,
+  status: 'open',
+}));
+
+// Cursor pages (2 + 2 + 1), keyed by the cursor that requests them ('' = first page).
+const ORDER_PAGES: Record<string, { orders: Order[]; nextCursor?: string }> = {
+  '': { orders: ORDERS.slice(0, 2), nextCursor: 'c2' },
+  c2: { orders: ORDERS.slice(2, 4), nextCursor: 'c3' },
+  c3: { orders: ORDERS.slice(4) },
+};
+
+const MENU = ['espresso', 'latte', 'mocha', 'flat white', 'cortado'].map((name, index) => ({
+  id: `m-${index + 1}`,
+  name,
+}));
+
+const server = http.createServer((req, res) => {
+  const method = req.method ?? 'GET';
+  const url = req.url ?? '';
+  const { pathname, searchParams } = new URL(url, 'http://localhost');
+
+  if (answerTestRoute(req, res, requestLog)) {
+    return;
+  }
+  if (pathname === '/__test__/reset') {
+    requestLog.length = 0;
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('reset');
+    return;
+  }
+
+  requestLog.push({ method, url });
+
+  if (method === 'GET' && pathname === '/orders') {
+    const page = ORDER_PAGES[searchParams.get('cursor') ?? ''];
+    if (page) {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(page));
+      return;
+    }
+    res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ title: 'unknown cursor' }));
+    return;
+  }
+
+  if (method === 'GET' && pathname === '/receipts') {
+    const start = Number.parseInt(searchParams.get('after') ?? '0', 10);
+    const limit = Number.parseInt(searchParams.get('limit') ?? '2', 10);
+    const end = start + limit;
+    const next = end < ORDERS.length ? `/receipts?limit=${limit}&after=${end}` : null;
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ receipts: ORDERS.slice(start, end), next }));
+    return;
+  }
+
+  if (method === 'GET' && pathname === '/menu') {
+    const offset = Number.parseInt(searchParams.get('offset') ?? '0', 10);
+    const limit = Number.parseInt(searchParams.get('limit') ?? '2', 10);
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ items: MENU.slice(offset, offset + limit), total: MENU.length }));
+    return;
+  }
+
+  res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(JSON.stringify({ title: 'not found' }));
+});
+
+// The test process keeps a pooled connection from its readiness probe and fetches the
+// log after generate + tsc + the consumer runs (~10s). Outlive that gap so the pooled
+// socket is not reset mid-reuse.
+server.keepAliveTimeout = 60_000;
+
+listen(server, PORT);

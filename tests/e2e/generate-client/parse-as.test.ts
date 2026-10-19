@@ -8,7 +8,7 @@
 //
 // No mock-server behavioral assertion here: `parseAs` is a pure runtime branch in
 // the runtime's `parse` (covered by the client-generator unit suite) and the
-// cafe-consumer harness already exercises the default decoding path. Strict-tsc +
+// cafe consumer harness already exercises the default decoding path. Strict-tsc +
 // string + type-usage assertions are sufficient and keep this test process-light.
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

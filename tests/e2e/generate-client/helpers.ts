@@ -1,7 +1,7 @@
 import { spawn, spawnSync, type ChildProcess, type SpawnSyncReturns } from 'node:child_process';
 import { cpSync, mkdtempSync, readdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -113,23 +113,22 @@ export function linkNodeModules(dir: string): void {
 }
 
 /** Copy a consumer folder into a temp dir; the caller removes it. */
-export function copyConsumer(name: string): string {
-  const dir = mkdtempSync(join(tmpdir(), `${name}-`));
-  cpSync(join(__dirname, 'consumers', name), dir, { recursive: true });
+export function copyConsumer(consumerDir: string): string {
+  const dir = mkdtempSync(join(tmpdir(), `${basename(dirname(consumerDir))}-consumer-`));
+  cpSync(consumerDir, dir, { recursive: true });
   linkNodeModules(dir);
   return dir;
 }
 
-/** Start `servers/<name>.ts` and wait until it answers. Stop it with `killServer`. */
+/** Start a server script and wait until it answers. Stop it with `killServer`. */
 export async function startServer(
-  name: string,
+  serverScript: string,
   env: Record<string, string>,
   baseUrl: string
 ): Promise<ChildProcess> {
-  const serverScript = join(__dirname, 'servers', `${name}.ts`);
-  const label = `${name} server`;
+  const label = relative(__dirname, serverScript);
   const server = spawn(tsxBin, [serverScript], {
-    cwd: join(__dirname, 'servers'),
+    cwd: dirname(serverScript),
     env: { ...process.env, ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

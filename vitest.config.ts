@@ -2,10 +2,10 @@ import { configDefaults, defineConfig } from 'vitest/config';
 
 const GENERATE_CLIENT = 'tests/e2e/generate-client';
 const GENERATOR_TESTS = 'packages/client-generator/src/generators/__tests__';
-const GO_FILES = [`${GENERATE_CLIENT}/{go,*.go}.test.ts`, `${GENERATOR_TESTS}/go.test.ts`];
-const PHP_FILES = [`${GENERATE_CLIENT}/{php,*.php}.test.ts`, `${GENERATOR_TESTS}/php.test.ts`];
+const GO_FILES = [`${GENERATE_CLIENT}/**/{go,*.go}.test.ts`, `${GENERATOR_TESTS}/go.test.ts`];
+const PHP_FILES = [`${GENERATE_CLIENT}/**/{php,*.php}.test.ts`, `${GENERATOR_TESTS}/php.test.ts`];
 const PYTHON_FILES = [
-  `${GENERATE_CLIENT}/{python,*.python}.test.ts`,
+  `${GENERATE_CLIENT}/**/{python,*.python}.test.ts`,
   `${GENERATOR_TESTS}/python.test.ts`,
 ];
 
@@ -76,7 +76,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators',
-          include: [`${GENERATE_CLIENT}/*.test.ts`],
+          include: [`${GENERATE_CLIENT}/**/*.test.ts`],
           exclude: [...configDefaults.exclude, GO_FILES[0], PHP_FILES[0], PYTHON_FILES[0]],
           testTimeout: 120_000,
           hookTimeout: 120_000,

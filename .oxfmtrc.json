@@ -17,7 +17,7 @@
     "packages/client-generator/examples/*/generators/",
     "tests/smoke/**/*.yaml",
     "snapshot*.txt",
-    "tests/e2e/generate-client/__snapshots__/*.snapshot.ts",
+    "tests/e2e/generate-client/cafe/__snapshots__/*.snapshot.ts",
     "*.html",
     "*.hbs",
     "*.toml",

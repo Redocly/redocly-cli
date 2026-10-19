@@ -119,5 +119,5 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
    `npm run prepare -w @redocly/client-generator` re-embeds).
 3. Verify: `npm run compile`, then
    `npx vitest run packages/client-generator/src/generators/__tests__/python.test.ts`
-   (real `py_compile` bars), the e2e smoke (`tests/e2e/generate-client/python.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.python.test.ts`).
+   (real `py_compile` bars), the e2e smoke (`tests/e2e/generate-client/python/python.test.ts`),
+   and the large-description bars (`tests/e2e/generate-client/large-descriptions/large-descriptions.python.test.ts`).

@@ -82,8 +82,8 @@ jobs:
           - name: Cache the pinned GitHub REST description
             uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
             with:
-              path: tests/e2e/generate-client/.cache
-              key: large-descriptions-${{ hashFiles('tests/e2e/generate-client/large-descriptions.ts') }}
+              path: tests/e2e/generate-client/large-descriptions/.cache
+              key: large-descriptions-${{ hashFiles('tests/e2e/generate-client/large-descriptions/large-descriptions.ts') }}
       - name: Install httpx and pydantic (the Python bars need them)
         run: pip install httpx pydantic
       - name: Client generator tests
