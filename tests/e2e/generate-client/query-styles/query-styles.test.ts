@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { copyConsumer, runTsx, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'query-styles.yaml');
+const fixture = join(__dirname, 'openapi.yaml');
 
 describe('generate-client query serialization styles', () => {
   let dir: string;

@@ -15,7 +15,7 @@ import { collectTsFiles, copyConsumer, expectTscPasses, runConsumer } from '../h
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const spec = join(__dirname, 'upload.yaml');
+const spec = join(__dirname, 'openapi.yaml');
 
 describe('generate-client typed multipart body (#5)', () => {
   let dir = '';

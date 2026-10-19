@@ -27,13 +27,13 @@ beforeAll(async () => {
   // Two descriptions — the same fixture twice is exactly the collision case: every
   // operationId exists in both, so only namespacing can tell them apart.
   await generateClient({
-    api: join(__dirname, 'cli.yaml'),
+    api: join(__dirname, 'openapi.yaml'),
     output: join(dir, 'shop.client.ts'),
     generators: ['cli'],
     importExt: 'ts',
   });
   await generateClient({
-    api: join(__dirname, 'cli.yaml'),
+    api: join(__dirname, 'openapi.yaml'),
     output: join(dir, 'kitchen.client.ts'),
     generators: ['cli'],
     importExt: 'ts',
@@ -111,7 +111,7 @@ describe('config-driven composition (client.cliOutput)', () => {
   beforeAll(() => {
     project = copyConsumer(join(__dirname, 'consumer-output'));
     // The config names the description by a relative path, so it sits next to the config.
-    copyFileSync(join(__dirname, 'cli.yaml'), join(project, 'cli.yaml'));
+    copyFileSync(join(__dirname, 'openapi.yaml'), join(project, 'openapi.yaml'));
     // Eject the cli generator first: composition keys off the emitted module, so a
     // `./generators/cli/index.ts` path entry must compose exactly like the built-in name.
     const ejected = spawnSync(
@@ -158,7 +158,7 @@ describe('config-driven composition (client.cliOutput)', () => {
 describe('client.cliOutput validation', () => {
   const generateWith = (cliOutput: string) => {
     const project = mkdtempSync(join(tmpdir(), 'cli-output-invalid-'));
-    const fixture = join(__dirname, 'cli.yaml');
+    const fixture = join(__dirname, 'openapi.yaml');
     writeFileSync(
       join(project, 'redocly.yaml'),
       [

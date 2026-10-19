@@ -8,7 +8,7 @@ import { copyConsumer, expectTscPasses, runTsx } from '../helpers.js';
 import { MockServer } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'cli.yaml');
+const fixture = join(__dirname, 'openapi.yaml');
 let workDir = '';
 let clientDir = '';
 let stripDir = '';

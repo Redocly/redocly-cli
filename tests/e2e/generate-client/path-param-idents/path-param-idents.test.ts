@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { copyConsumer, expectTscPasses, runConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const spec = join(__dirname, 'odd-names.yaml');
+const spec = join(__dirname, 'openapi.yaml');
 
 describe('non-identifier path parameters', () => {
   let dir = '';

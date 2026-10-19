@@ -10,7 +10,7 @@ import { MockServer, type MockRequest } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export const streamFixture = join(__dirname, 'stream-bodies.yaml');
+export const streamFixture = join(__dirname, 'openapi.yaml');
 export const streamConsumer = join(__dirname, 'consumer');
 
 // The payloads every consumer sends: a multipart body with its own boundary for the

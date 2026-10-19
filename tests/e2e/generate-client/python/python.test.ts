@@ -183,7 +183,7 @@ describe('generate-client python generator, a paginated operation under a path p
   beforeAll(async () => {
     dir = mkdtempSync(join(tmpdir(), 'python-page-path-'));
     await generateClient({
-      api: join(__dirname, 'page-under-path.yaml'),
+      api: join(__dirname, 'openapi.yaml'),
       output: join(dir, 'client.ts'),
       generators: ['python'],
     });
@@ -196,7 +196,7 @@ describe('generate-client python generator, a paginated operation under a path p
   it('substitutes the path value into every page request', async () => {
     // The page server: what matters is the URL the iterator asks for, which used to be the
     // template itself (`/orders/{orderId}/items`) with the value dropped.
-    const server = await MockServer.start(join(__dirname, 'page-under-path.yaml'), {
+    const server = await MockServer.start(join(__dirname, 'openapi.yaml'), {
       handlers: {
         listOrderItems: ({ request }) => ({
           status: 200,

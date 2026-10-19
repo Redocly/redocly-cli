@@ -14,7 +14,7 @@ describe('generate-client envelope', () => {
   it('emits responseHeaders + Ops.headers and accepts envelope: true per call', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
-    await generateClient({ api: join(__dirname, 'response-headers.yaml'), output: out });
+    await generateClient({ api: join(__dirname, 'openapi.yaml'), output: out });
     expect(existsSync(out)).toBe(true);
     const generated = readFileSync(out, 'utf-8');
 

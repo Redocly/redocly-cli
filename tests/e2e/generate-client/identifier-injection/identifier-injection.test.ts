@@ -18,7 +18,7 @@ describe('generate-client identifier / comment injection', () => {
   it('sanitizes hostile names and escapes comments; output is strict-tsc clean', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-injection-'));
     const entry = join(dir, 'client.ts');
-    const res = runGenerateClient([join(__dirname, 'hostile.yaml'), '--output', entry]);
+    const res = runGenerateClient([join(__dirname, 'openapi.yaml'), '--output', entry]);
     expect(res.status, res.stderr).toBe(0);
     // The unsafe operationId is reported and rewritten, not silently accepted.
     expect(res.stderr).toMatch(/is not a usable identifier/);

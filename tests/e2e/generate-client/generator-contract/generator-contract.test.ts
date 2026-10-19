@@ -124,7 +124,7 @@ describe('generate-client generator compatibility contract', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
     // Schema `GetUserVariables` collides with the `getUser` op's derived variables alias.
     const { status, out } = run([
-      join(__dirname, 'variables-collision.yaml'),
+      join(__dirname, 'openapi.yaml'),
       '--output',
       join(dir, 'c.ts'),
       '--generator',

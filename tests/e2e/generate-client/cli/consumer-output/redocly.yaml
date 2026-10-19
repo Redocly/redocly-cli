@@ -5,5 +5,5 @@ client:
   importExt: ts
   generators: [typescript, zod, cli]
 apis:
-  shop: { root: ./cli.yaml, clientOutput: ./src/shop.ts }
-  kitchen: { root: ./cli.yaml, clientOutput: ./src/kitchen.ts }
+  shop: { root: ./openapi.yaml, clientOutput: ./src/shop.ts }
+  kitchen: { root: ./openapi.yaml, clientOutput: ./src/kitchen.ts }

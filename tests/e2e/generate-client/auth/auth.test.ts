@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { copyConsumer, runConsumer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'auth.yaml');
+const fixture = join(__dirname, 'openapi.yaml');
 
 /** Generate a single-file client and assert strict `tsc` accepts it. */
 async function generateSingleFile(): Promise<string> {
@@ -21,7 +21,7 @@ async function generateSingleFile(): Promise<string> {
   return generated;
 }
 
-describe('generate-client auth breadth (auth.yaml)', () => {
+describe('generate-client auth breadth', () => {
   it('emits all five injectable scheme kinds and strict-tsc accepts the single-file client', async () => {
     const generated = await generateSingleFile();
 

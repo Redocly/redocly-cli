@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { copyConsumer, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'cli.yaml');
+const fixture = join(__dirname, 'openapi.yaml');
 
 let dir: string;
 let cliPage: string;

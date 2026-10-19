@@ -37,7 +37,7 @@ describe('generate-client zod generator', () => {
   it('zodValidation middleware validates requests before the wire and JSON responses after it', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({
-      api: join(__dirname, 'orders.yaml'),
+      api: join(__dirname, 'openapi.yaml'),
       output: join(dir, 'client.ts'),
       generators: ['typescript', 'zod'],
     });
