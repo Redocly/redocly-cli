@@ -95,14 +95,6 @@
       }
     },
     {
-      "files": ["packages/recheck/**"],
-      "plugins": ["vitest"],
-      "rules": {
-        "vitest/prefer-to-have-length": "off",
-        "vitest/require-to-throw-message": "off"
-      }
-    },
-    {
       "files": ["packages/core/src/logger.ts"],
       "rules": {
         "eslint/no-console": "allow"
