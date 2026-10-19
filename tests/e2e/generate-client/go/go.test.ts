@@ -1,6 +1,5 @@
 import { type ChildProcess, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -75,7 +74,7 @@ describe('generate-client go generator, parameter names an SDK cannot take liter
   let dir: string;
 
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'go-repeated-'));
+    dir = copyConsumer(join(__dirname, 'consumer-repeated-params'));
     generate(join(__dirname, '../fixtures/repeated-params.yaml'), join(dir, 'client.ts'), [
       '--generator',
       'go',
@@ -97,7 +96,6 @@ describe('generate-client go generator, parameter names an SDK cannot take liter
   });
 
   it('the generated client compiles (go build)', () => {
-    writeFileSync(join(dir, 'go.mod'), 'module repeatedparams\n\ngo 1.21\n', 'utf-8');
     const result = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
     expect(result.status, result.stderr).toBe(0);
   }, 180_000);

@@ -2,12 +2,11 @@
  * Behavioral e2e for `client.telemetry: on`: generate a client with it, register the
  * middleware with a custom sink in a real consumer, and read what the sink receives.
  */
-import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generateInto, runConsumerFile, strictTypecheck } from '../helpers.js';
+import { copyConsumer, generate, runConsumer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -15,9 +14,8 @@ const fixture = join(__dirname, '../fixtures/base.yaml');
 describe('client.telemetry: on', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'telemetry-'));
-    writeFileSync(join(dir, 'redocly.yaml'), 'client:\n  telemetry: on\n', 'utf-8');
-    generateInto(dir, fixture, ['--config', join(dir, 'redocly.yaml')]);
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'), ['--config', join(dir, 'redocly.yaml')]);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -25,7 +23,7 @@ describe('client.telemetry: on', () => {
 
   test('emits client.telemetry.ts, and the sink receives one event per operation', () => {
     expect(readdirSync(dir)).toContain('client.telemetry.ts');
-    const result = runConsumerFile(dir, join(__dirname, 'consumer', 'sink.ts')) as {
+    const result = runConsumer(join(dir, 'sink.ts')) as {
       received: Array<{
         type: string;
         data: { usage: Record<string, unknown>; sdk: Record<string, unknown> };

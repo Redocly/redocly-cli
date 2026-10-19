@@ -1,13 +1,5 @@
 import { spawn, spawnSync, type ChildProcess, type SpawnSyncReturns } from 'node:child_process';
-import {
-  copyFileSync,
-  cpSync,
-  mkdtempSync,
-  readdirSync,
-  statSync,
-  symlinkSync,
-  writeFileSync,
-} from 'node:fs';
+import { cpSync, mkdtempSync, readdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,17 +33,6 @@ export function generate(fixture: string, outFile: string, extraArgs: string[] =
   if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
 }
 
-/**
- * Generate `dir/client.ts` from a fixture and mark the dir as an ES module so `tsx`
- * can run consumer scripts written next to it. Returns the generated entry path.
- */
-export function generateInto(dir: string, fixture: string, extraArgs: string[] = []): string {
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-  const outFile = join(dir, 'client.ts');
-  generate(fixture, outFile, extraArgs);
-  return outFile;
-}
-
 export function runGenerateClient(
   args: string[],
   cwd: string = repoRoot
@@ -68,13 +49,18 @@ export function expectTscPasses(args: string[], cwd: string = repoRoot): void {
   expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
 }
 
-/** Write a strict tsconfig into `dir` and assert that it type-checks. */
-export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): void {
+/** Write the shared strict tsconfig into `dir`, checking only the `include` files. */
+export function writeStrictTsconfig(dir: string, include: string[] = ['**/*.ts']): void {
   writeFileSync(
     join(dir, 'tsconfig.json'),
     JSON.stringify({ ...STRICT_TSCONFIG, include }),
     'utf-8'
   );
+}
+
+/** Write the shared strict tsconfig into `dir` and assert that it type-checks. */
+export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): void {
+  writeStrictTsconfig(dir, include);
   expectTscPasses(['--noEmit', '-p', dir]);
 }
 
@@ -92,23 +78,8 @@ export function runTsx(
   });
 }
 
-/** Write `dir/consumer.ts` and run it with tsx; returns its parsed JSON stdout. */
-export function runConsumer(dir: string, script: string): unknown {
-  writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  return runConsumerScript(join(dir, 'consumer.ts'));
-}
-
-/**
- * Copy a committed consumer file into `dir`, next to the generated client, and run it
- * with tsx; returns its parsed JSON stdout.
- */
-export function runConsumerFile(dir: string, consumerFile: string): unknown {
-  const script = join(dir, basename(consumerFile));
-  copyFileSync(consumerFile, script);
-  return runConsumerScript(script);
-}
-
-function runConsumerScript(script: string): unknown {
+/** Run a consumer script with tsx; returns its parsed JSON stdout. */
+export function runConsumer(script: string): unknown {
   const result = runTsx(script);
   expect(
     result.status,

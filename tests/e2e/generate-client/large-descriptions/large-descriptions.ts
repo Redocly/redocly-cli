@@ -1,9 +1,8 @@
-import { existsSync, mkdirSync, mkdtempSync, renameSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate } from '../helpers.js';
+import { copyConsumer, generate } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -38,8 +37,9 @@ export async function fetchGithubDescription(): Promise<string> {
   return cached;
 }
 
+/** Copy the consumer folder (package.json, go.mod, tsconfig.cli.json) and generate into it. */
 export function generateWith(generators: string[], description: string): string {
-  const dir = mkdtempSync(join(tmpdir(), `large-desc-${generators.join('-')}-`));
+  const dir = copyConsumer(join(__dirname, 'consumer'));
   const args: string[] = [];
   for (const name of generators) {
     args.push('--generator', name);

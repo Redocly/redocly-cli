@@ -5,12 +5,18 @@
 // behavioral reconnect/abort path is covered separately by the consumer
 // harness in sse.runtime.test.ts.
 
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectTsFiles, expectTscPasses, generate, strictTypecheck } from '../helpers.js';
+import {
+  collectTsFiles,
+  copyConsumer,
+  expectTscPasses,
+  generate,
+  strictTypecheck,
+} from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -18,7 +24,7 @@ const fixture = join(__dirname, '../fixtures', 'sse.yaml');
 
 describe('generate-client SSE', () => {
   it('single-file: embedded sse capability + flat typed stream sugar, strict tsc passes', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-sse-single-'));
+    const dir = copyConsumer(join(__dirname, 'consumer-types'));
     const out = join(dir, 'client.ts');
     generate(fixture, out);
     expect(existsSync(out)).toBe(true);
@@ -42,22 +48,8 @@ describe('generate-client SSE', () => {
       'export const { getHealth, streamMessages, streamAbort, streamTicks } = client;'
     );
 
-    // A type-usage snippet proving `ServerSentEvent<Message>.data.text` is typed
+    // consumer-types/usage.ts proves `ServerSentEvent<Message>.data.text` is typed
     // and that `SseOptions` (reconnect/reconnectDelay) is accepted.
-    writeFileSync(
-      join(dir, 'usage.ts'),
-      [
-        `import { streamMessages, configure } from './client.js';`,
-        `async function check() {`,
-        `  for await (const ev of streamMessages()) { const t: string = ev.data.text; void t; const id: string | undefined = ev.id; void id; }`,
-        `  const it = streamMessages({}, { reconnect: false, reconnectDelay: 500 });`,
-        `  void it;`,
-        `}`,
-        `void check; void configure;`,
-        ``,
-      ].join('\n'),
-      'utf-8'
-    );
 
     strictTypecheck(dir, ['client.ts', 'usage.ts']);
     rmSync(dir, { recursive: true, force: true });

@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info: { title: Nested, version: 1.0.0 }
+servers: [{ url: http://127.0.0.1:3141 }]
+paths:
+  /orders/{orderId}/items:
+    get:
+      operationId: listOrderItems
+      x-redoclyPagination: { style: cursor, cursorParam: cursor, nextCursor: /next, items: /items }
+      parameters:
+        - { name: orderId, in: path, required: true, schema: { type: string } }
+        - { name: cursor, in: query, required: false, schema: { type: string } }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { type: object } }
+                  next: { type: string }

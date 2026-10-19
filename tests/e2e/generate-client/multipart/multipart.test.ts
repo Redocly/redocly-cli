@@ -5,43 +5,22 @@
  * FormData it actually sent.
  */
 
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { outdent } from 'outdent';
 
 import {
   collectTsFiles,
+  copyConsumer,
   expectTscPasses,
   generate,
-  generateInto,
-  runConsumerFile,
+  runConsumer,
 } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SPEC = outdent`
-  openapi: 3.1.0
-  info: { title: M, version: 1.0.0 }
-  paths:
-    /upload:
-      post:
-        operationId: upload
-        requestBody:
-          required: true
-          content:
-            multipart/form-data:
-              schema:
-                type: object
-                required: [file, orgId]
-                properties:
-                  file: { type: string, format: binary }
-                  orgId: { type: string }
-                  tags: { type: array, items: { type: string } }
-                  meta: { type: object }
-        responses: { '200': { description: ok } }
-`;
+const spec = join(__dirname, 'upload.yaml');
 
 describe('generate-client typed multipart body (#5)', () => {
   let dir = '';
@@ -50,14 +29,10 @@ describe('generate-client typed multipart body (#5)', () => {
   });
 
   it('types the fields (binary→Blob) and serializes the object to FormData', () => {
-    dir = mkdtempSync(join(tmpdir(), 'ots-multipart-'));
-    writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
-    generateInto(dir, join(dir, 'api.yaml'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(spec, join(dir, 'client.ts'));
 
-    const result = runConsumerFile(dir, join(__dirname, 'consumer', 'typed-fields.ts')) as Record<
-      string,
-      unknown
-    >;
+    const result = runConsumer(join(dir, 'typed-fields.ts')) as Record<string, unknown>;
 
     expect(result.isFormData).toBe(true);
     expect(result.orgId).toBe('org_1');
@@ -67,14 +42,10 @@ describe('generate-client typed multipart body (#5)', () => {
   }, 60_000);
 
   it('serializes the multipart body AFTER onRequest, so middleware can mutate it', () => {
-    dir = mkdtempSync(join(tmpdir(), 'ots-multipart-mw-'));
-    writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
-    generateInto(dir, join(dir, 'api.yaml'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(spec, join(dir, 'client.ts'));
 
-    const result = runConsumerFile(
-      dir,
-      join(__dirname, 'consumer', 'mutate-in-on-request.ts')
-    ) as Record<string, unknown>;
+    const result = runConsumer(join(dir, 'mutate-in-on-request.ts')) as Record<string, unknown>;
 
     expect(result.isFormData).toBe(true);
     expect(result.orgId).toBe('mutated');
@@ -82,8 +53,7 @@ describe('generate-client typed multipart body (#5)', () => {
 
   it('compiles in split output (multipart serialization lives in the embedded runtime)', () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-multipart-split-'));
-    writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
-    generate(join(dir, 'api.yaml'), join(dir, 'client.ts'), ['--output-mode', 'split']);
+    generate(spec, join(dir, 'client.ts'), ['--output-mode', 'split']);
     const files = collectTsFiles(dir);
     expectTscPasses(
       [

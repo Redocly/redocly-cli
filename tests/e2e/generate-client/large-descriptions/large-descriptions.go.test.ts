@@ -1,6 +1,4 @@
 import { spawnSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 
 import {
   fetchGithubDescription,
@@ -12,7 +10,6 @@ import {
 /** Go bar: `go build` + `go vet` (vet catches json tags on unexported fields). */
 function goBar(description: string): void {
   const dir = generateWith(['go'], description);
-  writeFileSync(join(dir, 'go.mod'), 'module largedesc.test\n\ngo 1.21\n', 'utf-8');
   const build = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
   expect(build.status, build.stderr).toBe(0);
   const vet = spawnSync('go', ['vet', './...'], { cwd: dir, encoding: 'utf-8' });

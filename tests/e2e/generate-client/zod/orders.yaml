@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info: { title: test, version: 1.0.0 }
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id: { type: string }
+  /health:
+    get:
+      operationId: health
+      responses:
+        '204': { description: no content }
+components:
+  schemas:
+    OrderBase:
+      type: object
+      properties:
+        id: { type: string, readOnly: true }
+    OrderInput:
+      # allOf with a readOnly field: the derived request schema must distribute
+      # the omission into the intersection members (ZodIntersection has no .omit).
+      allOf:
+        - $ref: '#/components/schemas/OrderBase'
+        - type: object
+          required: [name, quantity]
+          properties:
+            name: { type: string }
+            quantity: { type: integer, minimum: 1 }

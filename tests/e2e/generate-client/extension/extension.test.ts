@@ -4,12 +4,11 @@
  * the generated runtime actually produced — proving that `serverUrl`, `config.headers`,
  * `onRequest`, transport-swap, and per-instance config observably take effect.
  */
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generateInto, runConsumerFile } from '../helpers.js';
+import { copyConsumer, generate, runConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -17,15 +16,15 @@ const fixture = join(__dirname, '../fixtures/base.yaml');
 describe('extension contract — flat surface (configure)', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'ext-fn-'));
-    generateInto(dir, fixture);
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'));
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
   test('configure() applies serverUrl, config.headers, onRequest, and the fetch transport-swap', () => {
-    const captured = runConsumerFile(dir, join(__dirname, 'consumer', 'configure-flat.ts')) as {
+    const captured = runConsumer(join(dir, 'configure-flat.ts')) as {
       url: string;
       headers: Record<string, string>;
     };
@@ -38,7 +37,7 @@ describe('extension contract — flat surface (configure)', () => {
   }, 60_000);
 
   test('onError maps a failed request to a custom error', () => {
-    const result = runConsumerFile(dir, join(__dirname, 'consumer', 'on-error-maps.ts')) as {
+    const result = runConsumer(join(dir, 'on-error-maps.ts')) as {
       threw: boolean;
       name: string;
       message: string;
@@ -53,18 +52,19 @@ describe('extension contract — flat surface (configure)', () => {
 describe('extension contract — per-instance config (createClient)', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'ext-instance-'));
-    generateInto(dir, fixture);
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'));
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
   test('two instances carry independent serverUrl + headers (multi-tenant isolation)', () => {
-    const calls = runConsumerFile(
-      dir,
-      join(__dirname, 'consumer', 'instances-isolated.ts')
-    ) as Array<{ tag: string; url: string; tenant: string }>;
+    const calls = runConsumer(join(dir, 'instances-isolated.ts')) as Array<{
+      tag: string;
+      url: string;
+      tenant: string;
+    }>;
 
     expect(calls).toHaveLength(2);
     expect(calls[0]).toEqual({ tag: 'a', url: 'https://a.example/pets', tenant: 'A' });
@@ -72,7 +72,7 @@ describe('extension contract — per-instance config (createClient)', () => {
   }, 60_000);
 
   test('the generated module instance keeps the spec-derived serverUrl unless overridden', () => {
-    const seen = runConsumerFile(dir, join(__dirname, 'consumer', 'module-server-url.ts')) as {
+    const seen = runConsumer(join(dir, 'module-server-url.ts')) as {
       captured: string;
     };
 

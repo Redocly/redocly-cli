@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, generateInto, runConsumerFile, strictTypecheck } from '../helpers.js';
+import { copyConsumer, generate, runConsumer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'auth.yaml');
@@ -84,16 +84,15 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   // `Authorization` header and (b) a query-key scheme lands `api_key=` in the URL.
   it('an async bearer provider resolves onto Authorization and a query key lands in the URL', () => {
     // The driver owns its own throwaway http server (and points the client at it
-    // via configure({ serverUrl })), so a single `runConsumerFile` runs the whole behavioral
+    // via configure({ serverUrl })), so a single `runConsumer` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
-    const dir = mkdtempSync(join(tmpdir(), 'ots-auth-run-'));
-    const out = join(dir, 'client.ts');
-    generate(fixture, out);
+    const dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'));
 
-    const captured = runConsumerFile(
-      dir,
-      join(__dirname, 'consumer', 'bearer-and-query-key.ts')
-    ) as Array<{ url: string; auth?: string }>;
+    const captured = runConsumer(join(dir, 'bearer-and-query-key.ts')) as Array<{
+      url: string;
+      auth?: string;
+    }>;
     rmSync(dir, { recursive: true, force: true });
 
     const bearerReq = captured.find((c) => c.url.startsWith('/bearer'));
@@ -106,13 +105,10 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   }, 90_000);
 
   it('createClient instances keep their own credentials: an authed one sends Basic, a no-auth one sends none', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-auth-instances-'));
-    generateInto(dir, fixture);
+    const dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'));
 
-    const calls = runConsumerFile(dir, join(__dirname, 'consumer', 'instance-credentials.ts')) as (
-      | string
-      | null
-    )[];
+    const calls = runConsumer(join(dir, 'instance-credentials.ts')) as (string | null)[];
     rmSync(dir, { recursive: true, force: true });
 
     expect(calls).toEqual(['Basic ' + Buffer.from('alice:pw').toString('base64'), null]);

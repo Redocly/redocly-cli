@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, generate, linkNodeModules, runGenerateClient, runTsx } from '../helpers.js';
+import { cliEntry, copyConsumer, generate, runGenerateClient, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -22,9 +22,7 @@ function runEntry(args: string[], env: Record<string, string> = {}) {
 }
 
 beforeAll(() => {
-  dir = mkdtempSync(join(tmpdir(), 'cli-compose-'));
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-  linkNodeModules(dir);
+  dir = copyConsumer(join(__dirname, 'consumer-compose'));
   // Two descriptions — the same fixture twice is exactly the collision case: every
   // operationId exists in both, so only namespacing can tell them apart.
   generate(join(__dirname, 'cli.yaml'), join(dir, 'shop.client.ts'), [
@@ -39,8 +37,6 @@ beforeAll(() => {
     '--import-ext',
     'ts',
   ]);
-  // The user-land entry: everything the extension design promises, in ~20 lines.
-  copyFileSync(join(__dirname, 'consumer', 'cafe.ts'), join(dir, 'cafe.ts'));
 });
 
 afterAll(() => {
@@ -112,26 +108,9 @@ describe('config-driven composition (client.cliOutput)', () => {
   let project: string;
 
   beforeAll(() => {
-    project = mkdtempSync(join(tmpdir(), 'cli-output-'));
-    writeFileSync(join(project, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-    linkNodeModules(project);
-    const fixture = join(__dirname, 'cli.yaml');
-    writeFileSync(
-      join(project, 'redocly.yaml'),
-      [
-        'extends: []',
-        'client:',
-        // A directory nothing else creates — the composed entry makes its own.
-        '  cliOutput: ./bin/cafe.ts',
-        '  importExt: ts',
-        '  generators: [typescript, zod, cli]',
-        'apis:',
-        `  shop: { root: ${fixture}, clientOutput: ./src/shop.ts }`,
-        `  kitchen: { root: ${fixture}, clientOutput: ./src/kitchen.ts }`,
-        '',
-      ].join('\n'),
-      'utf-8'
-    );
+    project = copyConsumer(join(__dirname, 'consumer-output'));
+    // The config names the description by a relative path, so it sits next to the config.
+    copyFileSync(join(__dirname, 'cli.yaml'), join(project, 'cli.yaml'));
     // Eject the cli generator first: composition keys off the emitted module, so a
     // `./generators/cli/index.ts` path entry must compose exactly like the built-in name.
     const ejected = spawnSync(

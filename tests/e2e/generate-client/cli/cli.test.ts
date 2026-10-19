@@ -1,14 +1,13 @@
 import { type ChildProcess, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  copyConsumer,
   expectTscPasses,
   generate,
   killServer,
-  linkNodeModules,
   runTsx,
   serverLog as readServerLog,
   startServer,
@@ -42,8 +41,7 @@ describe('generate-client cli generator (end-to-end)', () => {
   let serverProcess: ChildProcess | undefined;
 
   beforeAll(async () => {
-    workDir = mkdtempSync(join(tmpdir(), 'cli-e2e-'));
-    linkNodeModules(workDir);
+    workDir = copyConsumer(join(__dirname, 'consumer'));
     clientDir = join(workDir, 'client');
     stripDir = join(workDir, 'client-strip');
     generate(fixture, join(clientDir, 'client.ts'), [
@@ -54,7 +52,6 @@ describe('generate-client cli generator (end-to-end)', () => {
       '--generator',
       'cli',
     ]);
-    writeFileSync(join(clientDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     // A second copy with `.ts` specifiers: what a zero-build `node` runner needs.
     generate(fixture, join(stripDir, 'client.ts'), [
       '--generator',
@@ -66,7 +63,6 @@ describe('generate-client cli generator (end-to-end)', () => {
       '--import-ext',
       'ts',
     ]);
-    writeFileSync(join(stripDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     serverProcess = await startServer(
       join(__dirname, 'server.ts'),
       { CLI_SERVER_PORT: String(SERVER_PORT) },
@@ -91,7 +87,6 @@ describe('generate-client cli generator (end-to-end)', () => {
       '--runtime',
       'module',
     ]);
-    writeFileSync(join(moduleDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
     const entry = readFileSync(join(moduleDir, 'client.cli.ts'), 'utf-8');
     expect(entry).toContain('from "./runtime/cli.js"');
     expect(entry).not.toContain('function parseInvocation');
@@ -103,23 +98,6 @@ describe('generate-client cli generator (end-to-end)', () => {
 
   it('generates client.cli.ts and strict tsc (types: node) accepts it', () => {
     expect(existsSync(join(clientDir, 'client.cli.ts'))).toBe(true);
-    writeFileSync(
-      join(clientDir, 'tsconfig.json'),
-      JSON.stringify({
-        compilerOptions: {
-          module: 'nodenext',
-          moduleResolution: 'nodenext',
-          target: 'es2022',
-          lib: ['ES2022', 'DOM'],
-          strict: true,
-          noEmit: true,
-          skipLibCheck: true,
-          types: ['node'],
-        },
-        include: ['**/*.ts'],
-      }),
-      'utf-8'
-    );
     expectTscPasses(['-p', clientDir]);
   }, 120_000);
 
@@ -144,7 +122,6 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(get.code).toBe(0);
     expect(JSON.parse(get.stdout).id).toBe('ord_42');
 
-    writeFileSync(join(clientDir, 'order.json'), '{"item":"latte","quantity":1}', 'utf-8');
     const create = runCliBin(['orders', 'createOrder', '--json', '@order.json']);
     expect(create.code).toBe(0);
     expect(JSON.parse(create.stdout)).toMatchObject({ id: 'ord_new', item: 'latte' });

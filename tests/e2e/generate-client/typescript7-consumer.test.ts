@@ -1,10 +1,10 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, repoRoot, STRICT_TSCONFIG } from './helpers.js';
+import { generate, repoRoot, writeStrictTsconfig } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -19,7 +19,7 @@ describe('generated client under TypeScript 7 (consumer compiler)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ts7-consumer-'));
     try {
       generate(fixture, join(dir, 'client.ts'), ['--output-mode', 'split']);
-      writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(STRICT_TSCONFIG), 'utf-8');
+      writeStrictTsconfig(dir);
       const tsc = spawnSync('node', [tsc7, '--noEmit', '-p', dir], {
         encoding: 'utf-8',
         cwd: repoRoot,

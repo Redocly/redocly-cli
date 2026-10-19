@@ -4,12 +4,12 @@
 // artifact beside it (the CLI page against the CLI's own `--help`, an SDK page against the
 // call syntax that SDK generates).
 
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, linkNodeModules, runTsx } from '../helpers.js';
+import { copyConsumer, generate, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'cli.yaml');
@@ -19,10 +19,9 @@ let cliPage: string;
 let pythonPage: string;
 
 beforeAll(() => {
-  dir = mkdtempSync(join(tmpdir(), 'client-docs-'));
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-  // The generated CLI validates with zod, and this temp dir is outside the repo.
-  linkNodeModules(dir);
+  // The generated CLI validates with zod; copyConsumer links the repo's node_modules,
+  // because this temp dir is outside the repo.
+  dir = copyConsumer(join(__dirname, 'consumer-docs'));
   generate(fixture, join(dir, 'cafe.client.ts'), [
     '--generator',
     'cli',

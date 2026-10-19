@@ -5,12 +5,11 @@
  * reverse (onion), `onError` chains, `onSettled` sees the final outcome once per call,
  * and configured middleware precedes `use()`.
  */
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generateInto, runConsumerFile, strictTypecheck } from '../helpers.js';
+import { copyConsumer, generate, runConsumer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -18,15 +17,15 @@ const fixture = join(__dirname, '../fixtures/base.yaml');
 describe('middleware — flat surface (use)', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'mw-fn-'));
-    generateInto(dir, fixture);
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'));
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
   test('use() registers middleware: onRequest runs in order, onResponse in reverse (onion)', () => {
-    const captured = runConsumerFile(dir, join(__dirname, 'consumer', 'onion-order.ts')) as {
+    const captured = runConsumer(join(dir, 'onion-order.ts')) as {
       order: string[];
       hasA: boolean;
       hasB: boolean;
@@ -38,7 +37,7 @@ describe('middleware — flat surface (use)', () => {
   }, 60_000);
 
   test('onError threads through each middleware in turn', () => {
-    const result = runConsumerFile(dir, join(__dirname, 'consumer', 'on-error-chain.ts')) as {
+    const result = runConsumer(join(dir, 'on-error-chain.ts')) as {
       threw: boolean;
       message: string;
     };
@@ -48,7 +47,7 @@ describe('middleware — flat surface (use)', () => {
   }, 60_000);
 
   test('onSettled runs once per call with the final outcome, network errors included', () => {
-    const result = runConsumerFile(dir, join(__dirname, 'consumer', 'on-settled.ts')) as {
+    const result = runConsumer(join(dir, 'on-settled.ts')) as {
       lines: string[];
     };
 
@@ -57,17 +56,14 @@ describe('middleware — flat surface (use)', () => {
   }, 60_000);
 
   test('use() does not mutate a caller-provided middleware array (no cross-client leak)', () => {
-    const result = runConsumerFile(
-      dir,
-      join(__dirname, 'consumer', 'caller-array-not-mutated.ts')
-    ) as { mineLength: number };
+    const result = runConsumer(join(dir, 'caller-array-not-mutated.ts')) as { mineLength: number };
 
     // use() must append to a fresh array, not push into the array the caller passed.
     expect(result.mineLength).toBe(0);
   }, 60_000);
 
   test('the single config.onRequest hook still runs (as an implicit first middleware)', () => {
-    const captured = runConsumerFile(dir, join(__dirname, 'consumer', 'config-on-request.ts')) as {
+    const captured = runConsumer(join(dir, 'config-on-request.ts')) as {
       order: string[];
     };
 
@@ -75,7 +71,7 @@ describe('middleware — flat surface (use)', () => {
   }, 60_000);
 
   test('onRequest sees ctx.operation { id, path, tags }', () => {
-    const captured = runConsumerFile(dir, join(__dirname, 'consumer', 'operation-context.ts')) as {
+    const captured = runConsumer(join(dir, 'operation-context.ts')) as {
       op: { id: string; path: string; tags: string[] };
     };
 
@@ -85,7 +81,7 @@ describe('middleware — flat surface (use)', () => {
   }, 60_000);
 
   test('onRequest can mutate ctx.body and the change is sent', () => {
-    const captured = runConsumerFile(dir, join(__dirname, 'consumer', 'mutate-body.ts')) as {
+    const captured = runConsumer(join(dir, 'mutate-body.ts')) as {
       sent: string;
     };
 
@@ -93,10 +89,7 @@ describe('middleware — flat surface (use)', () => {
   }, 60_000);
 
   test('configure({ middleware }) runs before later use() middleware', () => {
-    const captured = runConsumerFile(
-      dir,
-      join(__dirname, 'consumer', 'configured-before-use.ts')
-    ) as { order: string[] };
+    const captured = runConsumer(join(dir, 'configured-before-use.ts')) as { order: string[] };
 
     expect(captured.order).toEqual(['configured', 'use']);
   }, 60_000);
@@ -105,15 +98,15 @@ describe('middleware — flat surface (use)', () => {
 describe('middleware — multi-file output (split)', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'mw-split-'));
-    generateInto(dir, fixture, ['--output-mode', 'split']);
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'), ['--output-mode', 'split']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
   test('configure() and use() are re-exported by the entry barrel and affect operations', () => {
-    const captured = runConsumerFile(dir, join(__dirname, 'consumer', 'split-barrel.ts')) as {
+    const captured = runConsumer(join(dir, 'split-barrel.ts')) as {
       url: string;
       header: string;
     };
@@ -125,15 +118,15 @@ describe('middleware — multi-file output (split)', () => {
 describe('middleware — result error mode', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'mw-result-'));
-    generateInto(dir, fixture, ['--error-mode', 'result']);
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'), ['--error-mode', 'result']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
   test('onRequest/onResponse run; onError does not fire (the error is returned, not thrown)', () => {
-    const result = runConsumerFile(dir, join(__dirname, 'consumer', 'result-mode.ts')) as {
+    const result = runConsumer(join(dir, 'result-mode.ts')) as {
       ran: string[];
       hasError: boolean;
       hasData: boolean;

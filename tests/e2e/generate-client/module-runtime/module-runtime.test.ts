@@ -1,10 +1,16 @@
 import { type ChildProcess } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generateInto, killServer, runConsumer, startServer, strictTypecheck } from '../helpers.js';
+import {
+  copyConsumer,
+  generate,
+  killServer,
+  runConsumer,
+  startServer,
+  strictTypecheck,
+} from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/cafe.yaml');
@@ -22,8 +28,8 @@ describe('generate-client --runtime module (end-to-end)', () => {
       { CAFE_SERVER_PORT: String(SERVER_PORT) },
       SERVER_BASE
     );
-    dir = mkdtempSync(join(tmpdir(), 'module-runtime-'));
-    generateInto(dir, fixture, ['--runtime', 'module', '--server-url', SERVER_BASE]);
+    dir = copyConsumer(join(__dirname, 'consumer'));
+    generate(fixture, join(dir, 'client.ts'), ['--runtime', 'module', '--server-url', SERVER_BASE]);
   }, 120_000);
 
   afterAll(async () => {
@@ -61,13 +67,10 @@ describe('generate-client --runtime module (end-to-end)', () => {
   }, 120_000);
 
   it('a real request goes through the runtime files and returns typed data', () => {
-    const results = runConsumer(
-      dir,
-      `import { ApiError, listMenuItems } from './client.js';
-const items = await listMenuItems({});
-console.log(JSON.stringify({ ok: Array.isArray(items.items), viaApiError: typeof ApiError }));
-`
-    ) as { ok: boolean; viaApiError: string };
+    const results = runConsumer(join(dir, 'list-menu-items.ts')) as {
+      ok: boolean;
+      viaApiError: string;
+    };
     expect(results.ok).toBe(true);
     // The error class reaches the consumer through the factory re-export chain.
     expect(results.viaApiError).toBe('function');

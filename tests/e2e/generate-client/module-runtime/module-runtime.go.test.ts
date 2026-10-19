@@ -1,10 +1,9 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate } from '../helpers.js';
+import { copyConsumer, generate } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/cafe.yaml');
@@ -13,7 +12,7 @@ describe('generate-client --runtime module, go', () => {
   let dir = '';
 
   beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'module-runtime-go-'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
     generate(fixture, join(dir, 'client.ts'), ['--generator', 'go', '--runtime', 'module']);
   });
 
@@ -24,7 +23,6 @@ describe('generate-client --runtime module, go', () => {
   it(
     'the client and runtime.go build as one package',
     () => {
-      writeFileSync(join(dir, 'go.mod'), 'module smoke.test\n\ngo 1.21\n', 'utf-8');
       const result = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
       expect(result.status, result.stderr).toBe(0);
     },
