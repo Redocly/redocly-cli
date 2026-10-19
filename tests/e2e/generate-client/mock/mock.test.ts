@@ -7,11 +7,12 @@
  * sampler), so we assert exact field values.
  */
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, generate, runConsumer } from '../helpers.js';
+import { copyConsumer, expectTscPasses, runConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -20,9 +21,13 @@ const dateFixture = join(__dirname, '../fixtures/transformers.yaml');
 
 describe('mock generator — generated client through MSW', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'), ['--generator', 'typescript', '--generator', 'mock']);
+    await generateClient({
+      api: fixture,
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'mock'],
+    });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -70,20 +75,16 @@ describe('mock generator — generated client through MSW', () => {
 
 describe('mock generator — mock + transformers + --date-type Date compile together', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     // transformers REQUIRES --date-type Date; the sdk then types date fields `Date`,
     // so the mock sampler must bake `new Date(...)` to type-check (BUG 1 regression).
-    generate(dateFixture, join(dir, 'client.ts'), [
-      '--generator',
-      'typescript',
-      '--generator',
-      'mock',
-      '--generator',
-      'transformers',
-      '--date-type',
-      'Date',
-    ]);
+    await generateClient({
+      api: dateFixture,
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'mock', 'transformers'],
+      dateType: 'Date',
+    });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -115,18 +116,15 @@ describe('mock generator — mock + transformers + --date-type Date compile toge
 
 describe('mock generator — faker mode strict-tsc-checks against real @faker-js/faker', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'), [
-      '--generator',
-      'typescript',
-      '--generator',
-      'mock',
-      '--mock-data',
-      'faker',
-      '--mock-seed',
-      '42',
-    ]);
+    await generateClient({
+      api: fixture,
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'mock'],
+      mockData: 'faker',
+      mockSeed: 42,
+    });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

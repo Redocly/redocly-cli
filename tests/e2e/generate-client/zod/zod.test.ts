@@ -1,23 +1,23 @@
+import { generateClient } from '@redocly/client-generator';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, generate } from '../helpers.js';
+import { copyConsumer, expectTscPasses } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 describe('generate-client zod generator', () => {
-  it('emits a *.zod.ts module that strict-tsc-checks against real zod and agrees with the sdk types', () => {
+  it('emits a *.zod.ts module that strict-tsc-checks against real zod and agrees with the sdk types', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
     const zodOut = join(dir, 'client.zod.ts');
 
-    generate(join(__dirname, '../fixtures', 'cafe.yaml'), out, [
-      '--generator',
-      'typescript',
-      '--generator',
-      'zod',
-    ]);
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'cafe.yaml'),
+      output: out,
+      generators: ['typescript', 'zod'],
+    });
 
     // Both the sdk client and the standalone zod module are produced.
     expect(existsSync(out)).toBe(true);
@@ -34,14 +34,13 @@ describe('generate-client zod generator', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('zodValidation middleware validates requests before the wire and JSON responses after it', () => {
+  it('zodValidation middleware validates requests before the wire and JSON responses after it', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(join(__dirname, 'orders.yaml'), join(dir, 'client.ts'), [
-      '--generator',
-      'typescript',
-      '--generator',
-      'zod',
-    ]);
+    await generateClient({
+      api: join(__dirname, 'orders.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'zod'],
+    });
 
     expectTscPasses(['-p', join(dir, 'tsconfig.driver.json')], dir);
 

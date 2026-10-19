@@ -2,6 +2,7 @@ import { configDefaults, defineConfig } from 'vitest/config';
 
 const GENERATE_CLIENT = 'tests/e2e/generate-client';
 const GENERATOR_TESTS = 'packages/client-generator/src/generators/__tests__';
+const GENERATOR_WARNINGS_SETUP = `${GENERATE_CLIENT}/setup/silence-generator-warnings.ts`;
 const GO_FILES = [`${GENERATE_CLIENT}/**/{go,*.go}.test.ts`, `${GENERATOR_TESTS}/go.test.ts`];
 const PHP_FILES = [`${GENERATE_CLIENT}/**/{php,*.php}.test.ts`, `${GENERATOR_TESTS}/php.test.ts`];
 const PYTHON_FILES = [
@@ -16,6 +17,7 @@ function languageProject(language: string, files: string[]) {
       name: `client-generators-${language}`,
       include: files,
       globalSetup: [`${GENERATE_CLIENT}/setup/${language}.ts`],
+      setupFiles: [GENERATOR_WARNINGS_SETUP],
       testTimeout: 120_000,
       hookTimeout: 120_000,
     },
@@ -77,6 +79,7 @@ export default defineConfig({
         test: {
           name: 'client-generators',
           include: [`${GENERATE_CLIENT}/**/*.test.ts`],
+          setupFiles: [GENERATOR_WARNINGS_SETUP],
           exclude: [...configDefaults.exclude, GO_FILES[0], PHP_FILES[0], PYTHON_FILES[0]],
           testTimeout: 120_000,
           hookTimeout: 120_000,

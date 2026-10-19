@@ -1,18 +1,19 @@
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runConsumer, strictTypecheck } from '../helpers.js';
+import { copyConsumer, runConsumer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'auth.yaml');
 
 /** Generate a single-file client and assert strict `tsc` accepts it. */
-function generateSingleFile(): string {
+async function generateSingleFile(): Promise<string> {
   const dir = mkdtempSync(join(tmpdir(), 'ots-auth-'));
   const out = join(dir, 'client.ts');
-  generate(fixture, out);
+  await generateClient({ api: fixture, output: out });
   expect(existsSync(out)).toBe(true);
   const generated = readFileSync(out, 'utf-8');
   strictTypecheck(dir, ['client.ts']);
@@ -21,8 +22,8 @@ function generateSingleFile(): string {
 }
 
 describe('generate-client auth breadth (auth.yaml)', () => {
-  it('emits all five injectable scheme kinds and strict-tsc accepts the single-file client', () => {
-    const generated = generateSingleFile();
+  it('emits all five injectable scheme kinds and strict-tsc accepts the single-file client', async () => {
+    const generated = await generateSingleFile();
 
     // Token machinery for the resolvable (bearer + apiKey) schemes lives in the embedded runtime.
     expect(generated).toContain('export type TokenProvider');
@@ -68,11 +69,11 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     );
   }, 60_000);
 
-  it('strict-tsc accepts the split two-file client (guards multi-file auth)', () => {
+  it('strict-tsc accepts the split two-file client (guards multi-file auth)', async () => {
     // Split mode derives its folder from a `.ts` entry path, so --output
     // must still point at a file; the generator emits the schemas file beside it.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-split-'));
-    generate(fixture, join(dir, 'client.ts'), ['--output-mode', 'split']);
+    await generateClient({ api: fixture, output: join(dir, 'client.ts'), outputMode: 'split' });
     strictTypecheck(dir);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
@@ -82,12 +83,12 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   // throwaway http server instead — enough to prove (a) an async bearer provider
   // token function resolves through the runtime's auth capability onto the
   // `Authorization` header and (b) a query-key scheme lands `api_key=` in the URL.
-  it('an async bearer provider resolves onto Authorization and a query key lands in the URL', () => {
+  it('an async bearer provider resolves onto Authorization and a query key lands in the URL', async () => {
     // The driver owns its own throwaway http server (and points the client at it
     // via configure({ serverUrl })), so a single `runConsumer` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
     const dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'));
+    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
 
     const captured = runConsumer(join(dir, 'bearer-and-query-key.ts')) as Array<{
       url: string;
@@ -104,9 +105,9 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     expect(queryReq!.url).toContain('api_key=secret-key');
   }, 90_000);
 
-  it('createClient instances keep their own credentials: an authed one sends Basic, a no-auth one sends none', () => {
+  it('createClient instances keep their own credentials: an authed one sends Basic, a no-auth one sends none', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'));
+    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
 
     const calls = runConsumer(join(dir, 'instance-credentials.ts')) as (string | null)[];
     rmSync(dir, { recursive: true, force: true });

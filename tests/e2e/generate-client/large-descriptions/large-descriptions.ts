@@ -1,8 +1,9 @@
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate } from '../helpers.js';
+import { copyConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -38,12 +39,8 @@ export async function fetchGithubDescription(): Promise<string> {
 }
 
 /** Copy the consumer folder (package.json, go.mod, tsconfig.cli.json) and generate into it. */
-export function generateWith(generators: string[], description: string): string {
+export async function generateWith(generators: string[], description: string): Promise<string> {
   const dir = copyConsumer(join(__dirname, 'consumer'));
-  const args: string[] = [];
-  for (const name of generators) {
-    args.push('--generator', name);
-  }
-  generate(description, join(dir, 'client.ts'), args);
+  await generateClient({ api: description, output: join(dir, 'client.ts'), generators });
   return dir;
 }

@@ -9,11 +9,12 @@
 // proves the runtime's `buildUrl` output (literal delimiters + allowReserved
 // on the wire), which is the whole point of the feature.
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runTsx, strictTypecheck } from '../helpers.js';
+import { copyConsumer, runTsx, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'query-styles.yaml');
@@ -22,10 +23,10 @@ describe('generate-client query serialization styles', () => {
   let dir: string;
   let generated: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
-    generate(fixture, out);
+    await generateClient({ api: fixture, output: out });
     expect(existsSync(out)).toBe(true);
     generated = readFileSync(out, 'utf-8');
   }, 60_000);

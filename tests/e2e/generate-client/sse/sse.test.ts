@@ -5,28 +5,23 @@
 // behavioral reconnect/abort path is covered separately by the consumer
 // harness in sse.runtime.test.ts.
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  collectTsFiles,
-  copyConsumer,
-  expectTscPasses,
-  generate,
-  strictTypecheck,
-} from '../helpers.js';
+import { collectTsFiles, copyConsumer, expectTscPasses, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const fixture = join(__dirname, '../fixtures', 'sse.yaml');
 
 describe('generate-client SSE', () => {
-  it('single-file: embedded sse capability + flat typed stream sugar, strict tsc passes', () => {
+  it('single-file: embedded sse capability + flat typed stream sugar, strict tsc passes', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer-types'));
     const out = join(dir, 'client.ts');
-    generate(fixture, out);
+    await generateClient({ api: fixture, output: out });
     expect(existsSync(out)).toBe(true);
 
     const generated = readFileSync(out, 'utf-8');
@@ -55,10 +50,10 @@ describe('generate-client SSE', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('split: SSE ops live in the entry beside the embedded runtime, strict tsc passes over both files', () => {
+  it('split: SSE ops live in the entry beside the embedded runtime, strict tsc passes over both files', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-sse-split-'));
     const entry = join(dir, 'client.ts');
-    generate(fixture, entry, ['--output-mode', 'split']);
+    await generateClient({ api: fixture, output: entry, outputMode: 'split' });
     expect(existsSync(entry)).toBe(true);
 
     const entrySrc = readFileSync(entry, 'utf-8');

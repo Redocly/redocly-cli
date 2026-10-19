@@ -6,21 +6,22 @@
 // (`operationId: search` → `$ref SearchResult`, plus a `SearchResult` component). We generate
 // the split two-file layout and strict-`tsc` it.
 
+import { generateClient } from '@redocly/client-generator';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectTsFiles, expectTscPasses, generate } from './helpers.js';
+import { collectTsFiles, expectTscPasses } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'base.yaml');
 
 describe('generate-client operation/schema name collision', () => {
-  it('does not emit a self-referential *Result alias; strict tsc passes over the split set', () => {
+  it('does not emit a self-referential *Result alias; strict tsc passes over the split set', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-collision-'));
     const entry = join(dir, 'client.ts');
-    generate(fixture, entry, ['--output-mode', 'split']);
+    await generateClient({ api: fixture, output: entry, outputMode: 'split' });
 
     const files = collectTsFiles(dir);
     const allSource = files.map((f) => readFileSync(f, 'utf-8'));

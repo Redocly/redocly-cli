@@ -8,8 +8,8 @@ import {
 } from './large-descriptions.js';
 
 /** Python bar: `import client` executes every dataclass declaration, which catches duplicate fields and bad defaults. */
-function pythonBar(description: string): void {
-  const dir = generateWith(['python'], description);
+async function pythonBar(description: string): Promise<void> {
+  const dir = await generateWith(['python'], description);
   const result = spawnSync('python3', ['-c', 'import client'], { cwd: dir, encoding: 'utf-8' });
   expect(result.status, result.stderr).toBe(0);
 }

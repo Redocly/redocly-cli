@@ -1,8 +1,9 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { copyConsumer, generate, killServer, serverLog, startServer } from '../helpers.js';
+import { copyConsumer, killServer, serverLog, startServer } from '../helpers.js';
 import {
   replayableRows,
   runProgram,
@@ -22,7 +23,11 @@ describe('generate-client stream bodies, Python (end-to-end)', () => {
 
   beforeAll(async () => {
     workDir = copyConsumer(streamConsumer);
-    generate(streamFixture, join(workDir, 'client/client.ts'), ['--generator', 'python']);
+    await generateClient({
+      api: streamFixture,
+      output: join(workDir, 'client/client.ts'),
+      generators: ['python'],
+    });
     serverProcess = await startServer(
       streamServer,
       { STREAM_SERVER_PORT: String(SERVER_PORT) },

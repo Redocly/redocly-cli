@@ -274,6 +274,12 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 They compile the generated clients, so they need Go, PHP, and Python.
 Each language has its own Vitest project, and a missing tool stops the run with a message that names it.
 
+Each topic folder holds its tests and the files they need.
+A `consumer/` folder holds the scripts, `package.json`, and `tsconfig.json` that the test copies next to the generated client.
+Shared fixtures and servers sit in `fixtures/` and `servers/`.
+The tests call the `generateClient()` API directly.
+Only tests about the command itself run the CLI, and `cli-flags.test.ts` proves that each flag maps to its option.
+
 ```bash
 npm run client-generators                                         # everything
 npx vitest run --project client-generators                        # TypeScript only, no toolchains needed

@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 // Behavioral e2e for SSE: a hand-written `node:http` server streams real
 // `text/event-stream` frames, drops mid-stream, and the generated client
 // auto-reconnects (resuming via `Last-Event-ID`). A second scenario aborts the
@@ -7,14 +8,7 @@ import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  copyConsumer,
-  expectTscPasses,
-  generate,
-  killServer,
-  runTsx,
-  startServer,
-} from '../helpers.js';
+import { copyConsumer, expectTscPasses, killServer, runTsx, startServer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/sse.yaml');
@@ -29,7 +23,7 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
   beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     const generatedFile = join(workDir, 'api.ts');
-    generate(fixture, generatedFile);
+    await generateClient({ api: fixture, output: generatedFile });
     expect(existsSync(generatedFile)).toBe(true);
 
     expectTscPasses(['--noEmit', '-p', workDir]);

@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 /**
  * Behavioral e2e for retry. Injects a fake `fetch` via `configure()` so we can
  * script transient failures and count attempts deterministically — no live server.
@@ -6,16 +7,16 @@ import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runConsumer } from '../helpers.js';
+import { copyConsumer, runConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
 
 describe('retry behavior', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'));
+    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

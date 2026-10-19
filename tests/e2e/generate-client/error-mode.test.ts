@@ -10,20 +10,25 @@
 // and covered by the existing throw-mode base e2e. The split case guards that
 // the entry bakes `errorMode: "result"` into the client config too.
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectTsFiles, expectTscPasses, generate, strictTypecheck } from './helpers.js';
+import { collectTsFiles, expectTscPasses, strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 describe('generate-client error mode', () => {
-  it('single-file result mode: typed error alias + Result terminal, strict tsc passes', () => {
+  it('single-file result mode: typed error alias + Result terminal, strict tsc passes', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-errmode-single-'));
     const out = join(dir, 'client.ts');
-    generate(join(__dirname, 'fixtures', 'error-mode.yaml'), out, ['--error-mode', 'result']);
+    await generateClient({
+      api: join(__dirname, 'fixtures', 'error-mode.yaml'),
+      output: out,
+      errorMode: 'result',
+    });
     expect(existsSync(out)).toBe(true);
 
     const generated = readFileSync(out, 'utf-8');
@@ -37,16 +42,16 @@ describe('generate-client error mode', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('split result mode: the entry bakes errorMode result, strict tsc passes over both files', () => {
+  it('split result mode: the entry bakes errorMode result, strict tsc passes over both files', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-errmode-split-'));
     // Split mode takes a `.ts` entry path; the schemas file is written beside it.
     const entry = join(dir, 'client.ts');
-    generate(join(__dirname, 'fixtures', 'error-mode.yaml'), entry, [
-      '--error-mode',
-      'result',
-      '--output-mode',
-      'split',
-    ]);
+    await generateClient({
+      api: join(__dirname, 'fixtures', 'error-mode.yaml'),
+      output: entry,
+      errorMode: 'result',
+      outputMode: 'split',
+    });
     expect(existsSync(entry)).toBe(true);
 
     const files = collectTsFiles(dir);

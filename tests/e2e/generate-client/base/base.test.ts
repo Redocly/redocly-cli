@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -6,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 import {
   copyConsumer,
   expectTscPasses,
-  generate,
   killServer,
   runTsx,
   serverLog,
@@ -41,7 +41,7 @@ describe('generate-client base consumer (single-file output)', () => {
 
   test('end-to-end: generate single file, type-check, run, assert real call', async () => {
     const generatedFile = join(workDir, 'api.ts');
-    generate(fixture, generatedFile);
+    await generateClient({ api: fixture, output: generatedFile });
 
     expect(existsSync(generatedFile)).toBe(true);
     const generated = readFileSync(generatedFile, 'utf-8');

@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -5,7 +6,6 @@ import { join } from 'node:path';
 import {
   copyConsumer,
   expectTscPasses,
-  generate,
   killServer,
   serverLog,
   startServer,
@@ -30,7 +30,7 @@ describe('generate-client stream bodies, TypeScript (end-to-end)', () => {
 
   beforeAll(async () => {
     workDir = copyConsumer(streamConsumer);
-    generate(streamFixture, join(workDir, 'client/client.ts'));
+    await generateClient({ api: streamFixture, output: join(workDir, 'client/client.ts') });
     serverProcess = await startServer(
       streamServer,
       { STREAM_SERVER_PORT: String(SERVER_PORT) },

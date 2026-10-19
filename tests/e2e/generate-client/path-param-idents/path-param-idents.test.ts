@@ -11,20 +11,21 @@
  * built from the argument value).
  */
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, generate, runConsumer } from '../helpers.js';
+import { copyConsumer, expectTscPasses, runConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const spec = join(__dirname, 'odd-names.yaml');
 
 describe('non-identifier path parameters', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(spec, join(dir, 'client.ts'));
+    await generateClient({ api: spec, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

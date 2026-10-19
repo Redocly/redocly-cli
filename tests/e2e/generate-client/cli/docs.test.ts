@@ -4,12 +4,13 @@
 // artifact beside it (the CLI page against the CLI's own `--help`, an SDK page against the
 // call syntax that SDK generates).
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runTsx } from '../helpers.js';
+import { copyConsumer, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'cli.yaml');
@@ -18,17 +19,16 @@ let dir: string;
 let cliPage: string;
 let pythonPage: string;
 
-beforeAll(() => {
+beforeAll(async () => {
   // The generated CLI validates with zod; copyConsumer links the repo's node_modules,
   // because this temp dir is outside the repo.
   dir = copyConsumer(join(__dirname, 'consumer-docs'));
-  generate(fixture, join(dir, 'cafe.client.ts'), [
-    '--generator',
-    'cli',
-    '--generator',
-    'python',
-    '--docs',
-  ]);
+  await generateClient({
+    api: fixture,
+    output: join(dir, 'cafe.client.ts'),
+    generators: ['cli', 'python'],
+    docs: true,
+  });
   cliPage = readFileSync(join(dir, 'cafe.client.cli.md'), 'utf-8');
   pythonPage = readFileSync(join(dir, 'cafe.client.python.md'), 'utf-8');
 });
@@ -47,10 +47,10 @@ describe('generate-client --docs (end-to-end)', () => {
     expect(existsSync(join(dir, 'cafe.client.zod.md'))).toBe(false);
   });
 
-  it('writes no page without the switch', () => {
+  it('writes no page without the switch', async () => {
     const plain = mkdtempSync(join(tmpdir(), 'client-nodocs-'));
     try {
-      generate(fixture, join(plain, 'c.ts'), ['--generator', 'python']);
+      await generateClient({ api: fixture, output: join(plain, 'c.ts'), generators: ['python'] });
       expect(existsSync(join(plain, 'c.py'))).toBe(true);
       expect(existsSync(join(plain, 'c.python.md'))).toBe(false);
     } finally {

@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 // Composition of generated CLIs: the generated module is importable (no side effects),
 // two descriptions compose behind namespaces with their own credentials, and a custom
 // command with a handler joins them at the root — the login story, built in user land.
@@ -7,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, copyConsumer, generate, runGenerateClient, runTsx } from '../helpers.js';
+import { cliEntry, copyConsumer, runGenerateClient, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -21,22 +22,22 @@ function runEntry(args: string[], env: Record<string, string> = {}) {
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-beforeAll(() => {
+beforeAll(async () => {
   dir = copyConsumer(join(__dirname, 'consumer-compose'));
   // Two descriptions — the same fixture twice is exactly the collision case: every
   // operationId exists in both, so only namespacing can tell them apart.
-  generate(join(__dirname, 'cli.yaml'), join(dir, 'shop.client.ts'), [
-    '--generator',
-    'cli',
-    '--import-ext',
-    'ts',
-  ]);
-  generate(join(__dirname, 'cli.yaml'), join(dir, 'kitchen.client.ts'), [
-    '--generator',
-    'cli',
-    '--import-ext',
-    'ts',
-  ]);
+  await generateClient({
+    api: join(__dirname, 'cli.yaml'),
+    output: join(dir, 'shop.client.ts'),
+    generators: ['cli'],
+    importExt: 'ts',
+  });
+  await generateClient({
+    api: join(__dirname, 'cli.yaml'),
+    output: join(dir, 'kitchen.client.ts'),
+    generators: ['cli'],
+    importExt: 'ts',
+  });
 });
 
 afterAll(() => {

@@ -8,8 +8,8 @@ import {
 } from './large-descriptions.js';
 
 /** PHP bar: the generated `<stem>.php` parses (`php -l`) and declares (`require`). */
-function phpBar(description: string): void {
-  const dir = generateWith(['php'], description);
+async function phpBar(description: string): Promise<void> {
+  const dir = await generateWith(['php'], description);
   const lint = spawnSync('php', ['-l', 'client.php'], { cwd: dir, encoding: 'utf-8' });
   expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
   const declare = spawnSync('php', ['-r', "require 'client.php'; echo 'DECLARED';"], {

@@ -1,10 +1,11 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, killServer, runGenerateClient, startServer } from '../helpers.js';
+import { killServer, startServer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -16,10 +17,14 @@ const SERVER_PORT = 3106;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 describe('generate-client python generator (end-to-end)', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     workDir = mkdtempSync(join(tmpdir(), 'python-e2e-'));
     generatedFile = join(workDir, 'client.py');
-    generate(fixture, join(workDir, 'client.ts'), ['--generator', 'python']);
+    await generateClient({
+      api: fixture,
+      output: join(workDir, 'client.ts'),
+      generators: ['python'],
+    });
     expect(existsSync(generatedFile)).toBe(true);
   });
 
@@ -54,29 +59,18 @@ describe('generate-client python generator (end-to-end)', () => {
 });
 
 describe('generate-client python generator, models: pydantic (end-to-end)', () => {
-  // `models` is config-only, like every per-generator option, so this drives a config file.
+  // `models` is a per-generator option; the API takes it in `options`, as redocly.yaml does.
   let dir: string;
   let generated: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = mkdtempSync(join(tmpdir(), 'python-pydantic-'));
-    writeFileSync(
-      join(dir, 'redocly.yaml'),
-      [
-        'apis:',
-        '  cafe:',
-        `    root: ${join(__dirname, '../fixtures/cafe.yaml')}`,
-        '    clientOutput: ./client.ts',
-        '    client:',
-        '      generators: [python]',
-        '      options:',
-        '        python:',
-        '          models: pydantic',
-      ].join('\n'),
-      'utf-8'
-    );
-    const result = runGenerateClient([], dir);
-    expect(result.status, result.stderr).toBe(0);
+    await generateClient({
+      api: join(__dirname, '../fixtures/cafe.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['python'],
+      options: { python: { models: 'pydantic' } },
+    });
     generated = join(dir, 'client.py');
   });
 
@@ -158,12 +152,13 @@ describe('generate-client python generator, models: pydantic (end-to-end)', () =
 describe('generate-client python generator, parameter names an SDK cannot take literally', () => {
   let dir: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = mkdtempSync(join(tmpdir(), 'python-repeated-'));
-    generate(join(__dirname, '../fixtures/repeated-params.yaml'), join(dir, 'client.ts'), [
-      '--generator',
-      'python',
-    ]);
+    await generateClient({
+      api: join(__dirname, '../fixtures/repeated-params.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['python'],
+    });
   });
 
   afterAll(() => {
@@ -193,12 +188,13 @@ describe('generate-client python generator, parameter names an SDK cannot take l
 describe('generate-client python generator, a paginated operation under a path parameter', () => {
   let dir: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = mkdtempSync(join(tmpdir(), 'python-page-path-'));
-    generate(join(__dirname, 'page-under-path.yaml'), join(dir, 'client.ts'), [
-      '--generator',
-      'python',
-    ]);
+    await generateClient({
+      api: join(__dirname, 'page-under-path.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['python'],
+    });
   });
 
   afterAll(() => {

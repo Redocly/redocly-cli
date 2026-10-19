@@ -1,13 +1,13 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess } from 'node:child_process';
 import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import {
   copyConsumer,
   expectTscPasses,
   killServer,
-  repoRoot,
   runTsx,
   serverLog,
   startServer,
@@ -17,25 +17,13 @@ import {
 // (cursor style — three pages, resume, abort; body-link style with the next page's URL in
 // the body) generated with NO config, and the config-convention arm (offset style, applied
 // only where it structurally fits).
-// Pagination has no CLI flag, so config-carrying runs use the BUILT package's
-// programmatic `generateClient`.
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const generatorLib = join(repoRoot, 'packages/client-generator/lib/index.js');
 const fixture = join(__dirname, '../fixtures/pagination.yaml');
 let workDir = '';
 
 const SERVER_PORT = 3131;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
-
-type GenerateClient = (options: Record<string, unknown>) => Promise<unknown>;
-
-async function loadGenerateClient(): Promise<GenerateClient> {
-  const mod = (await import(pathToFileURL(generatorLib).href)) as {
-    generateClient: GenerateClient;
-  };
-  return mod.generateClient;
-}
 
 /** Clear the server's request log, then return a fetcher for the run's own slice. */
 async function resetLog(): Promise<void> {
@@ -75,7 +63,6 @@ describe('generate-client pagination consumer', () => {
   test('generate both arms and assert the emitted pagination surface', async () => {
     const apiFile = join(workDir, 'api.ts');
     const apiOffsetFile = join(workDir, 'api-offset.ts');
-    const generateClient = await loadGenerateClient();
     // Extension arm: NO pagination config — `x-redoclyPagination` alone drives `listOrders`.
     await generateClient({ api: fixture, output: apiFile });
     // Convention arm: an offset rule applied to every operation it structurally fits.

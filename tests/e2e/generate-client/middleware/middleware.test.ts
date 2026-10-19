@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 /**
  * Behavioral e2e for composable middleware/interceptors. Like `extension.test.ts`, we
  * inject a fake `fetch` and exercise the generated runtime in a real consumer, proving
@@ -9,16 +10,16 @@ import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runConsumer, strictTypecheck } from '../helpers.js';
+import { copyConsumer, runConsumer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
 
 describe('middleware — flat surface (use)', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'));
+    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -97,9 +98,9 @@ describe('middleware — flat surface (use)', () => {
 
 describe('middleware — multi-file output (split)', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'), ['--output-mode', 'split']);
+    await generateClient({ api: fixture, output: join(dir, 'client.ts'), outputMode: 'split' });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -117,9 +118,9 @@ describe('middleware — multi-file output (split)', () => {
 
 describe('middleware — result error mode', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'), ['--error-mode', 'result']);
+    await generateClient({ api: fixture, output: join(dir, 'client.ts'), errorMode: 'result' });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

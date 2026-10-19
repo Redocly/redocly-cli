@@ -1,22 +1,22 @@
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, generate } from '../helpers.js';
+import { copyConsumer, expectTscPasses } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 describe('generate-client swr generator', () => {
-  it('emits a *.swr.ts module that strict-tsc-checks against real swr and composes with the sdk', () => {
+  it('emits a *.swr.ts module that strict-tsc-checks against real swr and composes with the sdk', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
     const swrOut = join(dir, 'client.swr.ts');
 
-    generate(join(__dirname, '../fixtures', 'base.yaml'), out, [
-      '--generator',
-      'typescript',
-      '--generator',
-      'swr',
-    ]);
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'base.yaml'),
+      output: out,
+      generators: ['typescript', 'swr'],
+    });
 
     // Both the sdk client and the standalone swr module are produced.
     expect(existsSync(out)).toBe(true);

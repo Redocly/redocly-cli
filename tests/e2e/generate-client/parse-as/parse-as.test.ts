@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 // Verifies the `parseAs` runtime escape hatch on the per-call `RequestOptions`:
 // the generated client emits the `ParseAs` type, threads `parseAs?` through
 // `RequestOptions`, and `__parse` decodes every kind (json/text/blob/arrayBuffer/
@@ -14,15 +15,18 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, strictTypecheck } from '../helpers.js';
+import { copyConsumer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 describe('generate-client parseAs', () => {
-  it('emits ParseAs + parseAs option, decodes every kind, and accepts parseAs per call', () => {
+  it('emits ParseAs + parseAs option, decodes every kind, and accepts parseAs per call', async () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
-    generate(join(__dirname, '../fixtures', 'no-operationid.yaml'), out);
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'no-operationid.yaml'),
+      output: out,
+    });
     expect(existsSync(out)).toBe(true);
     const generated = readFileSync(out, 'utf-8');
 

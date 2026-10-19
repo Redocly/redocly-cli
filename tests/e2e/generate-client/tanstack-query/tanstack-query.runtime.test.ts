@@ -13,6 +13,7 @@
 // the queryFn and resolves the hook with the canned data, without mock-server
 // flakiness or cross-process plumbing.
 
+import { generateClient } from '@redocly/client-generator';
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
@@ -20,7 +21,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createElement, type ReactNode } from 'react';
 
-import { generate, repoRoot } from '../helpers.js';
+import { repoRoot } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let consumerDir = '';
@@ -40,17 +41,16 @@ function newClient(): QueryClient {
 }
 
 describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     // Under jsdom, Vitest imports only from inside the project root, so tmpdir does not work.
     const cacheDir = join(repoRoot, 'node_modules/.cache');
     mkdirSync(cacheDir, { recursive: true });
     consumerDir = mkdtempSync(join(cacheDir, 'tanstack-runtime-'));
-    generate(join(__dirname, '../fixtures', 'base.yaml'), join(consumerDir, 'client.ts'), [
-      '--generator',
-      'typescript',
-      '--generator',
-      'tanstack-query',
-    ]);
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'base.yaml'),
+      output: join(consumerDir, 'client.ts'),
+      generators: ['typescript', 'tanstack-query'],
+    });
     expect(existsSync(join(consumerDir, 'client.tanstack.ts'))).toBe(true);
   });
 

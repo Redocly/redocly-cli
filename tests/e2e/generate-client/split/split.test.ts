@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 /**
  * E2E for `--output-mode split`: the generated two-file set must compile under
  * strict `tsc` with `--noUnusedLocals`, which proves both that cross-file imports
@@ -11,7 +12,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, generate } from '../helpers.js';
+import { copyConsumer, expectTscPasses } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/cafe.yaml');
@@ -33,8 +34,8 @@ describe('generate-client end-to-end (--output-mode split)', () => {
     }
   });
 
-  test('writes two sibling files derived from --output', () => {
-    generate(fixture, entry, ['--output-mode', 'split']);
+  test('writes two sibling files derived from --output', async () => {
+    await generateClient({ api: fixture, output: entry, outputMode: 'split' });
     expect(existsSync(entry)).toBe(true);
     expect(existsSync(schemasFile)).toBe(true);
     // Split is exactly two files: no `.http.ts` module anymore.
@@ -84,9 +85,9 @@ describe('generate-client end-to-end (--output-mode split)', () => {
 
   // `--import-ext ts` targets runtimes that resolve specifiers literally (no `.js` → `.ts`
   // remap) — Node's built-in type stripping. Locked by actually executing `node main.ts`.
-  test('--import-ext ts produces a client Node runs natively', () => {
+  test('--import-ext ts produces a client Node runs natively', async () => {
     const tsEntry = join(workDir, 'client-ts.ts');
-    generate(fixture, tsEntry, ['--output-mode', 'split', '--import-ext', 'ts']);
+    await generateClient({ api: fixture, output: tsEntry, outputMode: 'split', importExt: 'ts' });
 
     const entrySrc = readFileSync(tsEntry, 'utf-8');
     expect(entrySrc).toContain("export * from './client-ts.schemas.ts';");

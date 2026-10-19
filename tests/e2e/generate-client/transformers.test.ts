@@ -2,7 +2,7 @@
 // e2e for the `transformers` generator paired with the sdk `--date-type Date`
 // knob. Two tiers:
 //
-//  - TYPE-CHECK: generate `typescript,transformers --date-type Date` into a temp dir,
+//  - TYPE-CHECK: generate typescript + transformers with `dateType: 'Date'` into a temp dir,
 //    assert the sdk types `Date` for date fields and the transformers module has
 //    `transform<Name>` with `new Date(`, then strict-`tsc` `client.ts` +
 //    `client.transformers.ts` TOGETHER. tsc exit 0 proves each generated
@@ -16,33 +16,32 @@
 //    became `Date` instances: top-level scalar, array elements, and the ref'd
 //    nested date (proving composition + write-back at runtime).
 //
-//  - DEFAULT UNCHANGED: without `--date-type Date` the sdk date field stays
+//  - DEFAULT UNCHANGED: without `dateType: 'Date'` the sdk date field stays
 //    typed `string` (the byte-identical default).
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate as generateClient, strictTypecheck } from './helpers.js';
+import { strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'transformers.yaml');
 
-function generate(out: string, args: string[]): void {
-  // args[0] is a comma-separated generator list; the rest are extra flags.
-  const [generators, ...rest] = args;
-  const generatorFlags = generators.split(',').flatMap((g) => ['--generator', g]);
-  generateClient(fixture, out, [...generatorFlags, ...rest]);
-}
-
 describe('generate-client transformers generator', () => {
-  it('emits Date-typed sdk + a transformers module that strict-tsc-checks together', () => {
+  it('emits Date-typed sdk + a transformers module that strict-tsc-checks together', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-transformers-'));
     const out = join(dir, 'client.ts');
     const transformersOut = join(dir, 'client.transformers.ts');
 
-    generate(out, ['typescript,transformers', '--date-type', 'Date']);
+    await generateClient({
+      api: fixture,
+      output: out,
+      generators: ['typescript', 'transformers'],
+      dateType: 'Date',
+    });
 
     expect(existsSync(out)).toBe(true);
     expect(existsSync(transformersOut)).toBe(true);
@@ -69,7 +68,12 @@ describe('generate-client transformers generator', () => {
     const sdkFile = join(dir, 'client.ts');
     const transformersFile = join(dir, 'client.transformers.ts');
 
-    generate(sdkFile, ['typescript,transformers', '--date-type', 'Date']);
+    await generateClient({
+      api: fixture,
+      output: sdkFile,
+      generators: ['typescript', 'transformers'],
+      dateType: 'Date',
+    });
     expect(existsSync(transformersFile)).toBe(true);
 
     const mod = await import(transformersFile);
@@ -94,10 +98,10 @@ describe('generate-client transformers generator', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('without --date-type Date the sdk date field stays typed string (default)', () => {
+  it('without --date-type Date the sdk date field stays typed string (default)', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-transformers-default-'));
     const out = join(dir, 'client.ts');
-    generate(out, ['typescript']);
+    await generateClient({ api: fixture, output: out, generators: ['typescript'] });
     expect(readFileSync(out, 'utf-8')).toContain('createdAt?: string;');
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

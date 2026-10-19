@@ -6,7 +6,7 @@ import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runConsumer, strictTypecheck } from '../helpers.js';
+import { copyConsumer, runConsumer, runGenerateClient, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -15,7 +15,15 @@ describe('client.telemetry: on', () => {
   let dir = '';
   beforeAll(() => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'), ['--config', join(dir, 'redocly.yaml')]);
+    // `client.telemetry` is a config key, so this run goes through the CLI and its redocly.yaml.
+    const result = runGenerateClient([
+      fixture,
+      '--output',
+      join(dir, 'client.ts'),
+      '--config',
+      join(dir, 'redocly.yaml'),
+    ]);
+    expect(result.status, result.stderr).toBe(0);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

@@ -9,8 +9,8 @@ import {
 } from './large-descriptions.js';
 
 /** TS bar: the generated client passes a strict `tsc --noEmit`. */
-function typescriptBar(description: string): void {
-  const dir = generateWith(['typescript'], description);
+async function typescriptBar(description: string): Promise<void> {
+  const dir = await generateWith(['typescript'], description);
   strictTypecheck(dir);
 }
 
@@ -19,8 +19,8 @@ function typescriptBar(description: string): void {
  * Selecting `cli` also emits the zod module it validates with. `zod` and `@types/node`
  * resolve through the node_modules link that `generateWith` adds.
  */
-function cliBar(description: string): void {
-  const dir = generateWith(['typescript', 'cli'], description);
+async function cliBar(description: string): Promise<void> {
+  const dir = await generateWith(['typescript', 'cli'], description);
   expectTscPasses(['-p', join(dir, 'tsconfig.cli.json')]);
 }
 

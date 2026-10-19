@@ -8,8 +8,8 @@ import {
 } from './large-descriptions.js';
 
 /** Go bar: `go build` + `go vet` (vet catches json tags on unexported fields). */
-function goBar(description: string): void {
-  const dir = generateWith(['go'], description);
+async function goBar(description: string): Promise<void> {
+  const dir = await generateWith(['go'], description);
   const build = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
   expect(build.status, build.stderr).toBe(0);
   const vet = spawnSync('go', ['vet', './...'], { cwd: dir, encoding: 'utf-8' });

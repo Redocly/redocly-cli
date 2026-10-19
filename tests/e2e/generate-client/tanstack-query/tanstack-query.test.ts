@@ -1,29 +1,30 @@
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, generate } from '../helpers.js';
+import { copyConsumer, expectTscPasses } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // A temp copy of the consumer dir: its strict tsconfig and the `check*.ts` files compose the
 // generated factories with TanStack's real hooks; the generated modules land next to them.
 let consumerDir = '';
-const TANSTACK_ARGS = ['--generator', 'typescript', '--generator', 'tanstack-query'];
+const generators = ['typescript', 'tanstack-query'];
 
 describe('generate-client tanstack-query generator', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     consumerDir = copyConsumer(join(__dirname, 'consumer'));
-    generate(
-      join(__dirname, '../fixtures', 'base.yaml'),
-      join(consumerDir, 'client.ts'),
-      TANSTACK_ARGS
-    );
-    generate(
-      join(__dirname, '../fixtures', 'pagination.yaml'),
-      join(consumerDir, 'pagination.ts'),
-      TANSTACK_ARGS
-    );
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'base.yaml'),
+      output: join(consumerDir, 'client.ts'),
+      generators,
+    });
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'pagination.yaml'),
+      output: join(consumerDir, 'pagination.ts'),
+      generators,
+    });
   }, 60_000);
 
   afterAll(() => {
@@ -58,17 +59,16 @@ describe('generate-client tanstack-query generator', () => {
     expectTscPasses(['--noEmit', '-p', consumerDir]);
   }, 60_000);
 
-  it('the tanstack-query-vue variant swaps only the import specifier to @tanstack/vue-query', () => {
+  it('the tanstack-query-vue variant swaps only the import specifier to @tanstack/vue-query', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-tanstack-vue-'));
     const out = join(dir, 'client.ts');
     const tanstackOut = join(dir, 'client.tanstack.ts');
 
-    generate(join(__dirname, '../fixtures', 'base.yaml'), out, [
-      '--generator',
-      'typescript',
-      '--generator',
-      'tanstack-query-vue',
-    ]);
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'base.yaml'),
+      output: out,
+      generators: ['typescript', 'tanstack-query-vue'],
+    });
 
     // No strict-tsc compile here: @tanstack/vue-query isn't a dev dependency, and the
     // react test already proves the queryOptions output type-checks against a real

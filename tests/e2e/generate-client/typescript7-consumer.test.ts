@@ -1,10 +1,11 @@
+import { generateClient } from '@redocly/client-generator';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, repoRoot, writeStrictTsconfig } from './helpers.js';
+import { repoRoot, writeStrictTsconfig } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -15,10 +16,10 @@ const fixture = join(__dirname, 'fixtures/base.yaml');
 const tsc7 = join(repoRoot, 'node_modules/typescript7/lib/tsc.js');
 
 describe('generated client under TypeScript 7 (consumer compiler)', () => {
-  it('type-checks strict and clean with the native tsc', () => {
+  it('type-checks strict and clean with the native tsc', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ts7-consumer-'));
     try {
-      generate(fixture, join(dir, 'client.ts'), ['--output-mode', 'split']);
+      await generateClient({ api: fixture, output: join(dir, 'client.ts'), outputMode: 'split' });
       writeStrictTsconfig(dir);
       const tsc = spawnSync('node', [tsc7, '--noEmit', '-p', dir], {
         encoding: 'utf-8',

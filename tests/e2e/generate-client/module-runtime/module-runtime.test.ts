@@ -1,16 +1,10 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  copyConsumer,
-  generate,
-  killServer,
-  runConsumer,
-  startServer,
-  strictTypecheck,
-} from '../helpers.js';
+import { copyConsumer, killServer, runConsumer, startServer, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/cafe.yaml');
@@ -29,7 +23,12 @@ describe('generate-client --runtime module (end-to-end)', () => {
       SERVER_BASE
     );
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'), ['--runtime', 'module', '--server-url', SERVER_BASE]);
+    await generateClient({
+      api: fixture,
+      output: join(dir, 'client.ts'),
+      runtime: 'module',
+      serverUrl: SERVER_BASE,
+    });
   }, 120_000);
 
   afterAll(async () => {

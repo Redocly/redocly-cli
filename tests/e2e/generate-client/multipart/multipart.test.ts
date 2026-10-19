@@ -5,18 +5,13 @@
  * FormData it actually sent.
  */
 
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  collectTsFiles,
-  copyConsumer,
-  expectTscPasses,
-  generate,
-  runConsumer,
-} from '../helpers.js';
+import { collectTsFiles, copyConsumer, expectTscPasses, runConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -28,9 +23,9 @@ describe('generate-client typed multipart body (#5)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  it('types the fields (binary→Blob) and serializes the object to FormData', () => {
+  it('types the fields (binary→Blob) and serializes the object to FormData', async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(spec, join(dir, 'client.ts'));
+    await generateClient({ api: spec, output: join(dir, 'client.ts') });
 
     const result = runConsumer(join(dir, 'typed-fields.ts')) as Record<string, unknown>;
 
@@ -41,9 +36,9 @@ describe('generate-client typed multipart body (#5)', () => {
     expect(result.meta).toBe('{"k":"v"}'); // nested object → JSON part
   }, 60_000);
 
-  it('serializes the multipart body AFTER onRequest, so middleware can mutate it', () => {
+  it('serializes the multipart body AFTER onRequest, so middleware can mutate it', async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(spec, join(dir, 'client.ts'));
+    await generateClient({ api: spec, output: join(dir, 'client.ts') });
 
     const result = runConsumer(join(dir, 'mutate-in-on-request.ts')) as Record<string, unknown>;
 
@@ -51,9 +46,9 @@ describe('generate-client typed multipart body (#5)', () => {
     expect(result.orgId).toBe('mutated');
   }, 60_000);
 
-  it('compiles in split output (multipart serialization lives in the embedded runtime)', () => {
+  it('compiles in split output (multipart serialization lives in the embedded runtime)', async () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-multipart-split-'));
-    generate(spec, join(dir, 'client.ts'), ['--output-mode', 'split']);
+    await generateClient({ api: spec, output: join(dir, 'client.ts'), outputMode: 'split' });
     const files = collectTsFiles(dir);
     expectTscPasses(
       [

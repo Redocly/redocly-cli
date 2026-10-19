@@ -1,9 +1,10 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, killServer, startServer } from '../helpers.js';
+import { copyConsumer, killServer, startServer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -14,10 +15,14 @@ const SERVER_PORT = 3107;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 describe('generate-client go generator (end-to-end)', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     generatedFile = join(workDir, 'client/client.go');
-    generate(fixture, join(workDir, 'client/client.ts'), ['--generator', 'go']);
+    await generateClient({
+      api: fixture,
+      output: join(workDir, 'client/client.ts'),
+      generators: ['go'],
+    });
     expect(existsSync(generatedFile)).toBe(true);
   });
 
@@ -31,9 +36,14 @@ describe('generate-client go generator (end-to-end)', () => {
     expect(result.stdout, 'files gofmt would change').toBe('');
   });
 
-  it('--go-package sets the package clause', () => {
+  it('--go-package sets the package clause', async () => {
     const target = join(workDir, 'renamed-package');
-    generate(fixture, join(target, 'client.ts'), ['--generator', 'go', '--go-package', 'rebilly']);
+    await generateClient({
+      api: fixture,
+      output: join(target, 'client.ts'),
+      generators: ['go'],
+      goPackage: 'rebilly',
+    });
     expect(readFileSync(join(target, 'client.go'), 'utf-8')).toContain('\npackage rebilly\n');
   });
 
@@ -73,12 +83,13 @@ describe('generate-client go generator (end-to-end)', () => {
 describe('generate-client go generator, parameter names an SDK cannot take literally', () => {
   let dir: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer-repeated-params'));
-    generate(join(__dirname, '../fixtures/repeated-params.yaml'), join(dir, 'client.ts'), [
-      '--generator',
-      'go',
-    ]);
+    await generateClient({
+      api: join(__dirname, '../fixtures/repeated-params.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['go'],
+    });
   });
 
   afterAll(() => {

@@ -8,11 +8,12 @@
  * string defaults (spec-independent middleware stays assignable — asserted below).
  */
 
+import { generateClient } from '@redocly/client-generator';
 import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runTsc } from '../helpers.js';
+import { copyConsumer, runTsc } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -24,9 +25,9 @@ function typechecks(dir: string, consumer: string): boolean {
 
 describe('typed ctx.operation rejects typos at compile time', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'));
+    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
     if (dir) rmSync(dir, { recursive: true, force: true });

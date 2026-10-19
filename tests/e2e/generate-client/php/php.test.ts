@@ -1,10 +1,11 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, killServer, startServer } from '../helpers.js';
+import { copyConsumer, killServer, startServer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
@@ -36,7 +37,11 @@ describe('generate-client php generator (end-to-end)', () => {
     );
     workDir = copyConsumer(join(__dirname, 'consumer'));
     generatedFile = join(workDir, 'client/client.php');
-    generate(fixture, join(workDir, 'client/client.ts'), ['--generator', 'php']);
+    await generateClient({
+      api: fixture,
+      output: join(workDir, 'client/client.ts'),
+      generators: ['php'],
+    });
     expect(existsSync(generatedFile)).toBe(true);
   }, 60_000);
 
@@ -72,12 +77,13 @@ describe('generate-client php generator (end-to-end)', () => {
 describe('generate-client php generator, parameter names an SDK cannot take literally', () => {
   let dir: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = mkdtempSync(join(tmpdir(), 'php-repeated-'));
-    generate(join(__dirname, '../fixtures/repeated-params.yaml'), join(dir, 'client.ts'), [
-      '--generator',
-      'php',
-    ]);
+    await generateClient({
+      api: join(__dirname, '../fixtures/repeated-params.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['php'],
+    });
   });
 
   afterAll(() => {

@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 import { type ChildProcess, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -6,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 import {
   copyConsumer,
   expectTscPasses,
-  generate,
   killServer,
   runTsx,
   serverLog as readServerLog,
@@ -44,25 +44,18 @@ describe('generate-client cli generator (end-to-end)', () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     clientDir = join(workDir, 'client');
     stripDir = join(workDir, 'client-strip');
-    generate(fixture, join(clientDir, 'client.ts'), [
-      '--generator',
-      'typescript',
-      '--generator',
-      'zod',
-      '--generator',
-      'cli',
-    ]);
+    await generateClient({
+      api: fixture,
+      output: join(clientDir, 'client.ts'),
+      generators: ['typescript', 'zod', 'cli'],
+    });
     // A second copy with `.ts` specifiers: what a zero-build `node` runner needs.
-    generate(fixture, join(stripDir, 'client.ts'), [
-      '--generator',
-      'typescript',
-      '--generator',
-      'zod',
-      '--generator',
-      'cli',
-      '--import-ext',
-      'ts',
-    ]);
+    await generateClient({
+      api: fixture,
+      output: join(stripDir, 'client.ts'),
+      generators: ['typescript', 'zod', 'cli'],
+      importExt: 'ts',
+    });
     serverProcess = await startServer(
       join(__dirname, 'server.ts'),
       { CLI_SERVER_PORT: String(SERVER_PORT) },
@@ -75,18 +68,14 @@ describe('generate-client cli generator (end-to-end)', () => {
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  it('--runtime module writes runtime/cli.ts and the entry runs through it', () => {
+  it('--runtime module writes runtime/cli.ts and the entry runs through it', async () => {
     const moduleDir = join(workDir, 'client-module');
-    generate(fixture, join(moduleDir, 'client.ts'), [
-      '--generator',
-      'typescript',
-      '--generator',
-      'zod',
-      '--generator',
-      'cli',
-      '--runtime',
-      'module',
-    ]);
+    await generateClient({
+      api: fixture,
+      output: join(moduleDir, 'client.ts'),
+      generators: ['typescript', 'zod', 'cli'],
+      runtime: 'module',
+    });
     const entry = readFileSync(join(moduleDir, 'client.cli.ts'), 'utf-8');
     expect(entry).toContain('from "./runtime/cli.js"');
     expect(entry).not.toContain('function parseInvocation');

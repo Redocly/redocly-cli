@@ -1,9 +1,10 @@
+import { generateClient } from '@redocly/client-generator';
 import { spawnSync } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate } from '../helpers.js';
+import { copyConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/cafe.yaml');
@@ -11,9 +12,14 @@ const fixture = join(__dirname, '../fixtures/cafe.yaml');
 describe('generate-client --runtime module, go', () => {
   let dir = '';
 
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'), ['--generator', 'go', '--runtime', 'module']);
+    await generateClient({
+      api: fixture,
+      output: join(dir, 'client.ts'),
+      generators: ['go'],
+      runtime: 'module',
+    });
   });
 
   afterAll(() => {

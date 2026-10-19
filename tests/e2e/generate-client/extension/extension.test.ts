@@ -1,3 +1,4 @@
+import { generateClient } from '@redocly/client-generator';
 /**
  * Behavioral e2e for the extension contract (D3). Rather than a live server, we
  * inject a fake `fetch` via `configure()` / `createClient(…, config)` and capture what
@@ -8,16 +9,16 @@ import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, generate, runConsumer } from '../helpers.js';
+import { copyConsumer, runConsumer } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
 
 describe('extension contract — flat surface (configure)', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'));
+    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -51,9 +52,9 @@ describe('extension contract — flat surface (configure)', () => {
 
 describe('extension contract — per-instance config (createClient)', () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    generate(fixture, join(dir, 'client.ts'));
+    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });

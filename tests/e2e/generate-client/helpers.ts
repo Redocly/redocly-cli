@@ -23,16 +23,6 @@ export const STRICT_TSCONFIG = {
   },
 };
 
-/** Run `generate-client` on a fixture; throws with the CLI's stderr on failure. */
-export function generate(fixture: string, outFile: string, extraArgs: string[] = []): void {
-  const result = spawnSync(
-    'node',
-    [cliEntry, 'generate-client', fixture, '--output', outFile, ...extraArgs],
-    { encoding: 'utf-8', cwd: repoRoot }
-  );
-  if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
-}
-
 export function runGenerateClient(
   args: string[],
   cwd: string = repoRoot
