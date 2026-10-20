@@ -27,11 +27,11 @@ redocly skills --list
 
 ## Options
 
-| Option   | Type     | Description                                                                                                                       |
-| -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| --agent  | [string] | Agents to install the skills for. Without this option, the command detects the agents. See [Supported agents](#supported-agents). |
-| --global | boolean  | Install the skills in your home folder instead of the current project. Default value is `false`.                                  |
-| --list   | boolean  | List the bundled skills without installing them.                                                                                  |
+| Option   | Type     | Description                                                                                                                          |
+| -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| --agent  | [string] | Agents to install the skills for. Without this option, the command detects the agents. See [Supported agents](#supported-agents).    |
+| --global | boolean  | Install the skills in your home folder instead of the current project. Default value is `false`.                                     |
+| --list   | boolean  | List the bundled skills without installing them.                                                                                     |
 | --help   | boolean  | Display help.                                                                                                                        |
 
 ## Supported agents
