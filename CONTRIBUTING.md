@@ -270,7 +270,7 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 
 ### Client generator tests
 
-`npm run client-generators` runs the tests in `packages/client-generator/tests`.
+`npm run client-generators` runs the tests in `packages/client-generator/tests/e2e`.
 Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, and `python/`.
 The tests compile the generated clients, so they need Go, PHP, and Python.
 A missing tool stops the run with a message that names it.
@@ -295,7 +295,7 @@ pip3 install httpx pydantic
 
 The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
 
-Tests that need an HTTP server use `MockServer` from `packages/client-generator/tests/helpers/mock-server.ts`.
+Tests that need an HTTP server use `MockServer` from `packages/client-generator/tests/e2e/helpers/mock-server.ts`.
 While the server runs, start a consumer with the async `runTsx` or `runCommand`, because a synchronous spawn blocks the server.
 
 ### Smoke tests

@@ -3,10 +3,13 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { GO_CAFE } from '../../src/generators/__tests__/fixtures/cafe-models.js';
-import { generatorInput } from '../../src/generators/__tests__/fixtures/generator-input.js';
-import { goGenerator as goGeneratorEntry, renderGoModels } from '../../src/generators/go/index.js';
-import type { ApiModel, SchemaModel } from '../../src/intermediate-representation/model.js';
+import { GO_CAFE } from '../../../src/generators/__tests__/fixtures/cafe-models.js';
+import { generatorInput } from '../../../src/generators/__tests__/fixtures/generator-input.js';
+import {
+  goGenerator as goGeneratorEntry,
+  renderGoModels,
+} from '../../../src/generators/go/index.js';
+import type { ApiModel, SchemaModel } from '../../../src/intermediate-representation/model.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
 // mirrors those steps for these direct calls.

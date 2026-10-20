@@ -74,7 +74,7 @@
    The one exception is the `client-generators` projects below.
 
 1. Run the full suite (`npm test`) after the code change, and make sure all tests pass in CI.
-1. Client generation has its own projects: `npm run client-generators` runs the bars in `packages/client-generator/tests`.
+1. Client generation has its own projects: `npm run client-generators` runs the bars in `packages/client-generator/tests/e2e`.
    Run it for any generation change.
    These bars compile real Python, Go, PHP, and TypeScript output, some of it from large real-world descriptions.
    They are the slowest tests in the repository, and they need toolchains that no other test needs.

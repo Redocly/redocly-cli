@@ -52,4 +52,4 @@ export (`tanstackQueryGenerator('react')`), so switch it to `'vue'`, `'svelte'`,
 3. Verify: `npm run compile`, the folder's unit suites
    (`npx vitest run packages/client-generator/src/generators/tanstack-query`),
    the e2e suites for this generator, and the large-description bars
-   (`packages/client-generator/tests/typescript/large-descriptions.test.ts`).
+   (`packages/client-generator/tests/e2e/typescript/large-descriptions.test.ts`).

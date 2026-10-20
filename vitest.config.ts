@@ -46,7 +46,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators',
-          include: ['packages/client-generator/tests/typescript/**/*.test.ts'],
+          include: ['packages/client-generator/tests/e2e/typescript/**/*.test.ts'],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -55,8 +55,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators-go',
-          include: ['packages/client-generator/tests/go/**/*.test.ts'],
-          globalSetup: ['packages/client-generator/tests/toolchains.ts'],
+          include: ['packages/client-generator/tests/e2e/go/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
           provide: {
             requiredTools: [
               { name: 'Go', command: 'go', args: ['version'] },
@@ -71,8 +71,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators-php',
-          include: ['packages/client-generator/tests/php/**/*.test.ts'],
-          globalSetup: ['packages/client-generator/tests/toolchains.ts'],
+          include: ['packages/client-generator/tests/e2e/php/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
           provide: {
             requiredTools: [
               { name: 'PHP', command: 'php', args: ['--version'] },
@@ -92,8 +92,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators-python',
-          include: ['packages/client-generator/tests/python/**/*.test.ts'],
-          globalSetup: ['packages/client-generator/tests/toolchains.ts'],
+          include: ['packages/client-generator/tests/e2e/python/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
           provide: {
             requiredTools: [
               { name: 'Python 3', command: 'python3', args: ['--version'] },

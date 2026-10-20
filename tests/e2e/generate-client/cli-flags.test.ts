@@ -1,6 +1,6 @@
 // `redocly generate-client` with a flag must write the same files as `generateClient` with the
 // matching option. If the CLI drops or renames a flag, the two outputs differ. The tests in
-// packages/client-generator/tests call `generateClient` directly, so this file proves the CLI layer.
+// packages/client-generator/tests/e2e call `generateClient` directly, so this file proves the CLI layer.
 import { generateClient, type GenerateClientConfig } from '@redocly/client-generator';
 import { logger } from '@redocly/openapi-core';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';

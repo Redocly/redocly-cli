@@ -5,7 +5,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-export const repoRoot = resolve(__dirname, '../../../..');
+export const repoRoot = resolve(__dirname, '../../../../..');
 export const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
 const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 

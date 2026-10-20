@@ -77,8 +77,8 @@ jobs:
           - name: Cache the pinned GitHub REST description
             uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
             with:
-              path: packages/client-generator/tests/shared/large-descriptions/.cache
-              key: large-descriptions-${{ hashFiles('packages/client-generator/tests/shared/large-descriptions/large-descriptions.ts') }}
+              path: packages/client-generator/tests/e2e/shared/large-descriptions/.cache
+              key: large-descriptions-${{ hashFiles('packages/client-generator/tests/e2e/shared/large-descriptions/large-descriptions.ts') }}
       - name: Install httpx and pydantic (the Python bars need them)
         run: pip install httpx pydantic
       - parallel:

@@ -44,4 +44,4 @@ with `--update`. Change the hook shape or the key strategy, and regenerate.
 3. Verify: `npm run compile`, the folder's unit suites
    (`npx vitest run packages/client-generator/src/generators/swr`),
    the e2e suites for this generator, and the large-description bars
-   (`packages/client-generator/tests/typescript/large-descriptions.test.ts`).
+   (`packages/client-generator/tests/e2e/typescript/large-descriptions.test.ts`).

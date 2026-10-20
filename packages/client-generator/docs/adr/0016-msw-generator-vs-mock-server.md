@@ -16,7 +16,7 @@ They sit on **two orthogonal axes**, which the "redundant?" question conflates:
 
 The dominant consumer of a generated TypeScript SDK is application code (React/Vue/…) whose testing and local-dev story is **in-process fetch interception** — which is precisely what MSW is, and what comparable generators emit, because it is the ecosystem norm. Booting a Node HTTP server inside each frontend test worker is heavier, flake-prone (port lifecycle), impossible in a browser worker, and loses transparent interception (the client's `baseUrl` must be redirected).
 
-The mock server's strengths are the mirror image: real transport (why this repo's own runtime-tier tests — `tests/typescript/base/base.test.ts` / `cafe/cafe.test.ts` — run the generated client against it), a shared team/staging-like instance, and cross-language clients. Using the _generated_ mock as the harness for the _sdk_ generator's own runtime test would also be circular — a mock-generator bug could mask or cause an sdk-test failure — so the independent, spec-driven server is the trustworthy double there.
+The mock server's strengths are the mirror image: real transport (why this repo's own runtime-tier tests — `tests/e2e/typescript/base/base.test.ts` / `cafe/cafe.test.ts` — run the generated client against it), a shared team/staging-like instance, and cross-language clients. Using the _generated_ mock as the harness for the _sdk_ generator's own runtime test would also be circular — a mock-generator bug could mask or cause an sdk-test failure — so the independent, spec-driven server is the trustworthy double there.
 
 ## Decision
 
