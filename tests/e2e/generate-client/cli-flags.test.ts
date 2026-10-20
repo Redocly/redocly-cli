@@ -8,7 +8,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { repoRoot, runGenerateClient } from './helpers.js';
+import { runCommandResult } from '../helpers.js';
+import { cliEntry, repoRoot } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(repoRoot, 'resources/cafe.yaml');
@@ -84,12 +85,11 @@ describe('generate-client CLI flags', () => {
       const cliDir = mkdtempSync(join(tmpdir(), 'cli-flags-cli-'));
       const apiDir = mkdtempSync(join(tmpdir(), 'cli-flags-api-'));
       try {
-        const result = runGenerateClient([
-          fixture,
-          '--output',
-          join(cliDir, 'client.ts'),
-          ...flags,
-        ]);
+        const result = runCommandResult(
+          'node',
+          [cliEntry, 'generate-client', fixture, '--output', join(cliDir, 'client.ts'), ...flags],
+          { testPath: __dirname }
+        );
         expect(result.status, result.stderr).toBe(0);
         await generateClient({ api: fixture, output: join(apiDir, 'client.ts'), ...options });
         expect(readFiles(cliDir)).toEqual(readFiles(apiDir));

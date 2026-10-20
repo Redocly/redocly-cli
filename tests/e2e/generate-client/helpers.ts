@@ -1,28 +1,17 @@
-// Helpers for the tests of the `generate-client` and `eject-generator` commands. They run the
-// CLI and tsx scripts through the shared runners in tests/e2e/helpers.ts.
+// Helpers for the tests of the `generate-client` and `eject-generator` commands. The tests run
+// the CLI with `runCommandResult` from tests/e2e/helpers.ts and pass their own folder as the cwd,
+// so a local redocly.yaml in the repository root does not change the result.
 import { cpSync, mkdtempSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { runCommandResult, runCommandResultAsync, type CommandResult } from '../helpers.js';
+import { runCommandResultAsync, type CommandResult } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(__dirname, '../../..');
-const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
+export const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
-
-/**
- * Run the redocly CLI. The default cwd is this folder, which has no redocly.yaml, so a local
- * redocly.yaml in the repository root does not change the result.
- */
-export function runCli(args: string[], cwd: string = __dirname): CommandResult {
-  return runCommandResult('node', [cliEntry, ...args], { testPath: cwd });
-}
-
-export function runGenerateClient(args: string[], cwd: string = __dirname): CommandResult {
-  return runCli(['generate-client', ...args], cwd);
-}
 
 /** Run a tsx script. The script has its own timeout, because a hang must fail. */
 export function runTsx(

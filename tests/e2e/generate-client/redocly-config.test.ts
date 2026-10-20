@@ -1,9 +1,3 @@
-// generate-client reads its settings from a `redocly.yaml` `client` block (top-level
-// shared defaults) and per-API `apis.<name>.client` / `clientOutput`. Invocation modes:
-// fan-out (no arg, over apis with a `client` block) and an `apis:` alias or file path,
-// resolved like `bundle`/`lint`. CLI flags override the config.
-// The config is what each test changes, so each test writes its own redocly.yaml.
-
 import {
   copyFileSync,
   existsSync,
@@ -12,11 +6,20 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
+// generate-client reads its settings from a `redocly.yaml` `client` block (top-level
+// shared defaults) and per-API `apis.<name>.client` / `clientOutput`. Invocation modes:
+// fan-out (no arg, over apis with a `client` block) and an `apis:` alias or file path,
+// resolved like `bundle`/`lint`. CLI flags override the config.
+// The config is what each test changes, so each test writes its own redocly.yaml.
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { repoRoot, runGenerateClient } from './helpers.js';
+import { runCommandResult } from '../helpers.js';
+import { cliEntry, repoRoot } from './helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const fixture = join(repoRoot, 'resources/cafe.yaml');
 
@@ -65,7 +68,7 @@ describe('generate-client redocly.yaml config', () => {
         lintOnly:
           root: ./openapi.yaml
     `);
-    const res = runGenerateClient([], dir);
+    const res = runCommandResult('node', [cliEntry, 'generate-client'], { testPath: dir });
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'src/cafe.ts'))).toBe(true);
     expect(existsSync(join(dir, 'lintOnly.client.ts'))).toBe(false);
@@ -83,7 +86,7 @@ describe('generate-client redocly.yaml config', () => {
           client:
             generators: [typescript]
     `);
-    const res = runGenerateClient([], dir);
+    const res = runCommandResult('node', [cliEntry, 'generate-client'], { testPath: dir });
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'cafe.client.ts'))).toBe(true);
   });
@@ -171,7 +174,9 @@ describe('generate-client redocly.yaml config', () => {
   for (const testCase of serverUrlCases) {
     it(`serverUrl: ${testCase.name}`, () => {
       writeProject(testCase.config);
-      const res = runGenerateClient(testCase.args, dir);
+      const res = runCommandResult('node', [cliEntry, 'generate-client', ...testCase.args], {
+        testPath: dir,
+      });
       expect(res.status, res.stderr).toBe(0);
       expect(readFileSync(join(dir, testCase.outputFile), 'utf-8')).toContain(
         `serverUrl: "${testCase.serverUrl}"`
@@ -193,7 +198,7 @@ describe('generate-client redocly.yaml config', () => {
           client:
             argsStyle: flat
     `);
-    const res = runGenerateClient(['cafe'], dir);
+    const res = runCommandResult('node', [cliEntry, 'generate-client', 'cafe'], { testPath: dir });
     expect(res.status, res.stderr).toBe(0);
     const entry = readFileSync(join(dir, 'out.ts'), 'utf-8');
     // The per-api block applied…
@@ -239,7 +244,9 @@ describe('generate-client redocly.yaml config', () => {
   for (const testCase of structWarningCases) {
     it(`warns on ${testCase.name} (config struct rule) but still generates`, () => {
       writeProject(testCase.config);
-      const res = runGenerateClient(['cafe'], dir);
+      const res = runCommandResult('node', [cliEntry, 'generate-client', 'cafe'], {
+        testPath: dir,
+      });
       expect(res.status, res.stderr).toBe(0);
       expect(res.stdout + res.stderr).toContain(testCase.warning);
       expect(res.stderr).toContain('Your config has 1 warning');
@@ -305,7 +312,9 @@ describe('generate-client redocly.yaml config', () => {
   for (const testCase of errorCases) {
     it(testCase.name, () => {
       writeProject(testCase.config);
-      const res = runGenerateClient(testCase.args, dir);
+      const res = runCommandResult('node', [cliEntry, 'generate-client', ...testCase.args], {
+        testPath: dir,
+      });
       expect(res.status).not.toBe(0);
       expect(res.stderr).toContain(testCase.message);
     });
@@ -317,7 +326,9 @@ describe('generate-client redocly.yaml config', () => {
     'rejects the serverUrl %s',
     (serverUrl) => {
       writeProject(configWithServerUrl(serverUrl));
-      const res = runGenerateClient(['cafe'], dir);
+      const res = runCommandResult('node', [cliEntry, 'generate-client', 'cafe'], {
+        testPath: dir,
+      });
       expect(res.status).not.toBe(0);
       expect(res.stderr).toContain('serverUrl must be an absolute URL');
     }
@@ -333,7 +344,7 @@ describe('generate-client redocly.yaml config', () => {
             generators: [typescript, zod]
             outputMode: split
     `);
-    const res = runGenerateClient(['realm'], dir);
+    const res = runCommandResult('node', [cliEntry, 'generate-client', 'realm'], { testPath: dir });
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     expect(existsSync(join(dir, 'out/client.schemas.ts'))).toBe(true); // split layout
@@ -350,7 +361,11 @@ describe('generate-client redocly.yaml config', () => {
             generators: [typescript]
     `);
     // Run from another folder, pointing at the config with --config.
-    const res = runGenerateClient(['--config', join(dir, 'redocly.yaml')]);
+    const res = runCommandResult(
+      'node',
+      [cliEntry, 'generate-client', '--config', join(dir, 'redocly.yaml')],
+      { testPath: __dirname }
+    );
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
   });
@@ -387,7 +402,7 @@ describe('generate-client redocly.yaml config', () => {
       `,
       'utf-8'
     );
-    const res = runGenerateClient(['main'], dir);
+    const res = runCommandResult('node', [cliEntry, 'generate-client', 'main'], { testPath: dir });
     expect(res.status, res.stderr).toBe(0);
     const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
     expect(client).toContain('getPublic');

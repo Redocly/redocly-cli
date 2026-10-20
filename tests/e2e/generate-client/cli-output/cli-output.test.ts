@@ -7,7 +7,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { copyConsumer, runCli, runGenerateClient, runTsx } from '../helpers.js';
+import { runCommandResult } from '../../helpers.js';
+import { cliEntry, copyConsumer, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'openapi.yaml');
@@ -21,15 +22,20 @@ describe('config-driven composition (client.cliOutput)', () => {
     copyFileSync(fixture, join(project, 'openapi.yaml'));
     // Eject the cli generator first: composition keys off the emitted module, so a
     // `./generators/cli/index.ts` path entry must compose exactly like the built-in name.
-    const ejected = runCli(
-      ['eject-generator', 'cli', '--config', join(project, 'redocly.yaml')],
-      project
+    const ejected = runCommandResult(
+      'node',
+      [cliEntry, 'eject-generator', 'cli', '--config', join(project, 'redocly.yaml')],
+      { testPath: project }
     );
     expect(ejected.status, ejected.stderr).toBe(0);
     expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
       'generators: [typescript, zod, ./generators/cli/index.ts]'
     );
-    const generated = runGenerateClient(['--config', join(project, 'redocly.yaml')], project);
+    const generated = runCommandResult(
+      'node',
+      [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
+      { testPath: project }
+    );
     expect(generated.status, generated.stderr).toBe(0);
   });
 
@@ -83,7 +89,11 @@ describe('client.cliOutput validation', () => {
       `,
       'utf-8'
     );
-    return runGenerateClient(['--config', join(project, 'redocly.yaml')], project);
+    return runCommandResult(
+      'node',
+      [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
+      { testPath: project }
+    );
   }
 
   it('rejects a non-.ts entry instead of writing TypeScript into it', () => {
