@@ -1549,7 +1549,7 @@ type SendCapabilities = {
  * Normalize a caller's `HeadersInit` (plain record, `Headers` instance, or entry pairs)
  * to a plain record — spreading a `Headers` or an array contributes no entries.
  */
-function toHeaderRecord(headers: HeadersInit | undefined): Record<string, string> {
+function toHeaderRecord(headers: RequestInit['headers']): Record<string, string> {
   if (headers === undefined) return {};
   if (headers instanceof Headers) {
     const record: Record<string, string> = {};
@@ -1559,7 +1559,8 @@ function toHeaderRecord(headers: HeadersInit | undefined): Record<string, string
     return record;
   }
   if (Array.isArray(headers)) return Object.fromEntries(headers);
-  return headers;
+  // Without the DOM lib, Node's HeadersInit also allows string-array values.
+  return headers as Record<string, string>;
 }
 
 /**
@@ -1660,7 +1661,7 @@ async function send(
   // custom header would force a CORS preflight the API may not allow.
   if (
     typeof config.clientHeader === 'string' &&
-    typeof document === 'undefined' &&
+    !('document' in globalThis) &&
     !('X-Redocly-Client' in headers) &&
     !('x-redocly-client' in headers)
   ) {
@@ -1676,7 +1677,7 @@ async function send(
   const middleware = middlewareChain(config);
   for (const mw of middleware) if (mw.onRequest) await mw.onRequest(context);
   // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.
-  let payload: BodyInit | undefined;
+  let payload: RequestInit['body'];
   let isStream = false;
   if (context.body !== undefined) {
     const value = context.body;
@@ -1692,7 +1693,7 @@ async function send(
         typeof (value as Partial<AsyncIterable<unknown>>)[Symbol.asyncIterator] === 'function');
     const hasContentType = 'Content-Type' in context.headers || 'content-type' in context.headers;
     if (isFormData || isURLSearchParams || isBinary || isStream || typeof value === 'string') {
-      payload = value as BodyInit;
+      payload = value as RequestInit['body'];
       // `fetch` derives the type of FormData and URLSearchParams, boundary included, and a
       // multipart boundary is only the caller's to set. Any other pass-through body gets
       // the declared type when the caller set none.
