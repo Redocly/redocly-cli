@@ -24,7 +24,10 @@ describe('ApiClient', () => {
 
   it('should send the current CLI major version when the caller passes none', async () => {
     const [cliMajor] = packageJson.version.split('.');
-    mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ branchName: 'main' }) });
+    mockFetchResponse({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ data: [{ branchName: 'main' }] }),
+    });
     const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
 
     await apiClient.remotes.getDefaultBranch(testOrg, testProject);
@@ -41,7 +44,10 @@ describe('ApiClient', () => {
 
   it('should append REDOCLY_ENVIRONMENT to the user agent', async () => {
     vi.stubEnv('REDOCLY_ENVIRONMENT', 'redocly-reunite-push-action/v1.4.0');
-    mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ branchName: 'main' }) });
+    mockFetchResponse({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ data: [{ branchName: 'main' }] }),
+    });
     const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
 
     try {
@@ -71,14 +77,16 @@ describe('ApiClient', () => {
       mockFetchResponse({
         ok: true,
         json: vi.fn().mockResolvedValue({
-          branchName: 'test-branch',
+          object: 'list',
+          page: { nextPage: null, previousPage: null, limit: 10 },
+          data: [{ id: 'rem_1', branchName: 'test-branch' }],
         }),
       });
 
       const result = await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
       expect(fetch).toHaveBeenCalledWith(
-        `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/source`,
+        `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/sources`,
         {
           method: 'GET',
           headers: {
@@ -92,6 +100,21 @@ describe('ApiClient', () => {
       );
 
       expect(result).toEqual('test-branch');
+    });
+
+    it('should throw an error if the project has no source', async () => {
+      mockFetchResponse({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          object: 'list',
+          page: { nextPage: null, previousPage: null, limit: 10 },
+          data: [],
+        }),
+      });
+
+      await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
+        new Error('Failed to fetch default branch. Project source not found.')
+      );
     });
 
     it('should throw parsed error if response is not ok', async () => {
@@ -373,7 +396,7 @@ describe('ApiClient', () => {
     const getDefaultBranchMock = {
       requestFn: () => apiClient.remotes.getDefaultBranch(testOrg, testProject),
       responseBody: {
-        branchName: 'test-branch',
+        data: [{ branchName: 'test-branch' }],
       },
     };
 

@@ -1,5 +1,18 @@
 # @redocly/openapi-core
 
+## 2.65.1
+
+### Patch Changes
+
+- Fixed the `no-schema-type-mismatch` rule to report `properties` on any non-`object` type and `items` on any non-`array` type, such as `type: string` with `properties`.
+  Previously, the rule only reported `properties` on `array` and `items` on `object`.
+
+  **Note:** Because the rule is an error in the `recommended` ruleset, descriptions that passed before may now fail.
+
+- Fixed an issue where the `struct` rule incorrectly reported an error for `type: file` in response schemas of OpenAPI 2.0 API descriptions.
+
+## 2.65.0
+
 ## 2.64.1
 
 ### Patch Changes
