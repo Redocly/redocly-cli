@@ -174,7 +174,7 @@ Run all commands from the repo root:
 ```sh
 npm run compile                 # build this package
 npm run unit                    # unit tests
-VITEST_SUITE=e2e npx vitest run tests/e2e/generate-client/   # behavioral e2e
+npm run client-generators       # behavioral e2e (needs Go, PHP, and Python)
 ```
 
 Each generator that embeds a runtime keeps its sources in its own folder (`src/generators/<name>/runtime/` — real, unit-testable modules that generation embeds), the IR lives in `src/intermediate-representation/`, and the generators in `src/generators/`.

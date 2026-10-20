@@ -1,0 +1,5 @@
+{
+  "name": "middleware-consumer",
+  "private": true,
+  "type": "module"
+}
