@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.62.1",
+  "version": "2.65.1",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -46,11 +46,11 @@
     "@opentelemetry/sdk-trace-node": "2.8.0",
     "@opentelemetry/semantic-conventions": "1.41.1",
     "@redocly/cli-otel": "0.3.7",
-    "@redocly/client-generator": "0.5.2",
-    "@redocly/openapi-core": "2.62.1",
-    "@redocly/recheck": "2.62.1",
-    "@redocly/respect-core": "2.62.1",
-    "@redocly/reunite-integration": "2.62.1",
+    "@redocly/client-generator": "0.7.3",
+    "@redocly/openapi-core": "2.65.1",
+    "@redocly/recheck": "2.65.1",
+    "@redocly/respect-core": "2.65.1",
+    "@redocly/reunite-integration": "2.65.1",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",
@@ -63,7 +63,7 @@
     "dotenv": "16.4.7",
     "esbuild": "^0.28.0",
     "glob": "^13.0.5",
-    "handlebars": "^4.7.9",
+    "handlebars": "^4.7.10",
     "react": "^17.0.0 || ^18.2.0 || ^19.2.7",
     "react-dom": "^17.0.0 || ^18.2.0 || ^19.2.7",
     "redoc": "2.5.4",
@@ -72,7 +72,7 @@
     "styled-components": "6.4.2",
     "typescript": "6.0.2",
     "ulid": "^3.0.1",
-    "undici": "^6.29.0",
+    "undici": "^7.30.0",
     "yargs": "17.0.1"
   }
 }

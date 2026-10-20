@@ -55,7 +55,10 @@ Without it, the command prints a warning that the rules can never report.
 ### recheck/api-descriptions
 
 The `recheck/markdown` rules without the seven that do not fit Markdown embedded in another document, such as an OpenAPI `description` field: `single-h1`, `first-line-h1`, `front-matter`, `single-trailing-newline`, `link-fragments`, `line-length`, and `ul-indent`.
-The `recheck` command does not lint API descriptions yet, so this preset is for a later release.
+The command does not need this preset to [lint API descriptions](../commands/recheck.md#lint-api-descriptions).
+It uses the rules in effect for pages and skips the five rules that need a whole document.
+Like every preset, this one applies to pages too: extend it in place of `recheck/markdown` when a project has API descriptions and no Markdown pages.
+To change rules for descriptions only, set [`apiDescriptions.rules`](../configuration/reference/recheck.md#api-descriptions-object) in the `recheck` block.
 
 ## Prose presets
 

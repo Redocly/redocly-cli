@@ -1,12 +1,17 @@
 import {
   type CodeSample,
+  type EmitOptions,
   type Generator,
+  GENERATOR_VERSION,
+  type GeneratedFile,
   type OperationModel,
   renderReferencePage,
   type SampleContext,
 } from '@redocly/client-generator';
+import { TELEMETRY_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
 import { join } from 'node:path';
 
+import { HEADER } from './banner.ts';
 import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client.ts';
 import { packageIdents } from './descriptor.ts';
 
@@ -25,6 +30,10 @@ export const typescriptGenerator: Generator = ({ model, output, outputMode, emit
     path: join(output.dir, 'runtime', name),
     content,
   }));
+  const telemetry: GeneratedFile[] = [];
+  if (emit.telemetry === 'on') {
+    telemetry.push(telemetryFile(output.dir, output.stem, emit));
+  }
   if (outputMode === 'split') {
     const { dir, stem } = output;
     const { entry, schemas } = emitClientSplit(model, emit, stem);
@@ -34,10 +43,27 @@ export const typescriptGenerator: Generator = ({ model, output, outputMode, emit
         : [{ path: join(dir, `${stem}.schemas.ts`), content: schemas }]),
       { path: output.path, content: entry },
       ...runtime,
+      ...telemetry,
     ];
   }
-  return [{ path: output.path, content: emitClientSingleFile(model, emit) }, ...runtime];
+  return [
+    { path: output.path, content: emitClientSingleFile(model, emit) },
+    ...runtime,
+    ...telemetry,
+  ];
 };
+
+function telemetryFile(dir: string, stem: string, emit: EmitOptions): GeneratedFile {
+  const clientModule = `./${stem}.${emit.importExt ?? 'js'}`;
+  const content = TELEMETRY_RUNTIME_SOURCE.replace(
+    "from '../../../runtime-contract.js';",
+    () => `from '${clientModule}';`
+  ).replace(
+    "const GENERATOR_VERSION: string = 'dev';",
+    () => `const GENERATOR_VERSION: string = '${GENERATOR_VERSION}';`
+  );
+  return { path: join(dir, `${stem}.telemetry.ts`), content: `${HEADER}\n\n${content}` };
+}
 
 /**
  * The client's own reference page, written when `client.docs` is on. Its snippets come from

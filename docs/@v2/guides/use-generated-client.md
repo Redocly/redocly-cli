@@ -30,7 +30,7 @@ redocly generate-client openapi.yaml --output src/client.ts --generator typescri
 `tanstack-query`, `swr`, and `cli` wrap the throw-mode `typescript` client.
 Because of this, they require `--error-mode throw`.
 The `transformers` generator requires `--date-type Date`.
-See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
+See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/mock) examples.
 
 ### Generated CLI
 
@@ -433,7 +433,7 @@ node src/main.ts
 Keep the default `js` when the client goes through `tsc` or a bundler.
 Plain `tsc` rejects `.ts` specifiers unless the project enables `allowImportingTsExtensions`.
 Loaders such as `tsx` remap `.js` to `.ts` themselves, so they work with the default.
-See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/node-native).
+See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/node-native).
 
 **Every generated TypeScript file is erasable TypeScript**, so type stripping alone is enough.
 The client, the zod module, and the generated CLI all run under plain `node` with no build step.
@@ -603,6 +603,34 @@ use({
 The client serializes and sends body edits.
 `onResponse` can return a replacement `Response`.
 The client threads `onError` (throw mode only) through each middleware.
+
+`onSettled` runs once per sent call, after the last retry, in registration order.
+It runs in both error modes, for each pagination page, and for each SSE connection, before a failed response becomes an error.
+It receives the request context and the outcome: the `response`, the `error`, or both, the number of `attempts`, and the `durationMs`.
+The duration starts before the first attempt and ends after the `onResponse` hooks run on the final response.
+
+A call that fails in an `onRequest` hook or in body serialization does not reach `onSettled`.
+A call whose signal is already aborted reaches `onSettled` with 0 attempts.
+
+Use `onSettled` to count, time, or log calls:
+
+```ts
+import { use } from './client.ts';
+
+use({
+  onSettled: (ctx, call) => {
+    const outcome = call.response ? call.response.status : 'failed';
+    console.log(
+      `${ctx.operation.id}: ${outcome}, ${call.attempts} attempt(s), ${call.durationMs} ms`
+    );
+  },
+});
+```
+
+`onSettled` is a middleware hook only; `ClientConfig` has no single `onSettled` hook.
+An error that `onSettled` throws rejects a successful call after all `onSettled` hooks run.
+When the call already failed, the call rejects with its own error, and the client logs the hook error with `console.warn`.
+
 The fields of `ctx.operation` are typed as literal unions from the description (`OperationId`/`OperationPath`/`OperationTag`).
 Because of this, `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete.
 An operation id with a spelling error fails compilation, and it does not silently miss all matches.
@@ -625,7 +653,7 @@ It composes with middleware that is already registered or that the publisher pre
 Use it to reset the chain.
 But prefer `use()` to add to existing middleware, including [publisher pre-configured](./customize-client-generation.md#publisher-defaults) middleware.
 
-See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/configure-and-middleware) for a runnable version.
+See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/configure-and-middleware) for a runnable version.
 
 ## The HTTP layer
 
@@ -696,6 +724,8 @@ An aborted `AbortSignal` stops retries immediately.
 
 A `timeout` (milliseconds) aborts an attempt that takes too long, including the body read.
 The timeout composes with your own `AbortSignal`.
+The client does not need `AbortSignal.timeout()` or `AbortSignal.any()` from the browser.
+Where a browser lacks them, the client builds the same signal from an `AbortController`, so you do not need a polyfill.
 Each retry attempt gets a fresh time budget.
 An attempt that times out retries under the same policy as a network error.
 When no retries remain, the failure surfaces as a `TimeoutError`, exported next to `ApiError`.
@@ -964,7 +994,7 @@ Each paginated operation keeps its one-shot call and gains two async iterators.
 `.pages(args?, init?)` yields full pages, and `.items(args?, init?)` yields individual items.
 Both are typed statically from the response schema.
 
-The client supports four styles.
+The client supports five styles.
 `cursor` sends the response's `nextCursor` back in `cursorParam`.
 It stops when the cursor is absent, `null`, or empty.
 It throws if the server returns the same cursor two times in a row.
@@ -983,6 +1013,14 @@ Because of this, every page goes through the same declared endpoint: auth and mi
 Iteration stops when no `rel="next"` is present, and it throws if the target repeats.
 A `link` convention rule applies only to operations whose success response documents a `Link` header.
 An explicit rule applies in all cases, but it warns when the header is undocumented.
+
+`body-link` follows the URL of the next page from a field in the response body, for example a `next_page_url` field.
+Set `nextLink` to the pointer of that field (for example `/page/nextPage`).
+The runtime handles the URL the same way as a `link` target: it merges the query parameters of the URL into the next call.
+Only the query parameters of the URL are used.
+The next call goes to the client's own `serverUrl` and the operation's path, even when the URL names another host.
+Iteration stops when the value is absent, `null`, or empty, and it throws if the URL repeats.
+A `body-link` convention rule applies only to operations whose success response resolves the pointer to a string.
 
 `limitParam` is optional metadata for any style.
 The iterator never sets it, so pass your page size in `params` yourself.
@@ -1024,7 +1062,7 @@ The client also does not invoke the `onError` middleware hook, which is throw-mo
 The built-in styles do not cover every shape, for example a cursor that travels in the request body or in a header.
 For those shapes, write a small helper over the generated call.
 The helper stays fully typed from end to end.
-See the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination).
+See the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/custom-pagination).
 
 ## TanStack Query factories
 
@@ -1038,6 +1076,7 @@ The `tanstack-query` generator emits typed TanStack Query v5 factories for each 
   Pass it to `useInfiniteQuery`/`fetchInfiniteQuery`.
   The generator compiles the `initialPageParam`/`getNextPageParam` pair from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, and it includes the `hasMore` stop.
   Because of this, infinite queries need no hand-written `getNextPageParam`.
+  For a `body-link` operation, the URL of the next page is the page param, and the next call merges its query parameters over `vars`.
   `link`-style operations are the exception, because their next page lives in a response header that a `queryFn` cannot see.
   Use the client's `.pages()`/`.items()` iterators for those.
 - `<op>QueryKey(vars?)`.

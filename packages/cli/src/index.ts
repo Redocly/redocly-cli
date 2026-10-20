@@ -1275,6 +1275,12 @@ yargs(hideBin(process.argv))
             choices: ['openapi'] as const,
             default: 'openapi' as const,
           },
+          'openapi-version': {
+            describe: 'OpenAPI version of the generated description.',
+            type: 'string',
+            choices: ['3.1', '3.2'] as ReadonlyArray<GenerateSpecArgv['openapi-version']>,
+            default: '3.2' as GenerateSpecArgv['openapi-version'],
+          },
           'traffic-format': {
             describe: 'Traffic input format.',
             choices: [

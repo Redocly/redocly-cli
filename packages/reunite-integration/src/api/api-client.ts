@@ -1,12 +1,13 @@
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
+import { FormData } from 'undici';
 
 import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
 import type {
   ProjectResponse,
-  ProjectSourceResponse,
+  ProjectSourcesListResponse,
   PushResponse,
   UpsertRemoteResponse,
 } from './types.js';
@@ -52,14 +53,11 @@ export class ReuniteApiClient implements BaseApiClient {
 
       return response;
     } catch (err) {
-      let errorMessage = 'Failed to fetch.';
+      const reason = err.cause ?? err;
+      let errorMessage = `Failed to fetch. Caused by ${reason.message || reason.name}.`;
 
-      if (err.cause) {
-        errorMessage += ` Caused by ${err.cause.message || err.cause.name}.`;
-      }
-
-      if (err.code || err.cause?.code) {
-        errorMessage += ` Code: ${err.code || err.cause?.code}`;
+      if (typeof reason.code === 'string') {
+        errorMessage += ` Code: ${reason.code}`;
       }
 
       throw new Error(errorMessage);
@@ -161,7 +159,7 @@ class RemotesApi extends ResourceApi {
   async getDefaultBranch(organizationId: string, projectId: string) {
     try {
       const response = await this.client.request(
-        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/sources`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
           method: 'GET',
@@ -172,7 +170,12 @@ class RemotesApi extends ResourceApi {
         }
       );
 
-      const source = await this.getParsedResponse<ProjectSourceResponse>(response);
+      const sources = await this.getParsedResponse<ProjectSourcesListResponse>(response);
+      const [source] = sources.data;
+
+      if (!source) {
+        throw new Error('Project source not found.');
+      }
 
       return source.branchName;
     } catch (err) {
@@ -231,7 +234,7 @@ class RemotesApi extends ResourceApi {
     payload: PushPayload,
     files: { path: string; stream: ReadStream | Buffer }[]
   ): Promise<PushResponse> {
-    const formData = new globalThis.FormData();
+    const formData = new FormData();
 
     formData.append('remoteId', payload.remoteId);
     formData.append('commit[message]', payload.commit.message);

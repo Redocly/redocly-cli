@@ -15,6 +15,10 @@ operation, and the runtime — embedded in the file (`runtime: inline`, the defa
 written as real modules in a `runtime/` folder beside it that the client imports
 relatively (`runtime: module`).
 
+With `client.telemetry: on`, it also writes `<stem>.telemetry.ts`: the usage telemetry
+middleware. The module exports `telemetry()` and `flush()`, and the application registers
+it with `use(telemetry({ sdkName, sdkVersion, client }))`.
+
 ## Design decisions that must hold
 
 - **Descriptor-driven:** generated code is DATA (`OPERATIONS` + `Ops`) plus wiring;
@@ -24,6 +28,11 @@ relatively (`runtime: module`).
   an entry that `export *`s it; the entry type-imports only the schema names it
   references (`collectEntrySchemaRefs`).
 - **Zero runtime dependencies.** `Date`, `Blob`, `fetch` — nothing else.
+- **Timeouts need no platform statics.** `send()` uses `AbortSignal.timeout()` and
+  `AbortSignal.any()` where they exist and builds the same signal from an `AbortController`
+  and `setTimeout` where they do not (Chrome before 116, Safari before 17.4, Firefox before
+  124). A timed-out attempt is recognized by its own timeout signal having fired, never by
+  the abort reason's name, because Chrome 103 to 123 abort a timeout with `AbortError`.
 - **Names are collision-safe:** `packageIdents` seeds every reserved wiring name before
   any operation is sanitized, so renames are deterministic (`configure` → `configure_2`).
   A rename becomes part of the SDK's public API, so the warning must say WHICH cause it
@@ -54,6 +63,18 @@ relatively (`runtime: module`).
   derives, boundary included), `send()` sets the operation's declared content type only
   when the caller set none, the same rule the JSON branch already follows. A forwarded
   multipart boundary therefore survives, and a binary upload is never sent untyped.
+- **`onSettled` sees every sent call once.** `send()` calls it after the last attempt
+  with the final response, the error, or both, the attempt count, and the duration from
+  the first attempt to the end of the `onResponse` hooks on the final response. A call
+  that fails in `onRequest` or in body serialization does not reach it. A call whose
+  signal is already aborted reaches it with 0 attempts.
+  Every hook runs. The first hook error rejects a successful call; on a failed call, the
+  original error wins.
+- **Telemetry is opt-in at generation time.** Without `telemetry: on`, the output holds
+  no telemetry code, and the client file does not change. An event holds only the
+  operation id, the counts, the window, and the SDK identity. The kill switches and a
+  browser turn the middleware off. The module embeds on its own, not in
+  `RUNTIME_SOURCES`, so `telemetry` and `flush` never become reserved names of a client.
 - **Throw mode returns the body**; `{ envelope: true }` opts into
   `{ data, headers, response }` with typed declared headers. Result mode returns
   `{ data, error, response }` and ignores `envelope`.
@@ -75,6 +96,9 @@ inside the package and reach the generator through
 `@redocly/client-generator/runtime-sources` (in this repo they live in `runtime/` beside
 these files). Naming and string escaping live in the TypeScript printer
 (`@redocly/client-generator/printers/typescript`).
+The telemetry middleware ships the same way, as `TELEMETRY_RUNTIME_SOURCE` (in this repo
+it lives in `telemetry/`); `index.ts` writes it with the contract import pointed at the
+client entry and the generator version baked in.
 
 ## Ejecting it
 
@@ -106,6 +130,6 @@ It is the largest of them, so reach for the smaller paths first when they fit:
    behavior changes go to `runtime/`, then `npm run prepare -w @redocly/client-generator`
    re-embeds).
 3. Verify: `npm run compile`, the folder's unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/typescript`),
+   (`npx vitest run packages/client-generator/src/generators/typescript`),
    the e2e suites for this generator, and the large-description bars
-   (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   (`packages/client-generator/tests/e2e/typescript/large-descriptions.test.ts`).

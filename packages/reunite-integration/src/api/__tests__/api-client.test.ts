@@ -1,20 +1,16 @@
+import { FormData, type Response, fetch } from 'undici';
+import type * as undici from 'undici';
+
 import packageJson from '../../../package.json' with { type: 'json' };
 import { ReuniteApi, type PushPayload, ReuniteApiError } from '../api-client.js';
 
-const originalFetch = global.fetch;
-
-beforeAll(() => {
-  // Reset fetch mock before each test
-  global.fetch = vi.fn();
-});
-
-afterAll(() => {
-  // Restore original fetch after each test
-  global.fetch = originalFetch;
-});
+vi.mock('undici', async (importOriginal) => ({
+  ...(await importOriginal<typeof undici>()),
+  fetch: vi.fn(),
+}));
 
 function mockFetchResponse(response: any) {
-  vi.mocked(global.fetch).mockResolvedValue(response);
+  vi.mocked(fetch).mockResolvedValue(response);
 }
 
 describe('ApiClient', () => {
@@ -28,12 +24,15 @@ describe('ApiClient', () => {
 
   it('should send the current CLI major version when the caller passes none', async () => {
     const [cliMajor] = packageJson.version.split('.');
-    mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ branchName: 'main' }) });
+    mockFetchResponse({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ data: [{ branchName: 'main' }] }),
+    });
     const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
 
     await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
@@ -45,7 +44,10 @@ describe('ApiClient', () => {
 
   it('should append REDOCLY_ENVIRONMENT to the user agent', async () => {
     vi.stubEnv('REDOCLY_ENVIRONMENT', 'redocly-reunite-push-action/v1.4.0');
-    mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ branchName: 'main' }) });
+    mockFetchResponse({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ data: [{ branchName: 'main' }] }),
+    });
     const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
 
     try {
@@ -54,7 +56,7 @@ describe('ApiClient', () => {
       vi.unstubAllEnvs();
     }
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
@@ -75,14 +77,16 @@ describe('ApiClient', () => {
       mockFetchResponse({
         ok: true,
         json: vi.fn().mockResolvedValue({
-          branchName: 'test-branch',
+          object: 'list',
+          page: { nextPage: null, previousPage: null, limit: 10 },
+          data: [{ id: 'rem_1', branchName: 'test-branch' }],
         }),
       });
 
       const result = await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/source`,
+      expect(fetch).toHaveBeenCalledWith(
+        `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/sources`,
         {
           method: 'GET',
           headers: {
@@ -96,6 +100,21 @@ describe('ApiClient', () => {
       );
 
       expect(result).toEqual('test-branch');
+    });
+
+    it('should throw an error if the project has no source', async () => {
+      mockFetchResponse({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          object: 'list',
+          page: { nextPage: null, previousPage: null, limit: 10 },
+          data: [],
+        }),
+      });
+
+      await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
+        new Error('Failed to fetch default branch. Project source not found.')
+      );
     });
 
     it('should throw parsed error if response is not ok', async () => {
@@ -160,7 +179,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/remotes`,
         {
           method: 'POST',
@@ -291,6 +310,7 @@ describe('ApiClient', () => {
       );
 
       // Compare FormData property-by-property for Node.js v24 compatibility
+      expect(passedFormData).toBeInstanceOf(FormData);
       expect(passedFormData.get('remoteId')).toBe(testRemoteId);
       expect(passedFormData.get('commit[message]')).toBe(pushPayload.commit.message);
       expect(passedFormData.get('commit[author][name]')).toBe(pushPayload.commit.author.name);
@@ -376,7 +396,7 @@ describe('ApiClient', () => {
     const getDefaultBranchMock = {
       requestFn: () => apiClient.remotes.getDefaultBranch(testOrg, testProject),
       responseBody: {
-        branchName: 'test-branch',
+        data: [{ branchName: 'test-branch' }],
       },
     };
 
@@ -528,7 +548,7 @@ describe('ProjectsApi', () => {
 
     const result = await apiClient.projects.find('acme', 'docs');
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       `${testDomain}/api/orgs/acme/projects/docs`,
       expect.objectContaining({
         method: 'GET',

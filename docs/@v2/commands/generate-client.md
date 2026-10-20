@@ -160,6 +160,54 @@ Every generator that embeds an engine supports both modes, each in its language'
 redocly generate-client openapi.yaml -o src/api/client.ts --runtime module
 ```
 
+### Add usage telemetry
+
+Set `telemetry: on` in the `client` block of your `redocly.yaml` file:
+
+```yaml
+client:
+  telemetry: on
+```
+
+The `typescript` generator then also writes `<output>.telemetry.ts` next to the client.
+The module counts the calls of your SDK per operation and sends the counts once a minute.
+Use it to learn which operations your SDK users call, how often, with which outcome, and how fast.
+Without `telemetry: on`, the generated code contains no telemetry, and the client file is the same in both cases.
+This option is available only in the configuration file and has no flag.
+
+Register the middleware once, where your SDK creates its client:
+
+```ts
+import { telemetry } from './client.telemetry.ts';
+import { use } from './client.ts';
+
+use(
+  telemetry({ sdkName: '@acme/billing-sdk', sdkVersion: '3.2.0', client: 'invoice-worker/1.8.4' })
+);
+```
+
+The middleware counts each call once, after the last retry.
+It sends one event per operation and window (60 seconds by default), and the open window when Node.js emits `beforeExit`.
+Before `process.exit()` or on a signal, call `await flush()`.
+By default, the events go to the Redocly OpenTelemetry endpoint.
+Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
+Pass a `sink` function to receive the events yourself instead.
+
+Each event contains only:
+
+- The operation ID.
+- The number of calls and attempts, and the sum of their durations.
+- The calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`) and the calls per duration bucket.
+  An outcome or a bucket with no calls is not sent.
+- The window start and length.
+- The SDK name and version, the generator version, the language, and the runtime name and version (Node.js, Bun, or Deno).
+- The client name that you pass.
+
+The module never sends URLs, path or query parameters, headers, request or response bodies, or any other value from a request.
+
+To turn off sending at run time, set `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1`.
+In a browser, the middleware does nothing.
+
 ## Resources
 
 - **[Use the generated client](../guides/use-generated-client.md)** - Learn how to use the client produced by the `generate-client` command

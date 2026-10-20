@@ -1,5 +1,55 @@
 # @redocly/client-generator
 
+## 0.7.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 0.7.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.0.
+
+## 0.7.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 0.7.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.0.
+
+## 0.6.0
+
+### Minor Changes
+
+- Added the `body-link` pagination style to the `generate-client` command.
+  Generated clients use it to follow the next page URL from a field in the response, set with the `nextLink` option.
+
+  The `tanstack-query` generator also creates infinite query options for these operations.
+
+### Patch Changes
+
+- Fixed request timeouts in the generated TypeScript client for older browsers that don't support `AbortSignal.timeout()` or `AbortSignal.any()`. Timed-out requests correctly throw `TimeoutError` instead of `AbortError` in Chrome 103–123.
+- Fixed an issue where the generated Go client sent duplicate query parameters when it followed a next page link.
+- Updated @redocly/openapi-core to v2.63.0.
+
+## 0.5.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.2.
+
 ## 0.5.2
 
 ### Patch Changes

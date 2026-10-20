@@ -1,5 +1,45 @@
 # @redocly/reunite-integration
 
+## 2.65.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 2.65.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.0.
+
+## 2.64.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 2.64.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to v0.66.0.
+- Updated @redocly/openapi-core to v2.64.0.
+
+## 2.63.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.63.0.
+
+## 2.62.2
+
+### Patch Changes
+
+- Fixed an issue where the `login` and `push` did not exit after a request through a proxy timed out.
+- Fixed an issue where the `login`, `push`, and other Reunite commands failed on Node.js 26.
+  Updated `undici` to the `7.30.0` version.
+- Updated @redocly/openapi-core to v2.62.2.
+
 ## 2.62.1
 
 ### Patch Changes
