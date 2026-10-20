@@ -1,7 +1,5 @@
 import { defineConfig } from 'vitest/config';
 
-const CLIENT_GENERATOR_TESTS = 'packages/client-generator/tests';
-
 export default defineConfig({
   test: {
     globals: true,
@@ -49,7 +47,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators',
-          include: [`${CLIENT_GENERATOR_TESTS}/typescript/**/*.test.ts`],
+          include: ['packages/client-generator/tests/typescript/**/*.test.ts'],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -58,8 +56,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators-go',
-          include: [`${CLIENT_GENERATOR_TESTS}/go/**/*.test.ts`],
-          globalSetup: [`${CLIENT_GENERATOR_TESTS}/vitest-setup/go.ts`],
+          include: ['packages/client-generator/tests/go/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/vitest-setup/go.ts'],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -68,8 +66,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators-php',
-          include: [`${CLIENT_GENERATOR_TESTS}/php/**/*.test.ts`],
-          globalSetup: [`${CLIENT_GENERATOR_TESTS}/vitest-setup/php.ts`],
+          include: ['packages/client-generator/tests/php/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/vitest-setup/php.ts'],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -78,8 +76,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client-generators-python',
-          include: [`${CLIENT_GENERATOR_TESTS}/python/**/*.test.ts`],
-          globalSetup: [`${CLIENT_GENERATOR_TESTS}/vitest-setup/python.ts`],
+          include: ['packages/client-generator/tests/python/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/vitest-setup/python.ts'],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
