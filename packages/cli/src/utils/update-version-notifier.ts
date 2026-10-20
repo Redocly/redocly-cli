@@ -39,7 +39,7 @@ const getLatestVersion = async (packageName: string): Promise<string | undefined
   const latestUrl = `http://registry.npmjs.org/${packageName}/latest`;
 
   try {
-    const { default: fetchWithTimeout } = await import('./fetch-with-timeout.js');
+    const { fetchWithTimeout } = await import('./fetch-with-timeout.js');
     const response = await fetchWithTimeout(latestUrl, { timeout: DEFAULT_FETCH_TIMEOUT });
     const info = await response.json();
 
