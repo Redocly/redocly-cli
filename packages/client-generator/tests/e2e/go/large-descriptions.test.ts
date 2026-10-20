@@ -24,9 +24,7 @@ async function expectGoBar(description: string): Promise<void> {
 describe('rebilly description', () => {
   it(
     'go builds and vets cleanly',
-    () => {
-      expectGoBar(rebillyDescription);
-    },
+    () => expectGoBar(rebillyDescription),
     LARGE_DESCRIPTION_TIMEOUT
   );
 });
