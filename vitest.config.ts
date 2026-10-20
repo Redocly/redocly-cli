@@ -1,7 +1,6 @@
 import { defineConfig } from 'vitest/config';
 
 const CLIENT_GENERATOR_TESTS = 'packages/client-generator/tests';
-const GENERATOR_WARNINGS_SETUP = `${CLIENT_GENERATOR_TESTS}/helpers/silence-generator-warnings.ts`;
 
 export default defineConfig({
   test: {
@@ -51,7 +50,6 @@ export default defineConfig({
         test: {
           name: 'client-generators',
           include: [`${CLIENT_GENERATOR_TESTS}/typescript/**/*.test.ts`],
-          setupFiles: [GENERATOR_WARNINGS_SETUP],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -61,8 +59,7 @@ export default defineConfig({
         test: {
           name: 'client-generators-go',
           include: [`${CLIENT_GENERATOR_TESTS}/go/**/*.test.ts`],
-          globalSetup: [`${CLIENT_GENERATOR_TESTS}/helpers/setup-go.ts`],
-          setupFiles: [GENERATOR_WARNINGS_SETUP],
+          globalSetup: [`${CLIENT_GENERATOR_TESTS}/vitest-setup/go.ts`],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -72,8 +69,7 @@ export default defineConfig({
         test: {
           name: 'client-generators-php',
           include: [`${CLIENT_GENERATOR_TESTS}/php/**/*.test.ts`],
-          globalSetup: [`${CLIENT_GENERATOR_TESTS}/helpers/setup-php.ts`],
-          setupFiles: [GENERATOR_WARNINGS_SETUP],
+          globalSetup: [`${CLIENT_GENERATOR_TESTS}/vitest-setup/php.ts`],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -83,8 +79,7 @@ export default defineConfig({
         test: {
           name: 'client-generators-python',
           include: [`${CLIENT_GENERATOR_TESTS}/python/**/*.test.ts`],
-          globalSetup: [`${CLIENT_GENERATOR_TESTS}/helpers/setup-python.ts`],
-          setupFiles: [GENERATOR_WARNINGS_SETUP],
+          globalSetup: [`${CLIENT_GENERATOR_TESTS}/vitest-setup/python.ts`],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },

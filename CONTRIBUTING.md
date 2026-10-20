@@ -276,7 +276,7 @@ Each language has its own folder and its own Vitest project, and a missing tool 
 
 - `typescript/`, `go/`, `php/`, and `python/` hold the tests of each language. The folder decides the Vitest project.
 - `shared/` holds the spec, the helper module, and the consumers of a topic that several languages test, such as `stream-bodies`.
-- `fixtures/` holds the shared specs, and `helpers/` holds the helpers, the mock server, and the toolchain checks.
+- `fixtures/` holds the shared specs, `helpers/` holds the helpers and the mock server, and `vitest-setup/` holds the toolchain checks that each language project runs first.
 
 Each topic folder holds its tests and the files they need.
 A `consumer/` folder holds the programs that call the generated client, with the `package.json`, `tsconfig.json`, or `go.mod` they need.

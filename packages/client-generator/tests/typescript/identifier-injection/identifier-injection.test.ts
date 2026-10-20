@@ -26,9 +26,10 @@ describe('generate-client identifier / comment injection', () => {
   it('sanitizes hostile names and escapes comments; output is strict-tsc clean', async () => {
     dir = mkdtempSync(join(tmpdir(), 'injection-'));
     const entry = join(dir, 'client.ts');
+    const warn = vi.spyOn(logger, 'warn');
     await generateClient({ api: join(__dirname, 'openapi.yaml'), output: entry });
     // The unsafe operationId is reported and rewritten, not silently accepted.
-    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('is not a usable identifier'));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('is not a usable identifier'));
 
     const src = readFileSync(entry, 'utf-8');
     // No live comment-breakout: the payload's `*/` is neutralized to `*\/`.

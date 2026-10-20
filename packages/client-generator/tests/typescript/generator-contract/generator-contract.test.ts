@@ -22,12 +22,13 @@ describe('tanstack-query skips operations it cannot wrap', () => {
   });
 
   it('skips SSE operations, reports them, and still emits the rest', async () => {
+    const warn = vi.spyOn(logger, 'warn');
     await generateClient({
       api: join(__dirname, '../../fixtures/sse.yaml'),
       output: join(dir, 'client.ts'),
       generators,
     });
-    expect(logger.warn).toHaveBeenCalledWith(
+    expect(warn).toHaveBeenCalledWith(
       expect.stringMatching(/tanstack-query skipped \d+ server-sent-events operation/)
     );
     const tanstack = readFileSync(join(dir, 'client.tanstack.ts'), 'utf-8');
@@ -37,12 +38,13 @@ describe('tanstack-query skips operations it cannot wrap', () => {
 
   it('skips an op whose <Op>Variables collides with a schema; the tree still compiles', async () => {
     // The `GetUserVariables` schema collides with the variables alias of the `getUser` operation.
+    const warn = vi.spyOn(logger, 'warn');
     await generateClient({
       api: join(__dirname, 'openapi.yaml'),
       output: join(dir, 'client.ts'),
       generators,
     });
-    expect(logger.warn).toHaveBeenCalledWith(
+    expect(warn).toHaveBeenCalledWith(
       expect.stringMatching(
         /tanstack-query skipped \d+ operation\(s\) whose variables type name collides/
       )
