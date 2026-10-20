@@ -57,7 +57,13 @@ export default defineConfig({
         test: {
           name: 'client-generators-go',
           include: ['packages/client-generator/tests/go/**/*.test.ts'],
-          globalSetup: ['packages/client-generator/tests/vitest-setup/go.ts'],
+          globalSetup: ['packages/client-generator/tests/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'Go', command: 'go', args: ['version'] },
+              { name: 'gofmt', command: 'gofmt', args: ['-l'] },
+            ],
+          },
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -67,7 +73,18 @@ export default defineConfig({
         test: {
           name: 'client-generators-php',
           include: ['packages/client-generator/tests/php/**/*.test.ts'],
-          globalSetup: ['packages/client-generator/tests/vitest-setup/php.ts'],
+          globalSetup: ['packages/client-generator/tests/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'PHP', command: 'php', args: ['--version'] },
+              // The generated client sends requests with curl.
+              {
+                name: 'the PHP curl extension',
+                command: 'php',
+                args: ['-r', 'exit(extension_loaded("curl") ? 0 : 1);'],
+              },
+            ],
+          },
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
@@ -77,7 +94,22 @@ export default defineConfig({
         test: {
           name: 'client-generators-python',
           include: ['packages/client-generator/tests/python/**/*.test.ts'],
-          globalSetup: ['packages/client-generator/tests/vitest-setup/python.ts'],
+          globalSetup: ['packages/client-generator/tests/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'Python 3', command: 'python3', args: ['--version'] },
+              {
+                name: 'the httpx Python package',
+                command: 'python3',
+                args: ['-c', 'import httpx'],
+              },
+              {
+                name: 'the pydantic Python package',
+                command: 'python3',
+                args: ['-c', 'import pydantic'],
+              },
+            ],
+          },
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
