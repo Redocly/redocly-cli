@@ -271,27 +271,14 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 ### Client generator tests
 
 `npm run client-generators` runs the tests in `packages/client-generator/tests`.
-They compile the generated clients, so they need Go, PHP, and Python.
-Each language has its own folder and its own Vitest project, and a missing tool stops the run with a message that names it.
-
-- `typescript/`, `go/`, `php/`, and `python/` hold the tests of each language. The folder decides the Vitest project.
-- `shared/` holds the spec, the helper module, and the consumers of a topic that several languages test, such as `stream-bodies`.
-- `fixtures/` holds the shared specs, `helpers/` holds the helpers and the mock server, and `vitest-setup/` holds the toolchain checks that each language project runs first.
-
-Each topic folder holds its tests and the files they need.
-A `consumer/` folder holds the programs that call the generated client, with the `package.json`, `tsconfig.json`, or `go.mod` they need.
-The tests call the `generateClient()` API directly with an OpenAPI file.
-The exception is `render.test.ts` in `go/`, `php/`, and `python/`: it renders code from an IR model and compiles it with the toolchain.
-Generator checks that need no toolchain are unit tests in `packages/client-generator/src/generators/__tests__/`.
-
-The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`, and `npm run e2e` runs them.
-`cli-flags.test.ts` proves that each CLI flag maps to its option.
+Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, and `python/`.
+The tests compile the generated clients, so they need Go, PHP, and Python.
+A missing tool stops the run with a message that names it.
 
 ```bash
-npm run client-generators                                         # everything
-npx vitest run --project client-generators                        # TypeScript only, no toolchains needed
-npx vitest run --project client-generators-go                     # one language (-go, -php, -python)
-npm run client-generators -- packages/client-generator/tests/go/client.test.ts # one file
+npm run client-generators                       # everything
+npx vitest run --project client-generators      # TypeScript only, no toolchains needed
+npx vitest run --project client-generators-go   # one language (-go, -php, -python)
 ```
 
 Install the toolchains:
@@ -306,12 +293,10 @@ sudo apt-get install golang-go php-cli php-curl python3-pip
 pip3 install httpx pydantic
 ```
 
-Some tests generate from large real-world descriptions, so these tests are slow and run in their own CI job.
+The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
 
-Tests that need an HTTP server start one inside the test process with `MockServer.start` from `packages/client-generator/tests/helpers/mock-server.ts`.
-It answers from the OpenAPI description, unless the test gives a handler for that operation, and it records every request for the test's assertions.
-It listens on a free port, so tests never share a server.
-A consumer must run with the async `runTsx` or `runCommand` while the server is up, because a synchronous spawn blocks the server.
+Tests that need an HTTP server use `MockServer` from `packages/client-generator/tests/helpers/mock-server.ts`.
+While the server runs, start a consumer with the async `runTsx` or `runCommand`, because a synchronous spawn blocks the server.
 
 ### Smoke tests
 
