@@ -37,11 +37,24 @@ const result = await build({
   logLevel: 'info',
 });
 
-const entryChunkInputs = Object.keys(result.metafile.outputs['lib/index.js']?.inputs ?? {});
-if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
-  throw new Error(
-    'redoc leaked into lib/index.js — check for stray static imports in build-docs commands'
-  );
+// The startup chunks are the entry chunk and every chunk it reaches through static imports.
+const startupChunks = new Set(['lib/index.js']);
+for (const chunkPath of startupChunks) {
+  for (const chunkImport of result.metafile.outputs[chunkPath].imports) {
+    if (chunkImport.kind === 'import-statement' && !chunkImport.external) {
+      startupChunks.add(chunkImport.path);
+    }
+  }
+}
+const startupInputs = [...startupChunks].flatMap((chunkPath) =>
+  Object.keys(result.metafile.outputs[chunkPath].inputs)
+);
+for (const packageName of ['redoc', 'undici']) {
+  if (startupInputs.some((inputPath) => inputPath.includes(`node_modules/${packageName}/`))) {
+    throw new Error(
+      `${packageName} leaked into the startup chunks — check for stray static imports of it`
+    );
+  }
 }
 
 const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
