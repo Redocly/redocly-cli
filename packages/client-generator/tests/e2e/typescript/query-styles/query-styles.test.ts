@@ -10,11 +10,11 @@
 // on the wire), which is the whole point of the feature.
 
 import { generateClient } from '@redocly/client-generator';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runTsx, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses, runTsx } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'openapi.yaml');
@@ -27,7 +27,6 @@ describe('generate-client query serialization styles', () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
     await generateClient({ api: fixture, output: out });
-    expect(existsSync(out)).toBe(true);
     generated = readFileSync(out, 'utf-8');
   });
 
@@ -51,7 +50,7 @@ describe('generate-client query serialization styles', () => {
   });
 
   it('strict-tsc type-checks the generated client', () => {
-    strictTypecheck(dir, ['client.ts']);
+    expectStrictTscPasses(dir, ['client.ts']);
   });
 
   it('serializes the wire format: literal delimiters + allowReserved', async () => {

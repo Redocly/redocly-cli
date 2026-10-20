@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { strictTypecheck } from '../helpers/helpers.js';
+import { expectStrictTscPasses } from '../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -40,7 +40,7 @@ describe('generate-client error mode', () => {
     // The mode is baked into the client instance config (configure() cannot flip it).
     expect(generated).toContain('errorMode: "result"');
 
-    strictTypecheck(dir, ['client.ts']);
+    expectStrictTscPasses(dir, ['client.ts']);
   });
 
   it('split result mode: the entry bakes errorMode result, strict tsc passes over both files', async () => {
@@ -61,6 +61,6 @@ describe('generate-client error mode', () => {
     expect(entrySource).toContain('errorMode: "result"');
     expect(entrySource).toContain('Result<');
 
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
   });
 });

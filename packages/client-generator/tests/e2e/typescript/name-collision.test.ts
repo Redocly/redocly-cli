@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { strictTypecheck } from '../helpers/helpers.js';
+import { expectStrictTscPasses } from '../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures', 'base.yaml');
@@ -43,6 +43,6 @@ describe('generate-client operation/schema name collision', () => {
     const declarations = sources.join('\n').match(/export type GetStatusResult\b/g) ?? [];
     expect(declarations).toHaveLength(1);
 
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
   });
 });

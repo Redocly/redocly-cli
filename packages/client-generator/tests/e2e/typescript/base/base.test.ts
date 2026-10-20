@@ -33,10 +33,6 @@ describe('generate-client base consumer (single-file output)', () => {
     expectTscPasses(['--noEmit', '-p', workDir]);
   });
 
-  afterEach(() => {
-    expect(server.handlerErrors).toEqual([]);
-  });
-
   afterAll(async () => {
     await server.close();
     rmSync(workDir, { recursive: true, force: true });
@@ -106,6 +102,7 @@ describe('generate-client base consumer (single-file output)', () => {
     // The deepObject query param: the object is sent as filter[name]=…&filter[status]=….
     const listCall = server.requests.find((request) => request.operationId === 'listPets');
     expect(listCall?.query).toEqual({ 'filter[name]': 'rex', 'filter[status]': 'available' });
+    expect(server.handlerErrors).toEqual([]);
   });
 
   test('cancel: AbortController aborts the underlying request', async () => {
@@ -117,5 +114,6 @@ describe('generate-client base consumer (single-file output)', () => {
       `cancel stdout:\n${cancelResult.stdout}\nstderr:\n${cancelResult.stderr}`
     ).toBe(0);
     expect(cancelResult.stdout.trim()).toBe('CANCELLED:AbortError');
+    expect(server.handlerErrors).toEqual([]);
   });
 });

@@ -7,7 +7,7 @@ import { readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses, runConsumer } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/base.yaml');
@@ -31,7 +31,7 @@ describe("telemetry: 'on'", () => {
       }>;
     };
 
-    expect(result.received.length).toBe(1);
+    expect(result.received).toHaveLength(1);
     expect(result.received[0].type).toBe('com.redocly.sdkUsage.aggregated');
     expect(result.received[0].data.usage).toMatchObject({
       operation_id: 'listPets',
@@ -44,6 +44,6 @@ describe("telemetry: 'on'", () => {
       client: 'pets-worker/2.0.0',
       language: 'typescript',
     });
-    strictTypecheck(dir, ['client.ts', 'client.telemetry.ts', 'sink.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'client.telemetry.ts', 'sink.ts']);
   });
 });

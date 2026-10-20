@@ -1,6 +1,6 @@
 import { generateClient } from '@redocly/client-generator';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +16,7 @@ let generatedFile = '';
 let server: MockServer;
 
 /** Run smoke.php against the mock server; `phpFlags` go in front, `smokeArgs` after the URL. */
-async function runSmoke(phpFlags: string[], smokeArgs: string[] = []): Promise<void> {
+async function expectSmokePasses(phpFlags: string[], smokeArgs: string[] = []): Promise<void> {
   const result = await runCommand('php', [
     ...phpFlags,
     join(workDir, 'smoke.php'),
@@ -38,7 +38,6 @@ describe('generate-client php generator, base.yaml against the mock server', () 
       output: join(workDir, 'client/client.ts'),
       generators: ['php'],
     });
-    expect(existsSync(generatedFile)).toBe(true);
   });
 
   afterAll(async () => {
@@ -57,14 +56,14 @@ describe('generate-client php generator, base.yaml against the mock server', () 
   });
 
   it('the smoke runs real HTTP: hydration, bodies, ApiError', async () => {
-    await runSmoke([]);
+    await expectSmokePasses([]);
   });
 
   it('the smoke still passes when OPcache has preloaded the client', async () => {
     // opcache.preload keeps classes and functions in shared memory but drops file-level
     // constants, and the autoloader never includes the file again once Client exists.
     // The smoke checks that the preload really happened, so this cannot pass vacuously.
-    await runSmoke(
+    await expectSmokePasses(
       ['-d', 'opcache.enable_cli=1', '-d', `opcache.preload=${join(workDir, 'preload.php')}`],
       ['preloaded']
     );

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { strictTypecheck } from '../helpers/helpers.js';
+import { expectStrictTscPasses } from '../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -20,7 +20,7 @@ describe('generate-client spec versions', () => {
     const out = join(dir, 'client.ts');
     await generateClient({ api: join(__dirname, '../fixtures', fixture), output: out });
     expect(existsSync(out)).toBe(true);
-    strictTypecheck(dir, ['client.ts']);
+    expectStrictTscPasses(dir, ['client.ts']);
     return readFileSync(out, 'utf-8');
   }
 

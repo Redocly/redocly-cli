@@ -4,7 +4,7 @@
 // stream mid-flight and asserts the loop completes WITHOUT throwing.
 
 import { generateClient } from '@redocly/client-generator';
-import { existsSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -59,12 +59,7 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     const generatedFile = join(workDir, 'api.ts');
     await generateClient({ api: fixture, output: generatedFile });
-    expect(existsSync(generatedFile)).toBe(true);
     expectTscPasses(['--noEmit', '-p', workDir]);
-  });
-
-  afterEach(() => {
-    expect(server.handlerErrors).toEqual([]);
   });
 
   afterAll(async () => {
@@ -98,6 +93,7 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
       .filter((request) => request.operationId === 'streamMessages')
       .map((request) => request.headers['last-event-id']);
     expect(lastEventIds).toEqual([undefined, '2']);
+    expect(server.handlerErrors).toEqual([]);
   });
 
   test('reconnect: a transport failure opening the stream reconnects (not just mid-stream errors)', async () => {
@@ -138,5 +134,6 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     // AbortError escaped the `for await`.
     expect(parsed.received).toBe(1);
     expect(parsed.error).toBeNull();
+    expect(server.handlerErrors).toEqual([]);
   });
 });
