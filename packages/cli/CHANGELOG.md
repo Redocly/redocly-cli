@@ -1,5 +1,53 @@
 # @redocly/cli
 
+## 2.65.1
+
+### Patch Changes
+
+- Fixed the `no-schema-type-mismatch` rule to report `properties` on any non-`object` type and `items` on any non-`array` type, such as `type: string` with `properties`.
+  Previously, the rule only reported `properties` on `array` and `items` on `object`.
+
+  **Note:** Because the rule is an error in the `recommended` ruleset, descriptions that passed before may now fail.
+
+- Fixed an issue where the `struct` rule incorrectly reported an error for `type: file` in response schemas of OpenAPI 2.0 API descriptions.
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 2.65.0
+
+### Minor Changes
+
+- Added the `--openapi-version` option to the `generate-spec` command to choose between OpenAPI `3.1` and `3.2` (the default) for the generated description.
+
+### Patch Changes
+
+- Fixed the message of the `capitalization` assertion in `recheck` rules so that it names the style, such as "sentence case", instead of printing `$sentence`.
+- Fixed `redocly recheck --fix` so that the report lists only the findings that remain after the fixes, not the findings it just fixed.
+- Fixed the `redocly recheck --fix` summary so that inserted text with a line break prints as `\n` instead of breaking the output line.
+- Updated @redocly/recheck to v2.65.0.
+
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+  For example, a token read through `$response.body#/token` or a quoted value in success criteria.
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+- Updated @redocly/openapi-core to v2.64.1.
+- Updated @redocly/respect-core to v2.64.1.
+
+## 2.64.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/client-generator to v0.7.0.
+- Updated @redocly/openapi-core to v2.64.0.
+- Updated @redocly/reunite-integration to v2.64.0.
+
 ## 2.63.0
 
 ### Minor Changes

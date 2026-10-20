@@ -17,6 +17,7 @@ export type {
   RetryConfig,
   RetryContext,
   RetryStrategy,
+  SettledCall,
 } from './runtime-contract.js';
 // Descriptor wire shapes the generators emit and every runtime implements.
 export type { ResponseHeaderSpec } from './runtime-contract.js';

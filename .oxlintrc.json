@@ -13,10 +13,9 @@
     "packages/*/lib/**",
     "*.js",
     "*.cjs",
-    "tests/e2e/generate-client/examples/*/src/api/**",
-    "tests/e2e/generate-client/examples/*/generate.ts",
-    "tests/e2e/generate-client/*.snapshot.ts",
-    "tests/e2e/generate-client/*-consumer/api*.ts"
+    "packages/client-generator/examples/*/src/api/**",
+    "packages/client-generator/examples/*/generate.ts",
+    "packages/client-generator/tests/e2e/typescript/cafe/__snapshots__/*.snapshot.ts"
   ],
   "rules": {
     "eslint/no-array-constructor": "error",
@@ -79,8 +78,9 @@
     },
     {
       "files": [
-        "tests/e2e/generate-client/examples/*/src/**",
-        "tests/e2e/generate-client/examples/*/worker.ts"
+        "packages/client-generator/examples/*/src/**",
+        "packages/client-generator/examples/*/worker.ts",
+        "packages/client-generator/tests/e2e/**/consumer*/**"
       ],
       "rules": {
         "eslint/no-console": "allow"

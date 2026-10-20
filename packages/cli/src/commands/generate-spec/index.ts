@@ -8,13 +8,14 @@ import type { TrafficFormat } from '../drift/types/index.js';
 import { normalizeFsPath } from '../drift/utils/files.js';
 import { refineSpecWithAi } from './ai/refine.js';
 import { extractSchemaComponents } from './components.js';
-import { countOperations, generateSpecFromTraffic } from './generator.js';
+import { countOperations, generateSpecFromTraffic, type OpenApiVersion } from './generator.js';
 import { collectTrafficSamples } from './samples.js';
 import { applyValueInference } from './value-inference.js';
 
 export type GenerateSpecArgv = {
   traffic: string;
   type: 'openapi';
+  'openapi-version': OpenApiVersion;
   'traffic-format': TrafficFormat;
   server?: string;
   title?: string;
@@ -54,6 +55,7 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
       await generateSpecFromTraffic({
         trafficPath,
         format: trafficFormat,
+        openapiVersion: argv['openapi-version'],
         title: argv.title,
         server: argv.server,
       })

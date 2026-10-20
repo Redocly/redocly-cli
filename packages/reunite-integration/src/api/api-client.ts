@@ -7,7 +7,7 @@ import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-w
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
 import type {
   ProjectResponse,
-  ProjectSourceResponse,
+  ProjectSourcesListResponse,
   PushResponse,
   UpsertRemoteResponse,
 } from './types.js';
@@ -159,7 +159,7 @@ class RemotesApi extends ResourceApi {
   async getDefaultBranch(organizationId: string, projectId: string) {
     try {
       const response = await this.client.request(
-        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/sources`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
           method: 'GET',
@@ -170,7 +170,12 @@ class RemotesApi extends ResourceApi {
         }
       );
 
-      const source = await this.getParsedResponse<ProjectSourceResponse>(response);
+      const sources = await this.getParsedResponse<ProjectSourcesListResponse>(response);
+      const [source] = sources.data;
+
+      if (!source) {
+        throw new Error('Project source not found.');
+      }
 
       return source.branchName;
     } catch (err) {

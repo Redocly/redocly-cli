@@ -7,6 +7,7 @@
 export { GO_RUNTIME_SOURCE } from './runtime-sources/go.js';
 export { PHP_RUNTIME_SOURCE } from './runtime-sources/php.js';
 export { PYTHON_RUNTIME_SOURCES, type PythonRuntimeModuleName } from './runtime-sources/python.js';
+export { TELEMETRY_RUNTIME_SOURCE } from './runtime-sources/telemetry.js';
 export {
   RUNTIME_SOURCES,
   RUNTIME_SOURCES_STRIPPED,

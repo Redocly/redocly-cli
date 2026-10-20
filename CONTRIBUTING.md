@@ -253,7 +253,7 @@ Unit tests in the **cli** package are sensitive to top-level configuration file 
 - To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
 - To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 - To update snapshots, run `npm run unit -- -u`.
-- To skip coverage, run the command with `--coverage=false`.
+- To run without coverage, call Vitest directly: `npx vitest run --project unit <path/to/your/file.test.ts>`.
 
 ### E2E tests
 
@@ -270,26 +270,35 @@ Note that the snapshot does not always match the command output because of the w
 This is intentional so outputs stay consistent for snapshot testing.
 The order of stdout and stderr in a snapshot may differ from what you see in the terminal, but the combined output is stable.
 
-### Generator tests
+### Client generator tests
 
-Client generation has its own suite: `npm run client-generators` runs the `tests/e2e/generate-client` end-to-end tests.
+`npm run client-generators` runs the tests in `packages/client-generator/tests/e2e`.
+Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, and `python/`.
+The tests compile the generated clients, so they need Go, PHP, and Python.
+A missing tool stops the run with a message that names it.
 
 ```bash
-npm run client-generators                                   # every generator e2e test
-npm run client-generators -- tests/e2e/generate-client/go.test.ts   # one file
-npm run client-generators -- -t 'gofmt'                     # by test name
+npm run client-generators                       # everything
+npx vitest run --project client-generators      # TypeScript only, no toolchains needed
+npx vitest run --project client-generators-go   # one language (-go, -php, -python)
 ```
 
-Those e2e tests compile their output with real toolchains, so what is available decides what runs:
+Install the toolchains:
 
-- **Python** (`python3`, plus `httpx` for the import bars) and **Go** (`go build`, `go vet`, `gofmt`) and **PHP** (`php -l`) — a bar for a missing toolchain skips itself rather than failing, so a partial local setup still gives a useful run. CI installs Python and `httpx`; Go and PHP come with the runner image.
-- The largest bars generate from big real-world descriptions (Rebilly, the GitHub REST API), which is why they are slow and why the suite has its own CI job — a growing set of compiled-language bars must not slow the shared e2e job.
+```bash
+# macOS
+brew install go php
+pip3 install httpx pydantic
 
-`npm run e2e` covers everything under `tests/e2e/` **except** `generate-client`.
+# Ubuntu
+sudo apt-get install golang-go php-cli php-curl python3-pip
+pip3 install httpx pydantic
+```
 
-Several of these tests run a local HTTP server and assert on its request log.
-On a machine with many cores, vitest runs enough of them in parallel to occasionally reset a connection — a failure that says nothing about the code under test.
-Reading a server's log goes through `serverLog()` in `tests/e2e/generate-client/helpers.ts`, which retries for that reason; if you see an isolated `ECONNRESET` or `fetch failed`, re-run the file before investigating.
+The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
+
+Tests that need an HTTP server use `MockServer` from `packages/client-generator/tests/e2e/helpers/mock-server.ts`.
+While the server runs, start a consumer with the async `runTsx` or `runCommand`, because a synchronous spawn blocks the server.
 
 ### Smoke tests
 

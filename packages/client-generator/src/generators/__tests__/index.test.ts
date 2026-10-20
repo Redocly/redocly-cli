@@ -114,6 +114,15 @@ describe('validateGenerators', () => {
       warn.mockClear();
       validateGenerators(['typescript', 'go'], { goPackage: 'mypkg' });
       expect(warn).not.toHaveBeenCalled();
+
+      warn.mockClear();
+      validateGenerators(['python'], { telemetry: 'on' });
+      expect(warn.mock.calls.map(([message]) => message).join('')).toContain(
+        'telemetry is ignored'
+      );
+      warn.mockClear();
+      validateGenerators(['typescript'], { telemetry: 'on' });
+      expect(warn).not.toHaveBeenCalled();
     } finally {
       warn.mockRestore();
     }
