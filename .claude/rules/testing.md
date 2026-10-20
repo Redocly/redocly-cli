@@ -9,11 +9,8 @@
    A unit test belongs to a pure function. It may fake the network, the clock, and the file system,
    but not the modules of this repository: a fake that returns what the assertion checks proves nothing.
    When an e2e test and a unit test prove the same contract, keep the e2e test.
-1. Every test calls `expect`: Vitest fails a test that makes no assertion (`expect.requireAssertions`).
-   A type-only check is not a Vitest test. Put it in a `__typecheck__` folder as `<name>.typecheck.ts`;
-   `npm run typecheck` checks it, and Vitest does not run it.
-1. Prove a new test once: make the one-line change in the code that should break it, see the test fail,
-   and undo the change. Name that change in the pull request description.
+1. If you need to check the public TypeScript types, write a type test: a `<name>.test-d.ts` file in the `__tests__` folder.
+   Run it with `npm run unit:types`.
 1. A unit test lives in a `__tests__` folder beside the file it tests, and mirrors its name:
    `src/commands/eject-generator.ts` is tested by `src/commands/__tests__/eject-generator.test.ts`.
    Do not rebuild the source tree inside a `__tests__` folder (`src/__tests__/commands/…`) — the

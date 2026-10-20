@@ -19,7 +19,6 @@ export default defineConfig({
       include: ['packages/*/src/**/*.ts'],
       exclude: [
         'packages/**/__tests__/**/*',
-        'packages/*/src/**/__typecheck__/**',
         'packages/cli/src/index.ts',
         'packages/cli/src/utils/assert-node-version.ts',
       ],
@@ -36,6 +35,19 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/*/src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'types',
+          typecheck: {
+            enabled: true,
+            only: true,
+            include: ['packages/*/src/**/*.test-d.ts'],
+            // `npm run typecheck` checks the source files with the flags they need.
+            ignoreSourceErrors: true,
+          },
         },
       },
       {

@@ -7,6 +7,7 @@ import {
   type Document,
   BaseResolver,
 } from '@redocly/openapi-core';
+import type * as OpenapiCore from '@redocly/openapi-core';
 import { yellow } from 'colorette';
 
 import { handleJoin } from '../../commands/join/index.js';
@@ -33,9 +34,7 @@ import {
 vi.mock('../../utils/miscellaneous.js');
 vi.mock('colorette');
 vi.mock('@redocly/openapi-core', async () => {
-  const actual =
-    // oxlint-disable-next-line typescript/consistent-type-imports
-    await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
+  const actual = await vi.importActual<typeof OpenapiCore>('@redocly/openapi-core');
   return {
     ...actual,
     bundleDocument: vi.fn(),

@@ -65,7 +65,10 @@
       "files": ["**/__tests__/**", "**/*.test.ts"],
       "plugins": ["vitest"],
       "rules": {
-        "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "expect*"] }],
+        "vitest/expect-expect": [
+          "error",
+          { "assertFunctionNames": ["expect", "expect*", "assertType"] }
+        ],
         "vitest/hoisted-apis-on-top": "error",
         "vitest/no-alias-methods": "error",
         "vitest/no-commented-out-tests": "error",
