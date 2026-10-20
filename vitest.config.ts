@@ -19,7 +19,6 @@ export default defineConfig({
         'packages/**/__tests__/**/*',
         'packages/cli/src/index.ts',
         'packages/cli/src/utils/assert-node-version.ts',
-        'packages/client-generator/src/generators/{go,php,python}/**',
       ],
       thresholds: {
         lines: 80,
