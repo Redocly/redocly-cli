@@ -1,0 +1,5 @@
+{
+  "name": "multipart-consumer",
+  "private": true,
+  "type": "module"
+}
