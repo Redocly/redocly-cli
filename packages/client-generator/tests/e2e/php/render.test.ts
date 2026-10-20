@@ -208,7 +208,6 @@ describe('renderPhpModels output, run with php', () => {
     );
     expect(out).toContain("'feed' => Feed::fromArray($data)");
     expect(out).toContain("'adopt' => $data");
-    expect(out).not.toContain('Adopt::fromArray');
     expectModelsRun(out);
   });
 

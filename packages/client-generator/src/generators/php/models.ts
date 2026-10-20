@@ -250,7 +250,6 @@ export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'):
             `return match ($data[${phpString(cases.property)}] ?? null) {`,
             () => {
               for (const entry of cases.cases) {
-                // A target with no class of its own (a plain union) stays a raw array.
                 const target = { kind: 'ref', name: entry.schemaName } as const;
                 const typed = hydration(target, '$data', model, dateType) ?? '$data';
                 printer.line(`${phpString(entry.value)} => ${typed},`);
