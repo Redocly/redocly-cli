@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 2.66.0
+
+### Minor Changes
+
+- Added the `skills` command that installs the Redocly CLI agent skills for AI coding agents.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.0.
+- Updated @redocly/reunite-integration to v2.66.0.
+
 ## 2.65.1
 
 ### Patch Changes
