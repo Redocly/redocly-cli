@@ -109,11 +109,9 @@ Naming and reuse:
 
 - **Compile before testing.** Unit tests import from `lib/` (compiled output), not `src/` — run `npm run compile` after every change.
   Do not work around the compile step with aliases, `tsconfig` changes, or a separate test suite for one package.
-  The slow `client-generators` e2e projects are the one exception.
+  The `client-generators` projects are the one exception, because they need Go, PHP, and Python.
 - Cover the feature or fix with one focused test, not a pile of redundant ones.
   A single clear test that exercises the behavior is enough.
-- Test behavior a user sees through the CLI with an e2e test, not with a unit test that fakes this repository's modules.
-  When both prove the same contract, keep the e2e test.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
   Generate or update snapshots as part of the change.
   When the rule must report no problems, assert `toEqual([])`.

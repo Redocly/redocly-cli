@@ -77,8 +77,8 @@
 1. Client generation has its own projects: `npm run client-generators` runs the bars in `packages/client-generator/tests/e2e`.
    Run it for any generation change.
    These bars compile real Python, Go, PHP, and TypeScript output, some of it from large real-world descriptions.
-   They are the slowest tests in the repository, and they need toolchains that no other test needs.
-   A separate CI job keeps that cost out of the shared e2e job.
+   They need toolchains that no other test needs, so a separate CI job installs them.
+   The large-description tests generate from real-world descriptions and take the longest.
    There is one project per toolchain, and one folder per project: `client-generators` runs `typescript/`,
    and `client-generators-go`, `-php`, and `-python` run `go/`, `php/`, and `python/`.
    The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
