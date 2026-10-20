@@ -1,7 +1,7 @@
 import { Agent, ProxyAgent, fetch } from 'undici';
 import type * as undici from 'undici';
 
-import fetchWithTimeout from '../fetch-with-timeout.js';
+import { fetchWithTimeout } from '../fetch-with-timeout.js';
 import * as proxyAgent from '../proxy-agent.js';
 
 vi.mock('undici', async (importOriginal) => ({
