@@ -102,7 +102,7 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 2. Change `index.ts` (and `runtime/runtime.go` for runtime behavior; `gofmt -w` +
    `go vet ./...` it, then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
-   `npx vitest run packages/client-generator/src/generators/__tests__/go.test.ts` (output-string checks),
+   `npx vitest run packages/client-generator/src/generators/go/__tests__` (output-string checks),
    `packages/client-generator/tests/go/render.test.ts`
    (real `go build` + `go vet` bars), the e2e smoke (`packages/client-generator/tests/go/client.test.ts`),
    and the large-description bars (`packages/client-generator/tests/go/large-descriptions.test.ts`).

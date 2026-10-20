@@ -1,6 +1,6 @@
-import { goGenerator as goGeneratorEntry, goSample } from '../go/index.js';
-import { GO_CAFE } from './fixtures/cafe-models.js';
-import { generatorInput } from './fixtures/generator-input.js';
+import { GO_CAFE } from '../../__tests__/fixtures/cafe-models.js';
+import { generatorInput } from '../../__tests__/fixtures/generator-input.js';
+import { goGenerator as goGeneratorEntry, goSample } from '../index.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
 // mirrors those steps for these direct calls.

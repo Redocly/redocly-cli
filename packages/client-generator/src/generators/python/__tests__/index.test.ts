@@ -1,7 +1,7 @@
-import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { pythonGenerator as pythonGeneratorEntry } from '../python/index.js';
-import { PYTHON_CAFE } from './fixtures/cafe-models.js';
-import { generatorInput } from './fixtures/generator-input.js';
+import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
+import { PYTHON_CAFE } from '../../__tests__/fixtures/cafe-models.js';
+import { generatorInput } from '../../__tests__/fixtures/generator-input.js';
+import { pythonGenerator as pythonGeneratorEntry } from '../index.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
 // mirrors those steps for these direct calls.
