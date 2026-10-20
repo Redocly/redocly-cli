@@ -7,6 +7,7 @@ export default defineConfig({
     mockReset: true,
     environment: 'node',
     expect: { requireAssertions: true },
+    setupFiles: ['tests/silence-output.ts'],
     env: {
       FORCE_COLOR: '1',
       REDOCLY_TELEMETRY: 'off',
@@ -35,7 +36,6 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/*/src/**/*.test.ts'],
-          setupFiles: ['tests/unit-setup.ts'],
         },
       },
       {
