@@ -51,7 +51,7 @@ describe('config-driven composition (client.cliOutput)', () => {
     const dry = await runTsx(
       join(project, 'bin/cafe.ts'),
       ['kitchen', 'orders', 'getOrder', 'ord_7', '--dry-run'],
-      { cwd: project, env: { ...process.env, CAFE_KITCHEN_TOKEN: 'k-secret' } }
+      { cwd: project, env: { CAFE_KITCHEN_TOKEN: 'k-secret' } }
     );
     expect(dry.status, dry.stderr).toBe(0);
     const captured = JSON.parse(dry.stdout);
