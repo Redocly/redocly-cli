@@ -23,10 +23,11 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 
 ## Configuration
 
-| Option           | Type    | Description                                                                               |
-| ---------------- | ------- | ----------------------------------------------------------------------------------------- |
-| severity         | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
-| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default `false`.                   |
+| Option           | Type     | Description                                                                               |
+| ---------------- | -------- | ----------------------------------------------------------------------------------------- |
+| severity         | string   | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+| validateWebhooks | boolean  | Determines if responses inside webhooks are validated. Default `false`.                   |
+| excludedMethods  | [string] | List of HTTP methods (case-insensitive) to skip during validation. Default `[]`.          |
 
 An example configuration:
 
@@ -43,6 +44,17 @@ rules:
     severity: error
     validateWebhooks: true
 ```
+
+The following example skips operations that use the `HEAD` or `OPTIONS` method:
+
+```yaml
+rules:
+  operation-4xx-response:
+    severity: error
+    excludedMethods: [head, options]
+```
+
+Excluded methods also apply to callback operations and, when `validateWebhooks` is enabled, to webhook operations.
 
 ## Examples
 
