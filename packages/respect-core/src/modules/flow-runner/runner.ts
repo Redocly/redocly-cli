@@ -174,8 +174,8 @@ export async function runWorkflow({
 
   const workflowId = workflow.workflowId;
   const workflowInputSchema = workflow.inputs;
-  // spread only passed inputs: success criteria and step outputs read `undefined` inputs
-  // of a workflow without an inputs schema as is
+  // Keep `undefined` when nothing is passed. Success criteria read the inputs as is,
+  // and `$inputs.x` on `undefined` reports an unresolved expression, while on `{}` it evaluates to false.
   const runInputs = inputs
     ? { ...ctx.$workflows[workflowId].inputs, ...inputs }
     : ctx.$workflows[workflowId].inputs;
