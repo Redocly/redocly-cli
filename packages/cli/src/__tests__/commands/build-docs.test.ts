@@ -4,7 +4,7 @@ import { prepareApiDocs } from 'redoc';
 
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
-import { getObjectOrJSON } from '../../commands/build-docs/utils.js';
+import { getRedocOptions } from '../../commands/build-docs/utils.js';
 import type * as miscellaneous from '../../utils/miscellaneous.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
@@ -86,8 +86,8 @@ describe('build-docs', () => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const redoclyConfig = await createConfig({});
 
-    expect(() => getObjectOrJSON('not json', redoclyConfig, 'openapi')).toThrow(HandledError);
-    expect(() => getObjectOrJSON('not json', redoclyConfig, 'openapi')).toThrow(
+    expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(HandledError);
+    expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(
       /^Unexpected token/
     );
   });

@@ -1,12 +1,15 @@
 import {
   BaseResolver,
   bundle,
+  type CollectSpecData,
+  type Config,
   detectSpec,
   getMajorSpecVersion,
   HandledError,
   isAbsoluteUrl,
   isGraphqlRef,
   logger,
+  type SpecMajorVersion,
 } from '@redocly/openapi-core';
 import { cyan } from 'colorette';
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -19,7 +22,7 @@ import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneo
 import { redocVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { BuildDocsArgv, SpecType } from './types.js';
-import { getObjectOrJSON, getPageHTML } from './utils.js';
+import { getRedocOptions, getPageHTML } from './utils.js';
 
 export const handlerBuildCommand = async ({
   argv,
@@ -30,8 +33,9 @@ export const handlerBuildCommand = async ({
   logger.info(
     renderBanner([
       'build-docs now renders docs with Redoc 3.',
-      `Theme options and custom templates may need updates: ${cyan('https://redocly.com/blog/redoc-3-whats-new')}`,
+      'Theme options and custom templates may need updates.',
       `To keep the Redoc 2 output: ${cyan('npx @redocly/cli@v1-archive build-docs <api>')}`,
+      `Learn more: ${cyan('https://redocly.com/redoc-ce')}`,
     ])
   );
 
@@ -42,27 +46,8 @@ export const handlerBuildCommand = async ({
 
   try {
     const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
-    let definition: Record<string, unknown> | string;
-    let specType: SpecType;
-
-    if (isGraphqlRef(apiRef)) {
-      const resolver = new BaseResolver(config.resolve);
-      const source = await resolver.loadExternalRef(apiRef);
-      definition = resolver.parseDocument(source, true).parsed as string;
-      specType = 'graphql';
-      collectSpecData?.({ source });
-    } else {
-      const { bundle: bundleResult } = await bundle({
-        ref: apiRef,
-        config: config.forAlias(alias),
-        collectSpecData,
-      });
-      ({ definition, specType } = await detectDefinition(
-        bundleResult.parsed as Record<string, unknown>
-      ));
-    }
-
-    const redocOptions = getObjectOrJSON(argv[specType], config.forAlias(alias), specType);
+    const { definition, specType } = await loadDefinition(apiRef, config, alias, collectSpecData);
+    const redocOptions = getRedocOptions(argv[specType], config.forAlias(alias), specType);
 
     const options = {
       output: argv.o,
@@ -90,10 +75,36 @@ export const handlerBuildCommand = async ({
   }
 };
 
-async function detectDefinition(
-  parsed: Record<string, unknown>
-): Promise<{ definition: Record<string, unknown>; specType: SpecType }> {
-  switch (getMajorSpecVersion(detectSpec(parsed))) {
+const unsupportedSpecNames: Partial<Record<SpecMajorVersion, string>> = {
+  arazzo1: 'Arazzo',
+  arazzo1_1: 'Arazzo',
+  overlay1: 'Overlay',
+  openrpc1: 'OpenRPC',
+};
+
+async function loadDefinition(
+  apiRef: string,
+  config: Config,
+  alias: string | undefined,
+  collectSpecData?: CollectSpecData
+): Promise<{ definition: Record<string, unknown> | string; specType: SpecType }> {
+  if (isGraphqlRef(apiRef)) {
+    const resolver = new BaseResolver(config.resolve);
+    const source = await resolver.loadExternalRef(apiRef);
+    const definition = resolver.parseDocument(source, true).parsed as string;
+    collectSpecData?.({ source });
+    return { definition, specType: 'graphql' };
+  }
+
+  const { bundle: bundleResult } = await bundle({
+    ref: apiRef,
+    config: config.forAlias(alias),
+    collectSpecData,
+  });
+  const parsed = bundleResult.parsed as Record<string, unknown>;
+  const specVersion = getMajorSpecVersion(detectSpec(parsed));
+
+  switch (specVersion) {
     case 'oas2':
       return { definition: await convertSwagger2OpenAPI(parsed), specType: 'openapi' };
     case 'oas3':
@@ -103,7 +114,7 @@ async function detectDefinition(
       return { definition: parsed, specType: 'asyncapi' };
     default:
       throw new HandledError(
-        'Only OpenAPI and AsyncAPI descriptions and GraphQL schemas are supported by this command.'
+        `build-docs renders OpenAPI, AsyncAPI, and GraphQL. This file is ${unsupportedSpecNames[specVersion] ?? specVersion}.`
       );
   }
 }

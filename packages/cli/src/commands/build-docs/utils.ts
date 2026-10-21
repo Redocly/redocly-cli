@@ -34,7 +34,7 @@ const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 </html>
 `;
 
-export function getObjectOrJSON(
+export function getRedocOptions(
   specOptions: string | Record<string, unknown> | undefined,
   config: Config,
   specType: SpecType
@@ -50,9 +50,7 @@ export function getObjectOrJSON(
           return JSON.parse(specOptions);
         }
       } catch (error) {
-        logger.error(
-          `Encountered error:\n\n${specOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.\n`
-        );
+        logger.error(`Expected a JSON file or a JSON string, got: ${specOptions}\n`);
         throw new HandledError(error instanceof Error ? error.message : String(error));
       }
     default: {

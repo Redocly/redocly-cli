@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,8 +35,9 @@ describe('build-docs', () => {
     expect(cleanupOutput(result)).toContain("using 'asyncapi' options");
 
     const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-    expect(output).toContain('"jsonSamplesDepth":4');
-    expect(output).not.toContain('hideDownloadButtons');
+    expect(output).toContain(
+      'const __redoc_options = {"jsonSamplesDepth":4,"skipBundle":true,"disableTelemetry":true};'
+    );
   });
 
   test('build docs for a GraphQL schema', async () => {
@@ -80,13 +81,10 @@ describe('build-docs', () => {
   });
 
   test('rejects an Arazzo description instead of rendering it', async () => {
-    const testPath = join(process.cwd(), 'tests/e2e/lint/arazzo-1-1-valid-description');
-    rmSync(join(testPath, 'redoc-static.html'), { force: true });
+    const testPath = join(folderPath, 'arazzo-build-docs');
     const args = getParams(indexEntryPoint, ['build-docs', 'cafe-workflows.yaml']);
     const result = getCommandOutput(args, { testPath });
-    expect(cleanupOutput(result)).toContain(
-      'Only OpenAPI and AsyncAPI descriptions and GraphQL schemas are supported by this command.'
-    );
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     expect(existsSync(join(testPath, 'redoc-static.html'))).toBe(false);
   });
 
@@ -102,13 +100,14 @@ describe('build-docs', () => {
     expect(cleanupOutput(result)).toMatchInlineSnapshot(`
       "
 
-          ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
-          ║                                                                                                   ║
-          ║  build-docs now renders docs with Redoc 3.                                                        ║
-          ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
-          ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
-          ║                                                                                                   ║
-          ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+          ╔════════════════════════════════════════════════════════════════════════════╗
+          ║                                                                            ║
+          ║  build-docs now renders docs with Redoc 3.                                 ║
+          ║  Theme options and custom templates may need updates.                      ║
+          ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
+          ║  Learn more: https://redocly.com/redoc-ce                                  ║
+          ║                                                                            ║
+          ╚════════════════════════════════════════════════════════════════════════════╝
 
       Found nested/redocly.yaml and using 'openapi' options
       Prerendering docs
@@ -138,13 +137,14 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                                   ║
-            ║  build-docs now renders docs with Redoc 3.                                                        ║
-            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
-            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
-            ║                                                                                                   ║
-            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+            ╔════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                            ║
+            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  Theme options and custom templates may need updates.                      ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
+            ║  Learn more: https://redocly.com/redoc-ce                                  ║
+            ║                                                                            ║
+            ╚════════════════════════════════════════════════════════════════════════════╝
 
         Prerendering docs
 
@@ -167,13 +167,14 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                                   ║
-            ║  build-docs now renders docs with Redoc 3.                                                        ║
-            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
-            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
-            ║                                                                                                   ║
-            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+            ╔════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                            ║
+            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  Theme options and custom templates may need updates.                      ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
+            ║  Learn more: https://redocly.com/redoc-ce                                  ║
+            ║                                                                            ║
+            ╚════════════════════════════════════════════════════════════════════════════╝
 
         Found config.yaml and using 'openapi' options
         Prerendering docs
@@ -196,13 +197,14 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                                   ║
-            ║  build-docs now renders docs with Redoc 3.                                                        ║
-            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
-            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
-            ║                                                                                                   ║
-            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+            ╔════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                            ║
+            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  Theme options and custom templates may need updates.                      ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
+            ║  Learn more: https://redocly.com/redoc-ce                                  ║
+            ║                                                                            ║
+            ╚════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
@@ -225,13 +227,14 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                                   ║
-            ║  build-docs now renders docs with Redoc 3.                                                        ║
-            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
-            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
-            ║                                                                                                   ║
-            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+            ╔════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                            ║
+            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  Theme options and custom templates may need updates.                      ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
+            ║  Learn more: https://redocly.com/redoc-ce                                  ║
+            ║                                                                            ║
+            ╚════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
@@ -254,13 +257,14 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                                   ║
-            ║  build-docs now renders docs with Redoc 3.                                                        ║
-            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
-            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
-            ║                                                                                                   ║
-            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+            ╔════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                            ║
+            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  Theme options and custom templates may need updates.                      ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
+            ║  Learn more: https://redocly.com/redoc-ce                                  ║
+            ║                                                                            ║
+            ╚════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-apis-and-root-option.yaml and using 'openapi' options
         Prerendering docs
