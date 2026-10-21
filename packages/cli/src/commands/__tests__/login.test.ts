@@ -9,7 +9,6 @@ vi.mock('@redocly/reunite-integration', async () => {
 
 describe('handleLogin()', () => {
   it('prints the device code instructions and the login confirmation', async () => {
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     const login = vi.fn(async (_url: string, onDeviceCode?: (code: DeviceCode) => void) => {
       onDeviceCode?.({
         verificationUri: 'https://app.redocly.test/device',

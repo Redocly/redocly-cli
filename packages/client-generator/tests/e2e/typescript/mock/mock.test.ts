@@ -14,9 +14,9 @@ import { fileURLToPath } from 'node:url';
 
 import {
   copyConsumer,
+  expectStrictTscPasses,
   expectTscPasses,
   runConsumer,
-  strictTypecheck,
 } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -52,7 +52,7 @@ describe('mock generator — generated client through MSW', () => {
   });
 
   test('the generated client + mocks type-check together under strict mode', () => {
-    strictTypecheck(dir, ['client.ts', 'client.mocks.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'client.mocks.ts']);
   });
 });
 
@@ -74,7 +74,7 @@ describe("mock generator — mock + transformers + dateType: 'Date' compile toge
   });
 
   test('strict-tsc-checks client + mocks + transformers together with 0 errors', () => {
-    strictTypecheck(dir, ['client.ts', 'client.mocks.ts', 'client.transformers.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'client.mocks.ts', 'client.transformers.ts']);
   });
 });
 

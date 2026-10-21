@@ -5,8 +5,9 @@ import { resolveWorkflowContext, createTestContext } from '../../../flow-runner/
 
 vi.mock('../../../flow-runner/context/create-test-context.js');
 
-describe('resolveWorkflowContext', async () => {
-  const config = await createConfig({});
+const config = await createConfig({});
+
+describe('resolveWorkflowContext', () => {
   const workflowId = '$sourceDescriptions.tickets-from-museum-api.get-museum-tickets';
   const apiClient = new ApiFetcher({});
   const resolvedWorkflow = {
@@ -585,8 +586,8 @@ describe('resolveWorkflowContext', async () => {
     } as any;
     const workflowId = '$sourceDescriptions.wrong-api.get-museum-tickets';
 
-    await expect(
-      resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)
-    ).rejects.toThrowError('Unknown source description type invalid');
+    await expect(resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)).rejects.toThrow(
+      'Unknown source description type invalid'
+    );
   });
 });

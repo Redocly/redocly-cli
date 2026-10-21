@@ -39,10 +39,6 @@ function runDrift(args: string[]): { output: string; code: number | null } {
   return { output: cleanupDrift(`${out}\n${err}`), code: result.status };
 }
 
-async function matchSnapshot(name: string, output: string): Promise<void> {
-  await expect(output).toMatchFileSnapshot(join(snapshots, `${name}.txt`));
-}
-
 describe('drift - validate mode', () => {
   test('clean traffic against a matching spec produces no findings', async () => {
     const { output } = runDrift([
@@ -52,7 +48,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint,schema-consistency',
     ]);
-    await matchSnapshot('validate-clean', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-clean.txt'));
   });
 
   test('undocumented endpoints are reported', async () => {
@@ -63,7 +59,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('validate-undocumented', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-undocumented.txt'));
   });
 
   test('response schema mismatch is reported', async () => {
@@ -74,7 +70,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    await matchSnapshot('validate-schema-mismatch', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-schema-mismatch.txt'));
   });
 
   test('missing authentication is reported against a secured spec', async () => {
@@ -85,7 +81,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'security-baseline',
     ]);
-    await matchSnapshot('validate-security', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-security.txt'));
   });
 
   test('server override maps traffic onto spec paths and skips other hosts', async () => {
@@ -98,7 +94,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint,schema-consistency',
     ]);
-    await matchSnapshot('validate-server', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-server.txt'));
   });
 
   test('readOnly and writeOnly required fields are not enforced on the wrong side', async () => {
@@ -109,7 +105,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    await matchSnapshot('validate-readonly', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-readonly.txt'));
   });
 
   test('validates the whole query against a querystring parameter', async () => {
@@ -123,7 +119,7 @@ describe('drift - validate mode', () => {
       '40',
       '--coverage',
     ]);
-    await matchSnapshot('validate-querystring', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-querystring.txt'));
   });
 
   test('validates composed schemas (allOf, oneOf, anyOf)', async () => {
@@ -134,7 +130,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    await matchSnapshot('validate-composition', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-composition.txt'));
   });
 
   test('reports a server mismatch instead of an undocumented endpoint for unknown hosts', async () => {
@@ -145,7 +141,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('validate-host-mismatch', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-host-mismatch.txt'));
   });
 
   test('warns when multiple descriptions document the same operation for one server', async () => {
@@ -156,7 +152,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('validate-colliding-specs', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-colliding-specs.txt'));
   });
 
   test('validates recursive schemas without stack overflow', async () => {
@@ -167,7 +163,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    await matchSnapshot('validate-recursive', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-recursive.txt'));
   });
 
   test('discards findings below --min-severity', async () => {
@@ -180,7 +176,7 @@ describe('drift - validate mode', () => {
       '--min-severity',
       'error',
     ]);
-    await matchSnapshot('validate-min-severity', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-min-severity.txt'));
   });
 
   test('writes the drift report to a file with --output', () => {
@@ -221,7 +217,7 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('format-har', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'format-har.txt'));
   });
 
   test('parses Kong traffic', async () => {
@@ -234,7 +230,7 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('format-kong', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'format-kong.txt'));
   });
 
   test('parses Nginx JSON traffic', async () => {
@@ -247,7 +243,7 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('format-nginx-json', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'format-nginx-json.txt'));
   });
 
   test('parses Apache JSON traffic', async () => {
@@ -260,7 +256,7 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('format-apache-json', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'format-apache-json.txt'));
   });
 
   test('auto-detects NDJSON traffic', async () => {
@@ -273,7 +269,7 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    await matchSnapshot('format-auto-ndjson', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'format-auto-ndjson.txt'));
   });
 });
 
@@ -288,7 +284,7 @@ describe('drift - output formats', () => {
       '--format',
       'json',
     ]);
-    await matchSnapshot('output-json', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'output-json.txt'));
   });
 
   test('renders CSV output', async () => {
@@ -301,7 +297,7 @@ describe('drift - output formats', () => {
       '--format',
       'csv',
     ]);
-    await matchSnapshot('output-csv', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'output-csv.txt'));
   });
 
   test('renders SARIF output', async () => {
@@ -314,7 +310,7 @@ describe('drift - output formats', () => {
       '--format',
       'sarif',
     ]);
-    await matchSnapshot('output-sarif', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'output-sarif.txt'));
   });
 
   test('keeps summary counts when --max-findings is 0 and hides the detail list', () => {
@@ -344,7 +340,7 @@ describe('drift - coverage', () => {
       '--coverage',
     ]);
     expect(code).toBe(0);
-    await matchSnapshot('coverage-overview', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'coverage-overview.txt'));
   });
 
   test('keeps stdout machine-readable and moves the overview to stderr with --format json', () => {
@@ -384,7 +380,7 @@ describe('drift - coverage', () => {
       expect(output).toContain('Coverage report written to:');
       expect(output).not.toContain('API coverage');
       const report = readFileSync(outputFile, 'utf-8').replaceAll(process.cwd(), '.');
-      await matchSnapshot('coverage-json', report);
+      await expect(report).toMatchFileSnapshot(join(snapshots, 'coverage-json.txt'));
     } finally {
       rmSync(outputDir, { recursive: true, force: true });
     }

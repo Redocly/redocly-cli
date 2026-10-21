@@ -8,17 +8,9 @@ vi.mock('undici', async (importOriginal) => ({
   ...(await importOriginal<typeof undici>()),
   fetch: vi.fn(),
 }));
+vi.mock('@redocly/openapi-core');
 
 describe('fetchWithTimeout', () => {
-  beforeAll(() => {
-    global.setTimeout = vi.fn() as any;
-    global.clearTimeout = vi.fn();
-  });
-
-  beforeEach(() => {
-    vi.mock('@redocly/openapi-core');
-  });
-
   it('should call fetch with signal and agent when timeout is provided', async () => {
     await fetchWithTimeout('url', { timeout: 1000 });
 

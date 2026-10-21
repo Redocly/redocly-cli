@@ -118,7 +118,7 @@ describe('telemetry', () => {
     await settle(middleware, 'getOrder', ok);
     await settle(middleware, 'listOrders', ok);
     await vi.advanceTimersByTimeAsync(60_000);
-    expect(windows.length).toBe(1);
+    expect(windows).toHaveLength(1);
     expect(windows[0][0].time).toBe('2026-10-20T09:14:00.000Z');
     expect(windows[0][0].data.usage.window_ms).toBe(60_000);
     expect(
@@ -266,7 +266,7 @@ describe('telemetry default sink', () => {
       { key: 'service.version', value: { stringValue: 'dev' } },
     ]);
     const spans = resourceSpans.scopeSpans[0].spans;
-    expect(spans.length).toBe(1);
+    expect(spans).toHaveLength(1);
     expect(spans[0].name).toBe('event.com.redocly.sdkUsage.aggregated');
     expect(spans[0].startTimeUnixNano).toBe(spans[0].endTimeUnixNano);
     expect(spans[0].attributes.map((attribute) => attribute.key)).toEqual(CLI_ATTRIBUTE_NAMES);
@@ -308,7 +308,7 @@ describe('telemetry default sink', () => {
 
     const spans: OtlpSpan[] = [];
     for (const body of bodies) spans.push(...body.resourceSpans[0].scopeSpans[0].spans);
-    expect(spans.length).toBe(3);
+    expect(spans).toHaveLength(3);
     const traceIds = new Set(spans.map((span) => span.traceId));
     const spanIds = new Set(spans.map((span) => span.spanId));
     expect(traceIds.size).toBe(3);

@@ -9,7 +9,7 @@ import {
 } from '../shared/large-descriptions/large-descriptions.js';
 
 /** Go bar: `go build` + `go vet` (vet catches json tags on unexported fields). */
-async function goBar(description: string): Promise<void> {
+async function expectGoBar(description: string): Promise<void> {
   const dir = await generateWith(['go'], description);
   try {
     const build = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
@@ -22,7 +22,11 @@ async function goBar(description: string): Promise<void> {
 }
 
 describe('rebilly description', () => {
-  it('go builds and vets cleanly', () => goBar(rebillyDescription), LARGE_DESCRIPTION_TIMEOUT);
+  it(
+    'go builds and vets cleanly',
+    () => expectGoBar(rebillyDescription),
+    LARGE_DESCRIPTION_TIMEOUT
+  );
 });
 
 describe('github REST description', () => {
@@ -32,5 +36,5 @@ describe('github REST description', () => {
     github = await fetchGithubDescription();
   }, LARGE_DESCRIPTION_TIMEOUT);
 
-  it('go builds and vets cleanly', () => goBar(github), LARGE_DESCRIPTION_TIMEOUT);
+  it('go builds and vets cleanly', () => expectGoBar(github), LARGE_DESCRIPTION_TIMEOUT);
 });

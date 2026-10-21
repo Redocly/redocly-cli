@@ -16,7 +16,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -49,6 +49,6 @@ describe('generate-client parseAs', () => {
     expect(generated).toContain('return response.formData();');
 
     // consumer/usage.ts calls the operation with `parseAs`; it must compile.
-    strictTypecheck(dir, ['client.ts', 'usage.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'usage.ts']);
   });
 });
