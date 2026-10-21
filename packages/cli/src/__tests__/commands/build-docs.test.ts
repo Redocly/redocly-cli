@@ -1,4 +1,4 @@
-import { bundle, createConfig, HandledError } from '@redocly/openapi-core';
+import { bundle, createConfig, HandledError, logger } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { prepareApiDocs } from 'redoc';
 
@@ -50,6 +50,7 @@ describe('build-docs', () => {
   });
 
   beforeEach(() => {
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.mocked(fs.readFileSync).mockImplementation(() => '');
 
     vi.mocked(getFallbackApisOrExit).mockImplementation(
@@ -79,11 +80,11 @@ describe('build-docs', () => {
     expect(bundle).not.toHaveBeenCalled();
     expect(fetch).toHaveBeenCalledWith(url, expect.anything());
     expect(prepareApiDocs).toHaveBeenCalledWith(expect.objectContaining({ spec: schema }));
-    expect(processExitMock).toBeCalledTimes(0);
+    expect(processExitMock).toHaveBeenCalledTimes(0);
   });
 
   it('reports an invalid --openapi value with the parse error only', async () => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(logger, 'error').mockImplementation(() => {});
     const redoclyConfig = await createConfig({});
 
     expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(HandledError);

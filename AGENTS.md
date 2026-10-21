@@ -46,13 +46,16 @@ npm run unit -- -t 'test name pattern'
 # Update snapshots
 npm run unit -- -u
 
+# Run the type tests (*.test-d.ts)
+npm run unit:types
+
 # Run e2e tests (everything under tests/e2e)
 npm run e2e
 
 # Run the client generator tests in packages/client-generator/tests/e2e (they compile real Python/Go/PHP/TypeScript output)
 npm run client-generators
 
-# Run the full test suite (compile + typecheck + unit + e2e)
+# Run the full test suite (compile + typecheck + unit + type tests + e2e)
 npm test
 
 # Lint
@@ -74,7 +77,8 @@ in the wrong package.
 ## Build System
 
 `packages/core`, `packages/respect-core`, `packages/reunite-integration`, and `packages/client-generator` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
-`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
+`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~160 kB) and lazy chunks under `lib/chunks/`.
+redoc + react load only when `build-docs` runs, and undici loads on the first network request; the build fails when either reaches a chunk the entry imports statically.
 The root `npm run compile` runs both steps: tsc for the compiled packages, then the esbuild bundle for the CLI.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.

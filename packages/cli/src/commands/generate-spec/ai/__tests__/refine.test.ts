@@ -98,12 +98,7 @@ async function refine(document = baseline()) {
 describe('refineSpecWithAi', () => {
   beforeEach(() => {
     vi.mocked(runProvider).mockReset();
-    vi.spyOn(logger, 'info').mockImplementation(() => true);
     vi.spyOn(logger, 'warn').mockImplementation(() => true);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   it('refines operations one by one and merges the results', async () => {
@@ -120,9 +115,7 @@ describe('refineSpecWithAi', () => {
   it('sends each operation a focused prompt with only its referenced components', async () => {
     mockResponses(refinedGetUsers, refinedPostUsers);
     await refine();
-    const [firstRequest, secondRequest] = vi
-      .mocked(runProvider)
-      .mock.calls.map(([, request]) => request);
+    const [[, firstRequest], [, secondRequest]] = vi.mocked(runProvider).mock.calls;
     expect(firstRequest.user).toContain('Component schemas referenced by this operation');
     expect(firstRequest.user).toContain('User:');
     expect(secondRequest.user).not.toContain('Component schemas referenced by this operation');

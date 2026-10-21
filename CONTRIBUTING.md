@@ -254,6 +254,7 @@ Unit tests in the **cli** package are sensitive to top-level configuration file 
 - To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 - To update snapshots, run `npm run unit -- -u`.
 - To run without coverage, call Vitest directly: `npx vitest run --project unit <path/to/your/file.test.ts>`.
+- To run the type tests (`*.test-d.ts` files that check the public TypeScript types), run `npm run unit:types`.
 
 ### E2E tests
 

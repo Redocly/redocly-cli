@@ -85,7 +85,7 @@ describe('replaceJSONPointers', () => {
     expect(result).toBe('User: "John Doe", Order ID: "12345"');
   });
 
-  it('should replace valid $response.body pointers with the correct value from context', () => {
+  it('should replace a $response.body pointer at the end of the expression', () => {
     const context = {
       $response: {
         body: {

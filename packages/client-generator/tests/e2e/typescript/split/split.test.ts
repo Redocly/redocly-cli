@@ -13,7 +13,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/cafe.yaml');
@@ -59,7 +59,7 @@ describe("generate-client outputMode: 'split'", () => {
   });
 
   test('the two-file set type-checks under strict mode with no unused imports', () => {
-    strictTypecheck(workDir, ['client.ts', 'client.schemas.ts']);
+    expectStrictTscPasses(workDir, ['client.ts', 'client.schemas.ts']);
   });
 
   // `importExt: 'ts'` targets runtimes that resolve specifiers literally (no `.js` → `.ts`

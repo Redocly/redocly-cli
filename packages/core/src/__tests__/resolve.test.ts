@@ -8,6 +8,11 @@ import { resolveDocument, BaseResolver, type Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import { Oas3Types } from '../types/oas3.js';
 
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  return { ...actual };
+});
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('collect refs', () => {
@@ -63,15 +68,13 @@ describe('collect refs', () => {
       ''
     );
 
-    try {
-      await resolveDocument({
+    await expect(
+      resolveDocument({
         rootDocument,
         externalRefResolver: new BaseResolver(),
         rootType: normalizeTypes(Oas3Types).Root,
-      });
-    } catch (e) {
-      expect(e.message).toEqual('Self-referencing circular pointer');
-    }
+      })
+    ).rejects.toThrow('Self-referencing circular pointer');
   });
 
   it('should resolve local transitive refs', async () => {
@@ -132,15 +135,13 @@ describe('collect refs', () => {
       'foobar.yaml'
     );
 
-    try {
-      await resolveDocument({
+    await expect(
+      resolveDocument({
         rootDocument,
         externalRefResolver: new BaseResolver(),
         rootType: normalizeTypes(Oas3Types).Root,
-      });
-    } catch (e) {
-      expect(e.message).toEqual('Self-referencing circular pointer');
-    }
+      })
+    ).rejects.toThrow('Self-referencing circular pointer');
   });
 
   it('should resolve external ref', async () => {
@@ -514,10 +515,6 @@ describe('collect refs', () => {
       `,
       path.join(cwd, 'foobar')
     );
-    vi.mock('node:fs', async () => {
-      const actual = await vi.importActual('node:fs');
-      return { ...actual };
-    });
     vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true }) as any);
 
     const resolvedRefs = await resolveDocument({
@@ -603,13 +600,15 @@ describe('collect refs', () => {
       expect(resolvedRefs).toBeDefined();
       expect(resolvedRefs.size).toEqual(1);
       const resolvedRef = Array.from(resolvedRefs.values())[0];
-      expect(resolvedRef.resolved).toBe(true);
-      if (resolvedRef.resolved) {
-        expect(resolvedRef.node).toEqual({
-          type: 'string',
-          description: 'A test schema',
-        });
-      }
+      expect(resolvedRef).toEqual(
+        expect.objectContaining({
+          resolved: true,
+          node: {
+            type: 'string',
+            description: 'A test schema',
+          },
+        })
+      );
     });
   });
 });

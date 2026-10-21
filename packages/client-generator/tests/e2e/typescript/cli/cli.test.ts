@@ -63,10 +63,6 @@ describe('generate-client cli generator', () => {
     });
   });
 
-  afterEach(() => {
-    expect(server.handlerErrors).toEqual([]);
-  });
-
   afterAll(async () => {
     await server.close();
     rmSync(workDir, { recursive: true, force: true });
@@ -106,6 +102,7 @@ describe('generate-client cli generator', () => {
     expect(server.requests).toHaveLength(1);
     expect(server.requests[0].query).toMatchObject({ status: 'open', limit: '2' });
     expect(server.requests[0].headers.authorization).toBe('Bearer e2e-token');
+    expect(server.handlerErrors).toEqual([]);
   });
 
   it('positional path params and --json bodies dispatch correctly', async () => {
@@ -125,6 +122,7 @@ describe('generate-client cli generator', () => {
     expect(JSON.parse(create.stdout)).toMatchObject({ id: 'ord_new', item: 'latte' });
     expect(server.requests).toHaveLength(1);
     expect(server.requests[0].body?.toString('utf-8')).toBe('{"item":"latte","quantity":1}');
+    expect(server.handlerErrors).toEqual([]);
   });
 
   it('zod validation failures exit 3 without hitting the server', async () => {
@@ -168,6 +166,7 @@ describe('generate-client cli generator', () => {
     expect(pages).toHaveLength(2);
     expect(pages[0].orders[0].id).toBe('ord_1');
     expect(pages[1].orders[0].id).toBe('ord_2');
+    expect(server.handlerErrors).toEqual([]);
   });
 
   it('schema prints the request schema; usage errors exit 4; --help exits 0', async () => {
@@ -205,5 +204,6 @@ describe('generate-client cli generator', () => {
     const result = await runTsx(join(clientDir, 'client.cli.ts'), ['ping'], { cwd: clientDir });
     expect(result.status, result.stderr).toBe(0);
     expect(result.stdout.trim()).toBe('');
+    expect(server.handlerErrors).toEqual([]);
   });
 });

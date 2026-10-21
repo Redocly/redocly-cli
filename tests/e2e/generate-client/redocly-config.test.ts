@@ -377,29 +377,40 @@ describe('generate-client redocly.yaml config', () => {
   });
 
   // A plain loop keeps the full case name. `it.each` with `$name` cuts it at 40 characters.
-  for (const testCase of cases) {
-    it(testCase.name, () => {
-      writeFileSync(join(dir, 'redocly.yaml'), testCase.config, 'utf-8');
-      writeFileSync(join(dir, 'openapi.yaml'), testCase.openapi ?? readFileSync(fixture), 'utf-8');
+  for (const {
+    name,
+    config,
+    args,
+    status,
+    openapi = readFileSync(fixture, 'utf-8'),
+    stderr = [],
+    files = [],
+    missingFiles = [],
+    contains = [],
+    notContains = [],
+  } of cases) {
+    it(name, () => {
+      writeFileSync(join(dir, 'redocly.yaml'), config, 'utf-8');
+      writeFileSync(join(dir, 'openapi.yaml'), openapi, 'utf-8');
 
-      const res = runCommandResult('node', [cliEntry, 'generate-client', ...testCase.args], {
+      const result = runCommandResult('node', [cliEntry, 'generate-client', ...args], {
         testPath: dir,
       });
-      expect(res.status, res.stderr).toBe(testCase.status);
+      expect(result.status, result.stderr).toBe(status);
 
-      for (const text of testCase.stderr ?? []) {
-        expect(res.stderr).toContain(text);
+      for (const text of stderr) {
+        expect(result.stderr).toContain(text);
       }
-      for (const file of testCase.files ?? []) {
+      for (const file of files) {
         expect(existsSync(join(dir, file)), `${file} must exist`).toBe(true);
       }
-      for (const file of testCase.missingFiles ?? []) {
+      for (const file of missingFiles) {
         expect(existsSync(join(dir, file)), `${file} must not exist`).toBe(false);
       }
-      for (const check of testCase.contains ?? []) {
+      for (const check of contains) {
         expect(readFileSync(join(dir, check.file), 'utf-8')).toContain(check.text);
       }
-      for (const check of testCase.notContains ?? []) {
+      for (const check of notContains) {
         expect(readFileSync(join(dir, check.file), 'utf-8')).not.toContain(check.text);
       }
     });
