@@ -179,6 +179,38 @@ describe('renderPhpModels output, run with php', () => {
     expectModelsRun(out);
   });
 
+  it('keeps a mapping target without a class as a raw array in the dispatcher', () => {
+    const out = renderPhpModels(
+      model({
+        Action: {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'Feed' },
+            { kind: 'ref', name: 'Adopt' },
+          ],
+          discriminator: {
+            propertyName: 'type',
+            mapping: [
+              { value: 'feed', schemaName: 'Feed' },
+              { value: 'adopt', schemaName: 'Adopt' },
+            ],
+          },
+        },
+        Feed: { kind: 'object', properties: [] },
+        Adopt: {
+          kind: 'union',
+          members: [
+            { kind: 'object', properties: [{ name: 'petId', schema: STRING, required: true }] },
+            { kind: 'object', properties: [{ name: 'petName', schema: STRING, required: true }] },
+          ],
+        },
+      })
+    );
+    expect(out).toContain("'feed' => Feed::fromArray($data)");
+    expect(out).toContain("'adopt' => $data");
+    expectModelsRun(out);
+  });
+
   it('hydrates discriminated-union properties through the dispatcher so instanceof works', () => {
     const out = renderPhpModels(
       model({
