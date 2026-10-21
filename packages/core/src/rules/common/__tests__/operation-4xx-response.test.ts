@@ -265,7 +265,7 @@ describe('Oas3 operation-4xx-response', () => {
       document,
       config: await createConfig({
         rules: {
-          'operation-4xx-response': { severity: 'error', excludeMethods: ['GET', 'copy'] },
+          'operation-4xx-response': { severity: 'error', excludedMethods: ['GET', 'copy'] },
         },
       }),
     });
@@ -328,7 +328,7 @@ describe('Oas3 operation-4xx-response', () => {
       document,
       config: await createConfig({
         rules: {
-          'operation-4xx-response': { severity: 'error', excludeMethods: ['get'] },
+          'operation-4xx-response': { severity: 'error', excludedMethods: ['get'] },
         },
       }),
     });
@@ -393,7 +393,7 @@ describe('Oas3 operation-4xx-response', () => {
           'operation-4xx-response': {
             severity: 'error',
             validateWebhooks: true,
-            excludeMethods: ['get'],
+            excludedMethods: ['get'],
           },
         },
       }),

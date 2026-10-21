@@ -4,12 +4,11 @@ import { validateResponseCodes } from '../utils.js';
 
 export const Operation4xxResponse: Oas3Rule | Oas2Rule = ({
   validateWebhooks,
-  excludeMethods = [],
+  excludedMethods = [],
 }) => {
-  const excludedMethods = new Set(excludeMethods.map((method: string) => method.toLowerCase()));
+  const excluded = new Set(excludedMethods.map((method: string) => method.toLowerCase()));
   const Operation = {
-    skip: (_operation: unknown, key: string | number) =>
-      excludedMethods.has(String(key).toLowerCase()),
+    skip: (_operation: unknown, key: string | number) => excluded.has(String(key).toLowerCase()),
     Responses(responses: Record<string, object>, { report }: UserContext) {
       validateResponseCodes({
         responseCodes: Object.keys(responses || {}),

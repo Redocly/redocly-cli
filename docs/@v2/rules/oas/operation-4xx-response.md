@@ -27,7 +27,7 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 | ---------------- | -------- | ----------------------------------------------------------------------------------------- |
 | severity         | string   | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 | validateWebhooks | boolean  | Determines if responses inside webhooks are validated. Default `false`.                   |
-| excludeMethods   | [string] | List of HTTP methods (case-insensitive) to skip during validation. Default `[]`.          |
+| excludedMethods  | [string] | List of HTTP methods (case-insensitive) to skip during validation. Default `[]`.          |
 
 An example configuration:
 
@@ -51,7 +51,7 @@ The following example skips operations that use the `HEAD` or `OPTIONS` method:
 rules:
   operation-4xx-response:
     severity: error
-    excludeMethods: [head, options]
+    excludedMethods: [head, options]
 ```
 
 Excluded methods also apply to callback operations and, when `validateWebhooks` is enabled, to webhook operations.
