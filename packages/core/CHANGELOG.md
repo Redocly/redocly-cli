@@ -1,5 +1,7 @@
 # @redocly/openapi-core
 
+## 2.67.1
+
 ## 2.67.0
 
 ### Minor Changes
