@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.66.1
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP and Python clients failed when a discriminator mapping pointed to a schema that is itself a `oneOf`.
+- Updated @redocly/client-generator to v0.7.5.
+
 ## 2.66.0
 
 ### Minor Changes

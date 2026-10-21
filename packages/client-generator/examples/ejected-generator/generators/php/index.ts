@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.7.4 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.7.5 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -236,5 +236,5 @@ export default {
     "argsStyle": "inputs follow the target language's own idiom",
     "importExt": "the generated file has no relative imports"
   },
-  requiresGenerator: '^0.7.4',
+  requiresGenerator: '^0.7.5',
 };
