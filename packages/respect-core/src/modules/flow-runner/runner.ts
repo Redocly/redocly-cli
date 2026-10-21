@@ -152,6 +152,7 @@ async function runWorkflows({
 export async function runWorkflow({
   workflowInput,
   ctx,
+  inputs,
   fromStepId,
   skipLineSeparator,
   parentStepId,
@@ -171,18 +172,33 @@ export async function runWorkflow({
     throw new Error(`\n ${blue('Workflow')} ${workflowInput} ${blue('not found')} \n`);
   }
 
-  const workflowInputSchema = workflow.inputs;
-  if (workflowInputSchema) {
-    const inputs = ctx.$workflows[workflow.workflowId].inputs;
-
-    ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
-      inputs,
-      workflowInputSchema,
-      env: ctx.options.envVariables,
-    });
-  }
-
   const workflowId = workflow.workflowId;
+  const workflowInputSchema = workflow.inputs;
+  // Keep `undefined` when nothing is passed. Success criteria read the inputs as is,
+  // and `$inputs.x` on `undefined` reports an unresolved expression, while on `{}` it evaluates to false.
+  const runInputs = inputs
+    ? { ...ctx.$workflows[workflowId].inputs, ...inputs }
+    : ctx.$workflows[workflowId].inputs;
+
+  // The run gets its own copy of the workflow entry, so the inputs passed to it
+  // don't leak into later or concurrent runs of the same workflow.
+  // The copy shares the steps object, so step data stays visible to the caller.
+  const runCtx: TestContext = {
+    ...ctx,
+    $workflows: {
+      ...ctx.$workflows,
+      [workflowId]: {
+        ...ctx.$workflows[workflowId],
+        inputs: workflowInputSchema
+          ? mergeWorkflowInputs({
+              inputs: runInputs,
+              workflowInputSchema,
+              env: ctx.options.envVariables,
+            })
+          : runInputs,
+      },
+    },
+  };
 
   if (!fromStepId) {
     printWorkflowSeparator({
@@ -202,17 +218,17 @@ export async function runWorkflow({
   // Reset $steps before running workflow steps.
   // A goto to a step in this workflow keeps the outputs of steps that already ran.
   if (!fromStepId) {
-    ctx.$steps = {};
+    runCtx.$steps = {};
   } else {
     for (const stepToReset of workflowSteps) {
-      delete ctx.$steps[stepToReset.stepId];
+      delete runCtx.$steps[stepToReset.stepId];
     }
   }
   for (const step of workflowSteps) {
     try {
       const stepResult = await runStep({
         step,
-        ctx,
+        ctx: runCtx,
         workflowId,
         executedStepsCount,
         retriesLeft,
@@ -227,10 +243,10 @@ export async function runWorkflow({
         name: CHECKS.UNEXPECTED_ERROR,
         message: err.message,
         passed: false,
-        severity: ctx.severity['UNEXPECTED_ERROR'],
+        severity: runCtx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
-      ctx.executedSteps.push(step);
+      runCtx.executedSteps.push(step);
     }
   }
 
@@ -249,10 +265,10 @@ export async function runWorkflow({
 
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: {
-        ...ctx,
+        ...runCtx,
         $inputs: {
-          ...ctx.$inputs,
-          ...ctx.$workflows[workflowId]?.inputs,
+          ...runCtx.$inputs,
+          ...runCtx.$workflows[workflowId]?.inputs,
         },
       },
       workflowId,
@@ -273,6 +289,7 @@ export async function runWorkflow({
       }
     }
     ctx.$outputs[workflowId] = outputs;
+    // written to the caller's entry, not the run's copy, so the caller can read them
     ctx.$workflows[workflowId].outputs = outputs;
   }
 
@@ -288,9 +305,9 @@ export async function runWorkflow({
     stepId: parentStepId,
     startTime: workflowStartTime,
     endTime,
-    totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
-    executedSteps: ctx.executedSteps,
-    ctx,
+    totalTimeMs: calculateWorkflowTotalTimeMs(runCtx.executedSteps),
+    executedSteps: runCtx.executedSteps,
+    ctx: runCtx,
     globalTimeoutError: hasFailedTimeoutSteps,
   };
 }
