@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.66.1 (2026-10-21)
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP and Python clients failed when a discriminator mapping pointed to a schema that is itself a `oneOf`.
+- Updated @redocly/client-generator to v0.7.5.
+
 ## 2.66.0 (2026-10-20)
 
 ### Minor Changes
