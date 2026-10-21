@@ -259,6 +259,34 @@ describe('generateClient — end-to-end orchestration', () => {
     expect(result.bytes).toBe(Buffer.byteLength(contents, 'utf-8'));
   });
 
+  it('reports the loaded API description to collectSpecData', async () => {
+    const api = join(workDir, 'cafe.yaml');
+    await writeFile(
+      api,
+      outdent`
+        openapi: 3.2.0
+        info:
+          title: Redocly Cafe
+          version: 1.0.0
+        paths:
+          /menu:
+            get:
+              operationId: listMenuItems
+              responses:
+                '200':
+                  description: OK
+      `,
+      'utf-8'
+    );
+    const collectSpecData = vi.fn();
+
+    await generateClient({ api, output: join(workDir, 'cafe.ts'), collectSpecData });
+
+    expect(collectSpecData).toHaveBeenCalledWith(
+      expect.objectContaining({ parsed: expect.objectContaining({ openapi: '3.2.0' }) })
+    );
+  });
+
   it('emits the result shape when errorMode is `result`', async () => {
     const api = join(workDir, 'errmode.yaml');
     await writeFile(

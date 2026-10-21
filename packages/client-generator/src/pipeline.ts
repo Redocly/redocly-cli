@@ -235,7 +235,11 @@ export async function generateClient(
     );
   }
   const outputPath = resolve(options.output);
-  const { document, version } = await loadSpec(options.api, options.config);
+  const { document, version } = await loadSpec(
+    options.api,
+    options.config,
+    options.collectSpecData
+  );
   const normalized =
     version === 'oas2'
       ? // loadSpec types the parsed document as OAS3 for the common path; a detected
