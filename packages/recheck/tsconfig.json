@@ -7,5 +7,5 @@
   },
   "references": [{ "path": "../core" }],
   "include": ["src/**/*.ts"],
-  "exclude": ["lib", "**/__tests__", "**/*.test.ts", "**/__typecheck__"]
+  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }

@@ -11,25 +11,20 @@ import { handleLint } from '../commands/lint.js';
 import { sendTelemetry } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
 
-const originalFetch = global.fetch;
+vi.mock('@redocly/openapi-core', async () => {
+  const actual = await vi.importActual('@redocly/openapi-core');
+  return {
+    ...actual,
+    detectSpec: vi.fn(),
+  };
+});
+vi.mock('../utils/miscellaneous.js');
+vi.mock('../utils/telemetry.js');
+vi.mock('../commands/lint.js');
+vi.mock('../commands/check-config.js');
 
 describe('commandWrapper', () => {
-  beforeEach(() => {
-    global.fetch = vi.fn();
-    vi.mock('@redocly/openapi-core', async () => {
-      const actual = await vi.importActual('@redocly/openapi-core');
-      return {
-        ...actual,
-        detectSpec: vi.fn(),
-      };
-    });
-    vi.mock('../utils/miscellaneous.js');
-    vi.mock('../utils/telemetry.js');
-    vi.mock('../commands/lint.js');
-    vi.mock('../commands/check-config.js');
-  });
   afterEach(() => {
-    global.fetch = originalFetch;
     process.env.REDOCLY_TELEMETRY = undefined;
   });
 

@@ -233,7 +233,7 @@ describe('Config.extendTypes', () => {
   });
   it('should throw error if for oas version different from 2 and 3', () => {
     const config = new Config({}, { plugins });
-    expect(() => config.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
+    expect(() => config.extendTypes({}, 'something else' as SpecVersion)).toThrow(
       'Not implemented'
     );
   });

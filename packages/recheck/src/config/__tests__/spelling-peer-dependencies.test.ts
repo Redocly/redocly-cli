@@ -334,7 +334,7 @@ describe('spelling: cache eviction on rejected load', () => {
     // First load: the read fails, so `execute()` must throw and not cache an empty result.
     await expect(
       spelling.execute(rule, 'a.md', buildCtx('First document prose.\n'))
-    ).rejects.toThrow();
+    ).rejects.toThrow('spelling: failed to load dictionary — simulated transient read failure');
     const attemptsAfterFirstFailure = readAttempts;
     expect(attemptsAfterFirstFailure).toBeGreaterThan(0);
 

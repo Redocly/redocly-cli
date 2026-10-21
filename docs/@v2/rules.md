@@ -13,7 +13,8 @@ Redocly uses rules to describe all the different aspects of API behavior that we
 - **Custom code rules** if none of the above exactly fits your needs, then a [custom code plugin](./custom-plugins/index.md) is an extensible way to bring some custom JavaScript to build on Redocly's existing features.
 
 If you work with an AI coding assistant, the `redocly-lint-rules` agent skill picks the right level for a check written in plain language and writes the rule for you.
-Install it with `npx skills add https://redocly.com`.
+Install it with [`redocly skills`](./commands/skills.md).
+Without Redocly CLI, use `npx skills add https://redocly.com`.
 
 ## Rulesets
 

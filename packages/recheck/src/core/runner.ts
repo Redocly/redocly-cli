@@ -346,7 +346,7 @@ const MAX_FIX_PASSES = 5;
  * Runs the rules with fixes, then runs them again on the fixed content, until no more
  * fixes apply or MAX_FIX_PASSES is reached. A single `--fix` run then fixes everything.
  *
- * `problems` come from the first pass, so they are the problems that were found before
+ * `problems` come from the final content, so they are the problems that remain after
  * fixing. `fixedFiles` has the final content. `skippedFixes` has only the fixes still
  * skipped after the last pass.
  */
@@ -360,6 +360,8 @@ export async function runRulesUntilStable(
   const fixedFiles = new Map(firstPass.fixedFiles);
   const allFixes = [...firstPass.fixes];
   let skippedFixes = firstPass.skippedFixes;
+  // The pass that linted the final content, once a pass changes nothing.
+  let stablePass = firstPass.fixedFiles.size === 0 ? firstPass : undefined;
 
   let currentFiles = files.map((file) => ({
     ...file,
@@ -370,7 +372,10 @@ export async function runRulesUntilStable(
     const nextPass = await runRules(currentFiles, rules, { ...options, fix: true });
     // Fixes skipped in earlier passes are either proposed again in this pass or no longer needed.
     skippedFixes = nextPass.skippedFixes;
-    if (nextPass.fixedFiles.size === 0) break;
+    if (nextPass.fixedFiles.size === 0) {
+      stablePass = nextPass;
+      break;
+    }
 
     for (const [path, content] of nextPass.fixedFiles) {
       fixedFiles.set(path, content);
@@ -382,11 +387,14 @@ export async function runRulesUntilStable(
     }));
   }
 
+  // When the passes run out, the fixes of the last pass have not been linted yet.
+  const finalPass = stablePass ?? (await runRules(currentFiles, rules, options));
+
   return {
-    problems: firstPass.problems,
+    problems: finalPass.problems,
     fixedFiles,
     fixes: allFixes,
     skippedFixes,
-    truncated: firstPass.truncated,
+    truncated: finalPass.truncated,
   };
 }

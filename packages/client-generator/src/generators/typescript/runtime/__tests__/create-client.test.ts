@@ -632,7 +632,7 @@ describe('createClientCore', () => {
     const client = createClientCore<Ops>(OPS, { middleware: mine });
     client.configure({ serverUrl: 'https://later' }); // the core member, not the colliding op
     client.use({ onRequest: () => {} });
-    expect(mine.length).toBe(0);
+    expect(mine).toHaveLength(0);
 
     // use() also tolerates a configure() that reset middleware to undefined.
     client.configure({ middleware: undefined });

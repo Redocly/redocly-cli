@@ -29,7 +29,7 @@ describe('parseMarkdown', () => {
 
   it('parses GFM tables', () => {
     const tree = parseMarkdown('| a | b |\n| - | - |\n| 1 | 2 |\n');
-    expect(filterByTypes(tree, ['table']).length).toBe(1);
+    expect(filterByTypes(tree, ['table'])).toHaveLength(1);
   });
 
   it('never throws on malformed input', () => {

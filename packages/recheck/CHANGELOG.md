@@ -1,5 +1,32 @@
 # @redocly/recheck
 
+## 2.66.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.1.
+
+## 2.66.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.0.
+
+## 2.65.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 2.65.0
+
+### Patch Changes
+
+- Fixed the message of the `capitalization` assertion in `recheck` rules so that it names the style, such as "sentence case", instead of printing `$sentence`.
+- Fixed `lintFiles` and `runRulesUntilStable` so that, with `fix`, they return the problems that remain in the fixed content.
+  **Note:** Before, they returned the problems found before fixing; to get those, lint without `fix` first.
+- Updated @redocly/openapi-core to v2.65.0.
+
 ## 2.64.1
 
 ### Patch Changes

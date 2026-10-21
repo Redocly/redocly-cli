@@ -262,7 +262,7 @@ Words in all caps, such as `API`, and inline code are never changed.
 `--fix` rewrites a single-line segment for the four `$` styles.
 A segment that spans several lines is skipped.
 
-Message placeholders: the segment text, then the `match` value.
+Message placeholders: the segment text, then the name of the style (`title case`, `sentence case`, `lowercase`, or `uppercase`) or the `match` regex.
 
 ### `length`
 

@@ -46,13 +46,16 @@ npm run unit -- -t 'test name pattern'
 # Update snapshots
 npm run unit -- -u
 
-# Run e2e tests (everything under tests/e2e except generate-client)
+# Run the type tests (*.test-d.ts)
+npm run unit:types
+
+# Run e2e tests (everything under tests/e2e)
 npm run e2e
 
-# Run the generate-client e2e tests (they compile real Python/Go/PHP/TypeScript output)
+# Run the client generator tests in packages/client-generator/tests/e2e (they compile real Python/Go/PHP/TypeScript output)
 npm run client-generators
 
-# Run the full test suite (compile + typecheck + unit + e2e)
+# Run the full test suite (compile + typecheck + unit + type tests + e2e)
 npm test
 
 # Lint
@@ -74,7 +77,8 @@ in the wrong package.
 ## Build System
 
 `packages/core`, `packages/respect-core`, `packages/reunite-integration`, and `packages/client-generator` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
-`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
+`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~160 kB) and lazy chunks under `lib/chunks/`.
+redoc + react load only when `build-docs` runs, and undici loads on the first network request; the build fails when either reaches a chunk the entry imports statically.
 The root `npm run compile` runs both steps: tsc for the compiled packages, then the esbuild bundle for the CLI.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
@@ -109,7 +113,7 @@ Naming and reuse:
 
 - **Compile before testing.** Unit tests import from `lib/` (compiled output), not `src/` — run `npm run compile` after every change.
   Do not work around the compile step with aliases, `tsconfig` changes, or a separate test suite for one package.
-  The slow `client-generators` e2e suite is the one exception.
+  The `client-generators` projects are the one exception, because they need Go, PHP, and Python.
 - Cover the feature or fix with one focused test, not a pile of redundant ones.
   A single clear test that exercises the behavior is enough.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
@@ -123,6 +127,7 @@ Naming and reuse:
   Remove it before running them.
 - Run the full suite (`npm test`) before you open a pull request.
 - Run `npm run client-generators` when you touch client generation.
+  It needs Go, PHP, and Python; see [`CONTRIBUTING.md`](./CONTRIBUTING.md#client-generator-tests).
 
 The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).

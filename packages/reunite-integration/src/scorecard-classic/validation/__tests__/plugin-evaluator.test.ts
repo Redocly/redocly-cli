@@ -12,7 +12,7 @@ describe('evaluatePluginsFromCode', () => {
   });
 
   it('should reject invalid plugin code', async () => {
-    await expect(evaluatePluginsFromCode('invalid code')).rejects.toThrow();
+    await expect(evaluatePluginsFromCode('invalid code')).rejects.toThrow('Unexpected identifier');
   });
 
   it('should evaluate valid plugin code and return plugins', async () => {
