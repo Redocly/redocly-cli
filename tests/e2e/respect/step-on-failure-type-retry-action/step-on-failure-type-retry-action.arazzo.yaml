@@ -47,8 +47,8 @@ workflows:
           - condition: $statusCode == 200
   - workflowId: retry-target-step-with-own-retry
     description: >-
-      The retry action runs a step that has its own retry action.
-      That step uses the retries left instead of starting a new round of retries.
+      The retry action runs its own step before each retry.
+      That step can't start the same retry action again from inside it, so the run doesn't loop.
     steps:
       - stepId: list-menu-items-with-invalid-limit
         operationId: $sourceDescriptions.cafe-api.listMenuItems
@@ -81,3 +81,32 @@ workflows:
           - type: retry
             name: second-retry
             retryLimit: 2
+  - workflowId: retry-target-step-with-its-own-retry-limit
+    description: >-
+      The retry action runs a step that has its own retry action before each retry.
+      That step retries up to its own retryLimit every time.
+    steps:
+      - stepId: list-menu-items-with-invalid-limit
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - type: retry
+            name: run-target-step-then-retry
+            stepId: target-step-with-invalid-limit
+            retryLimit: 3
+      - stepId: target-step-with-invalid-limit
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - type: retry
+            name: retry-target-step
