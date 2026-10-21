@@ -1,0 +1,64 @@
+arazzo: 1.0.1
+info:
+  title: Step onFailure type retry action
+  description: Testing functionality of `retry` action without `retryLimit` in `onFailure` action.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: retry-once-then-goto
+    description: >-
+      The retry action has no retryLimit, so the step is retried once.
+      The goto action runs after that retry and skips the second step.
+    steps:
+      - stepId: list-menu-items-with-invalid-limit
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - type: retry
+            name: retry-once
+          - type: goto
+            name: goto-after-retry
+            stepId: search-menu-items
+      - stepId: skipped-by-goto
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: search-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
+        successCriteria:
+          - condition: $statusCode == 200
+  - workflowId: retry-target-step-with-own-retry
+    description: >-
+      The retry action runs a step that has its own retry action.
+      That step uses the retries left instead of starting a new round of retries.
+    steps:
+      - stepId: list-menu-items-with-invalid-limit
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - type: retry
+            name: run-step-then-retry
+            stepId: list-menu-items-with-invalid-limit

@@ -367,11 +367,11 @@ export async function runStep({
         const targetStep = action.stepId ? action.stepId : undefined;
 
         if (type === 'retry') {
-          const { retryAfter, retryLimit = 0 } = action;
+          const { retryAfter, retryLimit = 1 } = action;
           retriesLeft = retriesLeft ?? retryLimit;
           step.retriesLeft = retriesLeft;
           if (retriesLeft === 0) {
-            return { retriesLeft: 0, shouldEnd: false };
+            continue;
           }
 
           if (retryAfter) {
@@ -404,11 +404,14 @@ export async function runStep({
                 `Step ${targetStep} not found in workflow ${workflowId}`
               );
             }
+            // pass the retries left, as for a target workflow, so a target step
+            // with its own retry action can't start a new round of retries
             await runStep({
               step: stepToRun,
               ctx: targetCtx,
               workflowId,
               executedStepsCount,
+              retriesLeft: retriesLeft - 1,
             });
           }
 
