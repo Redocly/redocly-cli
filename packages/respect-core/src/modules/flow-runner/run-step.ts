@@ -18,7 +18,6 @@ import {
   isParameterWithoutIn,
   resolveReusableComponentItem,
   resolveWorkflowReference,
-  type ParameterWithoutIn,
 } from '../context-parser/index.js';
 import {
   printChildWorkflowSeparator,
@@ -90,25 +89,25 @@ export async function runStep({
     );
 
     // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
-    const workflowInputParameters = resolvedParameters?.filter(isParameterWithoutIn).reduce(
-      (acc, parameter: ParameterWithoutIn) => {
-        const ctxWithInputs = {
-          ...ctx,
-          $inputs: {
-            ...ctx.$inputs,
-            ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
-          },
-        };
-        // Ensure parameter is of type ParameterWithoutIn
-        acc[parameter.name] = getValueFromContext({
-          value: parameter.value,
-          ctx: ctxWithInputs,
-          logger: ctx.options.logger,
-        });
-        return acc;
+    const ctxWithInputs = {
+      ...ctx,
+      $inputs: {
+        ...ctx.$inputs,
+        ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
       },
-      {} as Record<string, any>
-    );
+    };
+    const workflowInputParameters = resolvedParameters
+      ? Object.fromEntries(
+          resolvedParameters.filter(isParameterWithoutIn).map((parameter) => [
+            parameter.name,
+            getValueFromContext({
+              value: parameter.value,
+              ctx: ctxWithInputs,
+              logger: ctx.options.logger,
+            }),
+          ])
+        )
+      : undefined;
 
     printChildWorkflowSeparator(stepId, ctx.options.logger);
     const stepWorkflowResult = await runWorkflow({
