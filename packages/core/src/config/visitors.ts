@@ -87,8 +87,8 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-function rebasePath(value: string, sourceRef: string, rootRef: string) {
-  if (isAbsoluteUrl(value) || path.isAbsolute(value)) {
+function rebasePath(value: unknown, sourceRef: string, rootRef: string) {
+  if (!isString(value) || !value || isAbsoluteUrl(value) || path.isAbsolute(value)) {
     return value;
   }
   if (isAbsoluteUrl(sourceRef)) {
@@ -107,15 +107,15 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   }
   // the walker visits a shared `$ref` target once per node type name, so rebase each node once
   rebasedNodes.add(node);
-  const rebaseValue = (value: unknown) =>
-    isString(value) && value ? rebasePath(value, sourceRef, rootRef) : value;
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
     if (value === undefined || !isPlainObject(schema) || isNamedType(schema)) {
       continue;
     }
     if ((schema.format ?? schema.items?.format) === 'uri-reference') {
-      node[field] = Array.isArray(value) ? value.map(rebaseValue) : rebaseValue(value);
+      node[field] = Array.isArray(value)
+        ? value.map((item) => rebasePath(item, sourceRef, rootRef))
+        : rebasePath(value, sourceRef, rootRef);
     }
   }
 }
