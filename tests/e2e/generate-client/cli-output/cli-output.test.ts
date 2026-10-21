@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { runCommandResult } from '../../helpers.js';
+import { runCommandResult, type CommandResult } from '../../helpers.js';
 import { cliEntry, copyConsumer, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -15,6 +15,8 @@ const fixture = join(__dirname, 'openapi.yaml');
 
 describe('config-driven composition (client.cliOutput)', () => {
   let project: string;
+  let ejected: CommandResult;
+  let generated: CommandResult;
 
   beforeAll(() => {
     project = copyConsumer(join(__dirname, 'consumer'));
@@ -22,28 +24,31 @@ describe('config-driven composition (client.cliOutput)', () => {
     copyFileSync(fixture, join(project, 'openapi.yaml'));
     // Eject the cli generator first: composition keys off the emitted module, so a
     // `./generators/cli/index.ts` path entry must compose exactly like the built-in name.
-    const ejected = runCommandResult(
+    ejected = runCommandResult(
       'node',
       [cliEntry, 'eject-generator', 'cli', '--config', join(project, 'redocly.yaml')],
       { testPath: project }
     );
-    expect(ejected.status, ejected.stderr).toBe(0);
-    expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
-      'generators: [typescript, zod, ./generators/cli/index.ts]'
-    );
-    const generated = runCommandResult(
+    generated = runCommandResult(
       'node',
       [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
       { testPath: project }
     );
-    expect(generated.status, generated.stderr).toBe(0);
   });
 
   afterAll(() => {
     rmSync(project, { recursive: true, force: true });
   });
 
+  it('eject-generator points the config at the ejected cli generator', () => {
+    expect(ejected.status, ejected.stderr).toBe(0);
+    expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
+      'generators: [typescript, zod, ./generators/cli/index.ts]'
+    );
+  });
+
   it('one generate run emits the composed entry over every api that selected cli', async () => {
+    expect(generated.status, generated.stderr).toBe(0);
     const help = await runTsx(join(project, 'bin/cafe.ts'), ['--help'], { cwd: project });
     expect(help.status, help.stderr).toBe(0);
     // Run as a script, so help names the file without its extension — never `cafe.ts`,

@@ -66,10 +66,10 @@ describe('walk order', () => {
       }),
     });
 
-    expect(testRuleSet.test).toBeCalledTimes(1);
+    expect(testRuleSet.test).toHaveBeenCalledTimes(1);
     for (const fns of Object.values(visitors)) {
-      expect(fns.enter).toBeCalled();
-      expect(fns.leave).toBeCalled();
+      expect(fns.enter).toHaveBeenCalled();
+      expect(fns.leave).toHaveBeenCalled();
     }
   });
 
@@ -208,10 +208,10 @@ describe('walk order', () => {
       }),
     });
 
-    expect(testRuleSet.test).toBeCalledTimes(1);
+    expect(testRuleSet.test).toHaveBeenCalledTimes(1);
     for (const fns of Object.values(visitors)) {
-      expect(fns.enter).toBeCalled();
-      expect(fns.leave).toBeCalled();
+      expect(fns.enter).toHaveBeenCalled();
+      expect(fns.leave).toHaveBeenCalled();
     }
   });
 
@@ -1376,7 +1376,7 @@ describe('walk order', () => {
     `);
   });
 
-  it('should correctly visit refs', async () => {
+  it('should correctly visit named schemas', async () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
@@ -1645,7 +1645,7 @@ describe('context.report', () => {
     `);
   });
 
-  it('should report errors correctly', async () => {
+  it('should report errors correctly in external refs', async () => {
     const testRuleSet: Oas3RuleSet = {
       test: vi.fn(() => {
         return {
@@ -1804,20 +1804,13 @@ describe('context.report', () => {
 
 describe('context.resolve', () => {
   it('should resolve refs correctly', async () => {
+    const resolvedRefs: Record<string, unknown>[] = [];
     const testRuleSet: Oas3RuleSet = {
       test: vi.fn(() => {
         return {
           Schema: vi.fn((schema, { resolve }) => {
             if (schema.properties) {
-              expect(schema.properties.a.$ref).toBeDefined();
-              const { location, node } = resolve(schema.properties.a);
-              expect(node).toMatchInlineSnapshot(`
-                {
-                  "type": "string",
-                }
-              `);
-              expect(location?.pointer).toEqual('#/components/schemas/b');
-              expect(location?.source).toStrictEqual(document.source);
+              resolvedRefs.push({ ref: schema.properties.a, ...resolve(schema.properties.a) });
             }
           }),
         };
@@ -1861,6 +1854,17 @@ describe('context.resolve', () => {
         },
       }),
     });
+
+    expect(resolvedRefs).toEqual([
+      {
+        ref: { $ref: '#/components/schemas/b' },
+        node: { type: 'string' },
+        location: expect.objectContaining({
+          pointer: '#/components/schemas/b',
+          source: document.source,
+        }),
+      },
+    ]);
   });
 });
 

@@ -1,7 +1,7 @@
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { expectTscPasses, strictTypecheck } from '../helpers/helpers.js';
+import { expectStrictTscPasses, expectTscPasses } from '../helpers/helpers.js';
 import {
   fetchGithubDescription,
   generateWith,
@@ -10,10 +10,10 @@ import {
 } from '../shared/large-descriptions/large-descriptions.js';
 
 /** TS bar: the generated client passes a strict `tsc --noEmit`. */
-async function typescriptBar(description: string): Promise<void> {
+async function expectTypescriptBar(description: string): Promise<void> {
   const dir = await generateWith(['typescript'], description);
   try {
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -24,7 +24,7 @@ async function typescriptBar(description: string): Promise<void> {
  * Selecting `cli` also emits the zod module it validates with. `zod` and `@types/node`
  * resolve through the node_modules link that `generateWith` adds.
  */
-async function cliBar(description: string): Promise<void> {
+async function expectCliBar(description: string): Promise<void> {
   const dir = await generateWith(['typescript', 'cli'], description);
   try {
     expectTscPasses(['-p', join(dir, 'tsconfig.cli.json')]);
@@ -36,12 +36,12 @@ async function cliBar(description: string): Promise<void> {
 describe('rebilly description', () => {
   it(
     'sdk (TypeScript) passes strict tsc',
-    () => typescriptBar(rebillyDescription),
+    () => expectTypescriptBar(rebillyDescription),
     LARGE_DESCRIPTION_TIMEOUT
   );
   it(
     'cli passes strict Node-typed tsc',
-    () => cliBar(rebillyDescription),
+    () => expectCliBar(rebillyDescription),
     LARGE_DESCRIPTION_TIMEOUT
   );
 });
@@ -53,6 +53,11 @@ describe('github REST description', () => {
     github = await fetchGithubDescription();
   }, LARGE_DESCRIPTION_TIMEOUT);
 
-  it('sdk (TypeScript) passes strict tsc', () => typescriptBar(github), LARGE_DESCRIPTION_TIMEOUT);
-  it('cli passes strict Node-typed tsc', () => cliBar(github), LARGE_DESCRIPTION_TIMEOUT);
+  it(
+    'sdk (TypeScript) passes strict tsc',
+    () => expectTypescriptBar(github),
+    LARGE_DESCRIPTION_TIMEOUT
+  );
+
+  it('cli passes strict Node-typed tsc', () => expectCliBar(github), LARGE_DESCRIPTION_TIMEOUT);
 });

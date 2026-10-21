@@ -9,7 +9,7 @@ import {
 } from '../shared/large-descriptions/large-descriptions.js';
 
 /** Python bar: `import client` executes every dataclass declaration, which catches duplicate fields and bad defaults. */
-async function pythonBar(description: string): Promise<void> {
+async function expectPythonBar(description: string): Promise<void> {
   const dir = await generateWith(['python'], description);
   try {
     const result = spawnSync('python3', ['-c', 'import client'], { cwd: dir, encoding: 'utf-8' });
@@ -20,7 +20,11 @@ async function pythonBar(description: string): Promise<void> {
 }
 
 describe('rebilly description', () => {
-  it('python imports cleanly', () => pythonBar(rebillyDescription), LARGE_DESCRIPTION_TIMEOUT);
+  it(
+    'python imports cleanly',
+    () => expectPythonBar(rebillyDescription),
+    LARGE_DESCRIPTION_TIMEOUT
+  );
 });
 
 describe('github REST description', () => {
@@ -30,5 +34,5 @@ describe('github REST description', () => {
     github = await fetchGithubDescription();
   }, LARGE_DESCRIPTION_TIMEOUT);
 
-  it('python imports cleanly', () => pythonBar(github), LARGE_DESCRIPTION_TIMEOUT);
+  it('python imports cleanly', () => expectPythonBar(github), LARGE_DESCRIPTION_TIMEOUT);
 });

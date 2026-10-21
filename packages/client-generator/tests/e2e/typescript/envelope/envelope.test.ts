@@ -7,7 +7,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -37,6 +37,6 @@ describe('generate-client envelope', () => {
     expect(generated).toContain('location: string');
     expect(generated).toMatch(/envelope\?: boolean/);
 
-    strictTypecheck(dir, ['client.ts', 'usage.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'usage.ts']);
   });
 });

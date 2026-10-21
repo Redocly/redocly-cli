@@ -10,8 +10,9 @@
   },
   "engineStrict": true,
   "scripts": {
-    "test": "npm run compile && npm run typecheck && npm run unit && npm run e2e",
+    "test": "npm run compile && npm run typecheck && npm run unit && npm run unit:types && npm run e2e",
     "unit": "vitest run --project unit --coverage",
+    "unit:types": "vitest run --project types",
     "e2e": "vitest run --project e2e",
     "client-generators": "vitest run --project 'client-generators*'",
     "smoke:rebilly": "vitest run --project smoke-rebilly",

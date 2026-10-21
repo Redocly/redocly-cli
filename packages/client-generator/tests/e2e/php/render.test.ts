@@ -303,7 +303,7 @@ describe('phpGenerator full client, run with php', () => {
     );
     expect(out).toContain('throw apiErrorFrom($response);');
     expect(out).toContain('Order::fromArray(decodeJson($response))');
-    expect((out.match(/namespace CafeOrdersApi;/g) ?? []).length).toBe(1);
+    expect(out.match(/namespace CafeOrdersApi;/g) ?? []).toHaveLength(1);
     expectPhpRuns(out);
   });
 

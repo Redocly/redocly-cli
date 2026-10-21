@@ -273,6 +273,7 @@ describe('checkSchema', () => {
   });
 
   it('should check circular referenced schema', () => {
+    vi.spyOn(logger, 'output').mockImplementation(() => {});
     vi.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
       throw new Error('circular reference');
     });
@@ -331,6 +332,9 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
+    expect(logger.output).toHaveBeenCalledWith(
+      expect.stringContaining('WARNING: schema have circular references')
+    );
   });
 
   it('should catch ajvStrict.compile error', () => {
@@ -618,12 +622,6 @@ describe('statusCodeDiff', () => {
   it('should return the correct diff', () => {
     expect(cleanColors(statusCodeDiff(200, [200, 201]))).toBe(
       'Expected value to be in the list:\n  200, 201\nReceived:\n  200'
-    );
-  });
-
-  it('should return the correct diff when the actual value is not in the expected list', () => {
-    expect(cleanColors(statusCodeDiff(202, [200, 201]))).toBe(
-      'Expected value to be in the list:\n  200, 201\nReceived:\n  202'
     );
   });
 

@@ -18,12 +18,11 @@ describe('generate-client --help', () => {
   it('names every built-in generator', () => {
     // Each built-in generator is a folder with an `index.ts` entry.
     const generatorsDir = join(repoRoot, 'packages/client-generator/src/generators');
-    const generatorNames: string[] = [];
-    for (const entry of readdirSync(generatorsDir, { withFileTypes: true })) {
-      if (entry.isDirectory() && existsSync(join(generatorsDir, entry.name, 'index.ts'))) {
-        generatorNames.push(entry.name);
-      }
-    }
+    const generatorNames = readdirSync(generatorsDir, { withFileTypes: true })
+      .filter(
+        (entry) => entry.isDirectory() && existsSync(join(generatorsDir, entry.name, 'index.ts'))
+      )
+      .map((entry) => entry.name);
     expect(generatorNames).toContain('typescript');
 
     const result = runCommandResult('node', [cliEntry, 'generate-client', '--help'], {
@@ -36,9 +35,7 @@ describe('generate-client --help', () => {
     const listStart = help.indexOf('Built-in:') + 'Built-in:'.length;
     const listEnd = help.indexOf('—or', listStart);
     const listedNames = help.slice(listStart, listEnd).split(',');
-    for (const name of generatorNames) {
-      expect(listedNames, `--help does not list the "${name}" generator`).toContain(name);
-    }
+    expect(listedNames).toEqual(expect.arrayContaining(generatorNames));
   });
 });
 

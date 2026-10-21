@@ -33,6 +33,8 @@ jobs:
             run: npm run typecheck
           - name: Unit Tests
             run: npm run unit
+          - name: Type Tests
+            run: npm run unit:types
 
       - name: Coverage Report
         if: always() # Also generate the report if tests are failing

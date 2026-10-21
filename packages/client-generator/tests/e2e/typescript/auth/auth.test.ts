@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runConsumer, runTsx, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses, runConsumer, runTsx } from '../../helpers/helpers.js';
 import { MockServer } from '../../helpers/mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -28,7 +28,7 @@ describe('generate-client auth breadth', () => {
   });
 
   it('strict-tsc accepts the single-file client', () => {
-    strictTypecheck(dir, ['client.ts']);
+    expectStrictTscPasses(dir, ['client.ts']);
   });
 
   it('strict-tsc accepts the split two-file client', async () => {
@@ -40,7 +40,7 @@ describe('generate-client auth breadth', () => {
       output: join(splitDir, 'client.ts'),
       outputMode: 'split',
     });
-    strictTypecheck(splitDir);
+    expectStrictTscPasses(splitDir);
   });
 
   it('each operation sends the credential of its scheme on the wire', async () => {
