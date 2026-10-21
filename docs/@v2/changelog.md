@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.67.1 (2026-10-21)
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command kept the inputs that a step passed to a workflow in the same file.
+  Later runs of that workflow used them instead of their `--input` values or schema defaults.
+- Updated @redocly/respect-core to v2.67.1.
+
 ## 2.67.0 (2026-10-21)
 
 ### Minor Changes
