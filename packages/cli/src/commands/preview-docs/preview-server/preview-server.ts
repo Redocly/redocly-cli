@@ -36,7 +36,7 @@ function getPageHTML(
   <script src="${
     useRedocPro
       ? 'https://cdn.redocly.com/reference-docs/latest/redocly-reference-docs.min.js'
-      : 'https://cdn.redocly.com/redoc/latest/bundles/redoc.standalone.js'
+      : 'https://cdn.redocly.com/redoc/v2.x/bundles/redoc.standalone.js'
   }"></script>
 `,
     redocHTML: `
