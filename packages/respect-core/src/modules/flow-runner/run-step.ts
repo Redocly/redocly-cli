@@ -89,39 +89,32 @@ export async function runStep({
       ctx.options.config
     );
 
-    if (resolvedParameters && resolvedParameters.length > 0) {
-      // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
-      const workflowInputParameters = resolvedParameters.filter(isParameterWithoutIn).reduce(
-        (acc, parameter: ParameterWithoutIn) => {
-          const ctxWithInputs = {
-            ...ctx,
-            $inputs: {
-              ...ctx.$inputs,
-              ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
-            },
-          };
-          // Ensure parameter is of type ParameterWithoutIn
-          acc[parameter.name] = getValueFromContext({
-            value: parameter.value,
-            ctx: ctxWithInputs,
-            logger: ctx.options.logger,
-          });
-          return acc;
-        },
-        {} as Record<string, any>
-      );
-
-      // Merge the runtime inputs with the inputs passed in the step as parameters for the workflow
-      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = {
-        ...workflowCtx.$workflows[targetWorkflow.workflowId].inputs,
-        ...workflowInputParameters,
-      };
-    }
+    // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
+    const workflowInputParameters = resolvedParameters?.filter(isParameterWithoutIn).reduce(
+      (acc, parameter: ParameterWithoutIn) => {
+        const ctxWithInputs = {
+          ...ctx,
+          $inputs: {
+            ...ctx.$inputs,
+            ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+          },
+        };
+        // Ensure parameter is of type ParameterWithoutIn
+        acc[parameter.name] = getValueFromContext({
+          value: parameter.value,
+          ctx: ctxWithInputs,
+          logger: ctx.options.logger,
+        });
+        return acc;
+      },
+      {} as Record<string, any>
+    );
 
     printChildWorkflowSeparator(stepId, ctx.options.logger);
     const stepWorkflowResult = await runWorkflow({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
+      inputs: workflowInputParameters,
       skipLineSeparator: true,
       parentStepId: stepId,
       invocationContext: `Child workflow of step ${stepId}`,

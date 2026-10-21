@@ -118,6 +118,7 @@ describe('runWorkflow', () => {
     const ctx = {
       apiClient,
       workflows: [workflow],
+      $workflows: { test: { steps: {} } },
       options: {
         verbose: false,
         filePath: fileName,
