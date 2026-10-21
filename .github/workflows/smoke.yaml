@@ -50,7 +50,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc@2 redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-20:
     needs: prepare-smoke
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc@2 redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-18:
     needs: prepare-smoke
@@ -102,7 +102,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc@2 redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-22:
     needs: prepare-smoke
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc@2 ./redocly-cli.tgz" "yarn"
 
   run-smoke--yarn--node-20:
     needs: prepare-smoke
@@ -154,7 +154,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc@2 ./redocly-cli.tgz" "yarn"
 
   run-smoke--yarn--node-18:
     needs: prepare-smoke
@@ -180,7 +180,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz --ignore-engines" "yarn"
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc@2 ./redocly-cli.tgz --ignore-engines" "yarn"
 
   run-smoke--pnpm--node-22:
     needs: prepare-smoke
