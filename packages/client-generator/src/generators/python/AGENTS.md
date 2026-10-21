@@ -58,7 +58,8 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Naming:** fields/methods snake*case via `identifierFor(..., RESERVED_WORDS.python)`;
   reserved words get a trailing underscore (`class*`); `+1`/`-1`become`plus_1`/`minus_1`.
 - **Enums** are `class X(str, Enum)` with SCREAMING members; **unions** are `Union[...]`
-  aliases. A DISCRIMINATED union registers its dispatch table in the runtime's
+  aliases, emitted after the classes and the other aliases they name, because a
+  module-level assignment evaluates at import. A DISCRIMINATED union registers its dispatch table in the runtime's
   `DISCRIMINATORS` registry (`DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, ...})`),
   and `decode()` routes through it — `isinstance` narrowing works on decoded members.
   Undiscriminated unions decode by trying each member in order (the first that
