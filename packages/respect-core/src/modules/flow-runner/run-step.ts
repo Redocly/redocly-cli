@@ -39,12 +39,16 @@ export async function runStep({
   ctx,
   workflowId,
   retriesLeft,
+  retriesLeftByAction = {},
   executedStepsCount,
 }: {
   step: Step;
   ctx: TestContext;
   workflowId: string | undefined;
+  // set when a retry action runs this step: each retry action of this step starts with these retries
   retriesLeft?: number;
+  // the retries left of each retry action of this step, by the action's index
+  retriesLeftByAction?: Record<number, number>;
   executedStepsCount: ExecutedStepsCount;
 }): Promise<{ shouldEnd: boolean } | void> {
   step = { ...step }; // shallow copy step to avoid mutating the original step
@@ -326,7 +330,7 @@ export async function runStep({
       return { shouldEnd: true };
     }
 
-    for (const action of actions) {
+    for (const [actionIndex, action] of actions.entries()) {
       const { type, criteria } = action;
 
       if (action.workflowId && action.stepId) {
@@ -368,9 +372,9 @@ export async function runStep({
 
         if (type === 'retry') {
           const { retryAfter, retryLimit = 1 } = action;
-          retriesLeft = retriesLeft ?? retryLimit;
-          step.retriesLeft = retriesLeft;
-          if (retriesLeft === 0) {
+          const actionRetriesLeft = retriesLeftByAction[actionIndex] ?? retriesLeft ?? retryLimit;
+          step.retriesLeft = actionRetriesLeft;
+          if (actionRetriesLeft === 0) {
             continue;
           }
 
@@ -394,7 +398,7 @@ export async function runStep({
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
               executedStepsCount,
-              retriesLeft: retriesLeft - 1,
+              retriesLeft: actionRetriesLeft - 1,
             });
             ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {
@@ -411,12 +415,12 @@ export async function runStep({
               ctx: targetCtx,
               workflowId,
               executedStepsCount,
-              retriesLeft: retriesLeft - 1,
+              retriesLeft: actionRetriesLeft - 1,
             });
           }
 
           ctx.options.logger.output(
-            `\n  Retrying step ${blue(stepId)} (${retryLimit - retriesLeft + 1}/${retryLimit})\n`
+            `\n  Retrying step ${blue(stepId)} (${retryLimit - actionRetriesLeft + 1}/${retryLimit})\n`
           );
 
           return {
@@ -424,10 +428,11 @@ export async function runStep({
               step,
               ctx,
               workflowId,
-              retriesLeft: retriesLeft - 1,
+              retriesLeft,
+              retriesLeftByAction: { ...retriesLeftByAction, [actionIndex]: actionRetriesLeft - 1 },
               executedStepsCount,
             }),
-            retriesLeft,
+            retriesLeft: actionRetriesLeft,
           };
         } else if (type === 'end') {
           return { shouldEnd: true };

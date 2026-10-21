@@ -54,6 +54,40 @@ exports[`should retry a step once when its onFailure action of type \`retry\` ha
     ✓ content-type check
     ✓ schema check
  
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow step-on-failure-type-retry-action.arazzo.yaml / retry-with-each-retry-action 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (1/2)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (2/2)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
 
   Failed tests info:
 
@@ -68,19 +102,25 @@ exports[`should retry a step once when its onFailure action of type \`retry\` ha
     stepId - list-menu-items-with-invalid-limit 
     ✗ success criteria check 
       Checking simple criteria: {"condition":"$statusCode == 200"}
+      
+  Workflow name: retry-with-each-retry-action
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
        
   Summary for step-on-failure-type-retry-action.arazzo.yaml
   
-  Workflows: 2 failed, 2 total
-  Steps: 1 passed, 2 failed, 3 total
-  Checks: 10 passed, 2 failed, 12 total
+  Workflows: 3 failed, 3 total
+  Steps: 1 passed, 3 failed, 4 total
+  Checks: 13 passed, 3 failed, 16 total
   Time: <test>ms 
  
  
 ┌───────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├───────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x step-on-failure-type-retry-action.arazzo.yaml                                       │ 2          │ 0       │ 2       │ -        │
+│ x step-on-failure-type-retry-action.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
 └───────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 

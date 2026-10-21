@@ -62,3 +62,22 @@ workflows:
           - type: retry
             name: run-step-then-retry
             stepId: list-menu-items-with-invalid-limit
+  - workflowId: retry-with-each-retry-action
+    description: >-
+      Both retry actions match the failure, and each one has its own retryLimit.
+      The second retry action retries the step after the first one runs out of retries.
+    steps:
+      - stepId: list-menu-items-with-invalid-limit
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - type: retry
+            name: first-retry
+          - type: retry
+            name: second-retry
+            retryLimit: 2
