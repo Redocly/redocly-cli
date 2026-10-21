@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.67.0
+
+### Minor Changes
+
+- Added an `excludedMethods` option to the `operation-4xx-response` rule, which skips operations that use the listed HTTP methods.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.0.
+
 ## 2.66.1
 
 ### Patch Changes
