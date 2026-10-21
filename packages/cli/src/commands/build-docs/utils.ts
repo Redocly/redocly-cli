@@ -1,4 +1,4 @@
-import { HandledError, logger, type Config } from '@redocly/openapi-core';
+import { HandledError, isPlainObject, logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
@@ -35,32 +35,42 @@ const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 `;
 
 export function getRedocOptions(
-  specOptions: string | Record<string, unknown> | undefined,
+  specOptions: unknown,
   config: Config,
   specType: SpecType
 ): Record<string, unknown> {
-  switch (typeof specOptions) {
-    case 'object':
-      return specOptions;
-    case 'string':
-      try {
-        if (existsSync(specOptions) && lstatSync(specOptions).isFile()) {
-          return JSON.parse(readFileSync(specOptions, 'utf-8'));
-        } else {
-          return JSON.parse(specOptions);
-        }
-      } catch (error) {
-        logger.error(`Expected a JSON file or a JSON string, got: ${specOptions}\n`);
-        throw new HandledError(error instanceof Error ? error.message : String(error));
-      }
-    default: {
-      if (config?.configPath) {
-        logger.info(`Found ${config.configPath} and using '${specType}' options\n`);
-        return config.resolvedConfig[specType] ?? {};
-      }
-      return {};
+  if (specOptions === undefined) {
+    if (config?.configPath) {
+      logger.info(`Found ${config.configPath} and using '${specType}' options\n`);
+      return config.resolvedConfig[specType] ?? {};
+    }
+    return {};
+  }
+
+  let options = specOptions;
+
+  if (typeof specOptions === 'string') {
+    try {
+      options = JSON.parse(
+        existsSync(specOptions) && lstatSync(specOptions).isFile()
+          ? readFileSync(specOptions, 'utf-8')
+          : specOptions
+      );
+    } catch (error) {
+      logger.error(`Expected a JSON file or a JSON string, got: ${specOptions}\n`);
+      throw new HandledError(error instanceof Error ? error.message : String(error));
     }
   }
+
+  if (!isPlainObject(options)) {
+    throw new HandledError(
+      `Expected --${specType} to be a JSON object or a path to a JSON file, got: ${
+        typeof specOptions === 'string' ? specOptions : JSON.stringify(specOptions)
+      }`
+    );
+  }
+
+  return options;
 }
 
 export async function getPageHTML(

@@ -61,7 +61,9 @@ describe('build-docs', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
     const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-    expect(output).toContain('"disableTelemetry":true');
+    expect(output).toContain(
+      'const __redoc_options = {"skipBundle":true,"disableTelemetry":true};'
+    );
   });
 
   test('build docs with the inlined Redoc bundle', async () => {

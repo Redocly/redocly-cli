@@ -124,6 +124,17 @@ describe('build-docs', () => {
       expect(getRedocOptions(undefined, await createConfig({}), 'openapi')).toEqual({});
     });
 
+    it('rejects a JSON value that is not an object', async () => {
+      const redoclyConfig = await createConfig({});
+
+      expect(() => getRedocOptions('null', redoclyConfig, 'openapi')).toThrow(
+        'Expected --openapi to be a JSON object or a path to a JSON file, got: null'
+      );
+      expect(() => getRedocOptions(['a', 'b'], redoclyConfig, 'asyncapi')).toThrow(
+        'Expected --asyncapi to be a JSON object or a path to a JSON file, got: ["a","b"]'
+      );
+    });
+
     it('reports an invalid value with the parse error only', async () => {
       vi.spyOn(logger, 'error').mockImplementation(() => {});
       const redoclyConfig = await createConfig({});

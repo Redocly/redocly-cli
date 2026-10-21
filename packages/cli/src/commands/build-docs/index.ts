@@ -20,6 +20,7 @@ import { convertSwagger2OpenAPI } from 'redoc';
 import { renderBanner } from '../../utils/banner.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
+import { isTelemetryEnabled } from '../../utils/telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { BuildDocsArgv, SpecType } from './types.js';
 import { getRedocOptions, getPageHTML } from './utils.js';
@@ -56,8 +57,7 @@ export const handlerBuildCommand = async ({
       templateOptions: argv.templateOptions || {},
       redocOptions,
       redocVersion,
-      disableTelemetry:
-        process.env.REDOCLY_TELEMETRY === 'off' || config.resolvedConfig.telemetry === 'off',
+      disableTelemetry: !isTelemetryEnabled(config),
       inlineBundle: argv.inlineBundle,
     };
 
