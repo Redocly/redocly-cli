@@ -5,7 +5,7 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-test('should retry a step once when its onFailure action of type `retry` has no `retryLimit`', () => {
+test('should retry a step up to the limit of each retry action and then run the next failure action', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'step-on-failure-type-retry-action.arazzo.yaml');
   const args = getParams(indexEntryPoint, ['respect', fixturesPath]);

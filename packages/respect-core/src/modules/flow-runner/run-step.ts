@@ -46,7 +46,8 @@ export async function runStep({
   step: Step;
   ctx: TestContext;
   workflowId: string | undefined;
-  // set for the steps of a workflow that a retry action runs: the retries that action has left
+  // set for the steps of a workflow that a retry action runs; above 0, it keeps
+  // those steps out of the summary until the last retry
   retriesLeft?: number;
   // the retries left of each retry action of this step, by the action's index
   retriesLeftByAction?: Record<number, number>;
