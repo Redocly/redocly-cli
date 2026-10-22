@@ -26,7 +26,7 @@ import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index
 import type { GenerateClientCommandArgv } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
-import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { PRODUCT_PACKAGES, PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
 import { type RecheckFormat } from './commands/recheck/types.js';
 import type { RespectArgv } from './commands/respect/index.js';
@@ -318,7 +318,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'push [files...]',
-    'Push documents to Reunite.',
+    'Push documents to the Redocly platform.',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_PUSH')
@@ -773,19 +773,21 @@ yargs(hideBin(process.argv))
   )
   .command(
     'preview',
-    'Preview Redocly project using one of the product NPM packages.',
+    'Preview Redocly project.',
     (yargs) =>
       yargs.env('REDOCLY_CLI_PREVIEW').options({
         product: {
           type: 'string',
-          choices: ['redoc', 'revel', 'reef', 'realm', 'redoc-revel', 'redoc-reef', 'revel-reef'],
-          description:
-            "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
+          choices: Object.keys(PRODUCT_PACKAGES),
+          hidden: true,
+          deprecated:
+            'the preview reads the package from package.json, @redocly/framework by default.',
         },
         plan: {
           type: 'string',
           choices: PRODUCT_PLANS,
           default: 'enterprise',
+          description: 'Plan whose features the preview enables: pro, scale or enterprise.',
         },
         port: {
           alias: 'p',

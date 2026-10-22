@@ -2817,6 +2817,7 @@ describe('runStep', () => {
     const localCTX = {
       executedSteps: [],
       $steps: {},
+      $workflows: {},
       workflows: [
         {
           workflowId: 'parent-workflow',

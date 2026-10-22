@@ -163,6 +163,98 @@ describe('Arazzo 1.1 lint', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
+  it('reports action parameters with `in` or without a `workflowId`', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                successCriteria:
+                  - condition: $statusCode == 201
+                onSuccess:
+                  - name: notify-customer
+                    type: goto
+                    workflowId: notify-customer
+                    parameters:
+                      - name: orderId
+                        in: path
+                        value: $response.body#/id
+                onFailure:
+                  - name: retry-order
+                    type: retry
+                    retryLimit: 1
+                    parameters:
+                      - name: orderId
+                        value: $response.body#/id
+          - workflowId: notify-customer
+            inputs:
+              type: object
+              properties:
+                orderId:
+                  type: string
+            steps:
+              - stepId: load-order
+                operationId: cafe-api.getOrderById
+                parameters:
+                  - in: path
+                    name: orderId
+                    value: $inputs.orderId
+                successCriteria:
+                  - condition: $statusCode == 200
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/0/in",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Property \`in\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onFailure/0",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`workflowId\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('reports 1.1-only fields as unknown in a 1.0.1 document', async () => {
     const document = parseYamlToDocument(
       outdent`

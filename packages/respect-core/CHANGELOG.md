@@ -1,5 +1,47 @@
 # @redocly/respect-core
 
+## 2.69.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.69.0.
+
+## 2.68.0
+
+### Minor Changes
+
+- Added support for the `parameters` field of Arazzo 1.1.0 success and failure actions to the `respect` command.
+  When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
+
+### Patch Changes
+
+- Fixed an issue where `respect` didn't retry a step when its `retry` failure action had no `retryLimit`.
+
+  **Note:** Previously, a workflow continued with the next step after a step had failed and used up its retries.
+
+- Fixed an issue where `respect` skipped a `retry` failure action after an earlier `retry` action of the same step had used up its retries.
+- Updated @redocly/openapi-core to v2.68.0.
+
+## 2.67.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command kept the inputs that a step passed to a workflow in the same file.
+  Later runs of that workflow used them instead of their `--input` values or schema defaults.
+- Updated @redocly/openapi-core to v2.67.1.
+
+## 2.67.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.0.
+
+## 2.66.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.1.
+
 ## 2.66.0
 
 ### Patch Changes
