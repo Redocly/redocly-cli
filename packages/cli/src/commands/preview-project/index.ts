@@ -14,7 +14,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
 
   if (argv.product) {
     logger.warn(
-      `The --product option is deprecated: the preview uses the product package listed in package.json, or ${PRODUCT_PACKAGES.framework} by default.\n`
+      `The --product option is deprecated. It still picks the product package; without it, the preview uses the package listed in package.json, or ${PRODUCT_PACKAGES.framework} by default.\n`
     );
   }
 

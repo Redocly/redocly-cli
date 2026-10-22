@@ -2,7 +2,6 @@ import type { Product } from './types.js';
 
 export const FRAMEWORK_PACKAGE = '@redocly/framework';
 
-/** Legacy product packages, still honored when a project's package.json lists one. */
 export const PRODUCT_PACKAGES = {
   framework: FRAMEWORK_PACKAGE,
   realm: '@redocly/realm',
