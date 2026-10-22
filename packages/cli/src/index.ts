@@ -773,7 +773,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'preview',
-    'Preview a Redocly project with the @redocly/framework package.',
+    'Preview Redocly project.',
     (yargs) =>
       yargs.env('REDOCLY_CLI_PREVIEW').options({
         product: {
