@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.7.1 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.7.7 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -254,9 +254,9 @@ export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'):
             `return match ($data[${phpString(cases.property)}] ?? null) {`,
             () => {
               for (const entry of cases.cases) {
-                printer.line(
-                  `${phpString(entry.value)} => ${className(entry.schemaName)}::fromArray($data),`
-                );
+                const target = { kind: 'ref', name: entry.schemaName } as const;
+                const typed = hydration(target, '$data', model, dateType) ?? '$data';
+                printer.line(`${phpString(entry.value)} => ${typed},`);
               }
               printer.line('default => $data,');
             },

@@ -49,7 +49,7 @@ describe('handlePayloadReplacements', () => {
 
     expect(() =>
       handlePayloadReplacements({ payload, replacements, expressionContext, logger })
-    ).toThrowError('Invalid JSON Pointer: /bar');
+    ).toThrow('Invalid JSON Pointer: /bar');
   });
 
   it('should throw an error if the target is not a string', () => {
@@ -67,6 +67,6 @@ describe('handlePayloadReplacements', () => {
 
     expect(() =>
       handlePayloadReplacements({ payload, replacements, expressionContext, logger })
-    ).toThrowError('Invalid JSON Pointer: 1');
+    ).toThrow('Invalid JSON Pointer: 1');
   });
 });

@@ -179,7 +179,7 @@ describe('Oas3 no-server-variables-empty-enum', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
-  it('should be success because enum contains default value', async () => {
+  it('should be success because enum contains default value when null is allowed', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0

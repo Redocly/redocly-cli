@@ -137,7 +137,9 @@ describe('codeSamples', () => {
     try {
       await writeFile(join(dir, 'openapi.yaml'), SPEC);
       await generateClient({ api: join(dir, 'openapi.yaml'), output: join(dir, 'client.ts') });
-      await expect(readFile(join(dir, 'client.code-samples.yaml'), 'utf-8')).rejects.toThrow();
+      await expect(readFile(join(dir, 'client.code-samples.yaml'), 'utf-8')).rejects.toThrow(
+        'ENOENT'
+      );
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

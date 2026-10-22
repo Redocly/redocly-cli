@@ -8,7 +8,6 @@ import { compare } from 'semver';
 
 import { renderBanner } from './banner.js';
 import { DEFAULT_FETCH_TIMEOUT } from './constants.js';
-import fetch from './fetch-with-timeout.js';
 import { version, name } from './package.js';
 
 const VERSION_CACHE_FILE = 'redocly-cli-version';
@@ -40,7 +39,8 @@ const getLatestVersion = async (packageName: string): Promise<string | undefined
   const latestUrl = `http://registry.npmjs.org/${packageName}/latest`;
 
   try {
-    const response = await fetch(latestUrl, { timeout: DEFAULT_FETCH_TIMEOUT });
+    const { fetchWithTimeout } = await import('./fetch-with-timeout.js');
+    const response = await fetchWithTimeout(latestUrl, { timeout: DEFAULT_FETCH_TIMEOUT });
     const info = await response.json();
 
     return info.version;

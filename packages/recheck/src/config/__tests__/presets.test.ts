@@ -285,7 +285,9 @@ describe('recheck/prose preset', () => {
     );
     const capitalizationProblems = problems.filter((p) => p.ruleName === 'recheck/capitalization');
     expect(capitalizationProblems).toHaveLength(1);
-    expect(capitalizationProblems[0].message).toContain('$sentence');
+    expect(capitalizationProblems[0].message).toBe(
+      '"Use The API Now" should use sentence case capitalization.'
+    );
     expect(capitalizationProblems[0].severity).toBe('warn');
   });
 

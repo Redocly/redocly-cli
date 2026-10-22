@@ -113,7 +113,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     `);
   });
 
-  it('should report on unresolved $ref yaml error', async () => {
+  it('should not report on a resolvable $ref yaml file', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0

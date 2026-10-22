@@ -145,14 +145,17 @@ describe('handleRecheck', () => {
       expect(report).not.toContain('single-h1');
     });
 
-    it('rewrites the files and reports the fixes with --fix', async () => {
+    it('rewrites the files and reports only the remaining findings with --fix', async () => {
       const file = path.join(dir, 'docs', 'index.md');
-      // The run still reports the findings it fixed, so it exits 1.
-      await expect(runWith({ fix: true, rule: ['blanks-around-headings'] })).rejects.toThrow(
-        AbortFlowError
-      );
+      // `single-h1` has no fix, so its finding remains and the run exits 1.
+      await expect(
+        runWith({ fix: true, rule: ['blanks-around-headings', 'single-h1'] })
+      ).rejects.toThrow(AbortFlowError);
       expect(await fs.readFile(file, 'utf8')).toBe('# One\n\n# Two\n');
       expect(output.stderr.join('')).toContain('Auto-fixed');
+      const report = output.stdout.join('');
+      expect(report).toContain('single-h1');
+      expect(report).not.toContain('blanks-around-headings');
     });
 
     it('fails the run with the engine message for an unknown --rule', async () => {

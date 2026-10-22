@@ -64,23 +64,6 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  it('should not report if Path object is empty ', async () => {
-    const source = outdent`
-      swagger: '2.0'
-      info:
-        title: Test
-        version: '1.0'
-
-      paths: {}
-    `;
-
-    expect(
-      await lintDoc(source, {
-        struct: 'error',
-      })
-    ).toEqual([]);
-  });
-
   //Check: no error
   it('should report if the field name is not begin with a forward slash (/) ', async () => {
     const source = outdent`

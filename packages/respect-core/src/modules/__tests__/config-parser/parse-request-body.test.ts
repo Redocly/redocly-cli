@@ -145,8 +145,6 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-
-    vi.resetAllMocks();
   });
 
   it('should handle multipart/form-data with nested object', async () => {
@@ -218,7 +216,6 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-    vi.resetAllMocks();
   });
 
   it('should handle multipart/form-data and return error reading file', async () => {
@@ -227,8 +224,8 @@ describe('parseRequestBody', () => {
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
-    try {
-      await parseRequestBody(
+    await expect(
+      parseRequestBody(
         {
           payload: {
             test: 'test',
@@ -238,10 +235,8 @@ describe('parseRequestBody', () => {
           encoding: 'utf-8',
         },
         ctx
-      );
-    } catch (error) {
-      expect(error.message).toContain("file2.txt doesn't exist or isn't readable.");
-    }
+      )
+    ).rejects.toThrow("file2.txt doesn't exist or isn't readable.");
   });
 
   it('should handle application/octet-stream', async () => {
@@ -265,21 +260,20 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-    vi.resetAllMocks();
   });
 
   it('should handle application/octet-stream with string payload', async () => {
     expect(
       await parseRequestBody(
         {
-          payload: new Buffer('test') as unknown as RequestBody['payload'],
+          payload: Buffer.from('test') as unknown as RequestBody['payload'],
           contentType: 'application/octet-stream',
           encoding: 'utf-8',
         },
         ctx
       )
     ).toEqual({
-      payload: new Buffer('test'),
+      payload: Buffer.from('test'),
       contentType: 'application/octet-stream',
       encoding: 'utf-8',
       replacements: undefined,

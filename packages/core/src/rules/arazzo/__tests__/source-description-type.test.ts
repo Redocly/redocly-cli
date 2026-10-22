@@ -135,7 +135,7 @@ describe('Arazzo sourceDescription-type', () => {
       document,
       config: await createConfig({ arazzo1Rules: { 'sourceDescription-type': 'error' } }),
     });
-    expect(results.length).toEqual(1);
+    expect(results).toHaveLength(1);
     expect(results[0].message).toEqual(
       'The `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.'
     );

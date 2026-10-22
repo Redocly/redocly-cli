@@ -35,6 +35,7 @@ import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
 } from './commands/scorecard-classic/types.js';
+import { handleSkills, SKILLS_AGENTS, type SkillsArgv } from './commands/skills.js';
 import { outputExtensions } from './types.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
@@ -1233,6 +1234,32 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
+    'skills',
+    'Install the Redocly CLI agent skills for AI coding agents.',
+    (yargs) =>
+      yargs.options({
+        agent: {
+          description: 'Agents to install the skills for. Default: detected agents.',
+          type: 'array',
+          string: true,
+          choices: SKILLS_AGENTS,
+        },
+        global: {
+          description: 'Install in your home folder instead of the current project.',
+          type: 'boolean',
+          default: false,
+        },
+        list: {
+          description: 'List the bundled skills without installing them.',
+          type: 'boolean',
+          default: false,
+        },
+      }),
+    async (argv) => {
+      commandWrapper(handleSkills)(argv as Arguments<SkillsArgv>);
+    }
+  )
+  .command(
     'generate-spec <traffic>',
     'Infer an OpenAPI description from recorded HTTP traffic, optionally refined with AI [experimental].',
     (yargs) =>
@@ -1247,6 +1274,12 @@ yargs(hideBin(process.argv))
             describe: 'Target API description type.',
             choices: ['openapi'] as const,
             default: 'openapi' as const,
+          },
+          'openapi-version': {
+            describe: 'OpenAPI version of the generated description.',
+            type: 'string',
+            choices: ['3.1', '3.2'] as ReadonlyArray<GenerateSpecArgv['openapi-version']>,
+            default: '3.2' as GenerateSpecArgv['openapi-version'],
           },
           'traffic-format': {
             describe: 'Traffic input format.',

@@ -2604,7 +2604,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hide": {
         "type": "boolean",
       },
-      "mcp": "rootRedoclyConfigSchema.aiAssistant.mcp",
       "prompt": {
         "type": "string",
         "uiHint": "textarea",
@@ -2616,45 +2615,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "trigger": "rootRedoclyConfigSchema.aiAssistant.trigger",
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.aiAssistant.mcp": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "apiCalls": "rootRedoclyConfigSchema.aiAssistant.mcp.apiCalls",
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.aiAssistant.mcp.apiCalls": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "allowedHttpMethods": {
-        "items": {
-          "enum": [
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "QUERY",
-            "TRACE",
-          ],
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "hide": {
-        "type": "boolean",
-      },
     },
     "required": undefined,
   },
@@ -12124,7 +12084,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hide": {
         "type": "boolean",
       },
-      "mcp": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp",
       "prompt": {
         "type": "string",
         "uiHint": "textarea",
@@ -12136,45 +12095,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "trigger": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.trigger",
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "apiCalls": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp.apiCalls",
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp.apiCalls": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "allowedHttpMethods": {
-        "items": {
-          "enum": [
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "QUERY",
-            "TRACE",
-          ],
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "hide": {
-        "type": "boolean",
-      },
     },
     "required": undefined,
   },
@@ -22252,6 +22172,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name": {
         "type": "string",
       },
+      "showMissingTranslationNotice": {
+        "type": "boolean",
+      },
     },
     "required": [
       "code",
@@ -22291,6 +22214,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
+      },
+      "showMissingTranslationNotice": {
+        "type": "boolean",
       },
     },
     "required": [
@@ -22909,9 +22835,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
             "view",
             "chatgpt",
             "claude",
-            "docs-mcp-cursor",
-            "docs-mcp-vscode",
+            "grok",
             "docs-mcp-claude",
+            "docs-mcp-vscode",
+            "docs-mcp-cursor",
+            "copy-mcp-url",
           ],
           "type": "string",
         },
@@ -27913,7 +27841,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hide": {
         "type": "boolean",
       },
-      "mcp": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp",
       "prompt": {
         "type": "string",
         "uiHint": "textarea",
@@ -27925,45 +27852,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "trigger": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.trigger",
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "apiCalls": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp.apiCalls",
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp.apiCalls": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "allowedHttpMethods": {
-        "items": {
-          "enum": [
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "QUERY",
-            "TRACE",
-          ],
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "hide": {
-        "type": "boolean",
-      },
     },
     "required": undefined,
   },
@@ -31857,9 +31745,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
             "view",
             "chatgpt",
             "claude",
-            "docs-mcp-cursor",
-            "docs-mcp-vscode",
+            "grok",
             "docs-mcp-claude",
+            "docs-mcp-vscode",
+            "docs-mcp-cursor",
+            "copy-mcp-url",
           ],
           "type": "string",
         },
@@ -36820,6 +36710,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name": {
         "type": "string",
       },
+      "showMissingTranslationNotice": {
+        "type": "boolean",
+      },
     },
     "required": [
       "code",
@@ -36859,6 +36752,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
+      },
+      "showMissingTranslationNotice": {
+        "type": "boolean",
       },
     },
     "required": [
@@ -37477,9 +37373,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
             "view",
             "chatgpt",
             "claude",
-            "docs-mcp-cursor",
-            "docs-mcp-vscode",
+            "grok",
             "docs-mcp-claude",
+            "docs-mcp-vscode",
+            "docs-mcp-cursor",
+            "copy-mcp-url",
           ],
           "type": "string",
         },

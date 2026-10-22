@@ -2761,7 +2761,7 @@ describe('createConfig', () => {
         info-license: off
     `);
 
-    verifyExtendedConfig(config, {
+    expectExtendedConfig(config, {
       extendsRuleSet: 'recommended',
       overridesRules: { 'info-license': 'off' },
     });
@@ -2778,7 +2778,7 @@ describe('createConfig', () => {
     };
     const config = await createConfig(rawConfig);
 
-    verifyExtendedConfig(config, {
+    expectExtendedConfig(config, {
       extendsRuleSet: 'minimal',
       overridesRules: rawConfig.rules as Record<string, RuleConfig>,
     });
@@ -2862,7 +2862,7 @@ describe('createConfig', () => {
   });
 });
 
-function verifyExtendedConfig(
+function expectExtendedConfig(
   config: Config,
   {
     extendsRuleSet,
@@ -2931,12 +2931,10 @@ describe('loadIgnoreConfig', () => {
   });
 
   it('should load ignore file in browser environment (without fs.existsSync)', async () => {
-    const existsSyncSpy = vi.spyOn(fs, 'existsSync').mockImplementation(undefined as any);
+    vi.spyOn(fs, 'existsSync').mockImplementation(undefined as any);
 
     const config = await loadConfig({ configPath: ignoreFileConfig });
 
     expect(Object.keys(config.ignore)).toEqual([expectedIgnoreKey]);
-
-    existsSyncSpy.mockRestore();
   });
 });

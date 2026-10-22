@@ -125,7 +125,7 @@ describe('runLint', () => {
   });
 
   describe('Auto-fix functionality', () => {
-    it('should apply auto-fixes when --fix is enabled', async () => {
+    it('applies the fixes and reports only the findings that remain', async () => {
       const mdPath = path.join(tempDir, 'doc.md');
       await fs.writeFile(mdPath, '# Test\nThis has trailing spaces   \nAnother line');
 
@@ -136,14 +136,18 @@ describe('runLint', () => {
             message: 'No trailing spaces',
             assertions: { 'no-trailing-spaces': {} },
           },
+          'recheck/no-another': {
+            severity: 'error',
+            message: 'Cannot fix this',
+            assertions: { pattern: { tokens: ['Another'] } },
+          },
         },
       });
 
       const report = completed(await runLint(tempDir, config, { fix: true }));
 
-      // Still reports the original issues even after fixing.
-      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
-      expect(report.fixes?.applied.length).toBeGreaterThan(0);
+      expect(report.fixes?.applied).toHaveLength(1);
+      expect(report.problems.map((problem) => problem.ruleName)).toEqual(['recheck/no-another']);
 
       const fixedContent = await fs.readFile(mdPath, 'utf8');
       expect(fixedContent).toBe('# Test\nThis has trailing spaces\nAnother line');

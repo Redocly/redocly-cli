@@ -14,7 +14,7 @@ describe('getApiKeys()', () => {
   it('should throw an error if no api key provided', () => {
     process.env.REDOCLY_AUTHORIZATION = '';
 
-    expect(() => getApiKeys()).toThrowError(
+    expect(() => getApiKeys()).toThrow(
       'No api key provided, please use environment variable REDOCLY_AUTHORIZATION.'
     );
   });
