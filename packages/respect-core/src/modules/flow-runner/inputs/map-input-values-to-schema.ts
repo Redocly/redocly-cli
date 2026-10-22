@@ -6,7 +6,11 @@ type MappedValue = {
   [key: string]: any;
 };
 
-export function resolveInputValuesToSchema(value: any, schema: InputSchema): MappedValue {
+export function resolveInputValuesToSchema(
+  value: any,
+  schema: InputSchema,
+  validateInputs = false
+): MappedValue {
   if (!schema || Object.keys(schema).length === 0) {
     return {};
   }
@@ -28,7 +32,11 @@ export function resolveInputValuesToSchema(value: any, schema: InputSchema): Map
   const validate = ajv.compile(schema);
   const result = { ...value };
 
-  validate(result);
+  if (!validate(result) && validateInputs) {
+    throw new Error(
+      `Invalid workflow inputs: ${ajv.errorsText(validate.errors, { dataVar: 'inputs' })}. Provide values that match the workflow input schema.`
+    );
+  }
 
   return result;
 }

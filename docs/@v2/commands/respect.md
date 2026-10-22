@@ -88,6 +88,11 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --input
 - string
 - Input parameters with values that are mapped to the workflow inputs description.
+  Before running a workflow, `respect` validates its merged inputs against the workflow's input schema.
+  Invalid inputs stop that workflow before its operation requests; invalid inputs for a selected workflow also stop its dependencies from starting.
+  Inputs passed by a step or action are validated when the target workflow is invoked.
+  Provide all required inputs and values that satisfy the schema's type and constraints.
+
   For example, the following command maps the "userEmail" and "userPassword" inputs and values to all workflows in the `test.yaml` Arazzo description:
 
   `npx @redocly/cli@latest respect test.yaml --input userEmail=name@redocly.com --input userPassword=12345`

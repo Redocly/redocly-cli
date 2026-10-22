@@ -1,6 +1,46 @@
 import { resolveInputValuesToSchema } from '../../../flow-runner/index.js';
 
 describe('resolveInputValuesToSchema', () => {
+  it.each([
+    [{}, "inputs must have required property 'key'"],
+    [{ key: {} }, 'inputs/key must be string'],
+    [{ key: 'x' }, 'inputs/key must NOT have fewer than 3 characters'],
+  ])('should reject invalid inputs when validation is requested: %j', (inputs, message) => {
+    const schema = {
+      type: 'object',
+      required: ['key'],
+      properties: {
+        key: { type: 'string', minLength: 3 },
+        secret: { type: 'string', format: 'password' },
+      },
+    };
+
+    expect(() =>
+      resolveInputValuesToSchema({ ...inputs, secret: 'synthetic-secret-sentinel' }, schema, true)
+    ).toThrow(
+      new Error(
+        `Invalid workflow inputs: ${message}. Provide values that match the workflow input schema.`
+      )
+    );
+  });
+
+  it('should preserve defaults, coercion and removal when validating inputs', () => {
+    const schema = {
+      type: 'object',
+      required: ['count', 'name'],
+      properties: {
+        count: { type: 'integer' },
+        name: { type: 'string', default: 'Cafe' },
+        optional: { type: 'string' },
+      },
+    };
+
+    expect(resolveInputValuesToSchema({ count: '2', extra: 'removed' }, schema, true)).toEqual({
+      count: 2,
+      name: 'Cafe',
+    });
+  });
+
   it('should return empty object if values is empty', () => {
     const schema = {
       type: 'object',
@@ -11,7 +51,7 @@ describe('resolveInputValuesToSchema', () => {
       },
     };
 
-    expect(resolveInputValuesToSchema({}, schema)).toEqual({});
+    expect(resolveInputValuesToSchema({}, schema, true)).toEqual({});
   });
 
   it('should return empty object if schema is empty', () => {
@@ -19,11 +59,11 @@ describe('resolveInputValuesToSchema', () => {
       key: 'value',
     };
 
-    expect(resolveInputValuesToSchema(values, {} as any)).toEqual({});
+    expect(resolveInputValuesToSchema(values, {} as any, true)).toEqual({});
   });
 
   it('should return empty object if values and schema are empty', () => {
-    expect(resolveInputValuesToSchema({}, {} as any)).toEqual({});
+    expect(resolveInputValuesToSchema({}, {} as any, true)).toEqual({});
   });
 
   it('should return mapped object if values and schema are provided', () => {

@@ -93,6 +93,12 @@ async function runWorkflows({
     ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
+      mergeWorkflowInputs({
+        inputs: ctx.$workflows[workflow.workflowId].inputs,
+        workflowInputSchema: workflow.inputs,
+        env: ctx.options.envVariables,
+        validateInputs: true,
+      });
       try {
         await handleDependsOn({ workflow, ctx, config: options.config, executedStepsCount });
       } catch (error) {
@@ -195,6 +201,7 @@ export async function runWorkflow({
               inputs: runInputs,
               workflowInputSchema,
               env: ctx.options.envVariables,
+              validateInputs: true,
             })
           : runInputs,
       },
@@ -348,10 +355,22 @@ async function handleDependsOn({
     return { workflowId, resolvedWorkflow };
   });
 
-  const dependenciesWorkflows = await Promise.all(
+  const preparedDependencies = await Promise.all(
     resolvedDependencies.map(async ({ workflowId, resolvedWorkflow }) => {
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
+      mergeWorkflowInputs({
+        inputs: workflowCtx.$workflows[resolvedWorkflow.workflowId].inputs,
+        workflowInputSchema: resolvedWorkflow.inputs,
+        env: workflowCtx.options.envVariables,
+        validateInputs: true,
+      });
 
+      return { resolvedWorkflow, workflowCtx };
+    })
+  );
+
+  const dependenciesWorkflows = await Promise.all(
+    preparedDependencies.map(({ resolvedWorkflow, workflowCtx }) => {
       printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);
       return runWorkflow({
         workflowInput: resolvedWorkflow,
