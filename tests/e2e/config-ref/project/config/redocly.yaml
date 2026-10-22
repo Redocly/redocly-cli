@@ -1,0 +1,22 @@
+# Every path in this file is relative to this file. The sections below are pulled in with `$ref`,
+# and the paths inside them are relative to the file that holds them.
+extends:
+  - recommended
+  - ./rules.yaml
+  - recheck/markdoc
+openapi:
+  $ref: ./theme/openapi.yaml
+client:
+  $ref: ./client/client.yaml
+recheck:
+  $ref: ./recheck/recheck.yaml
+apis:
+  cafe:
+    $ref: ./apis/cafe/config.yaml
+  orders:
+    # a `$ref` with a sibling: `output` is relative to this file, `root` to the referenced one
+    $ref: ./apis/orders.yaml
+    output: ./generated/orders.yaml
+  menu:
+    # a `$ref` chain: this file only references another one
+    $ref: ./apis/chain.yaml

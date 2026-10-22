@@ -1,0 +1,4 @@
+setup: ./setup.ts
+cliOutput: ../generated/bin/cafe.ts
+importExt: ts
+generators: [typescript, zod, cli]

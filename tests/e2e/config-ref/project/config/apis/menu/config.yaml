@@ -1,0 +1,2 @@
+root: ../cafe/openapi.yaml
+output: ../../generated/menu.yaml

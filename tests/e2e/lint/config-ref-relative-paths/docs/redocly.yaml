@@ -1,6 +1,0 @@
-rules:
-  no-empty-servers: error
-
-apis:
-  main:
-    root: ./openapi.yaml
