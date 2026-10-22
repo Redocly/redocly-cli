@@ -4,6 +4,7 @@ export type Product = keyof typeof PRODUCT_PACKAGES;
 export type ProductPlan = (typeof PRODUCT_PLANS)[number];
 
 export type PreviewProjectArgv = {
+  /** Deprecated, still honored. */
   product?: Product | string;
   plan: ProductPlan | string;
   port?: number;
