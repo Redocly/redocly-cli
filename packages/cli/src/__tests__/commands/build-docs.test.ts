@@ -1,7 +1,12 @@
 import { createConfig, HandledError, logger } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 
-import { getRedocOptions } from '../../commands/build-docs/utils.js';
+import {
+  escapeClosingScriptTag,
+  getPageHTML,
+  getRedocOptions,
+  sanitizeJSONString,
+} from '../../commands/build-docs/utils.js';
 
 vi.mock('node:fs');
 
@@ -69,6 +74,48 @@ describe('build-docs', () => {
       expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(
         /^Expected --openapi to be a JSON object or a path to a JSON file, got: not json\nUnexpected token/
       );
+    });
+  });
+
+  describe('getPageHTML', () => {
+    const cafe = { openapi: '3.2.0', info: { title: 'Redocly Cafe', version: '1.0.0' }, paths: {} };
+    const options = { output: 'redoc-static.html', redocVersion: '3.0.1', templateOptions: {} };
+
+    beforeEach(() => {
+      vi.mocked(fs.readFileSync).mockReturnValue('export function hydrate() {}</script>');
+    });
+
+    it('uses the template file over the htmlTemplate option', async () => {
+      vi.mocked(fs.readFileSync).mockReturnValueOnce('<title>{{title}}</title>');
+
+      const html = await getPageHTML(cafe, {
+        ...options,
+        templateFileName: 'custom.hbs',
+        redocOptions: { htmlTemplate: 'other.hbs' },
+      });
+
+      expect(fs.readFileSync).toHaveBeenCalledWith('custom.hbs', 'utf-8');
+      expect(html).toBe('<title>Redocly Cafe</title>');
+    });
+
+    it('escapes </script in the inlined Redoc bundle', async () => {
+      const html = await getPageHTML(cafe, { ...options, inlineBundle: true });
+
+      expect(html).toContain('export function hydrate() {}<\\/script>');
+    });
+  });
+
+  describe('sanitizeJSONString', () => {
+    it('escapes every < and the U+2028 and U+2029 separators', () => {
+      expect(sanitizeJSONString('"</SCRIPT> <!-- \u2028 \u2029"')).toBe(
+        '"\\u003c/SCRIPT> \\u003c!-- \\u2028 \\u2029"'
+      );
+    });
+  });
+
+  describe('escapeClosingScriptTag', () => {
+    it('escapes </script in any letter case', () => {
+      expect(escapeClosingScriptTag('a</script>b</SCRIPT >c')).toBe('a<\\/script>b<\\/SCRIPT >c');
     });
   });
 });
