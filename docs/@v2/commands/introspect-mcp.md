@@ -1,9 +1,9 @@
 # `introspect-mcp`
 
-The `introspect-mcp` command analyzes a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/framework/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
+The `introspect-mcp` command analyzes a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/platform/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
 The command connects to the server, lists its tools, prompts, and resources together with the server capabilities and the negotiated protocol version.
 Then the command writes this information into the description file.
-[Redocly](https://redocly.com/docs/framework) renders the `x-mcp` extension as MCP documentation alongside the rest of the API reference.
+[Redocly](https://redocly.com/docs/platform) renders the `x-mcp` extension as MCP documentation alongside the rest of the API reference.
 The recorded tools, prompts, and resources become reader-facing docs.
 
 {% admonition type="warning" name="Experimental" %}
@@ -100,5 +100,5 @@ Run the command without --check to update it.
 
 ## Resources
 
-- [The `x-mcp` extension reference](https://redocly.com/docs/framework/content/api-docs/openapi-extensions/x-mcp) describes every field the command writes and shows how the rendered MCP docs look.
-- [Redocly](https://redocly.com/docs/framework) renders an OpenAPI description with `x-mcp` as MCP documentation - use the [`preview`](./preview.md) command to see it locally.
+- [The `x-mcp` extension reference](https://redocly.com/docs/platform/content/api-docs/openapi-extensions/x-mcp) describes every field the command writes and shows how the rendered MCP docs look.
+- [Redocly](https://redocly.com/docs/platform) renders an OpenAPI description with `x-mcp` as MCP documentation - use the [`preview`](./preview.md) command to see it locally.

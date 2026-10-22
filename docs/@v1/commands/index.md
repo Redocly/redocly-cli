@@ -29,12 +29,12 @@ Testing commands:
 - [`respect`](respect.md) Execute API tests described in an Arazzo description.
 - [`generate-arazzo`](generate-arazzo.md) Generate an Arazzo description from an OpenAPI description.
 
-Redocly platform commands:
+The Redocly platform commands:
 
-- [`login`](login.md) Log in to Redocly Dashboard or to the Redocly API registry with an access token.
+- [`login`](login.md) Log in to the Redocly platform or to the Redocly API registry with an access token.
 - [`logout`](logout.md) Clear your stored credentials.
 - [`push`](push.md) Push an API description to the Redocly API registry.
-- [`push-status`](push-status.md) Track an in-progress push operation to the Dashboard.
+- [`push-status`](push-status.md) Track an in-progress push operation to the platform.
 
 Supporting commands:
 

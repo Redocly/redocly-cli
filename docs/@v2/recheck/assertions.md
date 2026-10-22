@@ -240,7 +240,7 @@ scope: heading
 assertions:
   capitalization:
     match: $sentence
-    exceptions: [Redocly, Redocly Dashboard]
+    exceptions: [Redocly, the Redocly platform]
 ```
 
 | Option              | Type     | Required | Description                                                                                                                |
@@ -317,7 +317,7 @@ The English dictionary ships with Redocly CLI.
 scope: summary
 assertions:
   spelling:
-    vocab: [Redocly, Dashboard]
+    vocab: [Redocly, Platform]
     ignore: ['\bAcme\w*']
 ```
 

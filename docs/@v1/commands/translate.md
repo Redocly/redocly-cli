@@ -116,6 +116,6 @@ The `--project-dir` option is designed to help manage multiple projects by reduc
 
 ## Resources
 
-- See how to [configure localization](https://redocly.com/docs/framework/author/how-to/config-l10n) in your Redocly project.
+- See how to [configure localization](https://redocly.com/docs/platform/author/how-to/config-l10n) in your Redocly project.
 
-- Configure which languages users can select using the [localization option](https://redocly.com/docs/framework/config/l10n) (`l10n`) in `redocly.yaml`.
+- Configure which languages users can select using the [localization option](https://redocly.com/docs/platform/config/l10n) (`l10n`) in `redocly.yaml`.
