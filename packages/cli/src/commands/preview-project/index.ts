@@ -12,6 +12,12 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
   const { plan, port } = argv;
   const projectDir = argv['project-dir'];
 
+  if (argv.product) {
+    logger.warn(
+      `The --product option is deprecated. It still picks the product package; without it, the preview uses the package listed in package.json, or ${PRODUCT_PACKAGES.framework} by default.\n`
+    );
+  }
+
   const product = argv.product || tryGetProductFromPackageJson(projectDir);
 
   if (!isValidProduct(product)) {
@@ -49,6 +55,7 @@ const isValidProduct = (product: string | undefined): product is Product => {
   return !!PRODUCT_NAMES[product as Product];
 };
 
+/** The product package listed in the project's package.json, or the framework when none is. */
 const tryGetProductFromPackageJson = (projectDir: string): Product => {
   const packageJsonPath = path.join(process.cwd(), projectDir, 'package.json');
 
@@ -64,9 +71,11 @@ const tryGetProductFromPackageJson = (projectDir: string): Product => {
         }
       }
     } catch (error) {
-      logger.info(`Invalid 'package.json': ${packageJsonPath}. Using Realm.`);
+      logger.info(
+        `Invalid 'package.json': ${packageJsonPath}. Using ${PRODUCT_PACKAGES.framework}.`
+      );
     }
   }
 
-  return 'realm';
+  return 'framework';
 };
