@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions, and for Markdown docs. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, lint Markdown or prose with recheck, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Redocly Dashboard, or find the node type a rule or plugin should target.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions, and for Markdown docs. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, lint Markdown or prose with recheck, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to the Redocly platform, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -47,8 +47,8 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `eject-generator`    | Copy a built-in generator into the repo to edit it [experimental]                                                 | SDK generation        |
 | `check-config`       | Lint `redocly.yaml` itself                                                                                        | Redocly configuration |
 | `inspect-node-types` | Show the node type at a pointer, or list every node with its type [experimental]                                  | Redocly configuration |
-| `push`               | Push an API description to Redocly Dashboard                                                                      | Dashboard platform    |
-| `push-status`        | Track an in-progress push to the Dashboard                                                                        | Dashboard platform    |
+| `push`               | Push an API description to the Redocly platform                                                                   | Platform              |
+| `push-status`        | Track an in-progress push to the platform                                                                         | Platform              |
 | `skills`             | Install the Redocly CLI agent skills into `.agents/skills/` and detected agent folders                            | Agent setup           |
 | `completion`         | Generate shell autocomplete commands                                                                              | Shell setup           |
 

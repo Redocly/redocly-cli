@@ -318,7 +318,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'push [files...]',
-    'Push documents to Redocly Dashboard.',
+    'Push documents to the Redocly platform.',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_PUSH')

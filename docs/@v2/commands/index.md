@@ -50,12 +50,12 @@ Redocly configuration commands:
 - [`check-config`](check-config.md) Lint the Redocly configuration file.
 - [`inspect-node-types`](inspect-node-types.md) Show the node type the linter assigns to a location in an API description [experimental feature].
 
-Dashboard platform commands:
+Platform commands:
 
-- [`login`](login.md) Log in to Redocly Dashboard.
+- [`login`](login.md) Log in to the Redocly platform.
 - [`logout`](logout.md) Clear your stored credentials.
-- [`push`](push.md) Push an API description to Redocly Dashboard.
-- [`push-status`](push-status.md) Track an in-progress push operation to Redocly Dashboard.
+- [`push`](push.md) Push an API description to the Redocly platform.
+- [`push-status`](push-status.md) Track an in-progress push operation to the Redocly platform.
 
 AI agent setup commands:
 
