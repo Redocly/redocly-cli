@@ -155,12 +155,12 @@ function getRedocStandaloneSri(): string {
 }
 
 export function sanitizeJSONString(str: string): string {
-  return escapeClosingScriptTag(escapeUnicode(str));
+  return escapeUnicode(str).replace(/</g, '\\u003c');
 }
 
 // see http://www.thespanner.co.uk/2011/07/25/the-json-specification-is-now-wrong/
 export function escapeClosingScriptTag(str: string): string {
-  return str.replace(/<\/script>/g, '<\\/script>');
+  return str.replace(/<\/(script)/gi, '<\\/$1');
 }
 
 // see http://www.thespanner.co.uk/2011/07/25/the-json-specification-is-now-wrong/

@@ -6,3 +6,4 @@
 Added the `--openapi`, `--asyncapi`, `--graphql`, and `--inlineBundle` options.
 Removed `--theme.openapi` and `--disableGoogleFont`, pass Redoc options with `--openapi` instead.
 Some Redoc 2 options were renamed or removed, see the [`build-docs` documentation](https://redocly.com/docs/cli/commands/build-docs).
+The command now applies the [decorators](https://redocly.com/docs/cli/decorators) and [preprocessors](https://redocly.com/docs/cli/configuration/reference/preprocessors) from the configuration file.

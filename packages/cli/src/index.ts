@@ -821,52 +821,70 @@ yargs(hideBin(process.argv))
     'build-docs [api]',
     'Produce API documentation as an HTML file',
     (yargs) =>
-      yargs.positional('api', { type: 'string' }).options({
-        o: {
-          describe: 'Output destination file.',
-          alias: 'output',
-          type: 'string',
-          default: 'redoc-static.html',
-        },
-        title: {
-          describe: 'Page title.',
-          type: 'string',
-        },
-        t: {
-          alias: 'template',
-          describe:
-            'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
-          type: 'string',
-        },
-        templateOptions: {
-          describe:
-            'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
-        },
-        openapi: {
-          describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
-        },
-        asyncapi: {
-          describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
-        },
-        graphql: {
-          describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
-        },
-        inlineBundle: {
-          describe:
-            'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
-          type: 'boolean',
-          default: false,
-        },
-        config: {
-          describe: 'Path to the config file.',
-          type: 'string',
-        },
-        'lint-config': {
-          description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-          default: 'warn' as RuleSeverity,
-        },
-      }),
+      yargs
+        .positional('api', { type: 'string' })
+        .options({
+          o: {
+            describe: 'Output destination file.',
+            alias: 'output',
+            type: 'string',
+            default: 'redoc-static.html',
+          },
+          title: {
+            describe: 'Page title.',
+            type: 'string',
+          },
+          t: {
+            alias: 'template',
+            describe:
+              'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
+            type: 'string',
+          },
+          templateOptions: {
+            describe:
+              'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
+          },
+          openapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
+          },
+          asyncapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
+          },
+          graphql: {
+            describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
+          },
+          inlineBundle: {
+            describe:
+              'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
+            type: 'boolean',
+            default: false,
+          },
+          config: {
+            describe: 'Path to the config file.',
+            type: 'string',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          // Remove these options and the check below in the first release after January 31, 2027.
+          theme: { hidden: true },
+          disableGoogleFont: { hidden: true, type: 'boolean' },
+        })
+        .check((argv) => {
+          if (argv.theme !== undefined) {
+            throw new Error(
+              'The --theme.openapi option was removed. Pass Redoc options with --openapi instead: https://redocly.com/docs/cli/guides/migrate-to-v2#changes-in-the-build-docs-command'
+            );
+          }
+          if (argv.disableGoogleFont !== undefined) {
+            throw new Error(
+              'The --disableGoogleFont option was removed because the page no longer loads Google Fonts. Remove the option from your command.'
+            );
+          }
+          return true;
+        }),
     async (argv) => {
       const { handlerBuildCommand } = await import('./commands/build-docs/index.js');
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);

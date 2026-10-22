@@ -40,23 +40,22 @@ Details and examples of using `bundle` are on the [`bundle` command page](../com
 
 Some of the configuration options have been updated. This section shows how to check which of your settings should be changed.
 
-### Renamed fields
+### Update renamed and removed options
 
-Two of the configuration settings were renamed for consistency with the rest of the Redocly tools.
+The `build-docs` command renders the docs with Redoc 3, which renamed or removed some Redoc 2 options.
+Check the options you use against the [Redoc migration guide](https://redocly.com/docs/redoc/config-migration).
 
-- Replace `menu` with `sidebar`
-- Replace `codeSample` with `codeBlock`
-
-In both cases, the child options should work as before.
+One of the removed options is `theme`, so `theme.*` settings have no effect.
+Customize the appearance with [CSS variables](https://redocly.com/docs/redoc/deployment/html#theme-configuration) in a `<style>` tag of a [custom template](../commands/build-docs.md#use-a-custom-template) instead.
 
 ### Update command-line configuration
 
-Replace your existing `--options.theme.*` settings with a new prefix: `--openapi.theme.*`.
+Replace the `--options.*` prefix with `--openapi.*`.
 
-For example if you used `redoc-cli build --options.theme.sidebar.width='300px' openapi.yaml` then the new command would be:
+For example if you used `redoc-cli build openapi.yaml --options.hideSchemaTitles` then the new command would be:
 
 ```sh
-redocly build-docs --openapi.theme.sidebar.width='300px' openapi.yaml
+redocly build-docs openapi.yaml --openapi.hideSchemaTitles
 ```
 
 ### Update configuration file
@@ -65,14 +64,11 @@ Configuration belongs in a file named `redocly.yaml`, or in a file name specifie
 
 Re-name options that begin with `features.openapi.*` to `openapi.*`.
 Do this either at the top level of the configuration, or per API.
-A configuration file to change one of the colours to a rather lurid purple would look something like the following example:
+The following configuration file hides schema titles:
 
 ```yaml
 openapi:
-  theme:
-    colors:
-      primary:
-        main: '#ff00ff'
+  hideSchemaTitles: true
 ```
 
 Define the base customization; older versions of the tools defaulted to using `recommended`, but this is no longer assumed. Set it in `redocly.yaml` like this:

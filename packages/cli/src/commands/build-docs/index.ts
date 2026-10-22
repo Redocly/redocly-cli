@@ -47,8 +47,16 @@ export const handlerBuildCommand = async ({
 
   try {
     const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
-    const { definition, specType } = await loadDefinition(apiRef, config, alias, collectSpecData);
-    const redocOptions = getRedocOptions(argv[specType], config.forAlias(alias), specType);
+    const aliasConfig = config.forAlias(alias);
+    const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
+    for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
+      if (optionsKey !== specType && argv[optionsKey] !== undefined) {
+        logger.warn(
+          `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
+        );
+      }
+    }
+    const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
 
     const options = {
       output: argv.o,
@@ -85,7 +93,6 @@ const unsupportedSpecNames: Partial<Record<SpecMajorVersion, string>> = {
 async function loadDefinition(
   apiRef: string,
   config: Config,
-  alias: string | undefined,
   collectSpecData?: CollectSpecData
 ): Promise<{ definition: Record<string, unknown> | string; specType: SpecType }> {
   if (isGraphqlRef(apiRef)) {
@@ -96,11 +103,7 @@ async function loadDefinition(
     return { definition, specType: 'graphql' };
   }
 
-  const { bundle: bundleResult } = await bundle({
-    ref: apiRef,
-    config: config.forAlias(alias),
-    collectSpecData,
-  });
+  const { bundle: bundleResult } = await bundle({ ref: apiRef, config, collectSpecData });
   const parsed = bundleResult.parsed as Record<string, unknown>;
   const specVersion = getMajorSpecVersion(detectSpec(parsed));
 

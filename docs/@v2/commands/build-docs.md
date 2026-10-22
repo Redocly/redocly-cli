@@ -5,12 +5,14 @@
 The `build-docs` command builds Redoc into an HTML file that contains your API documentation.
 The standalone HTML file can be easily shared or hosted on a platform of your choice.
 
-The command supports OpenAPI 3.0/3.1/3.2, AsyncAPI 2.x/3.x, and GraphQL schemas (`.graphql` or `.gql` files).
+The command supports Swagger 2.0, OpenAPI 3.0/3.1/3.2, AsyncAPI 2.x/3.x, and GraphQL schemas (`.graphql` or `.gql` files).
 
 The page is rendered with Redoc 3 and loads the Redoc scripts from the Redocly CDN.
-Pass `--inlineBundle` to embed them, so the page works offline and when opened directly from the filesystem.
+Pass `--inlineBundle` to embed them, so the page works without loading the Redoc scripts from the CDN.
+Only the Redocly logo in the sidebar loads from the CDN.
 
 Redoc options come from the configuration file key that matches the type of your API description: `openapi`, `asyncapi`, or `graphql`.
+The command also applies the [decorators](../decorators.md) and [preprocessors](../configuration/reference/preprocessors.md) from the configuration file.
 
 {% admonition type="warning" name="Upgrading from Redoc 2" %}
 Redoc 3 renamed or removed some Redoc 2 configuration options and replaced the Redoc 2 theme object with CSS custom properties.

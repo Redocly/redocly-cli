@@ -1,8 +1,14 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { once } from 'node:events';
 import { existsSync, readFileSync } from 'node:fs';
+import { createServer, type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { getCommandOutput, getParams, cleanupOutput } from '../helpers.js';
+import { getCommandOutput, getParams, cleanupOutput, runCommandAsync } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -40,6 +46,19 @@ describe('build-docs', () => {
     );
   });
 
+  test('build docs for an AsyncAPI description with the openapi options', async () => {
+    const testPath = join(folderPath, 'asyncapi-build-docs');
+    const args = getParams(indexEntryPoint, [
+      'build-docs',
+      'asyncapi.yaml',
+      '--openapi.hideDownloadButtons',
+    ]);
+    const result = getCommandOutput(args, { testPath });
+    expect(cleanupOutput(result)).toContain(
+      'Ignoring --openapi because this API description uses --asyncapi options.'
+    );
+  });
+
   test('build docs for a GraphQL schema', async () => {
     const testPath = join(folderPath, 'graphql-build-docs');
     const args = getParams(indexEntryPoint, ['build-docs', 'schema.graphql']);
@@ -52,6 +71,44 @@ describe('build-docs', () => {
     expect(output).toContain(
       'const __redoc_options = {"skipBundle":true,"disableTelemetry":true};'
     );
+  });
+
+  describe('build docs for a remote GraphQL schema', () => {
+    const testPath = join(folderPath, 'remote-graphql-build-docs');
+    let server: Server;
+    let schemaUrl: string;
+
+    beforeAll(async () => {
+      server = createServer((_request, response) => {
+        response.end(readFileSync(join(testPath, 'schema.graphql')));
+      });
+      server.listen(0, '127.0.0.1');
+      await once(server, 'listening');
+      schemaUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}/schema.graphql`;
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+
+    test('loads the schema over HTTP', async () => {
+      const args = getParams(indexEntryPoint, ['build-docs', schemaUrl]);
+      const result = await runCommandAsync('node', args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+      const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+      expect(output).toContain('type Query');
+    });
+  });
+
+  test('build docs for a Swagger 2.0 description', async () => {
+    const testPath = join(folderPath, 'swagger-build-docs');
+    const args = getParams(indexEntryPoint, ['build-docs', 'swagger.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+    const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+    expect(output).toContain('const __redoc_definition = {"openapi":"3.2.0"');
   });
 
   test('simple build-docs', async () => {
@@ -75,11 +132,26 @@ describe('build-docs', () => {
     );
 
     const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-    expect(output).toContain(
-      "hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'))"
+    const script = new DOMParser()
+      .parseFromString(output, 'text/html')
+      .querySelector('script[type="module"]');
+    const lastScriptLine = script?.textContent?.trim().split('\n').at(-1)?.trim();
+    expect(lastScriptLine).toBe(
+      "hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'));"
     );
     expect(output).not.toContain('import { hydrate }');
     expect(output).not.toContain('<link rel="modulepreload"');
+  });
+
+  test('build docs with script tags in the description', async () => {
+    const testPath = join(folderPath, 'build-docs-with-script-tags');
+    const args = getParams(indexEntryPoint, ['build-docs', 'openapi.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+    const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+    expect(output).toContain('Uppercase and spaced end tags: \\u003c/SCRIPT> \\u003c/script >');
+    expect(output).toContain('A comment that hides the real end tag: \\u003c!--\\u003cscript>');
   });
 
   test('rejects an Arazzo description instead of rendering it', async () => {
@@ -276,6 +348,19 @@ describe('build-docs', () => {
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
+    });
+
+    test('rejects the removed --theme.openapi option', async () => {
+      const testPath = join(folderPath, 'build-docs-with-openapi-options');
+      const args = getParams(indexEntryPoint, [
+        'build-docs',
+        'openapi.yaml',
+        '--theme.openapi.hideDownloadButtons',
+      ]);
+      const result = getCommandOutput(args, { testPath });
+      expect(cleanupOutput(result)).toContain(
+        'The --theme.openapi option was removed. Pass Redoc options with --openapi instead: https://redocly.com/docs/cli/guides/migrate-to-v2#changes-in-the-build-docs-command'
+      );
     });
   });
 });
