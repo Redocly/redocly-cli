@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { lintConfig } from '../../lint.js';
-import { isAbsoluteUrl } from '../../ref-utils.js';
 import { BaseResolver, makeDocumentFromString } from '../../resolve.js';
 import { type Config } from '../config.js';
 import { loadConfig, findConfig, createConfig } from '../load.js';
@@ -2670,41 +2669,52 @@ describe('loadConfig', () => {
     });
   });
 
-  it('should rebase file paths from referenced config files onto the root config', async () => {
+  it('should resolve file paths from referenced config files to absolute paths', async () => {
+    const fixtureDir = path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths');
+    const absolute = (relativePath: string) => path.join(fixtureDir, relativePath);
     const { resolvedConfig } = await loadConfig({
-      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths/redocly.yaml'),
+      configPath: path.join(fixtureDir, 'redocly.yaml'),
     });
 
     expect(resolvedConfig.apis).toMatchObject({
       inline: { root: './openapi.yaml', output: './dist/inline.yaml' },
       'one-level': {
-        root: 'nested/openapi.yaml',
-        output: 'nested/dist/openapi.yaml',
-        overlays: ['nested/overlays/add-servers.yaml'],
-        clientOutput: 'nested/client.ts',
-        client: { setup: 'nested/setup.mjs', cliOutput: 'nested/deep/cli/index.ts' },
+        root: absolute('nested/openapi.yaml'),
+        output: absolute('nested/dist/openapi.yaml'),
+        overlays: [absolute('nested/overlays/add-servers.yaml')],
+        clientOutput: absolute('nested/client.ts'),
+        client: {
+          setup: absolute('nested/setup.mjs'),
+          cliOutput: absolute('nested/deep/cli/index.ts'),
+        },
         rules: { 'operation-description': 'error', 'operation-summary': 'warn' },
       },
-      chained: { root: 'nested/deep/openapi.yaml' },
-      reused: { root: 'nested/openapi.yaml', output: 'nested/dist/openapi.yaml' },
+      chained: { root: absolute('nested/deep/openapi.yaml') },
+      reused: {
+        root: absolute('nested/openapi.yaml'),
+        output: absolute('nested/dist/openapi.yaml'),
+      },
       untouched: {
         root: 'https://example.com/openapi.yaml',
         output: '/absolute/dist/openapi.yaml',
         clientOutput: '',
       },
-      'parent-dir': { root: 'specs/openapi.yaml', output: 'nested/dist/out.yaml' },
-      sibling: { root: 'nested/openapi.yaml', output: './dist/sibling.yaml' },
-      // the same referenced object reached under a second node type is rebased once
-      'shared-openapi': { openapi: { htmlTemplate: 'nested/template.html' } },
+      'parent-dir': {
+        root: absolute('specs/openapi.yaml'),
+        output: absolute('nested/dist/out.yaml'),
+      },
+      sibling: { root: absolute('nested/openapi.yaml'), output: './dist/sibling.yaml' },
+      // the same referenced object is reached under a second node type and must not change again
+      'shared-openapi': { openapi: { htmlTemplate: absolute('nested/template.html') } },
     });
     expect(resolvedConfig.client).toEqual({
-      setup: 'nested/setup.mjs',
-      cliOutput: 'nested/cli/index.ts',
+      setup: absolute('nested/setup.mjs'),
+      cliOutput: absolute('nested/cli/index.ts'),
       goPackage: './not-a-path',
     });
     expect(resolvedConfig).toMatchObject({
-      openapi: { htmlTemplate: 'nested/template.html' },
-      recheck: { markdoc: { extend: { tagsFile: 'nested/tags.js' } } },
+      openapi: { htmlTemplate: absolute('nested/template.html') },
+      recheck: { markdoc: { extend: { tagsFile: absolute('nested/tags.js') } } },
     });
   });
 
@@ -2718,22 +2728,24 @@ describe('loadConfig', () => {
     expect(ids).not.toContain('root-plugin');
   });
 
-  it('should resolve file paths written in a remote config file against its URL', async () => {
+  it('should keep file paths written in a remote config file as written', async () => {
+    const documents: Record<string, string> = {
+      'https://example.com/configs/redocly.yaml': 'apis:\n  remote:\n    $ref: ./api.yaml\n',
+      'https://example.com/configs/api.yaml': 'root: ./openapi.yaml\noutput: ./dist/openapi.yaml\n',
+    };
     const externalRefResolver = new BaseResolver();
-    const resolveLocalDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
-    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation((base, ref, isRoot) =>
-      isAbsoluteUrl(ref)
-        ? Promise.resolve(makeDocumentFromString('remote:\n  root: ./openapi.yaml\n', ref))
-        : resolveLocalDocument(base, ref, isRoot)
-    );
+    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation(async (base, ref) => {
+      const url = new URL(ref, base ?? undefined).href;
+      return makeDocumentFromString(documents[url], url);
+    });
 
     const { resolvedConfig } = await loadConfig({
-      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/remote/redocly.yaml'),
+      configPath: 'https://example.com/configs/redocly.yaml',
       externalRefResolver,
     });
 
     expect(resolvedConfig.apis).toMatchObject({
-      remote: { root: 'https://example.com/configs/openapi.yaml' },
+      remote: { root: './openapi.yaml', output: './dist/openapi.yaml' },
     });
   });
 });

@@ -71,7 +71,6 @@ export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
   rootRef: string;
-  rebasedNodes: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -87,26 +86,20 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-function rebasePath(value: unknown, sourceRef: string, rootRef: string) {
+function resolvePath(value: unknown, sourceRef: string) {
   if (!isString(value) || !value || isAbsoluteUrl(value) || path.isAbsolute(value)) {
     return value;
   }
-  if (isAbsoluteUrl(sourceRef)) {
-    return new URL(value, sourceRef).href;
-  }
-  const resolved = path.resolve(path.dirname(sourceRef), value);
-  return path.relative(path.dirname(rootRef), resolved);
+  return path.resolve(path.dirname(sourceRef), value);
 }
 
-// The CLI resolves every config path from the root config folder, so a path from a referenced file is rewritten relative to that folder.
-function rebaseFilePaths(node: unknown, ctx: UserContext) {
-  const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+// Commands resolve relative config paths from the root config folder, so a path written in a referenced file is made absolute.
+function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
+  const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
-  if (!isPlainObject(node) || sourceRef === rootRef || rebasedNodes.has(node)) {
+  if (!isPlainObject(node) || sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
     return;
   }
-  // the walker visits a shared `$ref` target once per node type name, so rebase each node once
-  rebasedNodes.add(node);
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
     const isPath =
@@ -117,8 +110,8 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
       continue;
     }
     node[field] = Array.isArray(value)
-      ? value.map((item) => rebasePath(item, sourceRef, rootRef))
-      : rebasePath(value, sourceRef, rootRef);
+      ? value.map((item) => resolvePath(item, sourceRef))
+      : resolvePath(value, sourceRef);
   }
 }
 
@@ -130,13 +123,13 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-            rebaseFilePaths(node, ctx);
+            resolveUriReferenceProperties(node, ctx);
             replaceRef(node, resolved, ctx);
           },
         },
         any: {
           leave(node: unknown, ctx: UserContext) {
-            rebaseFilePaths(node, ctx);
+            resolveUriReferenceProperties(node, ctx);
           },
         },
         ConfigGovernance: {
