@@ -1,33 +1,27 @@
 import { logger } from '@redocly/openapi-core';
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import path from 'node:path';
 
 import { getPlatformSpawnArgs } from '../../utils/platform.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
-import type { PreviewProjectArgv, Product } from './types.js';
+import { FRAMEWORK_PACKAGE } from './constants.js';
+import type { PreviewProjectArgv } from './types.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) => {
   const { plan, port } = argv;
   const projectDir = argv['project-dir'];
 
-  const product = argv.product || tryGetProductFromPackageJson(projectDir);
-
-  if (!isValidProduct(product)) {
-    logger.info(`Invalid product ${product}.`);
-    throw new Error(`Project preview launch failed.`);
+  if (argv.product) {
+    logger.warn(
+      `The --product option is deprecated and ignored: the preview always runs ${FRAMEWORK_PACKAGE}.\n`
+    );
   }
 
-  const productName = PRODUCT_NAMES[product];
-  const packageName = PRODUCT_PACKAGES[product];
-
-  logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
+  logger.info(`\nLaunching preview with ${FRAMEWORK_PACKAGE} on the ${plan} plan using NPX.\n\n`);
   const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
     npxExecutableName,
-    ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
+    ['-y', FRAMEWORK_PACKAGE, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
     {
       stdio: 'inherit',
       cwd: projectDir,
@@ -39,34 +33,4 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
     logger.info(`Project preview launch failed: ${error.message}`);
     throw new Error(`Project preview launch failed.`);
   });
-};
-
-const isValidProduct = (product: string | undefined): product is Product => {
-  if (!product) {
-    return false;
-  }
-
-  return !!PRODUCT_NAMES[product as Product];
-};
-
-const tryGetProductFromPackageJson = (projectDir: string): Product => {
-  const packageJsonPath = path.join(process.cwd(), projectDir, 'package.json');
-
-  if (existsSync(packageJsonPath)) {
-    try {
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-      const packageJsonDeps = packageJson.dependencies || {};
-
-      for (const [product, packageName] of Object.entries(PRODUCT_PACKAGES)) {
-        if (packageJsonDeps[packageName]) {
-          logger.info(`\n${packageName} detected in project's 'package.json'`);
-          return product as Product;
-        }
-      }
-    } catch (error) {
-      logger.info(`Invalid 'package.json': ${packageJsonPath}. Using Realm.`);
-    }
-  }
-
-  return 'realm';
 };

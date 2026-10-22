@@ -773,19 +773,19 @@ yargs(hideBin(process.argv))
   )
   .command(
     'preview',
-    'Preview Redocly project using one of the product NPM packages.',
+    'Preview a Redocly project with the @redocly/framework package.',
     (yargs) =>
       yargs.env('REDOCLY_CLI_PREVIEW').options({
         product: {
           type: 'string',
-          choices: ['redoc', 'revel', 'reef', 'realm', 'redoc-revel', 'redoc-reef', 'revel-reef'],
-          description:
-            "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
+          hidden: true,
+          deprecated: 'the preview always runs @redocly/framework.',
         },
         plan: {
           type: 'string',
           choices: PRODUCT_PLANS,
           default: 'enterprise',
+          description: 'Plan whose features the preview enables: pro, scale or enterprise.',
         },
         port: {
           alias: 'p',

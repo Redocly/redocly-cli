@@ -2,44 +2,32 @@
 
 ## Introduction
 
-The `preview` command starts a local preview server for a Redocly project.
+The `preview` command starts a local preview server for a Redocly project with the `@redocly/framework` package.
 Use the preview server to develop your project locally before deployment.
 
 ## Usage
 
 ```bash
 redocly preview
-redocly preview --product=revel
-redocly preview --product=reef --plan=pro
-redocly preview --product=reef --plan=pro --project-dir=./my-docs-project --port=4001
+redocly preview --plan=pro
+redocly preview --plan=scale --project-dir=./my-docs-project --port=4001
 ```
 
 ## Options
 
-| Option            | Type    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| ----------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --help            | boolean | Show help.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| --plan            | string  | Product plan to use in preview. <br/> **Possible values:** `pro`, `enterprise`. The default value is `enterprise`. For more details, see [plans](https://redocly.com/pricing/).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| --product         | string  | Name of a product to preview the project with. <br/> **Possible values:** `redoc`, `revel`, `reef`, `realm`, `redoc-revel`, `redoc-reef`, `revel-reef`. <br/> `redoc` is the flagship product for generating API documentation from OpenAPI specifications. <br/> `revel` is a specialized product designed for external API applications. <br/> `reef` is a specialized product designed for internal API needs. <br/> `realm` is a balanced product combining `redoc`, `revel`, and `reef`. <br/> `redoc-revel` is a blended product combining `redoc` and `revel`. <br/> `redoc-reef` is a blended product combining `redoc` and `reef`. <br/> `revel-reef` is a blended product combining `revel` and `reef`. <br/> The default value is autodetected from the project's `package.json` or `realm` is used. |
-| --project-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| --port, -p        | number  | The port to run the preview server on. The default value is `4000`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Option            | Type    | Description                                                                                                                                                                                       |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --help            | boolean | Show help.                                                                                                                                                                                        |
+| --plan            | string  | Plan whose features the preview enables. <br/> **Possible values:** `pro`, `scale`, `enterprise`. The default value is `enterprise`. For more details, see [plans](https://redocly.com/pricing/). |
+| --project-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                                                                                                      |
+| --port, -p        | number  | The port to run the preview server on. The default value is `4000`.                                                                                                                               |
 
 ## Examples
 
-### Select a product for preview
-
-Specify the product package to use by setting the `--product` option.
-If this setting is not supplied, the preview command tries to guess which package to use from the project's `package.json` or use `realm` by default.
-
-```bash
-redocly preview --product=revel
-```
-
 ### Select a plan for preview
 
-By default, previews are run in enterprise plan mode.
-This mode makes all of the enterprise features available.
-Switch the preview to pro plan mode by setting the `--plan` option to `pro`:
+By default, previews run in enterprise plan mode, which makes every feature available.
+Switch the preview to the Pro or Scale plan by setting the `--plan` option, so you see exactly what that plan includes:
 
 ```bash
 redocly preview --plan=pro
@@ -71,7 +59,7 @@ This command starts the preview on port 8888, so you can access the docs at `htt
 ### Internal Server Error
 
 An **Internal Server Error** page when running the preview command is often caused by a corrupted or outdated npx cache.
-The preview command uses npx internally to launch product packages, and cached packages can sometimes cause issues.
+The preview command uses npx internally to launch `@redocly/framework`, and a cached package can sometimes cause issues.
 
 #### Clear the npx cache
 
