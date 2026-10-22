@@ -135,13 +135,12 @@ describe('build-docs', () => {
       );
     });
 
-    it('reports an invalid value with the parse error only', async () => {
-      vi.spyOn(logger, 'error').mockImplementation(() => {});
+    it('reports an invalid value with the parse error', async () => {
       const redoclyConfig = await createConfig({});
 
       expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(HandledError);
       expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(
-        /^Unexpected token/
+        /^Expected --openapi to be a JSON object or a path to a JSON file, got: not json\nUnexpected token/
       );
     });
   });

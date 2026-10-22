@@ -47,30 +47,30 @@ export function getRedocOptions(
     return {};
   }
 
-  let options = specOptions;
-
-  if (typeof specOptions === 'string') {
-    try {
-      options = JSON.parse(
-        existsSync(specOptions) && lstatSync(specOptions).isFile()
-          ? readFileSync(specOptions, 'utf-8')
-          : specOptions
-      );
-    } catch (error) {
-      logger.error(`Expected a JSON file or a JSON string, got: ${specOptions}\n`);
-      throw new HandledError(error instanceof Error ? error.message : String(error));
-    }
-  }
+  const options =
+    typeof specOptions === 'string' ? parseJsonOrFile(specOptions, specType) : specOptions;
 
   if (!isPlainObject(options)) {
-    throw new HandledError(
-      `Expected --${specType} to be a JSON object or a path to a JSON file, got: ${
-        typeof specOptions === 'string' ? specOptions : JSON.stringify(specOptions)
-      }`
-    );
+    throw new HandledError(invalidOptionsMessage(specType, specOptions));
   }
 
   return options;
+}
+
+function parseJsonOrFile(value: string, specType: SpecType): unknown {
+  try {
+    return JSON.parse(
+      existsSync(value) && lstatSync(value).isFile() ? readFileSync(value, 'utf-8') : value
+    );
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new HandledError(`${invalidOptionsMessage(specType, value)}\n${reason}`);
+  }
+}
+
+function invalidOptionsMessage(specType: SpecType, value: unknown): string {
+  const shown = typeof value === 'string' ? value : JSON.stringify(value);
+  return `Expected --${specType} to be a JSON object or a path to a JSON file, got: ${shown}`;
 }
 
 export async function getPageHTML(
