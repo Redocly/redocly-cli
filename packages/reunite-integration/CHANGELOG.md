@@ -1,5 +1,11 @@
 # @redocly/reunite-integration
 
+## 2.69.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.69.0.
+
 ## 2.68.0
 
 ### Patch Changes
