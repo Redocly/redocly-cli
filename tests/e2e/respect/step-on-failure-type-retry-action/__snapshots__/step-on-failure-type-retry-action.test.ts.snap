@@ -1,0 +1,218 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should retry a step up to the limit of each retry action and then run the next failure action 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow step-on-failure-type-retry-action.arazzo.yaml / retry-once-then-goto 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action goto-after-retry for the step list-menu-items-with-invalid-limit 
+ 
+  ✓ GET /menu - step search-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow step-on-failure-type-retry-action.arazzo.yaml / retry-target-step-with-own-retry 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action run-step-then-retry for the step list-menu-items-with-invalid-limit 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow step-on-failure-type-retry-action.arazzo.yaml / retry-with-each-retry-action 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (1/2)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (2/2)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow step-on-failure-type-retry-action.arazzo.yaml / retry-target-step-with-its-own-retry-limit 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action run-target-step-then-retry for the step list-menu-items-with-invalid-limit 
+ 
+  ✗ GET /menu - step target-step-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step target-step-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step target-step-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (1/3)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action run-target-step-then-retry for the step list-menu-items-with-invalid-limit 
+ 
+  ✗ GET /menu - step target-step-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step target-step-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step target-step-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (2/3)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action run-target-step-then-retry for the step list-menu-items-with-invalid-limit 
+ 
+  ✗ GET /menu - step target-step-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step target-step-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step target-step-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step list-menu-items-with-invalid-limit (3/3)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: retry-once-then-goto
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+      
+  Workflow name: retry-target-step-with-own-retry
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+      
+  Workflow name: retry-with-each-retry-action
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+      
+  Workflow name: retry-target-step-with-its-own-retry-limit
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+       
+  Summary for step-on-failure-type-retry-action.arazzo.yaml
+  
+  Workflows: 4 failed, 4 total
+  Steps: 1 passed, 4 failed, 5 total
+  Checks: 16 passed, 4 failed, 20 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x step-on-failure-type-retry-action.arazzo.yaml                                       │ 4          │ 0       │ 4       │ -        │
+└───────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+"
+`;

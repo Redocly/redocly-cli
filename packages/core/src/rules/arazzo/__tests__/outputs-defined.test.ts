@@ -76,6 +76,84 @@ describe('Arazzo outputs-defined', () => {
     `);
   });
 
+  it('should report on undefined outputs in success and failure action parameters', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Redocly Cafe
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                successCriteria:
+                  - condition: $statusCode == 201
+                outputs:
+                  orderId: $response.body#/id
+                onSuccess:
+                  - name: load-order
+                    type: goto
+                    workflowId: load-order
+                    parameters:
+                      - name: orderId
+                        value: $steps.create-order.outputs.not-defined-output
+                onFailure:
+                  - name: load-order
+                    type: goto
+                    workflowId: load-order
+                    parameters:
+                      - name: orderId
+                        value: $steps.create-order.outputs.orderId
+          - workflowId: load-order
+            inputs:
+              type: object
+              properties:
+                orderId:
+                  type: string
+            steps:
+              - stepId: get-order
+                operationId: cafe-api.getOrderById
+                parameters:
+                  - in: path
+                    name: orderId
+                    value: $inputs.orderId
+                successCriteria:
+                  - condition: $statusCode == 200
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'outputs-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/0/value",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Output key "not-defined-output" is not defined in step "create-order". Available outputs: [ orderId ].",
+          "ruleId": "outputs-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should report on undefined outputs in requestBody', async () => {
     const document = parseYamlToDocument(
       outdent`
