@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed a blank page in the `preview-docs` command after the Redoc 3 release.
+Fixed an issue where the `preview-docs` command displayed a blank page because it loaded Redoc 3 instead of Redoc 2.
