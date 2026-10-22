@@ -30,6 +30,7 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.j
 import { Timer } from '../timeout-timer/timer.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
+import { resolveActionInputs } from './resolve-action-inputs.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
 import { checkCriteria } from './success-criteria/index.js';
 
@@ -402,9 +403,19 @@ export async function runStep({
           }
 
           if (targetWorkflow) {
+            let inputs: Record<string, unknown> | undefined;
+            try {
+              inputs = resolveActionInputs({ action, ctx, step, workflowId });
+            } catch (error) {
+              return failStepWithActionError(
+                error instanceof Error ? error.message : String(error)
+              );
+            }
+
             const stepWorkflowResult = await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
+              inputs,
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
               executedStepsCount,
@@ -462,9 +473,17 @@ export async function runStep({
             });
           }
 
+          let inputs: Record<string, unknown> | undefined;
+          try {
+            inputs = resolveActionInputs({ action, ctx, step, workflowId });
+          } catch (error) {
+            return failStepWithActionError(error instanceof Error ? error.message : String(error));
+          }
+
           const stepWorkflowResult = await runWorkflow({
             workflowInput: targetWorkflow || workflow,
             ctx: targetCtx,
+            inputs,
             fromStepId: targetStep,
             skipLineSeparator: true,
             invocationContext: `Goto from step ${stepId}`,
