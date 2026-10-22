@@ -47,8 +47,8 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `eject-generator`    | Copy a built-in generator into the repo to edit it [experimental]                                                 | SDK generation        |
 | `check-config`       | Lint `redocly.yaml` itself                                                                                        | Redocly configuration |
 | `inspect-node-types` | Show the node type at a pointer, or list every node with its type [experimental]                                  | Redocly configuration |
-| `push`               | Push an API description to Redocly Dashboard                                                                                | Dashboard platform      |
-| `push-status`        | Track an in-progress push to the Dashboard                                                                              | Dashboard platform      |
+| `push`               | Push an API description to Redocly Dashboard                                                                      | Dashboard platform    |
+| `push-status`        | Track an in-progress push to the Dashboard                                                                        | Dashboard platform    |
 | `skills`             | Install the Redocly CLI agent skills into `.agents/skills/` and detected agent folders                            | Agent setup           |
 | `completion`         | Generate shell autocomplete commands                                                                              | Shell setup           |
 
