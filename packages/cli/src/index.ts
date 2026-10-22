@@ -779,7 +779,7 @@ yargs(hideBin(process.argv))
         product: {
           type: 'string',
           hidden: true,
-          deprecated: 'the preview always runs @redocly/framework.',
+          deprecated: 'the package is read from package.json, @redocly/framework by default.',
         },
         plan: {
           type: 'string',

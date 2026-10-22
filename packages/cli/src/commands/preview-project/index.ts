@@ -1,10 +1,12 @@
 import { logger } from '@redocly/openapi-core';
 import { spawn } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import { getPlatformSpawnArgs } from '../../utils/platform.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { FRAMEWORK_PACKAGE } from './constants.js';
-import type { PreviewProjectArgv } from './types.js';
+import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
+import type { PreviewProjectArgv, Product } from './types.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) => {
   const { plan, port } = argv;
@@ -12,16 +14,26 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
 
   if (argv.product) {
     logger.warn(
-      `The --product option is deprecated and ignored: the preview always runs ${FRAMEWORK_PACKAGE}.\n`
+      `The --product option is deprecated: the preview uses the product package listed in package.json, or ${PRODUCT_PACKAGES.framework} by default.\n`
     );
   }
 
-  logger.info(`\nLaunching preview with ${FRAMEWORK_PACKAGE} on the ${plan} plan using NPX.\n\n`);
+  const product = argv.product || tryGetProductFromPackageJson(projectDir);
+
+  if (!isValidProduct(product)) {
+    logger.info(`Invalid product ${product}.`);
+    throw new Error(`Project preview launch failed.`);
+  }
+
+  const productName = PRODUCT_NAMES[product];
+  const packageName = PRODUCT_PACKAGES[product];
+
+  logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
   const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
     npxExecutableName,
-    ['-y', FRAMEWORK_PACKAGE, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
+    ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
     {
       stdio: 'inherit',
       cwd: projectDir,
@@ -33,4 +45,37 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
     logger.info(`Project preview launch failed: ${error.message}`);
     throw new Error(`Project preview launch failed.`);
   });
+};
+
+const isValidProduct = (product: string | undefined): product is Product => {
+  if (!product) {
+    return false;
+  }
+
+  return !!PRODUCT_NAMES[product as Product];
+};
+
+/** The product package listed in the project's package.json, or the framework when none is. */
+const tryGetProductFromPackageJson = (projectDir: string): Product => {
+  const packageJsonPath = path.join(process.cwd(), projectDir, 'package.json');
+
+  if (existsSync(packageJsonPath)) {
+    try {
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+      const packageJsonDeps = packageJson.dependencies || {};
+
+      for (const [product, packageName] of Object.entries(PRODUCT_PACKAGES)) {
+        if (packageJsonDeps[packageName]) {
+          logger.info(`\n${packageName} detected in project's 'package.json'`);
+          return product as Product;
+        }
+      }
+    } catch (error) {
+      logger.info(
+        `Invalid 'package.json': ${packageJsonPath}. Using ${PRODUCT_PACKAGES.framework}.`
+      );
+    }
+  }
+
+  return 'framework';
 };

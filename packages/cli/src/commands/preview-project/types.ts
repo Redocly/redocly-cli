@@ -1,10 +1,11 @@
-import type { PRODUCT_PLANS } from './constants.js';
+import type { PRODUCT_PACKAGES, PRODUCT_PLANS } from './constants.js';
 
+export type Product = keyof typeof PRODUCT_PACKAGES;
 export type ProductPlan = (typeof PRODUCT_PLANS)[number];
 
 export type PreviewProjectArgv = {
-  /** Deprecated and ignored: the preview always runs `@redocly/framework`. */
-  product?: string;
+  /** Deprecated: the package is read from package.json, with `@redocly/framework` as the default. */
+  product?: Product | string;
   plan: ProductPlan | string;
   port?: number;
   'project-dir': string;
