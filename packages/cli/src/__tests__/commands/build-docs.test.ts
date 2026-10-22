@@ -80,9 +80,22 @@ describe('build-docs', () => {
   describe('getPageHTML', () => {
     const cafe = { openapi: '3.2.0', info: { title: 'Redocly Cafe', version: '1.0.0' }, paths: {} };
     const options = { output: 'redoc-static.html', redocVersion: '3.0.1', templateOptions: {} };
+    const titleOf = (html: string) => html.match(/<title>(.*)<\/title>/)?.[1];
 
     beforeEach(() => {
       vi.mocked(fs.readFileSync).mockReturnValue('export function hydrate() {}</script>');
+    });
+
+    it('prefers the title option over the title of the description', async () => {
+      const html = await getPageHTML(cafe, { ...options, title: 'Cafe docs' });
+
+      expect(titleOf(html)).toBe('Cafe docs');
+    });
+
+    it('gives a GraphQL schema a default title', async () => {
+      const html = await getPageHTML('type Query { menu: [String] }', options);
+
+      expect(titleOf(html)).toBe('ReDoc documentation');
     });
 
     it('uses the template file over the htmlTemplate option', async () => {
