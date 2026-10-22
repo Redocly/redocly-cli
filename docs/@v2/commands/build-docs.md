@@ -11,6 +11,9 @@ The page is rendered with Redoc 3 and loads the Redoc scripts from the Redocly C
 Pass `--inlineBundle` to embed them, so the page works without loading the Redoc scripts from the CDN.
 Only the Redocly logo in the sidebar loads from the CDN.
 
+The page sends [Redoc telemetry](https://redocly.com/docs/redoc/telemetry) from readers' browsers.
+To turn it off, build the page with `REDOCLY_TELEMETRY=off` or with `telemetry: off` in the configuration file.
+
 Redoc options come from the configuration file key that matches the type of your API description: `openapi`, `asyncapi`, or `graphql`.
 The command also applies the [decorators](../decorators.md) and [preprocessors](../configuration/reference/preprocessors.md) from the configuration file.
 
