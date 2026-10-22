@@ -95,7 +95,7 @@ function rebasePath(value: unknown, sourceRef: string, rootRef: string) {
     return new URL(value, sourceRef).href;
   }
   const resolved = path.resolve(path.dirname(sourceRef), value);
-  return path.relative(path.dirname(rootRef), resolved) || '.';
+  return path.relative(path.dirname(rootRef), resolved);
 }
 
 // The CLI resolves every config path from the root config folder, so a path from a referenced file is rewritten relative to that folder.
@@ -109,14 +109,16 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   rebasedNodes.add(node);
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
-    if (value === undefined || !isPlainObject(schema) || isNamedType(schema)) {
+    const isPath =
+      isPlainObject(schema) &&
+      !isNamedType(schema) &&
+      (schema.format ?? schema.items?.format) === 'uri-reference';
+    if (value === undefined || !isPath) {
       continue;
     }
-    if ((schema.format ?? schema.items?.format) === 'uri-reference') {
-      node[field] = Array.isArray(value)
-        ? value.map((item) => rebasePath(item, sourceRef, rootRef))
-        : rebasePath(value, sourceRef, rootRef);
-    }
+    node[field] = Array.isArray(value)
+      ? value.map((item) => rebasePath(item, sourceRef, rootRef))
+      : rebasePath(value, sourceRef, rootRef);
   }
 }
 
