@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.69.0 (2026-10-22)
+
+### Minor Changes
+
+- The `preview` command now runs `@redocly/framework` and accepts the `pro`, `scale` and `enterprise` plans with the `--plan` option.
+  A project whose `package.json` lists `@redocly/realm`, `@redocly/redoc`, `@redocly/revel`, `@redocly/reef` or one of their blends still previews with that package.
+  The `--product` option is deprecated.
+
 ## 2.68.0 (2026-10-22)
 
 ### Minor Changes
