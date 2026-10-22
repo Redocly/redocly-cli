@@ -1,6 +1,12 @@
 import { resolveInputValuesToSchema } from '../../../flow-runner/index.js';
 
 describe('resolveInputValuesToSchema', () => {
+  it('should preserve named inputs mapped with a scalar reusable schema', () => {
+    const inputs = { 'reusable-test': '123', store_id: '42', my_pet_tags: ['one', 'two'] };
+
+    expect(resolveInputValuesToSchema(inputs, { type: 'string' }, true)).toEqual(inputs);
+  });
+
   it.each([
     [{}, "inputs must have required property 'key'"],
     [{ key: {} }, 'inputs/key must be string'],

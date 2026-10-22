@@ -31,8 +31,10 @@ export function resolveInputValuesToSchema(
 
   const validate = ajv.compile(schema);
   const result = { ...value };
+  // Scalar reusable schemas do not describe the named workflow input object.
+  const isInputObjectSchema = !schema.type || schema.type === 'object';
 
-  if (!validate(result) && validateInputs) {
+  if (!validate(result) && validateInputs && isInputObjectSchema) {
     throw new Error(
       `Invalid workflow inputs: ${ajv.errorsText(validate.errors, { dataVar: 'inputs' })}. Provide values that match the workflow input schema.`
     );
