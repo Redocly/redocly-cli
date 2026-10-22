@@ -9,8 +9,8 @@
 🔖 Tags: 2 
 🧩 Vendor Extensions: 0 
 
-Document: ./tests/e2e/config-ref/project/config/apis/cafe/openapi.yaml stats:
+Document: ./tests/e2e/config-ref/project/config/apis/cafe.yaml stats:
 
 
-./tests/e2e/config-ref/project/config/apis/cafe/openapi.yaml: stats processed in <test>ms
+./tests/e2e/config-ref/project/config/apis/cafe.yaml: stats processed in <test>ms
 

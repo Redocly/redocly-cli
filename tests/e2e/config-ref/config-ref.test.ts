@@ -1,6 +1,7 @@
-// The project's root redocly.yaml only references config/redocly.yaml, which pulls its sections
-// in with `$ref`: an api from a deeper folder, a `$ref` with a sibling option, a `$ref` chain,
-// and `../` paths. Every command below must find the files that these paths point to.
+// The project's root redocly.yaml only references config/redocly.yaml. That file writes some
+// sections and apis inline, pulls others in with `$ref` from deeper folders, and mixes a `$ref`
+// with a sibling option, a `$ref` chain, and `../` paths. Every command below must find the
+// files that these paths point to.
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,8 +46,9 @@ describe('config-ref', () => {
   test('bundle writes each output and applies the overlays', async () => {
     await expect(run(['bundle'])).toMatchFileSnapshot(snapshot('bundle'));
     expect(generated('config/generated/cafe.yaml')).not.toContain('/stats');
-    expect(existsSync(join(testPath, 'config/generated/orders.yaml'))).toBe(true);
-    expect(existsSync(join(testPath, 'config/generated/menu.yaml'))).toBe(true);
+    for (const api of ['orders', 'menu', 'archive']) {
+      expect(existsSync(join(testPath, `config/generated/${api}.yaml`)), api).toBe(true);
+    }
   });
 
   test.each([

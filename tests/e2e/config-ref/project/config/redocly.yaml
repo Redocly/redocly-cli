@@ -1,22 +1,34 @@
-# Every path in this file is relative to this file. The sections below are pulled in with `$ref`,
-# and the paths inside them are relative to the file that holds them.
+# Every path in this file is relative to this file, not to the root redocly.yaml.
+# Some sections are written here, others are pulled in with `$ref` from deeper folders,
+# where the paths are relative to the file that holds them.
 extends:
   - recommended
   - ./rules.yaml
   - recheck/markdoc
 openapi:
-  $ref: ./theme/openapi.yaml
+  htmlTemplate: ./templates/root.hbs
 client:
-  $ref: ./client/client.yaml
+  setup: ./client/setup.ts
+  cliOutput: ./generated/bin/cafe.ts
+  importExt: ts
+  generators: [typescript, zod, cli]
 recheck:
   $ref: ./recheck/recheck.yaml
 apis:
   cafe:
-    $ref: ./apis/cafe/config.yaml
+    root: ./apis/cafe.yaml
+    output: ./generated/cafe.yaml
+    overlays:
+      - ./overlays/public.yaml
+    clientOutput: ./generated/client/cafe.ts
+    openapi:
+      htmlTemplate: ./templates/cafe.hbs
   orders:
-    # a `$ref` with a sibling: `output` is relative to this file, `root` to the referenced one
-    $ref: ./apis/orders.yaml
-    output: ./generated/orders.yaml
+    $ref: ./apis/orders/config.yaml
   menu:
-    # a `$ref` chain: this file only references another one
+    # a `$ref` with a sibling: `output` is relative to this file, `root` to the referenced one
+    $ref: ./apis/menu.yaml
+    output: ./generated/menu.yaml
+  archive:
+    # a `$ref` chain: the referenced file only references another one
     $ref: ./apis/chain.yaml

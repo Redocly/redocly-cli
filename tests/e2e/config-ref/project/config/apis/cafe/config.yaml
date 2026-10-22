@@ -1,7 +1,0 @@
-root: ./openapi.yaml
-output: ../../generated/cafe.yaml
-overlays:
-  - ../shared/public.yaml
-clientOutput: ../../generated/client/cafe.ts
-openapi:
-  htmlTemplate: ./cafe.hbs
