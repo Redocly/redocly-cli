@@ -55,7 +55,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 <details>
 <summary>How to find the organization and project IDs<a id="find-ids"></a></summary>
 
-1. Log in to the Redocly platform.
+1. Log in to Redocly.
 2. Open **Organization settings** and copy the **Organization ID**.
 3. Open the project and copy the **Project ID** from **Project settings**.
 

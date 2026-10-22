@@ -7,7 +7,7 @@ Pick the section that relates to the product you use.
 
 {% tab label="Platform" %}
 
-This command is used to push files from another location to a platform project.
+This command is used to push files from another location to a Redocly project.
 
 {% admonition type="warning" name="The content is overwritten" %}
 The content of the destination folder (in other words the `--mount-path`) is overwritten every time changes are detected in comparison to the current content.
@@ -17,11 +17,11 @@ The content of the destination folder (in other words the `--mount-path`) is ove
 
 Have the following values ready to use with the `push` command:
 
-- A user account in a [the platform project](https://auth.cloud.redocly.com/).
+- A user account in a [Redocly project](https://auth.cloud.redocly.com/).
 - An active organization [API key](https://redocly.com/docs/platform/setup/how-to/api-keys).
 - [Redocly CLI](../installation.md) installed.
 
-Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/platform/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the platform.
+Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/platform/setup/how-to/api-keys) page in the documentation for details on how to get your API key in Redocly.
 
 ## Command usage
 
@@ -117,7 +117,7 @@ npx @redocly/cli@latest push docs/museum.yaml \
 
 The `docs/museum.yaml` file from the repository the action is running on is added to the `/docs/remotes/cicd` folder. The change is made on behalf of the latest commit author and uses the most recent commit message.
 
-The `--commit-sha`, `--commit-url`, `--namespace`, `--repository` options are used to attach the details of the push to the deployment and are also shown on the platform "Deployments" page.
+The `--commit-sha`, `--commit-url`, `--namespace`, `--repository` options are used to attach the details of the push to the deployment and are also shown on Redocly "Deployments" page.
 This information is useful in case you have multiple sources for the pushes.
 
 Whenever a `push` is performed from the default branch (`--branch "${{ github.ref_name }}"` and equals to `--default-branch "${{ github.event.repository.default_branch || github.event.repository.master_branch }}"`) - a production deployment starts automatically after a successful preview deployment.

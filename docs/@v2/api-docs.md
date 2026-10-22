@@ -17,7 +17,7 @@ Change the theme to fit your brand, and make your API consumers very happy with 
 This option is ideal for teams that want **hassle-free hosting**, lots of **theme customization options**, and good CI/CD integration features straight out of the box.
 There's a **free trial** on all our plans, so you can take it for a spin before you commit.
 
-Discover [the platform's features](https://redocly.com/reunite).
+Discover [Redocly's features](https://redocly.com/reunite).
 
 Feel free to check out [the platform documentation](https://redocly.com/docs/platform/get-started/start-reunite-editor).
 

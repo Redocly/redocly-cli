@@ -52,7 +52,7 @@ Redocly configuration commands:
 
 Platform commands:
 
-- [`login`](login.md) Log in to the Redocly platform.
+- [`login`](login.md) Log in to Redocly.
 - [`logout`](logout.md) Clear your stored credentials.
 - [`push`](push.md) Push an API description to the Redocly platform.
 - [`push-status`](push-status.md) Track an in-progress push operation to the Redocly platform.
