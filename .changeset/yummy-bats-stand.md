@@ -7,5 +7,6 @@ Fixed an issue where `respect` ran workflows with inputs that did not satisfy th
 Object inputs are validated after merging runtime and environment values, before the workflow's operation requests.
 Named input mappings through scalar reusable components retain their existing behavior.
 Invalid inputs for a selected workflow also prevent its dependencies from starting.
+Input failures preserve workflow failure actions and allow unrelated workflows and files to continue.
 
 **Note:** Workflows with missing required inputs or invalid input values now fail instead of sending requests with those values.

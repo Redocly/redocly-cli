@@ -6,6 +6,8 @@ type MappedValue = {
   [key: string]: any;
 };
 
+export class WorkflowInputValidationError extends Error {}
+
 export function resolveInputValuesToSchema(
   value: any,
   schema: InputSchema,
@@ -35,7 +37,7 @@ export function resolveInputValuesToSchema(
   const isInputObjectSchema = !schema.type || schema.type === 'object';
 
   if (!validate(result) && validateInputs && isInputObjectSchema) {
-    throw new Error(
+    throw new WorkflowInputValidationError(
       `Invalid workflow inputs: ${ajv.errorsText(validate.errors, { dataVar: 'inputs' })}. Provide values that match the workflow input schema.`
     );
   }

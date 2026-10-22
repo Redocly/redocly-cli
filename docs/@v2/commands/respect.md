@@ -92,6 +92,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   Existing named input mappings through scalar reusable components are preserved.
   Invalid inputs stop that workflow before its operation requests; invalid inputs for a selected workflow also stop its dependencies from starting.
   Inputs passed by a step or action are validated when the target workflow is invoked.
+  Input failures follow normal workflow failure handling, including `onFailure` actions, while unrelated workflows and files can continue.
   Provide all required inputs and values that satisfy the schema's type and constraints.
 
   For example, the following command maps the "userEmail" and "userPassword" inputs and values to all workflows in the `test.yaml` Arazzo description:

@@ -29,6 +29,7 @@ import { createTestContext } from './context/create-test-context.js';
 import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
 import { bundleArazzo } from './get-test-description-from-file.js';
 import { getWorkflowsToRun } from './get-workflows-to-run.js';
+import { WorkflowInputValidationError } from './inputs/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 import { runStep } from './run-step.js';
 
@@ -91,58 +92,6 @@ async function runWorkflows({
 
   for (const workflow of workflows) {
     ctx.executedSteps = [];
-    // run dependencies workflows first
-    if (workflow.dependsOn?.length) {
-      mergeWorkflowInputs({
-        inputs: ctx.$workflows[workflow.workflowId].inputs,
-        workflowInputSchema: workflow.inputs,
-        env: ctx.options.envVariables,
-        validateInputs: true,
-      });
-      try {
-        await handleDependsOn({ workflow, ctx, config: options.config, executedStepsCount });
-      } catch (error) {
-        if (!(error instanceof WorkflowDependencyError)) {
-          throw error;
-        }
-
-        // an unresolvable or failed dependsOn dependency fails this workflow
-        // but must not abort the remaining workflows and files
-        const failureTime = performance.now();
-        // a synthetic step to carry the failed check; it has no operation to call
-        const failedStep = {
-          stepId: 'dependsOn',
-          checks: [
-            {
-              name: CHECKS.UNEXPECTED_ERROR,
-              message: error.message,
-              passed: false,
-              severity: ctx.severity['UNEXPECTED_ERROR'],
-            },
-          ],
-        } as Step;
-
-        printWorkflowSeparator({
-          fileName: basename(ctx.options.filePath),
-          workflowName: workflow.workflowId,
-          logger: options.logger,
-        });
-        printUnknownStep(failedStep, options.logger);
-
-        executedWorkflows.push({
-          type: 'workflow',
-          workflowId: workflow.workflowId,
-          startTime: failureTime,
-          endTime: failureTime,
-          totalTimeMs: 0,
-          executedSteps: [failedStep],
-          ctx,
-          globalTimeoutError: false,
-        });
-        continue;
-      }
-    }
-
     const workflowExecutionResult = await runWorkflow({
       workflowInput: workflow.workflowId,
       ctx,
@@ -166,7 +115,10 @@ export async function runWorkflow({
   executedStepsCount,
   retriesLeft,
   retryingStepIds,
-}: RunWorkflowInput): Promise<WorkflowExecutionResult> {
+  preparedDependencies,
+}: RunWorkflowInput & {
+  preparedDependencies?: PreparedDependency[];
+}): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.filePath);
@@ -180,7 +132,6 @@ export async function runWorkflow({
   }
 
   const workflowId = workflow.workflowId;
-  const workflowInputSchema = workflow.inputs;
   // Keep `undefined` when nothing is passed. Success criteria read the inputs as is,
   // and `$inputs.x` on `undefined` reports an unresolved expression, while on `{}` it evaluates to false.
   const runInputs = inputs
@@ -196,17 +147,60 @@ export async function runWorkflow({
       ...ctx.$workflows,
       [workflowId]: {
         ...ctx.$workflows[workflowId],
-        inputs: workflowInputSchema
-          ? mergeWorkflowInputs({
-              inputs: runInputs,
-              workflowInputSchema,
-              env: ctx.options.envVariables,
-              validateInputs: true,
-            })
-          : runInputs,
+        inputs: runInputs,
       },
     },
   };
+
+  try {
+    await prepareWorkflow({
+      workflow,
+      ctx: runCtx,
+      config: ctx.options.config,
+      executedStepsCount,
+      preparedDependencies,
+      fromStepId,
+    });
+  } catch (error) {
+    if (
+      !(error instanceof WorkflowInputValidationError || error instanceof WorkflowDependencyError)
+    ) {
+      throw error;
+    }
+
+    // Return a failed workflow so callers can apply their normal failure actions.
+    const failedStep = {
+      stepId: workflow.dependsOn?.length ? 'dependsOn' : 'inputs',
+      checks: [
+        {
+          name: CHECKS.UNEXPECTED_ERROR,
+          message: error.message,
+          passed: false,
+          severity: runCtx.severity['UNEXPECTED_ERROR'],
+        },
+      ],
+    } as Step;
+    printWorkflowSeparator({
+      fileName: fileBaseName,
+      workflowName: workflowId,
+      skipLineSeparator,
+      logger,
+    });
+    printUnknownStep(failedStep, logger);
+    const endTime = performance.now();
+    return {
+      type: 'workflow',
+      invocationContext,
+      workflowId,
+      stepId: parentStepId,
+      startTime: workflowStartTime,
+      endTime,
+      totalTimeMs: 0,
+      executedSteps: [failedStep],
+      ctx: runCtx,
+      globalTimeoutError: false,
+    };
+  }
 
   if (!fromStepId) {
     printWorkflowSeparator({
@@ -322,26 +316,32 @@ export async function runWorkflow({
 }
 
 // Thrown when a dependsOn entry cannot be resolved to a workflow or a dependency
-// workflow fails. Handled per workflow in runWorkflows so one broken dependency
-// doesn't abort the rest of the run.
+// workflow fails. Handled by runWorkflow so callers receive a failed result.
 class WorkflowDependencyError extends Error {}
 
-async function handleDependsOn({
-  workflow,
-  ctx,
-  config,
-  executedStepsCount,
-}: {
-  workflow: Workflow;
-  ctx: TestContext;
-  config: Config;
-  executedStepsCount: ExecutedStepsCount;
-}) {
-  if (!workflow.dependsOn?.length) return;
+type PreparedDependency = {
+  resolvedWorkflow: Workflow;
+  workflowCtx: TestContext;
+  dependencies: PreparedDependency[];
+};
+
+async function prepareDependencies(
+  workflow: Workflow,
+  ctx: TestContext,
+  config: Config,
+  ancestors = new Set<string>()
+): Promise<PreparedDependency[]> {
+  const workflowKey = `${ctx.options.filePath}#${workflow.workflowId}`;
+  if (ancestors.has(workflowKey)) {
+    throw new WorkflowDependencyError(
+      `Circular dependsOn dependency for workflow ${red(workflow.workflowId)}.`
+    );
+  }
+  const dependencyAncestors = new Set([...ancestors, workflowKey]);
 
   // resolve every reference before starting any dependency run, so one broken
   // reference cannot leave sibling dependency workflows running unawaited
-  const resolvedDependencies = workflow.dependsOn.map((workflowId) => {
+  const resolvedDependencies = (workflow.dependsOn || []).map((workflowId) => {
     const resolvedWorkflow = resolveWorkflowReference({ ref: workflowId, ctx });
 
     if (!resolvedWorkflow) {
@@ -355,7 +355,7 @@ async function handleDependsOn({
     return { workflowId, resolvedWorkflow };
   });
 
-  const preparedDependencies = await Promise.all(
+  return await Promise.all(
     resolvedDependencies.map(async ({ workflowId, resolvedWorkflow }) => {
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
       mergeWorkflowInputs({
@@ -365,18 +365,51 @@ async function handleDependsOn({
         validateInputs: true,
       });
 
-      return { resolvedWorkflow, workflowCtx };
+      const dependencies = await prepareDependencies(
+        resolvedWorkflow,
+        workflowCtx,
+        config,
+        dependencyAncestors
+      );
+      return { resolvedWorkflow, workflowCtx, dependencies };
     })
   );
+}
 
+async function prepareWorkflow({
+  workflow,
+  ctx,
+  config,
+  executedStepsCount,
+  preparedDependencies,
+  fromStepId,
+}: {
+  workflow: Workflow;
+  ctx: TestContext;
+  config: Config;
+  executedStepsCount: ExecutedStepsCount;
+  preparedDependencies?: PreparedDependency[];
+  fromStepId?: string;
+}) {
+  if (workflow.inputs) {
+    ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
+      inputs: ctx.$workflows[workflow.workflowId].inputs,
+      workflowInputSchema: workflow.inputs,
+      env: ctx.options.envVariables,
+      validateInputs: true,
+    });
+  }
+  if (fromStepId || !workflow.dependsOn?.length) return;
+  const dependencies = preparedDependencies ?? (await prepareDependencies(workflow, ctx, config));
   const dependenciesWorkflows = await Promise.all(
-    preparedDependencies.map(({ resolvedWorkflow, workflowCtx }) => {
+    dependencies.map(({ resolvedWorkflow, workflowCtx, dependencies }) => {
       printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);
       return runWorkflow({
         workflowInput: resolvedWorkflow,
         ctx: workflowCtx,
         skipLineSeparator: true,
         executedStepsCount,
+        preparedDependencies: dependencies,
       });
     })
   );
