@@ -23,7 +23,7 @@ recheck:
   markdoc: true
 ```
 
-`markdoc: true` is the short form of `markdoc: { schema: realm }`, which validates tags against the built-in schema of the Realm theme.
+`markdoc: true` is the short form of `markdoc: { schema: realm }`, which validates tags against the built-in schema of the Redocly theme.
 
 The preset's four rules only report when parsing is on.
 With the preset but without `markdoc`, the command prints a warning that the rules can never report.
@@ -52,7 +52,7 @@ recheck:
 
 | Key               | Description                                                                                                                   |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `schema`          | **Required.** `realm` validates tags against the built-in Realm schema. `false` parses and pairs tags without a schema check. |
+| `schema`          | **Required.** `realm` validates tags against the built-in Redocly schema. `false` parses and pairs tags without a schema check. |
 | `extend.tags`     | Your own tags, merged over the schema.                                                                                        |
 | `extend.tagsFile` | A YAML file of tags, relative to `redocly.yaml`. Inline `tags` win over it. Set `tags`, `tagsFile`, or both.                  |
 
@@ -123,6 +123,6 @@ Turning `markdoc` on changes how every rule sees a tag, not only the Markdoc rul
 - **`--fix` never rewrites a tag.**
   A fix that would change the bytes of a tag is withheld and reported as a skipped fix.
 - **Indented code blocks and setext headings are off.**
-  Markdoc's own parser does not recognize them, and Realm renders them as prose, so Recheck matches that while the flag is on.
+  Markdoc's own parser does not recognize them, and Redocly renders them as prose, so Recheck matches that while the flag is on.
   A `{% table %}` line followed by `---` is a table row, not a heading.
   Expect `heading-style`, `blanks-around-headings`, `capitalization`, and `code-block-style` findings to move the first time you turn the flag on.

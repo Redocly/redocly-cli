@@ -22,13 +22,13 @@ redocly login [--help] [--verbose] [--version]
 redocly login --verbose
 ```
 
-To authenticate using **Reunite** API, use the `--next` option.
+To authenticate using **Redocly Dashboard** API, use the `--next` option.
 
 ```bash
 redocly login --next
 ```
 
-Note that logging in with **Reunite** API does not allow you to use the `push` command.
+Note that logging in with **Dashboard** API does not allow you to use the `push` command.
 
 ## Options
 
@@ -39,7 +39,7 @@ Note that logging in with **Reunite** API does not allow you to use the `push` c
 | --residency, --region, -r | string  | Specify the application's residency. Supported values: `us`, `eu`, or a full URL. The `eu` region is limited to enterprise customers. Default value is `us`. |
 | --verbose                 | boolean | Display additional output.                                                                                                                                   |
 | --version                 | boolean | Show version number.                                                                                                                                         |
-| --next                    | boolean | Authenticate through Reunite API.                                                                                                                            |
+| --next                    | boolean | Authenticate through the Dashboard API.                                                                                                                            |
 
 ## Examples
 

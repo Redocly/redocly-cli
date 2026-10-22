@@ -12,14 +12,14 @@ Good quality API documentation is the most important factor for a good developer
 Use the Redocly platform to produce beautiful API documentation, and automatically update it every time your OpenAPI description changes.
 Change the theme to fit your brand, and make your API consumers very happy with clear documentation, code examples, and the all-important ability to try API calls from within the documentation itself.
 
-![Example API documentation in Reunite](images/redoc-reunite.svg)
+![Example API documentation in Redocly Dashboard](images/redoc-reunite.svg)
 
 This option is ideal for teams that want **hassle-free hosting**, lots of **theme customization options**, and good CI/CD integration features straight out of the box.
 There's a **free trial** on all our plans, so you can take it for a spin before you commit.
 
-Discover [Reunite's features](https://redocly.com/reunite).
+Discover [Dashboard's features](https://redocly.com/reunite).
 
-Feel free to check out [Reunite documentation](https://redocly.com/docs/realm/get-started/start-reunite-editor).
+Feel free to check out [Dashboard documentation](https://redocly.com/docs/framework/get-started/start-reunite-editor).
 
 ## Redoc
 

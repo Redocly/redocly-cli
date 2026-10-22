@@ -1,6 +1,6 @@
 # `push-status`
 
-This command is used with Reunite products only.
+This command is used with Redocly Dashboard products only.
 It provides details about files, deployments, and API scorecards, using a `<pushId>` that is returned by an earlier `push` command.
 
 The `push-status` command can be used whenever the application or process executing a `push` command (without `--wait-for-deployment` option) returns the `pushId`.
@@ -10,14 +10,14 @@ This identifier can be used by subsequent systems to perform custom logic when t
 
 Have the following before you use the `push-status` command:
 
-- A user account in a [Reunite project](https://auth.cloud.redocly.com/).
-- An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
+- A user account in a [Dashboard project](https://auth.cloud.redocly.com/).
+- An active organization [API key](https://redocly.com/docs/framework/setup/how-to/api-keys).
 - [Redocly CLI](../installation.md) v1.10.x or later.
 
 ## Authentication
 
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
-See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page in the documentation for details on how to get your API key in Reunite.
+See the [Manage API keys](https://redocly.com/docs/framework/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the Dashboard.
 
 ## Usage
 
@@ -37,9 +37,9 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 | --max-execution-time | number  | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option). Default value is `1200`.     |
 
 <details>
-<summary>How to find and copy the Reunite organization or project slugs<a id="find-org-slug"></a></summary>
+<summary>How to find and copy the Dashboard organization or project slugs<a id="find-org-slug"></a></summary>
 
-1. Log in to Reunite.
+1. Log in to the Dashboard.
 2. Select your organization and project.
 3. Copy the value of the `{ORGANIZATION_SLUG}` or `{PROJECT_SLUG}` from the page URL in your browser, based on the following structure, `https://{REDOCLY_HOST}/org/{ORGANIZATION_SLUG}/project/{PROJECT_SLUG}`.
 
