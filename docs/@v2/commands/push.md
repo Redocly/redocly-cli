@@ -13,11 +13,11 @@ The content of the destination folder (in other words the `--mount-path`) is ove
 Have the following values ready to use with the `push` command:
 
 - A user account in a [Redocly platform project](https://auth.cloud.redocly.com/).
-- An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
+- An active organization [API key](https://redocly.com/docs/platform/setup/how-to/api-keys).
 - [Redocly CLI](../installation.md) installed.
 
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
-See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
+See the [Manage API keys](https://redocly.com/docs/platform/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
 
 ## Command usage
 
@@ -55,7 +55,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 <details>
 <summary>How to find the organization and project IDs<a id="find-ids"></a></summary>
 
-1. Log in to the Redocly platform.
+1. Log in to Redocly.
 2. Open **Organization settings** and copy the **Organization ID**.
 3. Open the project and copy the **Project ID** from **Project settings**.
 
@@ -160,4 +160,4 @@ In this case the command waits for both deployments to finish.
 ## Resources
 
 - Use the [push-status command](./push-status.md) to check on an in-progress deploy.
-- For use in a CI context, check out the [GitHub Action](https://redocly.com/docs/realm/setup/reference/reunite-push-action).
+- For use in a CI context, check out the [GitHub Action](https://redocly.com/docs/platform/setup/reference/reunite-push-action).
