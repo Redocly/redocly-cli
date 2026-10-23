@@ -193,7 +193,7 @@ To keep the Redoc 2 output, pin `@redocly/cli` to the version you used before, o
 
 ### Platform changes
 
-- **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/).
+- **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Redocly platform](https://app.cloud.redocly.com/).
 - **Commands**: The `preview-docs` command has been removed - use `preview` instead.
 - **Labels**: The `labels` field in the `apis` section has been removed.
 

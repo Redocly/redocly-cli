@@ -35,7 +35,7 @@ Values such as file names, organization IDs, and URLs are removed, replaced by j
 To opt out, set the `REDOCLY_TELEMETRY` environment variable to `off`, or set `telemetry: off` in the `redocly.yaml` configuration file.
 This also turns off Redoc telemetry in pages that you build with [`build-docs`](./commands/build-docs.md).
 
-## Requests to Reunite
+## Requests to the Redocly platform
 
-The `login`, `push`, and `push-status` commands send the CLI version, the command name, and the value of the `REDOCLY_ENVIRONMENT` environment variable in the `user-agent` header of their requests to Reunite.
+The `login`, `push`, and `push-status` commands send the CLI version, the command name, and the value of the `REDOCLY_ENVIRONMENT` environment variable in the `user-agent` header of their requests to Redocly.
 The `REDOCLY_TELEMETRY` setting does not apply to this header.

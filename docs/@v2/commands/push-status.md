@@ -11,13 +11,13 @@ This identifier can be used by subsequent systems to perform custom logic when t
 Have the following before you use the `push-status` command:
 
 - A user account in a [Redocly platform project](https://auth.cloud.redocly.com/).
-- An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
+- An active organization [API key](https://redocly.com/docs/platform/setup/how-to/api-keys).
 - [Redocly CLI](../installation.md) v1.10.x or later.
 
 ## Authentication
 
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
-See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
+See the [Manage API keys](https://redocly.com/docs/platform/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
 
 ## Usage
 
@@ -40,7 +40,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 <details>
 <summary>How to find the organization and project IDs<a id="find-ids"></a></summary>
 
-1. Log in to the Redocly platform.
+1. Log in to Redocly.
 2. Open **Organization settings** and copy the **Organization ID**.
 3. Open the project and copy the **Project ID** from **Project settings**.
 
