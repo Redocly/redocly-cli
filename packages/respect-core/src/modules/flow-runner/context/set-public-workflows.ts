@@ -32,10 +32,12 @@ export function mergeWorkflowInputs({
   inputs,
   workflowInputSchema,
   env,
+  validateInputs = false,
 }: {
   inputs: Record<string, string> | undefined;
   workflowInputSchema: InputSchema | undefined;
   env: Record<string, string> | undefined;
+  validateInputs?: boolean;
 }) {
   let resolvedInputs = {};
   let resolvedDotEnvInputs = {};
@@ -51,7 +53,12 @@ export function mergeWorkflowInputs({
     );
   }
 
-  return Object.keys(resolvedDotEnvInputs).length > 0
-    ? { ...resolvedInputs, env: resolvedDotEnvInputs }
-    : resolvedInputs;
+  const mergedInputs =
+    Object.keys(resolvedDotEnvInputs).length > 0
+      ? { ...resolvedInputs, env: resolvedDotEnvInputs }
+      : resolvedInputs;
+
+  return validateInputs && workflowInputSchema
+    ? resolveInputValuesToSchema(mergedInputs, workflowInputSchema, true)
+    : mergedInputs;
 }

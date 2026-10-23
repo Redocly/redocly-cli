@@ -1,0 +1,109 @@
+arazzo: 1.0.1
+info:
+  title: Validate cafe order inputs before requests
+  version: 1.0.0
+sourceDescriptions:
+  - name: cafe
+    type: openapi
+    url: ./openapi.yaml
+workflows:
+  - workflowId: create-order
+    inputs: &order-inputs
+      type: object
+      required: [callerKey, text]
+      properties:
+        callerKey:
+          type: string
+          minLength: 3
+          format: password
+        text:
+          type: string
+          minLength: 1
+        count:
+          type: integer
+          default: 1
+    steps: &order-steps
+      - stepId: write-order
+        operationId: cafe.createOrder
+        parameters:
+          - in: header
+            name: x-caller-key
+            value: $inputs.callerKey
+        requestBody:
+          contentType: application/json
+          payload:
+            text: $inputs.text
+            count: $inputs.count
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/accepted == true
+        outputs:
+          orderId: $response.body#/id
+  - workflowId: with-dependency
+    inputs: *order-inputs
+    dependsOn: [prepare-order]
+    steps: *order-steps
+  - workflowId: prepare-order
+    steps: &preparation-steps
+      - stepId: prepare
+        operationId: cafe.prepareOrder
+        successCriteria:
+          - condition: $statusCode == 200
+  - workflowId: unbound-order
+    inputs:
+      type: object
+      required: [approval]
+      properties:
+        approval:
+          type: string
+    steps: *preparation-steps
+  - workflowId: with-invalid-dependency
+    inputs: *order-inputs
+    dependsOn: [prepare-order, unbound-order]
+    steps: *order-steps
+  - workflowId: invoke-order
+    inputs:
+      type: object
+      properties:
+        orderText:
+          type: string
+    steps:
+      - stepId: invoke
+        workflowId: create-order
+        parameters:
+          - name: callerKey
+            value: runtime-key
+          - name: text
+            value: $inputs.orderText
+  - workflowId: environment-order
+    inputs:
+      type: object
+      required: [env, text]
+      properties:
+        env:
+          type: object
+          required: [CAFE_CALLER_KEY]
+          properties:
+            CAFE_CALLER_KEY:
+              type: string
+              minLength: 3
+              format: password
+            CAFE_REGION:
+              type: string
+              default: local
+        text:
+          type: string
+    steps:
+      - stepId: write-environment-order
+        operationId: cafe.createOrder
+        parameters:
+          - in: header
+            name: x-caller-key
+            value: $inputs.env.CAFE_CALLER_KEY
+        requestBody:
+          contentType: application/json
+          payload:
+            text: $inputs.text
+            region: $inputs.env.CAFE_REGION
+        successCriteria:
+          - condition: $statusCode == 200

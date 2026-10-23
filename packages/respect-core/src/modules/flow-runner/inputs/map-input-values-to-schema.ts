@@ -6,7 +6,13 @@ type MappedValue = {
   [key: string]: any;
 };
 
-export function resolveInputValuesToSchema(value: any, schema: InputSchema): MappedValue {
+export class WorkflowInputValidationError extends Error {}
+
+export function resolveInputValuesToSchema(
+  value: any,
+  schema: InputSchema,
+  validateInputs = false
+): MappedValue {
   if (!schema || Object.keys(schema).length === 0) {
     return {};
   }
@@ -27,8 +33,14 @@ export function resolveInputValuesToSchema(value: any, schema: InputSchema): Map
 
   const validate = ajv.compile(schema);
   const result = { ...value };
+  // Scalar reusable schemas do not describe the named workflow input object.
+  const isInputObjectSchema = !schema.type || schema.type === 'object';
 
-  validate(result);
+  if (!validate(result) && validateInputs && isInputObjectSchema) {
+    throw new WorkflowInputValidationError(
+      `Invalid workflow inputs: ${ajv.errorsText(validate.errors, { dataVar: 'inputs' })}. Provide values that match the workflow input schema.`
+    );
+  }
 
   return result;
 }

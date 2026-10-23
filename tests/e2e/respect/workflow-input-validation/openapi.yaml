@@ -1,0 +1,39 @@
+openapi: 3.0.3
+info:
+  title: Cafe order receiver
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      responses:
+        '200':
+          description: Order accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, accepted]
+                properties:
+                  id:
+                    type: integer
+                  accepted:
+                    type: boolean
+  /preparations:
+    post:
+      operationId: prepareOrder
+      responses:
+        '200':
+          description: Preparation accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, accepted]
+                properties:
+                  id:
+                    type: integer
+                  accepted:
+                    type: boolean
