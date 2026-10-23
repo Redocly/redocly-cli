@@ -1,9 +1,16 @@
 import { HandledError, logger } from '@redocly/openapi-core';
-import { RedoclyOAuthClient, ReuniteApiClient } from '@redocly/reunite-integration';
+import {
+  createPullRequest,
+  getPullRequestStatus,
+  parseProjectGitUrl,
+  RedoclyOAuthClient,
+  type HostedProject,
+  type PullRequestStatus,
+} from '@redocly/reunite-integration';
 import { readFile } from 'node:fs/promises';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { parseProjectGitUrl, readGit } from './utils.js';
+import { runGit } from './utils.js';
 
 export type ProjectPrCreateArgv = {
   title?: string;
@@ -13,25 +20,13 @@ export type ProjectPrCreateArgv = {
   draft?: boolean;
 };
 
-type PullRequest = {
-  id: string;
-  number: number;
-  title: string;
-  status: 'OPEN' | 'CLOSED' | 'MERGED';
-  isDraft?: boolean;
-  reviewDecision?: 'APPROVED' | 'REQUESTED_CHANGES' | 'REVIEW_REQUIRED';
-  headCommitHash?: string;
-};
-
-type Check = { context: string; state: string; description?: string; targetUrl?: string };
-
 const REVIEW_DECISIONS = {
   APPROVED: 'approved',
   REQUESTED_CHANGES: 'changes requested',
   REVIEW_REQUIRED: 'review required',
 };
 
-const CHECK_STATES: Record<string, string> = {
+const CHECK_STATES = {
   PENDING: 'pending',
   IN_PROGRESS: 'pending',
   SUCCESS: 'passed',
@@ -42,141 +37,80 @@ const CHECK_STATES: Record<string, string> = {
 // Opens a pull request in Reunite for the current branch of a clone made by `project clone`,
 // and prints its URL.
 export async function handleProjectPrCreate({ argv, version }: CommandArgs<ProjectPrCreateArgv>) {
-  const { branch, request, uiUrl } = await connect('project pr create', version);
-  if (
-    (await readGit(['rev-parse', '--verify', '--quiet', `refs/remotes/origin/${branch}`])) ===
-    undefined
-  ) {
+  const { project, branch } = await readClone();
+  const pushed = await runGit(
+    ['rev-parse', '--verify', '--quiet', `refs/remotes/origin/${branch}`],
+    {
+      capture: true,
+    }
+  );
+  if (pushed.code !== 0) {
     throw new HandledError(`Push the branch first: \`git push -u origin ${branch}\`.`);
   }
 
-  const pullRequest = await request<PullRequest>(
-    '/pull-requests',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        branchName: branch,
-        targetBranchName: argv.base,
-        title: argv.title ?? (await readGit(['log', '-1', '--format=%s'])),
-        description: await readBody(argv),
-        isDraft: argv.draft,
-      }),
-    },
-    'Failed to open a pull request'
-  );
+  const pullRequest = await createPullRequest({
+    ...project,
+    accessToken: await readLoginToken(project.reuniteUrl, version),
+    version,
+    branch,
+    title: argv.title ?? (await runGit(['log', '-1', '--format=%s'], { capture: true })).output,
+    description: await readBody(argv),
+    base: argv.base,
+    draft: argv.draft,
+  }).catch(asHandledError);
 
-  logger.output(`${uiUrl}/pull-requests/${pullRequest.number}\n`);
+  logger.output(`${pullRequestUrl(project, pullRequest.number)}\n`);
 }
 
-// Prints the latest pull request of the current branch: its state, review decision, checks, and
-// the preview URL once the preview of its head commit is deployed.
+// Prints the latest pull request of the current branch.
 export async function handleProjectPrStatus({ version }: { version: string }) {
-  const { branch, request, uiUrl } = await connect('project pr status', version);
-  const {
-    data: [pullRequest],
-  } = await request<{ data: PullRequest[] }>(
-    `/pull-requests?${new URLSearchParams({ branchName: branch, limit: '1' })}`,
-    {},
-    'Failed to get the pull request'
-  );
-  if (!pullRequest) {
+  const { project, branch } = await readClone();
+  const status = await getPullRequestStatus({
+    ...project,
+    accessToken: await readLoginToken(project.reuniteUrl, version),
+    version,
+    branch,
+  }).catch(asHandledError);
+  if (!status) {
     throw new HandledError(
       `No pull request for \`${branch}\`. Open one with \`redocly project pr create\`.`
     );
   }
 
-  const checks = await request<Check[]>(
-    `/pull-requests/${pullRequest.id}/checks`,
-    {},
-    'Failed to get the checks'
+  logger.output(
+    formatPullRequestStatus(status, pullRequestUrl(project, status.pullRequest.number))
   );
-  const {
-    data: [build],
-  } = pullRequest.headCommitHash
-    ? await request<{ data: { url: string; deploymentStatus: string }[] }>(
-        `/builds?limit=1&filter=commitHash:${pullRequest.headCommitHash}`,
-        {},
-        'Failed to get the preview'
-      )
-    : { data: [] };
+}
 
-  const prState =
+export function formatPullRequestStatus(
+  { pullRequest, checks, previewUrl }: PullRequestStatus,
+  url: string
+): string {
+  const state =
     pullRequest.status === 'OPEN' && pullRequest.isDraft
       ? 'draft'
       : pullRequest.status.toLowerCase();
   const review = pullRequest.reviewDecision ? REVIEW_DECISIONS[pullRequest.reviewDecision] : 'none';
   const lines = [
     `#${pullRequest.number} ${pullRequest.title}`,
-    `${uiUrl}/pull-requests/${pullRequest.number}`,
-    `State: ${prState}`,
+    url,
+    `State: ${state}`,
     `Review: ${review}`,
     checks.length > 0 ? 'Checks:' : 'Checks: none',
     ...checks.map(
-      ({ context, state, description, targetUrl }) =>
-        `  ${(CHECK_STATES[state] ?? state).padEnd(9)} ${context}` +
-        (description ? ` - ${description}` : '') +
-        (targetUrl ? ` ${targetUrl}` : '')
+      (check) =>
+        `  ${CHECK_STATES[check.state].padEnd(9)} ${check.context}` +
+        (check.description ? ` - ${check.description}` : '') +
+        (check.targetUrl ? ` ${check.targetUrl}` : '')
     ),
-    `Preview: ${build?.deploymentStatus === 'SUCCESS' ? build.url : 'not ready'}`,
+    `Preview: ${previewUrl ?? 'not ready'}`,
   ];
 
-  logger.output(`${lines.join('\n')}\n`);
-}
-
-// The current branch of a clone made by `project clone`, and a request function for its project
-// that authenticates with the `redocly login` token and throws on an error response.
-async function connect(command: string, version: string) {
-  const remote = parseProjectGitUrl((await readGit(['remote', 'get-url', 'origin'])) ?? '');
-  if (!remote) {
-    throw new HandledError(
-      'Run this command in a clone of a Redocly-hosted project. Clone one with `redocly project clone`.'
-    );
-  }
-
-  const branch = await readGit(['branch', '--show-current']);
-  if (!branch) {
-    throw new HandledError('Check out a branch first.');
-  }
-
-  const { reuniteUrl, organization, project } = remote;
-  const accessToken = await new RedoclyOAuthClient(version).getAccessToken(reuniteUrl);
-  if (!accessToken) {
-    throw new HandledError(
-      `You are not logged in to ${reuniteUrl}. Run \`redocly login --residency ${reuniteUrl}\`.`
-    );
-  }
-
-  const orgSegment = encodeURIComponent(organization);
-  const projectSegment = encodeURIComponent(project);
-  const projectApiUrl = `${reuniteUrl}/api/orgs/${orgSegment}/projects/${projectSegment}`;
-  const client = new ReuniteApiClient(command, version);
-
-  async function request<T>(
-    path: string,
-    init: { method?: string; body?: string },
-    failure: string
-  ): Promise<T> {
-    const response = await client
-      .request(`${projectApiUrl}${path}`, {
-        ...init,
-        headers: { 'Content-Type': 'application/json', Cookie: `accessToken=${accessToken}` },
-      })
-      .catch((error) => {
-        throw new HandledError(`${failure}: ${error.message}`);
-      });
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new HandledError(`${failure}: ${result.detail || result.title || response.statusText}`);
-    }
-    return result as T;
-  }
-
-  return { branch, request, uiUrl: `${reuniteUrl}/org/${orgSegment}/project/${projectSegment}` };
+  return `${lines.join('\n')}\n`;
 }
 
 // `--body-file -` reads the body from standard input.
-async function readBody({ body, 'body-file': bodyFile }: ProjectPrCreateArgv) {
+export async function readBody({ body, 'body-file': bodyFile }: ProjectPrCreateArgv) {
   if (bodyFile === undefined) {
     return body;
   }
@@ -193,4 +127,41 @@ async function readBody({ body, 'body-file': bodyFile }: ProjectPrCreateArgv) {
   } catch (error) {
     throw new HandledError(`Can't read the body file \`${bodyFile}\`: ${error.message}`);
   }
+}
+
+// The Redocly-hosted project of the `origin` remote and the checked-out branch.
+async function readClone() {
+  const remote = await runGit(['remote', 'get-url', 'origin'], { capture: true });
+  const project = parseProjectGitUrl(remote.output);
+  if (!project) {
+    throw new HandledError(
+      'Run this command in a clone of a Redocly-hosted project. Clone one with `redocly project clone`.'
+    );
+  }
+
+  const { output: branch } = await runGit(['branch', '--show-current'], { capture: true });
+  if (!branch) {
+    throw new HandledError('Check out a branch first.');
+  }
+
+  return { project, branch };
+}
+
+async function readLoginToken(reuniteUrl: string, version: string) {
+  const accessToken = await new RedoclyOAuthClient(version).getAccessToken(reuniteUrl);
+  if (!accessToken) {
+    throw new HandledError(
+      `You are not logged in to ${reuniteUrl}. Run \`redocly login --residency ${reuniteUrl}\`.`
+    );
+  }
+
+  return accessToken;
+}
+
+function pullRequestUrl({ reuniteUrl, organization, project }: HostedProject, number: number) {
+  return `${reuniteUrl}/org/${encodeURIComponent(organization)}/project/${encodeURIComponent(project)}/pull-requests/${number}`;
+}
+
+function asHandledError(error: Error): never {
+  throw new HandledError(error.message);
 }

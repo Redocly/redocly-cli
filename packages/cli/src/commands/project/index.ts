@@ -1,8 +1,8 @@
 import { HandledError, logger } from '@redocly/openapi-core';
-import { getReuniteUrl } from '@redocly/reunite-integration';
+import { buildProjectGitUrl, getReuniteUrl } from '@redocly/reunite-integration';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { buildProjectGitUrl, getCredentialHelperConfig, runGit } from './utils.js';
+import { getCredentialHelperConfig, runGit } from './utils.js';
 
 export type ProjectCloneArgv = {
   project: string;
@@ -25,14 +25,14 @@ export async function handleProjectClone({ argv, config, version }: CommandArgs<
 
   logger.info(`Cloning ${organization}/${project} from ${reuniteUrl}\n`);
 
-  const exitCode = await runGit([
+  const { code } = await runGit([
     'clone',
     ...helperConfig.flatMap((entry) => ['--config', entry]),
     url,
     argv.directory ?? project,
   ]);
 
-  if (exitCode !== 0) {
+  if (code !== 0) {
     throw new HandledError('git clone failed.');
   }
 }

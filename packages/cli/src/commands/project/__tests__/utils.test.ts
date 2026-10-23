@@ -3,13 +3,7 @@ import { EventEmitter } from 'node:events';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
-import {
-  buildProjectGitUrl,
-  getCredentialHelperConfig,
-  parseProjectGitUrl,
-  readGit,
-  runGit,
-} from '../utils.js';
+import { getCredentialHelperConfig, runGit } from '../utils.js';
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn() }));
 vi.mock('node:fs', () => ({ existsSync: vi.fn() }));
@@ -23,36 +17,6 @@ describe('git utils', () => {
 
   afterEach(() => {
     process.env = originalEnv;
-  });
-
-  describe('buildProjectGitUrl', () => {
-    it('builds the project git URL and encodes the segments', () => {
-      expect(buildProjectGitUrl('http://localhost', 'acme', 'my docs')).toBe(
-        'http://localhost/api/orgs/acme/projects/my%20docs/git'
-      );
-    });
-  });
-
-  describe('parseProjectGitUrl', () => {
-    it('reads back the parts of a project git URL', () => {
-      const url = buildProjectGitUrl('https://app.cloud.redocly.com', 'acme', 'my docs');
-
-      expect(parseProjectGitUrl(url)).toEqual({
-        reuniteUrl: 'https://app.cloud.redocly.com',
-        organization: 'acme',
-        project: 'my docs',
-      });
-      expect(parseProjectGitUrl(`${url}/`)).toEqual(parseProjectGitUrl(url));
-    });
-
-    it.each([
-      'https://github.com/acme/docs.git',
-      'git@github.com:acme/docs.git',
-      'https://app.cloud.redocly.com/api/orgs/acme/projects/docs',
-      'http://example.com/api/orgs/acme/projects/docs/git',
-    ])('rejects %s', (url) => {
-      expect(parseProjectGitUrl(url)).toBeUndefined();
-    });
   });
 
   describe('getCredentialHelperConfig', () => {
@@ -107,10 +71,10 @@ describe('git utils', () => {
   describe('runGit', () => {
     it('runs git without terminal prompts and resolves with its exit code', async () => {
       const child = mockChild();
-      const exitCode = runGit(['push', '--force']);
+      const result = runGit(['push', '--force']);
       child.emit('close', 1);
 
-      await expect(exitCode).resolves.toBe(1);
+      await expect(result).resolves.toEqual({ code: 1, output: '' });
       expect(spawn).toHaveBeenCalledWith(
         'git',
         ['push', '--force'],
@@ -121,33 +85,27 @@ describe('git utils', () => {
       );
     });
 
+    it('resolves with the trimmed output of git with `capture`', async () => {
+      const child = mockChild();
+      const result = runGit(['branch', '--show-current'], { capture: true });
+      child.stdout.emit('data', Buffer.from('fix-'));
+      child.stdout.emit('data', Buffer.from('typo\n'));
+      child.emit('close', 0);
+
+      await expect(result).resolves.toEqual({ code: 0, output: 'fix-typo' });
+      expect(spawn).toHaveBeenCalledWith(
+        'git',
+        ['branch', '--show-current'],
+        expect.objectContaining({ stdio: ['ignore', 'pipe', 'ignore'] })
+      );
+    });
+
     it('explains a missing git binary', async () => {
       const child = mockChild();
       const exitCode = runGit(['pull']);
       child.emit('error', Object.assign(new Error('spawn git ENOENT'), { code: 'ENOENT' }));
 
       await expect(exitCode).rejects.toThrow('git is not installed or not on PATH.');
-    });
-  });
-
-  describe('readGit', () => {
-    it('resolves with the trimmed output of git', async () => {
-      const child = mockChild();
-      const output = readGit(['branch', '--show-current']);
-      child.stdout.emit('data', Buffer.from('fix-'));
-      child.stdout.emit('data', Buffer.from('typo\n'));
-      child.emit('close', 0);
-
-      await expect(output).resolves.toBe('fix-typo');
-      expect(spawn).toHaveBeenCalledWith('git', ['branch', '--show-current'], expect.anything());
-    });
-
-    it('resolves with undefined when git fails', async () => {
-      const child = mockChild();
-      const output = readGit(['remote', 'get-url', 'origin']);
-      child.emit('close', 2);
-
-      await expect(output).resolves.toBeUndefined();
     });
   });
 });
