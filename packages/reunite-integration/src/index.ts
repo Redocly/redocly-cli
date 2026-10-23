@@ -19,12 +19,24 @@ export type {
   DeploymentStatusResponse,
   ProjectResponse,
   ProjectSourceResponse,
+  PullRequestCheck,
+  PullRequestResponse,
   PushResponse,
   PushStatusResponse,
   ScorecardItem,
   UpsertRemoteResponse,
 } from './api/types.js';
 export { RedoclyOAuthClient } from './auth/oauth-client.js';
+export {
+  buildProjectGitUrl,
+  createPullRequest,
+  getPullRequestStatus,
+  parseProjectGitUrl,
+  type CreatePullRequestOptions,
+  type HostedProject,
+  type HostedProjectOptions,
+  type PullRequestStatus,
+} from './hosted-project.js';
 export { RedoclyOAuthDeviceFlow, type Credentials, type DeviceCode } from './auth/device-flow.js';
 export {
   collectFilesToPush,

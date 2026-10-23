@@ -748,6 +748,68 @@ yargs(hideBin(process.argv))
           commandWrapper(handleProjectClone)(argv);
         }
       )
+      .command('pr', 'Work with the pull requests of a cloned project.', (yargs) =>
+        yargs
+          .command(
+            'create',
+            'Open a pull request in the Redocly platform for the current branch.',
+            (yargs) =>
+              yargs.options({
+                title: {
+                  description: 'Pull request title. Defaults to the subject of the last commit.',
+                  alias: ['t'],
+                  type: 'string',
+                },
+                body: {
+                  description: 'Pull request body.',
+                  alias: ['b'],
+                  type: 'string',
+                },
+                'body-file': {
+                  description: 'Read the body from a file. Use `-` to read from standard input.',
+                  alias: ['F'],
+                  type: 'string',
+                  conflicts: 'body',
+                },
+                base: {
+                  description: "Branch to merge into. Defaults to the project's default branch.",
+                  alias: ['B'],
+                  type: 'string',
+                },
+                draft: {
+                  description: 'Open the pull request as a draft.',
+                  alias: ['d'],
+                  type: 'boolean',
+                },
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPrCreate } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrCreate)(argv);
+            }
+          )
+          .command(
+            'status',
+            'Show the state, review, checks, and preview URL of the pull request for the current branch.',
+            (yargs) =>
+              yargs.options({
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPrStatus } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrStatus)(argv);
+            }
+          )
+          .demandCommand(1, 'Specify a pr subcommand: create or status.')
+      )
       .command(
         'git-credentials <operation>',
         false,
@@ -769,7 +831,7 @@ yargs(hideBin(process.argv))
           );
         }
       )
-      .demandCommand(1, 'Specify a project subcommand: clone.')
+      .demandCommand(1, 'Specify a project subcommand: clone or pr.')
   )
   .command(
     'preview',

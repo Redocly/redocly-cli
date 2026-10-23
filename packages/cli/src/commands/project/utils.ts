@@ -6,12 +6,6 @@ import * as path from 'node:path';
 // npx and pnpm dlx run the CLI from a temporary install that is gone once they exit.
 const TEMPORARY_INSTALL_DIR = /[\\/](_npx|dlx)[\\/]/;
 
-export function buildProjectGitUrl(reuniteUrl: string, organization: string, project: string) {
-  return `${reuniteUrl}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(
-    project
-  )}/git`;
-}
-
 // Git config entries that make `redocly project git-credentials` the only credential helper
 // for the Reunite host. The empty entry clears the helpers configured for all hosts.
 export function getCredentialHelperConfig(reuniteUrl: string, version: string): string[] {
@@ -25,15 +19,22 @@ export function getCredentialHelperConfig(reuniteUrl: string, version: string): 
   return [`${key}=`, `${key}=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true ${cli} project git-credentials`];
 }
 
-export async function runGit(args: string[]): Promise<number> {
+// With `capture`, git's standard output is returned trimmed instead of printed, and its errors are
+// dropped; otherwise `output` is empty.
+export async function runGit(
+  args: string[],
+  { capture = false } = {}
+): Promise<{ code: number; output: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn('git', args, {
-      stdio: 'inherit',
+      stdio: capture ? ['ignore', 'pipe', 'ignore'] : 'inherit',
       env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
     });
+    let output = '';
 
+    child.stdout?.on('data', (chunk: Buffer) => (output += chunk.toString()));
     child.on('error', (error: NodeJS.ErrnoException) => reject(gitError(error)));
-    child.on('close', (code) => resolve(code ?? 1));
+    child.on('close', (code) => resolve({ code: code ?? 1, output: output.trim() }));
   });
 }
 
