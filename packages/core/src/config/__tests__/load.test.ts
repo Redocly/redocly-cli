@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { lintConfig } from '../../lint.js';
-import { BaseResolver } from '../../resolve.js';
+import { BaseResolver, makeDocumentFromString } from '../../resolve.js';
 import { type Config } from '../config.js';
 import { loadConfig, findConfig, createConfig } from '../load.js';
 import { type RuleConfig, type RawUniversalConfig } from './../types.js';
@@ -2666,6 +2666,86 @@ describe('loadConfig', () => {
         'info-license': 'error',
         'non-existing-rule': 'warn',
       },
+    });
+  });
+
+  it('should resolve file paths from referenced config files to absolute paths', async () => {
+    const fixtureDir = path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths');
+    const absolute = (relativePath: string) => path.join(fixtureDir, relativePath);
+    const { resolvedConfig } = await loadConfig({
+      configPath: path.join(fixtureDir, 'redocly.yaml'),
+    });
+
+    expect(resolvedConfig.apis).toMatchObject({
+      inline: { root: './openapi.yaml', output: './dist/inline.yaml' },
+      'one-level': {
+        root: absolute('nested/openapi.yaml'),
+        output: absolute('nested/dist/openapi.yaml'),
+        overlays: [absolute('nested/overlays/add-servers.yaml')],
+        clientOutput: absolute('nested/client.ts'),
+        client: {
+          setup: absolute('nested/setup.mjs'),
+          cliOutput: absolute('nested/deep/cli/index.ts'),
+        },
+        rules: { 'operation-description': 'error', 'operation-summary': 'warn' },
+      },
+      chained: { root: absolute('nested/deep/openapi.yaml') },
+      reused: {
+        root: absolute('nested/openapi.yaml'),
+        output: absolute('nested/dist/openapi.yaml'),
+      },
+      untouched: {
+        root: 'https://example.com/openapi.yaml',
+        output: '/absolute/dist/openapi.yaml',
+        clientOutput: '',
+      },
+      'parent-dir': {
+        root: absolute('specs/openapi.yaml'),
+        output: absolute('nested/dist/out.yaml'),
+      },
+      sibling: { root: absolute('nested/openapi.yaml'), output: './dist/sibling.yaml' },
+      // the same referenced object is reached under a second node type and must not change again
+      'shared-openapi': { openapi: { htmlTemplate: absolute('nested/template.html') } },
+    });
+    expect(resolvedConfig.client).toEqual({
+      setup: absolute('nested/setup.mjs'),
+      cliOutput: absolute('nested/cli/index.ts'),
+      goPackage: './not-a-path',
+    });
+    expect(resolvedConfig).toMatchObject({
+      openapi: { htmlTemplate: absolute('nested/template.html') },
+      recheck: { markdoc: { extend: { tagsFile: absolute('nested/tags.js') } } },
+    });
+  });
+
+  it('should load plugins from a referenced config file relative to that file', async () => {
+    const config = await loadConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/plugins/redocly.yaml'),
+    });
+
+    const ids = config.plugins.map((plugin) => plugin.id);
+    expect(ids).toContain('nested-plugin');
+    expect(ids).not.toContain('root-plugin');
+  });
+
+  it('should keep file paths written in a remote config file as written', async () => {
+    const documents: Record<string, string> = {
+      'https://example.com/configs/redocly.yaml': 'apis:\n  remote:\n    $ref: ./api.yaml\n',
+      'https://example.com/configs/api.yaml': 'root: ./openapi.yaml\noutput: ./dist/openapi.yaml\n',
+    };
+    const externalRefResolver = new BaseResolver();
+    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation(async (base, ref) => {
+      const url = new URL(ref, base ?? undefined).href;
+      return makeDocumentFromString(documents[url], url);
+    });
+
+    const { resolvedConfig } = await loadConfig({
+      configPath: 'https://example.com/configs/redocly.yaml',
+      externalRefResolver,
+    });
+
+    expect(resolvedConfig.apis).toMatchObject({
+      remote: { root: './openapi.yaml', output: './dist/openapi.yaml' },
     });
   });
 });

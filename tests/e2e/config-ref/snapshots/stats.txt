@@ -1,0 +1,16 @@
+🚗 References: 1 
+📦 External Documents: 0 
+📈 Schemas: 1 
+👉 Parameters: 0 
+🔗 Links: 0 
+🔀 Path Items: 2 
+🎣 Webhooks: 0 
+👷 Operations: 2 
+🔖 Tags: 2 
+🧩 Vendor Extensions: 0 
+
+Document: ./tests/e2e/config-ref/project/config/apis/cafe.yaml stats:
+
+
+./tests/e2e/config-ref/project/config/apis/cafe.yaml: stats processed in <test>ms
+
