@@ -16,6 +16,10 @@ const STRICT_TSCONFIG = {
     target: 'es2022',
     lib: ['ES2022', 'DOM'],
     strict: true,
+    // The generated client compiles as part of the user's sources, so it must also pass
+    // the stricter flags many projects turn on.
+    noUncheckedIndexedAccess: true,
+    exactOptionalPropertyTypes: true,
     noUnusedLocals: true,
     noEmit: true,
     skipLibCheck: true,

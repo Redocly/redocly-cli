@@ -288,13 +288,15 @@ Install the toolchains:
 
 ```bash
 # macOS
-brew install go php
-pip3 install httpx pydantic
+brew install go php phpstan
+pip3 install httpx pydantic mypy
 
 # Ubuntu
 sudo apt-get install golang-go php-cli php-curl python3-pip
-pip3 install httpx pydantic
+pip3 install httpx pydantic mypy
 ```
+
+On Ubuntu, PHPStan ships as a phar: download `phpstan.phar` from [its releases](https://github.com/phpstan/phpstan/releases) and put it on the path as `phpstan`.
 
 The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
 
