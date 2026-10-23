@@ -748,7 +748,7 @@ yargs(hideBin(process.argv))
           commandWrapper(handleProjectClone)(argv);
         }
       )
-      .command('pull-request', 'Work with the pull requests of a cloned project.', (yargs) =>
+      .command('pr', 'Work with the pull requests of a cloned project.', (yargs) =>
         yargs
           .command(
             'create',
@@ -788,12 +788,27 @@ yargs(hideBin(process.argv))
                 },
               }),
             async (argv) => {
-              const { handleProjectPullRequestCreate } =
-                await import('./commands/project/pull-request.js');
-              commandWrapper(handleProjectPullRequestCreate)(argv);
+              const { handleProjectPrCreate } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrCreate)(argv);
             }
           )
-          .demandCommand(1, 'Specify a pull-request subcommand: create.')
+          .command(
+            'status',
+            'Show the state, review, checks, and preview URL of the pull request for the current branch.',
+            (yargs) =>
+              yargs.options({
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPrStatus } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrStatus)(argv);
+            }
+          )
+          .demandCommand(1, 'Specify a pr subcommand: create or status.')
       )
       .command(
         'git-credentials <operation>',
@@ -816,7 +831,7 @@ yargs(hideBin(process.argv))
           );
         }
       )
-      .demandCommand(1, 'Specify a project subcommand: clone or pull-request.')
+      .demandCommand(1, 'Specify a project subcommand: clone or pr.')
   )
   .command(
     'preview',
