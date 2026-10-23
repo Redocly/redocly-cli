@@ -748,6 +748,53 @@ yargs(hideBin(process.argv))
           commandWrapper(handleProjectClone)(argv);
         }
       )
+      .command('pull-request', 'Work with the pull requests of a cloned project.', (yargs) =>
+        yargs
+          .command(
+            'create',
+            'Open a pull request in Reunite for the current branch.',
+            (yargs) =>
+              yargs.options({
+                title: {
+                  description: 'Pull request title. Defaults to the subject of the last commit.',
+                  alias: ['t'],
+                  type: 'string',
+                },
+                body: {
+                  description: 'Pull request body.',
+                  alias: ['b'],
+                  type: 'string',
+                },
+                'body-file': {
+                  description: 'Read the body from a file. Use `-` to read from standard input.',
+                  alias: ['F'],
+                  type: 'string',
+                  conflicts: 'body',
+                },
+                base: {
+                  description: "Branch to merge into. Defaults to the project's default branch.",
+                  alias: ['B'],
+                  type: 'string',
+                },
+                draft: {
+                  description: 'Open the pull request as a draft.',
+                  alias: ['d'],
+                  type: 'boolean',
+                },
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPullRequestCreate } =
+                await import('./commands/project/pull-request.js');
+              commandWrapper(handleProjectPullRequestCreate)(argv);
+            }
+          )
+          .demandCommand(1, 'Specify a pull-request subcommand: create.')
+      )
       .command(
         'git-credentials <operation>',
         false,
@@ -769,7 +816,7 @@ yargs(hideBin(process.argv))
           );
         }
       )
-      .demandCommand(1, 'Specify a project subcommand: clone.')
+      .demandCommand(1, 'Specify a project subcommand: clone or pull-request.')
   )
   .command(
     'preview',
