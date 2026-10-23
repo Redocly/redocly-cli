@@ -129,6 +129,15 @@ export const OutputsDefined: Arazzo1Rule = () => {
       },
     },
 
+    // success and failure action parameters, added in Arazzo 1.1
+    ActionParameters: {
+      enter(parameters, ctx: UserContext) {
+        deferredValidationTasks.push(() => {
+          checkRuntimeExpressions(parameters, ctx);
+        });
+      },
+    },
+
     RequestBody: {
       enter(requestBody, ctx: UserContext) {
         deferredValidationTasks.push(() => {

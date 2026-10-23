@@ -7,8 +7,8 @@ tocMaxDepth: 2
 Documentation commands:
 
 - [`preview`](preview.md) Start a local preview of a Redocly project with one of the product NPM packages.
-- [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
-- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
+- [`translate`](translate.md) Generate translation keys for a Redocly project.
+- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly project.
 - [`preview-docs`](preview-docs.md) Preview API reference docs for the specified API description.
 - [`build-docs`](build-docs.md) Build API description into an HTML file.
 
@@ -29,12 +29,12 @@ Testing commands:
 - [`respect`](respect.md) Execute API tests described in an Arazzo description.
 - [`generate-arazzo`](generate-arazzo.md) Generate an Arazzo description from an OpenAPI description.
 
-Redocly platform commands:
+The Redocly platform commands:
 
-- [`login`](login.md) Log in to Reunite or to the Redocly API registry with an access token.
+- [`login`](login.md) Log in to Redocly or to the Redocly API registry with an access token.
 - [`logout`](logout.md) Clear your stored credentials.
 - [`push`](push.md) Push an API description to the Redocly API registry.
-- [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
+- [`push-status`](push-status.md) Track an in-progress push operation to Redocly.
 
 Supporting commands:
 
