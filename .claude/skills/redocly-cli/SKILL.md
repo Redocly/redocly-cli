@@ -197,7 +197,6 @@ Fixes the install command in the quickstart.
 BODY
 ```
 
-The options follow `gh pr create`: `--title` (defaults to the subject of the last commit), `--body` or `--body-file` (`-` reads standard input), `--base`, and `--draft`.
 The command prints the pull request URL.
 The platform builds a preview in a few minutes; `redocly project pr status` then shows the state, the review decision, the checks, and the preview URL after the preview is deployed.
 
