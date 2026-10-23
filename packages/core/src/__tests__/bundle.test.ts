@@ -1231,6 +1231,56 @@ describe('bundle with overlays', () => {
     `);
   });
 
+  it('should bundle the files a local overlay references when the API description is remote', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: () => Promise.reject(new Error('Unexpected request')), headers: [] },
+      }),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Museum API
+            version: 1.0.0
+          paths:
+            /tickets:
+              get:
+                responses:
+                  '200':
+                    description: OK
+        `,
+        'https://example.com/openapi.yaml'
+      ),
+      overlays: [path.join(__dirname, 'fixtures/overlay/overlays/public.yaml')],
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      info:
+        title: Museum API
+        version: 1.0.0
+      paths:
+        /tickets:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Ticket'
+      components:
+        schemas:
+          Ticket:
+            type: object
+            properties:
+              id:
+                type: string
+    `);
+  });
+
   it('should dereference after applying overlays', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
