@@ -54,6 +54,7 @@ describe('redocly project clone', () => {
           HELPER_CONFIG[0],
           '--config',
           HELPER_CONFIG[1],
+          '--',
           'http://localhost/api/orgs/acme/projects/docs/git',
           clonedInto,
         ]);

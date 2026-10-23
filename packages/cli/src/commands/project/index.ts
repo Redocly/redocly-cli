@@ -28,6 +28,7 @@ export async function handleProjectClone({ argv, config, version }: CommandArgs<
   const { code } = await runGit([
     'clone',
     ...helperConfig.flatMap((entry) => ['--config', entry]),
+    '--',
     url,
     argv.directory ?? project,
   ]);
