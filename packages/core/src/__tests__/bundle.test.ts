@@ -1239,45 +1239,61 @@ describe('bundle with overlays', () => {
       }),
       doc: parseYamlToDocument(
         outdent`
-          openapi: 3.1.0
+          openapi: 3.2.0
           info:
-            title: Museum API
+            title: Redocly Cafe
             version: 1.0.0
           paths:
-            /tickets:
-              get:
+            /menu/{menuItemId}:
+              delete:
+                summary: Delete a menu item
+                operationId: deleteMenuItem
                 responses:
-                  '200':
-                    description: OK
+                  '204':
+                    description: Menu item deleted successfully.
         `,
-        'https://example.com/openapi.yaml'
+        'https://example.com/cafe.yaml'
       ),
-      overlays: [path.join(__dirname, 'fixtures/overlay/overlays/public.yaml')],
+      overlays: [path.join(__dirname, 'fixtures/overlay/overlays/not-found.yaml')],
     });
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchInlineSnapshot(`
-      openapi: 3.1.0
+      openapi: 3.2.0
       info:
-        title: Museum API
+        title: Redocly Cafe
         version: 1.0.0
       paths:
-        /tickets:
-          get:
+        /menu/{menuItemId}:
+          delete:
+            summary: Delete a menu item
+            operationId: deleteMenuItem
             responses:
-              '200':
-                description: OK
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/Ticket'
+              '204':
+                description: Menu item deleted successfully.
+              '404':
+                $ref: '#/components/responses/NotFound'
       components:
         schemas:
-          Ticket:
+          Error:
             type: object
             properties:
-              id:
+              title:
                 type: string
+                description: Short summary of the problem type.
+              status:
+                type: integer
+                format: int32
+            required:
+              - title
+              - status
+        responses:
+          NotFound:
+            description: Resource not found.
+            content:
+              application/problem+json:
+                schema:
+                  $ref: '#/components/schemas/Error'
     `);
   });
 
