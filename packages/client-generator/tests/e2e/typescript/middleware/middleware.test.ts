@@ -11,7 +11,7 @@ import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses, runConsumer } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/base.yaml');
@@ -54,7 +54,7 @@ describe('middleware — flat surface (use)', () => {
     };
 
     expect(result.lines).toEqual(['listPets 200 2', 'listPets failed 1']);
-    strictTypecheck(dir, ['client.ts', 'on-settled.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'on-settled.ts']);
   });
 
   test('use() does not mutate a caller-provided middleware array (no cross-client leak)', async () => {

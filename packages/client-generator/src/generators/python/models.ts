@@ -8,6 +8,7 @@ import {
   enumValues,
   flattenAllOf,
   type PropertyModel,
+  type SchemaModel,
 } from '@redocly/client-generator';
 import { PythonPrinter } from '@redocly/client-generator/printers/python';
 
@@ -162,7 +163,7 @@ export function renderPythonModels(
   printer.blank();
   printer.blank();
 
-  const aliases: Array<() => void> = [];
+  const aliases = new Map<string, SchemaModel>();
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined) {
@@ -194,25 +195,49 @@ export function renderPythonModels(
     }
     // Everything else (unions, scalar aliases, records) becomes a module-level alias,
     // emitted AFTER the classes it references so the assignment evaluates.
-    aliases.push(() => {
-      const cases = discriminatorCases(schema, model);
-      if (cases !== undefined) {
-        const table = cases.cases
-          .map((entry) => `${entry.value} -> ${className(entry.schemaName)}`)
-          .join(', ');
-        printer.line(`# Discriminated by "${cases.property}": ${table}`);
-      }
-      const field = unions.get(name);
-      const union =
-        field === undefined
-          ? pythonType(schema, dateType)
-          : `Annotated[${pythonType(schema, dateType)}, Field(discriminator=${naming.string(field)})]`;
-      printer.line(`${className(name)} = ${union}`);
-      printer.blank();
-    });
+    aliases.set(name, schema);
   }
-  for (const emit of aliases) emit();
+  for (const [name, schema] of sortAliases(aliases)) {
+    const cases = discriminatorCases(schema, model);
+    if (cases !== undefined) {
+      const table = cases.cases
+        .map((entry) => `${entry.value} -> ${className(entry.schemaName)}`)
+        .join(', ');
+      printer.line(`# Discriminated by "${cases.property}": ${table}`);
+    }
+    const field = unions.get(name);
+    const union =
+      field === undefined
+        ? pythonType(schema, dateType)
+        : `Annotated[${pythonType(schema, dateType)}, Field(discriminator=${naming.string(field)})]`;
+    printer.line(`${className(name)} = ${union}`);
+    printer.blank();
+  }
   return printer.toString();
+}
+
+/** The aliases in emit order: an alias comes after the aliases it names. */
+export function sortAliases(aliases: Map<string, SchemaModel>): Array<[string, SchemaModel]> {
+  const order: Array<[string, SchemaModel]> = [];
+  const visited = new Set<string>();
+  const visit = (name: string): void => {
+    const schema = aliases.get(name);
+    if (schema === undefined || visited.has(name)) return;
+    visited.add(name);
+    for (const referenced of findReferencedNames(schema)) visit(referenced);
+    order.push([name, schema]);
+  };
+  for (const name of aliases.keys()) visit(name);
+  return order;
+}
+
+/** The named schemas an alias annotation names (objects render as `Any`). */
+function findReferencedNames(schema: SchemaModel): string[] {
+  if (schema.kind === 'ref') return [schema.name];
+  if (schema.kind === 'array') return findReferencedNames(schema.items);
+  if (schema.kind === 'record') return findReferencedNames(schema.value);
+  if (schema.kind === 'union') return schema.members.flatMap(findReferencedNames);
+  return [];
 }
 
 /**

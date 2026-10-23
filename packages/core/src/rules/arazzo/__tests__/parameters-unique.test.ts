@@ -112,4 +112,97 @@ describe('Arazzo parameters-unique', () => {
       ]
     `);
   });
+
+  it('should report on success and failure action `parameters` duplication', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Redocly Cafe
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                successCriteria:
+                  - condition: $statusCode == 201
+                onSuccess:
+                  - name: load-order
+                    type: goto
+                    workflowId: load-order
+                    parameters:
+                      - name: orderId
+                        value: $response.body#/id
+                      - name: orderId
+                        value: $response.body#/id
+                onFailure:
+                  - name: load-order
+                    type: goto
+                    workflowId: load-order
+                    parameters:
+                      - reference: $components.parameters.orderId
+                      - reference: $components.parameters.orderId
+          - workflowId: load-order
+            inputs:
+              type: object
+              properties:
+                orderId:
+                  type: string
+            steps:
+              - stepId: get-order
+                operationId: cafe-api.getOrderById
+                parameters:
+                  - in: path
+                    name: orderId
+                    value: $inputs.orderId
+                successCriteria:
+                  - condition: $statusCode == 200
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'parameters-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The parameter \`name\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onFailure/0/parameters/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The parameter \`reference\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

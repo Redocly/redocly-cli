@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.22 (2026-10-22)
+
+### Patch Changes
+
+- Fixed an issue where the `preview-docs` command displayed a blank page because it loaded Redoc 3 instead of Redoc 2.
+- Updated @redocly/openapi-core to v1.34.22.
+
 ## 1.34.21 (2026-10-13)
 
 ### Patch Changes

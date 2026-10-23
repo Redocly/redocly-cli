@@ -3,7 +3,12 @@ import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, runTsx } from '../../helpers/helpers.js';
+import {
+  copyConsumer,
+  expectTscPasses,
+  runTsx,
+  type CommandResult,
+} from '../../helpers/helpers.js';
 import { MockServer } from '../../helpers/mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +34,7 @@ describe('generate-client cafe.yaml single-file client', () => {
   /** The generator output from cafe.yaml with no options, for the file snapshot. */
   let rawGenerated = '';
   let workDir = '';
+  let consumerRun: CommandResult;
 
   beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
@@ -46,12 +52,13 @@ describe('generate-client cafe.yaml single-file client', () => {
     expectTscPasses(['--noEmit', '-p', workDir]);
 
     // Run consumer.
-    const run = await runTsx(join(workDir, 'index.ts'), [], {
+    consumerRun = await runTsx(join(workDir, 'index.ts'), [], {
       cwd: workDir,
       env: { ...process.env, CAFE_BASE: server.url },
     });
-    expect(run.status, `consumer failed:\nstdout:\n${run.stdout}\nstderr:\n${run.stderr}`).toBe(0);
-    results = JSON.parse(run.stdout.trim()) as StepResult[];
+    // A crashed consumer prints no JSON; the test below reports its output.
+    results =
+      consumerRun.status === 0 ? (JSON.parse(consumerRun.stdout.trim()) as StepResult[]) : [];
 
     for (const request of server.requests) {
       log.push({
@@ -67,6 +74,13 @@ describe('generate-client cafe.yaml single-file client', () => {
   afterAll(async () => {
     await server.close();
     rmSync(workDir, { recursive: true, force: true });
+  });
+
+  test('the consumer runs to the end', () => {
+    expect(
+      consumerRun.status,
+      `consumer failed:\nstdout:\n${consumerRun.stdout}\nstderr:\n${consumerRun.stderr}`
+    ).toBe(0);
   });
 
   test('the mock server handled every request', () => {

@@ -85,6 +85,7 @@ type ClientGeneratorToolkit = {
 
 type GenerationRun = {
   config: CommandArgs<GenerateClientCommandArgv>['config'];
+  collectSpecData: CommandArgs<GenerateClientCommandArgv>['collectSpecData'];
   configDir: string;
   cliFlags: GenerateClientConfig;
   outputFlag: string | undefined;
@@ -98,6 +99,7 @@ type GenerationRun = {
 export async function handleGenerateClient({
   argv,
   config,
+  collectSpecData,
 }: CommandArgs<GenerateClientCommandArgv>) {
   const { AUTHORING_HELPER_NAMES, generateClient, mergeConfig } =
     await import('@redocly/client-generator');
@@ -148,6 +150,7 @@ export async function handleGenerateClient({
 
   const run: GenerationRun = {
     config,
+    collectSpecData,
     configDir,
     cliFlags,
     outputFlag: argv.output,
@@ -176,7 +179,16 @@ export async function handleGenerateClient({
 
 async function generateApiClient(
   entry: { path: string; alias?: string },
-  { config, configDir, cliFlags, outputFlag, toolkit, seenOutputs, composable }: GenerationRun
+  {
+    config,
+    collectSpecData,
+    configDir,
+    cliFlags,
+    outputFlag,
+    toolkit,
+    seenOutputs,
+    composable,
+  }: GenerationRun
 ): Promise<void> {
   const { path, alias } = entry;
   const name = alias ?? basename(path, extname(path));
@@ -221,6 +233,7 @@ async function generateApiClient(
       output: outputPath,
       config: aliasConfig,
       configDir,
+      collectSpecData,
     });
     // The emitted module decides what composes: `cli` reaches a run as a built-in
     // name, a path to an ejected copy, or another generator's prerequisite.

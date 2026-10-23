@@ -11,7 +11,9 @@ slug:
 Use this command to execute API tests described in an Arazzo description.
 
 {% admonition type="warning" name="Important" %}
-The `respect` command supports Arazzo 1.0.1 descriptions only.
+The `respect` command supports Arazzo 1.0.1 descriptions.
+Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions.
+When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
 {% /admonition %}
 
 ## Usage
@@ -76,7 +78,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
 - --json-output
 - string
-- Path for the JSON file for saving logs. For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.json` file:
+- Path for the JSON file for saving logs.
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.json` file:
 
   `npx @redocly/cli@latest respect test-file.yaml --json-output='logs.json'`
 
@@ -93,7 +96,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
   `REDOCLY_CLI_RESPECT_INPUT='userEmail=name@redocly.com,userPassword=12345' npm run cli respect test.yaml`
 
-  You can even include nested values, as in the following example command that maps the `nestedKey` input and value to all workflows in the `test-file.yaml` Arazzo description:
+  You can also include nested values.
+  The following example command maps the `nestedKey` input and its value to all workflows in the `test-file.yaml` Arazzo description:
 
   `npx @redocly/cli@latest respect test-file.yaml --input '{"key": "value", "nested": {"nestedKey": "nestedValue"}}'`
 
@@ -106,7 +110,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --server
 - string
 - Server overrides for the `sourceDescriptions` object.
-  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and instead of using the servers listed in the API description, uses the specified servers:
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description.
+  Instead of the servers listed in the API description, it uses the specified servers:
 
   `npx @redocly/cli@latest respect test-file.yaml --server sourceDescriptionName1=https://test.com --server sourceDescriptionName2=https://test2.com`
 
@@ -119,7 +124,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --severity
 - string
 - Severity of the check.
-  Customize the severity level of validation checks for status codes, schemas, and content types. Setting the severity level is useful when:
+  Customize the severity level of validation checks for status codes, schemas, and content types.
+  Setting the severity level is useful when:
   - You're actively developing your API and want to temporarily relax validation.
   - You're testing new API behavior that doesn't match the current schema.
   - You've encountered known issues that shouldn't block test execution.
@@ -137,7 +143,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   - `off`: Validation checks still run, but their results are ignored.
 
   {% admonition type="info" %}
-  Setting the severity of a check to `off` does not prevent the check from executing - it only prevents the check's results from affecting the workflow outcome.
+  Setting the severity of a check to `off` doesn't prevent the check from running.
+  It only stops the check's results from affecting the workflow outcome.
   {% /admonition %}
 
   For example, the following command sets status code errors to the warning severity level:
@@ -188,7 +195,9 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --no-secrets-masking
 - boolean
 - Disables masking of secrets in the output.
-  By default, any sensitive information, such as values described with `format: password`, as well as tokens and authentication headers from `x-security`, are masked with `********` in both terminal logs and file outputs.
+  By default, `respect` masks sensitive information with `********` in both terminal logs and file outputs.
+  Sensitive information includes values described with `format: password`, and tokens and authentication headers from `x-security`.
+
   When this flag is set to `true`, the raw (unmasked) data shows in all outputs.
 
   For example, the following command disables sensitive output masking:

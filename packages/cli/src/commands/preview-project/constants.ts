@@ -1,6 +1,9 @@
 import type { Product } from './types.js';
 
+export const FRAMEWORK_PACKAGE = '@redocly/framework';
+
 export const PRODUCT_PACKAGES = {
+  framework: FRAMEWORK_PACKAGE,
   realm: '@redocly/realm',
   'redoc-revel': '@redocly/redoc-revel',
   'revel-reef': '@redocly/revel-reef',
@@ -11,6 +14,7 @@ export const PRODUCT_PACKAGES = {
 };
 
 export const PRODUCT_NAMES: { [key in Product]: string } = {
+  framework: 'Redocly',
   redoc: 'Redoc',
   revel: 'Revel',
   reef: 'Reef',
@@ -20,4 +24,4 @@ export const PRODUCT_NAMES: { [key in Product]: string } = {
   'revel-reef': 'Revel + Reef',
 };
 
-export const PRODUCT_PLANS = ['pro', 'enterprise'] as const;
+export const PRODUCT_PLANS = ['pro', 'scale', 'enterprise'] as const;

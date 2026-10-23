@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses, runConsumer } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -57,7 +57,7 @@ describe('generate-client typed multipart body', () => {
         output: join(splitDir, 'client.ts'),
         outputMode: 'split',
       });
-      strictTypecheck(splitDir);
+      expectStrictTscPasses(splitDir);
     } finally {
       rmSync(splitDir, { recursive: true, force: true });
     }

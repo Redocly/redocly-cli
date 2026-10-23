@@ -160,13 +160,15 @@ Regenerate it there with `scripts/generate-markdoc-schema.mjs` pointed at this c
 
 ### Update Redoc
 
-When updating Redoc, recompute the subresource integrity [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (`redocStandaloneSri` in [package.ts](./packages/cli/src/utils/package.ts)):
+The `build-docs` command loads Redoc from the Redocly CDN at the exact `redoc` version in [`packages/cli/package.json`](./packages/cli/package.json).
+When updating Redoc, pin an exact version and check that the CDN serves it:
 
 ```bash
-openssl dgst -sha384 -binary node_modules/redoc/bundles/redoc.standalone.js | openssl base64 -A
+npm install -w packages/cli --save-dev --save-exact redoc@<version>
+curl -I https://cdn.redocly.com/redoc/v<version>/bundles/redoc.standalone.js
 ```
 
-The SRI value also appears in [e2e test snapshots](#e2e-tests) — update those too.
+Then update the [e2e test snapshots](#e2e-tests) and the [smoke test](#smoke-tests) page.
 
 ### Arguments usage
 
@@ -252,6 +254,7 @@ Unit tests in the **cli** package are sensitive to top-level configuration file 
 - To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 - To update snapshots, run `npm run unit -- -u`.
 - To run without coverage, call Vitest directly: `npx vitest run --project unit <path/to/your/file.test.ts>`.
+- To run the type tests (`*.test-d.ts` files that check the public TypeScript types), run `npm run unit:types`.
 
 ### E2E tests
 

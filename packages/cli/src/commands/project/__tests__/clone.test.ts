@@ -1,4 +1,4 @@
-import { HandledError, logger } from '@redocly/openapi-core';
+import { HandledError } from '@redocly/openapi-core';
 import { getReuniteUrl } from '@redocly/reunite-integration';
 
 import type { CommandArgv } from '../../../types.js';
@@ -34,7 +34,6 @@ describe('redocly project clone', () => {
     vi.mocked(getReuniteUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
     vi.mocked(runGit).mockResolvedValue({ code: 0, output: '' });
-    vi.spyOn(logger, 'info').mockImplementation(() => {});
   });
 
   describe('clone', () => {

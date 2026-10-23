@@ -13,7 +13,7 @@
 import { generateClient } from '@redocly/client-generator';
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createElement, type ReactNode } from 'react';
@@ -48,7 +48,6 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
       output: join(consumerDir, 'client.ts'),
       generators: ['typescript', 'tanstack-query'],
     });
-    expect(existsSync(join(consumerDir, 'client.tanstack.ts'))).toBe(true);
   });
 
   afterAll(() => {

@@ -5,9 +5,9 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-test.skip('free apis test case', () => {
+test('should retry a step up to the limit of each retry action and then run the next failure action', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
-  const fixturesPath = join(__dirname, 'free.arazzo.yaml');
+  const fixturesPath = join(__dirname, 'step-on-failure-type-retry-action.arazzo.yaml');
   const args = getParams(indexEntryPoint, ['respect', fixturesPath]);
 
   const result = getCommandOutput(args);

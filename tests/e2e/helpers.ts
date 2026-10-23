@@ -13,8 +13,9 @@ export type CommandResult = { status: number | null; stdout: string; stderr: str
 
 type CommandOptions = { env?: Record<string, string>; testPath?: string };
 
-// `NODE_ENV=test` turns off the update notifier, and the color variables keep the output plain.
-const TEST_ENV = { NODE_ENV: 'test', NO_COLOR: 'TRUE', FORCE_COLOR: '0' };
+// `NODE_ENV=test` turns off the update notifier, the color variables keep the output plain,
+// and `REDOCLY_TELEMETRY=off` keeps the tests from sending usage data.
+const TEST_ENV = { NODE_ENV: 'test', NO_COLOR: 'TRUE', FORCE_COLOR: '0', REDOCLY_TELEMETRY: 'off' };
 
 /** Run a command and return its exit status, stdout, and stderr. */
 export function runCommandResult(

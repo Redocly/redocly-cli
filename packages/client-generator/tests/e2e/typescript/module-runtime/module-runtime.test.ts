@@ -3,7 +3,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses, runConsumer } from '../../helpers/helpers.js';
 import { MockServer } from '../../helpers/mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -55,7 +55,7 @@ describe("generate-client runtime: 'module'", () => {
   });
 
   it('the client + runtime folder type-check strictly together', () => {
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
   });
 
   it('a real request goes through the runtime files and returns typed data', async () => {

@@ -260,7 +260,9 @@ describe('spelling assertion', () => {
       const rule = spellingRule('Unknown word "%s"%s', { dictionary: base });
 
       // The first call must report the failure and not cache an empty result.
-      await expect(spelling.execute(rule, 'a.md', ctx)).rejects.toThrow();
+      await expect(spelling.execute(rule, 'a.md', ctx)).rejects.toThrow(
+        'spelling: failed to load dictionary — ENOENT'
+      );
 
       // The files now exist. A cached failure would be replayed instead of retrying.
       await fs.writeFile(`${base}.aff`, dictionaryEn.aff);

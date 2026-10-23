@@ -3,4 +3,4 @@ apis:
     root: openapi.yaml
 
 openapi:
-  disableSearch: true
+  hideDownloadButtons: true

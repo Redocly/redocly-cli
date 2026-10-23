@@ -33,19 +33,15 @@ describe('getWorkflowsToRun', () => {
     expect(result).toEqual(workflows);
   });
 
-  it('should return all workflows if workflowIds are not found', () => {
-    const workflowIds = ['flow3'];
-
-    try {
+  it('should throw if workflowIds are not found', () => {
+    expect(() =>
       getWorkflowsToRun({
         workflows,
-        workflowsToRun: workflowIds,
+        workflowsToRun: ['flow3'],
         workflowsToSkip: undefined,
         logger,
-      });
-    } catch (error) {
-      expect(error.message).toEqual(`Following workflows don't exist: ${workflowIds.join(', ')}`);
-    }
+      })
+    ).toThrow("Following workflows don't exist: flow3");
   });
 
   it('should return only the workflows that match the workflowIds', () => {
@@ -73,8 +69,6 @@ describe('getWorkflowsToRun', () => {
     expect(result).toEqual(workflows);
 
     expect(mockLogger).toHaveBeenCalledWith("Following workflows don't exist: flow3");
-
-    mockLogger.mockRestore();
   });
 
   it('should return not skipped workflows when skip option is provided', () => {
@@ -99,8 +93,6 @@ describe('getWorkflowsToRun', () => {
         steps: [],
       },
     ]);
-
-    mockLogger.mockRestore();
   });
 
   it('should return empty workflows list and write warning when all workflows are skipped', () => {
@@ -118,7 +110,5 @@ describe('getWorkflowsToRun', () => {
     expect(mockLogger).toHaveBeenCalledTimes(1);
     expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('All workflows are skipped'));
     expect(result).toEqual([]);
-
-    mockLogger.mockRestore();
   });
 });
