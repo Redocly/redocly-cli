@@ -15,7 +15,10 @@ vi.mock('../utils.js', async () => {
     runGit: vi.fn(),
   };
 });
-vi.mock('@redocly/reunite-integration', () => ({ getReuniteUrl: vi.fn() }));
+vi.mock('@redocly/reunite-integration', async () => {
+  const actual = await vi.importActual<object>('@redocly/reunite-integration');
+  return { ...actual, getReuniteUrl: vi.fn() };
+});
 
 const HELPER_CONFIG = [
   'credential.http://localhost/.helper=',
@@ -30,7 +33,7 @@ describe('redocly project clone', () => {
   beforeEach(() => {
     vi.mocked(getReuniteUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
-    vi.mocked(runGit).mockResolvedValue(0);
+    vi.mocked(runGit).mockResolvedValue({ code: 0, output: '' });
   });
 
   describe('clone', () => {
@@ -51,6 +54,7 @@ describe('redocly project clone', () => {
           HELPER_CONFIG[0],
           '--config',
           HELPER_CONFIG[1],
+          '--',
           'http://localhost/api/orgs/acme/projects/docs/git',
           clonedInto,
         ]);
@@ -58,7 +62,7 @@ describe('redocly project clone', () => {
     );
 
     it('fails when git exits with an error', async () => {
-      vi.mocked(runGit).mockResolvedValue(128);
+      vi.mocked(runGit).mockResolvedValue({ code: 128, output: '' });
 
       await expect(
         handleProjectClone(commandArgs<ProjectCloneArgv>({ project: 'acme/docs' }))
