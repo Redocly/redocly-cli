@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.71.0 (2026-10-23)
+
+### Minor Changes
+
+- Added the early access `project pr create` and `project pr status` commands to open a pull request in Redocly platform for the current branch of a cloned project and to show its status.
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.71.0.
+
 ## 2.70.0 (2026-10-23)
 
 ### Minor Changes
