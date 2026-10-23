@@ -1,9 +1,13 @@
 import { HandledError, logger } from '@redocly/openapi-core';
 import { RedoclyOAuthClient, ReuniteApiClient } from '@redocly/reunite-integration';
 import { readFile } from 'node:fs/promises';
+import { setTimeout } from 'node:timers/promises';
 
 import type { CommandArgs } from '../../wrapper.js';
 import { parseProjectGitUrl, readGit } from './utils.js';
+
+const PREVIEW_WAIT_MS = 20_000;
+const PREVIEW_POLL_INTERVAL_MS = 2_000;
 
 export type ProjectPullRequestCreateArgv = {
   title?: string;
@@ -14,7 +18,7 @@ export type ProjectPullRequestCreateArgv = {
 };
 
 // Opens a pull request in Reunite for the current branch of a clone made by `project clone`,
-// and prints its URL.
+// and prints its URL and the preview URL of the branch.
 export async function handleProjectPullRequestCreate({
   argv,
   version,
@@ -48,20 +52,21 @@ export async function handleProjectPullRequestCreate({
 
   const orgSegment = encodeURIComponent(organization);
   const projectSegment = encodeURIComponent(project);
-  const response = await new ReuniteApiClient('project pull-request create', version).request(
-    `${reuniteUrl}/api/orgs/${orgSegment}/projects/${projectSegment}/pull-requests`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: `accessToken=${accessToken}` },
-      body: JSON.stringify({
-        branchName: branch,
-        targetBranchName: argv.base,
-        title: argv.title ?? (await readGit(['log', '-1', '--format=%s'])),
-        description,
-        isDraft: argv.draft,
-      }),
-    }
-  );
+  const projectApiUrl = `${reuniteUrl}/api/orgs/${orgSegment}/projects/${projectSegment}`;
+  const projectUiUrl = `${reuniteUrl}/org/${orgSegment}/project/${projectSegment}`;
+  const client = new ReuniteApiClient('project pull-request create', version);
+  const headers = { 'Content-Type': 'application/json', Cookie: `accessToken=${accessToken}` };
+  const response = await client.request(`${projectApiUrl}/pull-requests`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      branchName: branch,
+      targetBranchName: argv.base,
+      title: argv.title ?? (await readGit(['log', '-1', '--format=%s'])),
+      description,
+      isDraft: argv.draft,
+    }),
+  });
   const result: { number?: number; title?: string; detail?: string } = await response
     .json()
     .catch(() => ({}));
@@ -72,9 +77,42 @@ export async function handleProjectPullRequestCreate({
     );
   }
 
+  logger.output(`Pull request: ${projectUiUrl}/pull-requests/${result.number}\n`);
+
+  const branchFilter = encodeURIComponent(`branchName:${escapeFilterValue(branch)}`);
+  const previewUrl = await findPreviewUrl(() =>
+    client.request(`${projectApiUrl}/builds?limit=1&filter=${branchFilter}`, { headers })
+  ).catch(() => undefined);
+  const buildsUrl = `${projectUiUrl}/deployments?branch=${encodeURIComponent(branch)}`;
   logger.output(
-    `${reuniteUrl}/org/${orgSegment}/project/${projectSegment}/pull-requests/${result.number}\n`
+    previewUrl
+      ? `Preview: ${previewUrl}\n`
+      : `Preview: no build yet. See the builds: ${buildsUrl}\n`
   );
+}
+
+// The URL of the branch's latest build. A build starts a few seconds after a push or a new
+// pull request, so this waits for one; undefined when none starts in time.
+async function findPreviewUrl(listLatestBuild: () => Promise<Response>) {
+  const deadline = Date.now() + PREVIEW_WAIT_MS;
+
+  for (;;) {
+    const response = await listLatestBuild();
+    if (!response.ok) {
+      return undefined;
+    }
+    const builds: { data?: { url?: string }[] } = await response.json();
+    const url = builds.data?.[0]?.url;
+    if (url || Date.now() >= deadline) {
+      return url;
+    }
+    await setTimeout(PREVIEW_POLL_INTERVAL_MS);
+  }
+}
+
+// Reunite splits an unquoted filter value at commas.
+function escapeFilterValue(value: string) {
+  return /[\s,'"]/.test(value) ? `"${value.replace(/(['"])/g, '\\$1')}"` : value;
 }
 
 // `--body-file -` reads the body from standard input.
