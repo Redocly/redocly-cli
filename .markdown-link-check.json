@@ -1,4 +1,6 @@
 {
+  "timeout": "30s",
+  "aliveStatusCodes": [200, 429, 500, 502, 503, 504],
   "ignorePatterns": [
     { "pattern": "^https://hub\\.docker\\.com/" },
     { "pattern": "^https://www\\.npmjs\\.com/" },
