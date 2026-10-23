@@ -752,7 +752,7 @@ yargs(hideBin(process.argv))
         yargs
           .command(
             'create',
-            'Open a pull request in Reunite for the current branch.',
+            'Open a pull request in the Redocly platform for the current branch.',
             (yargs) =>
               yargs.options({
                 title: {
