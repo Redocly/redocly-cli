@@ -1231,6 +1231,74 @@ describe('bundle with overlays', () => {
     `);
   });
 
+  it('should bundle the files a local overlay references when the API description is remote', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: () => Promise.reject(new Error('Unexpected request')), headers: [] },
+      }),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.2.0
+          info:
+            title: Redocly Cafe
+            version: 1.0.0
+          paths:
+            /menu/{menuItemId}:
+              delete:
+                summary: Delete a menu item
+                operationId: deleteMenuItem
+                responses:
+                  '204':
+                    description: Menu item deleted successfully.
+        `,
+        'https://example.com/cafe.yaml'
+      ),
+      overlays: [path.join(__dirname, 'fixtures/overlay/overlays/not-found.yaml')],
+      // The overlay's local files are bundled even though URL references are kept.
+      keepUrlRefs: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths:
+        /menu/{menuItemId}:
+          delete:
+            summary: Delete a menu item
+            operationId: deleteMenuItem
+            responses:
+              '204':
+                description: Menu item deleted successfully.
+              '404':
+                $ref: '#/components/responses/NotFound'
+      components:
+        schemas:
+          Error:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Short summary of the problem type.
+              status:
+                type: integer
+                format: int32
+            required:
+              - title
+              - status
+        responses:
+          NotFound:
+            description: Resource not found.
+            content:
+              application/problem+json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+    `);
+  });
+
   it('should dereference after applying overlays', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
