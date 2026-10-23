@@ -836,11 +836,6 @@ yargs(hideBin(process.argv))
             describe: 'Page title.',
             type: 'string',
           },
-          disableGoogleFont: {
-            describe: 'Disable Google fonts.',
-            type: 'boolean',
-            default: false,
-          },
           t: {
             alias: 'template',
             describe:
@@ -851,9 +846,20 @@ yargs(hideBin(process.argv))
             describe:
               'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
-          theme: {
+          openapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
+          },
+          asyncapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
+          },
+          graphql: {
+            describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
+          },
+          inlineBundle: {
             describe:
-              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
+              'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
+            type: 'boolean',
+            default: false,
           },
           config: {
             describe: 'Path to the config file.',
@@ -864,10 +870,21 @@ yargs(hideBin(process.argv))
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
+          // Remove these options and the check below in the first release after January 31, 2027.
+          theme: { hidden: true },
+          disableGoogleFont: { hidden: true, type: 'boolean' },
         })
-        .check((argv: any) => {
-          if (argv.theme && !argv.theme?.openapi)
-            throw new Error('Invalid option: theme.openapi not set.');
+        .check((argv) => {
+          if (argv.theme !== undefined) {
+            throw new Error(
+              'The --theme.openapi option was removed. Pass Redoc options with --openapi instead: https://redocly.com/docs/cli/guides/migrate-to-v2#changes-in-the-build-docs-command'
+            );
+          }
+          if (argv.disableGoogleFont !== undefined) {
+            throw new Error(
+              'The --disableGoogleFont option was removed because the page no longer loads Google Fonts. Remove the option from your command.'
+            );
+          }
           return true;
         }),
     async (argv) => {

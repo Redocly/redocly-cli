@@ -31,7 +31,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `lint`               | Validate an API description against the configured rules                                                          | API authoring         |
 | `split`              | Break a single-file description into a multi-file structure                                                       | API authoring         |
 | `introspect-mcp`     | Record a live MCP server's tools, prompts, and resources in `x-mcp` [experimental]                                | API authoring         |
-| `build-docs`         | Render an API description to a zero-dependency HTML page (Redoc)                                                  | Docs rendering        |
+| `build-docs`         | Render an OpenAPI, AsyncAPI, or GraphQL description to an HTML page (Redoc)                                       | Docs rendering        |
 | `preview`            | Local preview of a Redocly project                                                                                | Docs rendering        |
 | `recheck`            | Lint Markdown structure, prose style, and Markdoc tags; `--fix` repairs most structural findings                  | Docs linting          |
 | `bundle`             | Resolve all `$ref`s into one self-contained file; apply decorators and overlays                                   | CI and delivery       |

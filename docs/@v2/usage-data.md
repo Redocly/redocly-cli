@@ -33,6 +33,7 @@ Values such as file names, organization IDs, and URLs are removed, replaced by j
 ## Opt out of data collection
 
 To opt out, set the `REDOCLY_TELEMETRY` environment variable to `off`, or set `telemetry: off` in the `redocly.yaml` configuration file.
+This also turns off Redoc telemetry in pages that you build with [`build-docs`](./commands/build-docs.md).
 
 ## Requests to the Redocly platform
 

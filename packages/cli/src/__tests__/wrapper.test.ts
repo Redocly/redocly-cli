@@ -8,6 +8,7 @@ import * as process from 'node:process';
 
 import { loadAndCheckConfig } from '../commands/check-config.js';
 import { handleLint } from '../commands/lint.js';
+import type * as telemetry from '../utils/telemetry.js';
 import { sendTelemetry } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
 
@@ -19,7 +20,10 @@ vi.mock('@redocly/openapi-core', async () => {
   };
 });
 vi.mock('../utils/miscellaneous.js');
-vi.mock('../utils/telemetry.js');
+vi.mock('../utils/telemetry.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof telemetry>()),
+  sendTelemetry: vi.fn(),
+}));
 vi.mock('../commands/lint.js');
 vi.mock('../commands/check-config.js');
 
