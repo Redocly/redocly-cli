@@ -460,7 +460,7 @@ describe('bundle', () => {
         config,
       });
 
-    expect(wrapper()).rejects.toThrowError('Document or reference is required.\n');
+    await expect(wrapper()).rejects.toThrow('Document or reference is required.\n');
   });
 
   it('should bundle with a doc provided', async () => {
@@ -1276,6 +1276,6 @@ describe('bundle with overlays', () => {
 
     await expect(
       bundle({ config: await createConfig({}), ref: apiPath, overlays: [apiPath] })
-    ).rejects.toThrowError(`${apiPath} is not an Overlay 1.0, 1.1, or 1.2 document.`);
+    ).rejects.toThrow(`${apiPath} is not an Overlay 1.0, 1.1, or 1.2 document.`);
   });
 });

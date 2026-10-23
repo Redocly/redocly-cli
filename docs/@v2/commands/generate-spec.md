@@ -7,7 +7,8 @@ The command reads a traffic log (or a folder of logs), builds a deterministic ba
 This is an experimental feature.
 Its behavior, command, flags, and output may change in future releases.
 
-The `generate-spec` command generates OpenAPI 3.2 descriptions only.
+The `generate-spec` command generates OpenAPI 3.2 descriptions by default.
+Use `--openapi-version 3.1` to generate an OpenAPI 3.1 description instead.
 {% /admonition %}
 
 ## Supported traffic formats
@@ -51,27 +52,28 @@ Use `--ai-model` to choose a model, or the provider's default is used.
 
 ```bash
 redocly generate-spec <traffic>
-redocly generate-spec <traffic> [--traffic-format=<option>] [--server=<url>]
+redocly generate-spec <traffic> [--openapi-version=<option>] [--traffic-format=<option>] [--server=<url>]
 redocly generate-spec <traffic> [--title=<string>] [--output=<file>]
 redocly generate-spec <traffic> --with-ai [--ai-provider=<option>] [--ai-model=<string>] [--ai-concurrency=<number>]
 ```
 
 ## Options
 
-| Option           | Type    | Description                                                                                                                                                                                                                                                      |
-| ---------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| traffic          | string  | **REQUIRED.** Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).                                                                                                                                                                       |
-| --type           | string  | Target API description type.<br/>**Possible values:** `openapi`. Default value is `openapi`.                                                                                                                                                                     |
-| --traffic-format | string  | Traffic input format.<br/>**Possible values:** `auto`, `har`, `kong`, `nginx-json`, `apache-json`, `ndjson`. Default value is `auto`.                                                                                                                            |
-| --server         | string  | Server URL the traffic was captured against (host, host + base path, or a path-only prefix like `/api`). Only requests under it are considered, the rest of their URL is treated as the API path, and it becomes the `servers` URL of the generated description. |
-| --title          | string  | Title for the generated API description. Default value is `Generated API`.                                                                                                                                                                                       |
-| --with-ai        | boolean | Refine the inferred description with an AI provider. Default value is `false`.                                                                                                                                                                                   |
-| --ai-provider    | string  | AI provider used with `--with-ai`. Runs the corresponding CLI in non-interactive mode.<br/>**Possible values:** `claude`, `codex`, `cursor`. Default value is `claude`.                                                                                          |
-| --ai-model       | string  | Model passed to the selected AI provider. If not set, the provider's default model is used.                                                                                                                                                                      |
-| --ai-concurrency | number  | Number of operations refined in parallel with `--with-ai`. Default value is `4`.                                                                                                                                                                                 |
-| --output, -o     | string  | Write the generated description to this file instead of stdout.                                                                                                                                                                                                  |
-| --config         | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                             |
-| --help           | boolean | Display help.                                                                                                                                                                                                                                                    |
+| Option            | Type    | Description                                                                                                                                                                                                                                                      |
+| ----------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| traffic           | string  | **REQUIRED.** Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).                                                                                                                                                                       |
+| --type            | string  | Target API description type.<br/>**Possible values:** `openapi`. Default value is `openapi`.                                                                                                                                                                     |
+| --openapi-version | string  | OpenAPI version of the generated description.<br/>**Possible values:** `3.1`, `3.2`. Default value is `3.2`. With `3.1`, exchanges that use the `QUERY` HTTP method are skipped, because OpenAPI 3.1 has no `query` operation.                                   |
+| --traffic-format  | string  | Traffic input format.<br/>**Possible values:** `auto`, `har`, `kong`, `nginx-json`, `apache-json`, `ndjson`. Default value is `auto`.                                                                                                                            |
+| --server          | string  | Server URL the traffic was captured against (host, host + base path, or a path-only prefix like `/api`). Only requests under it are considered, the rest of their URL is treated as the API path, and it becomes the `servers` URL of the generated description. |
+| --title           | string  | Title for the generated API description. Default value is `Generated API`.                                                                                                                                                                                       |
+| --with-ai         | boolean | Refine the inferred description with an AI provider. Default value is `false`.                                                                                                                                                                                   |
+| --ai-provider     | string  | AI provider used with `--with-ai`. Runs the corresponding CLI in non-interactive mode.<br/>**Possible values:** `claude`, `codex`, `cursor`. Default value is `claude`.                                                                                          |
+| --ai-model        | string  | Model passed to the selected AI provider. If not set, the provider's default model is used.                                                                                                                                                                      |
+| --ai-concurrency  | number  | Number of operations refined in parallel with `--with-ai`. Default value is `4`.                                                                                                                                                                                 |
+| --output, -o      | string  | Write the generated description to this file instead of stdout.                                                                                                                                                                                                  |
+| --config          | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                             |
+| --help            | boolean | Display help.                                                                                                                                                                                                                                                    |
 
 ## Examples
 
@@ -79,6 +81,12 @@ redocly generate-spec <traffic> --with-ai [--ai-provider=<option>] [--ai-model=<
 
 ```bash
 redocly generate-spec ./traffic.har -o ./openapi.yaml
+```
+
+### Generate an OpenAPI 3.1 description
+
+```bash
+redocly generate-spec ./traffic.har --openapi-version 3.1 -o ./openapi.yaml
 ```
 
 ### Scope the traffic to a server

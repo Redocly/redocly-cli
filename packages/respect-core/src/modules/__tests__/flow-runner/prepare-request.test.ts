@@ -1159,11 +1159,9 @@ describe('prepareRequest', () => {
       $outputs: {},
     } as unknown as TestContext;
 
-    try {
-      await prepareRequest(ctx, step, workflowName);
-    } catch (e) {
-      expect(e.message).toEqual('"method" is required to make a request');
-    }
+    await expect(prepareRequest(ctx, step, workflowName)).rejects.toThrow(
+      '"method" is required to make a request'
+    );
   });
 
   it('should merge workflow and step level params with reference property without duplicates prefer step params', async () => {

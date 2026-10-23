@@ -210,12 +210,15 @@ export type RuntimeExpressionContext = {
 export type RunWorkflowInput = {
   workflowInput: Workflow | string | undefined;
   ctx: TestContext;
+  // inputs the caller passes to this run, merged over the workflow inputs
+  inputs?: Record<string, any>;
   fromStepId?: string;
   parentStepId?: string;
   skipLineSeparator?: boolean;
   invocationContext?: string;
   executedStepsCount: ExecutedStepsCount;
   retriesLeft?: number;
+  retryingStepIds?: string[];
 };
 
 export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;

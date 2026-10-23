@@ -37,11 +37,24 @@ const result = await build({
   logLevel: 'info',
 });
 
-const entryChunkInputs = Object.keys(result.metafile.outputs['lib/index.js']?.inputs ?? {});
-if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
-  throw new Error(
-    'redoc leaked into lib/index.js — check for stray static imports in build-docs commands'
-  );
+// The startup chunks are the entry chunk and every chunk it reaches through static imports.
+const startupChunks = new Set(['lib/index.js']);
+for (const chunkPath of startupChunks) {
+  for (const chunkImport of result.metafile.outputs[chunkPath].imports) {
+    if (chunkImport.kind === 'import-statement' && !chunkImport.external) {
+      startupChunks.add(chunkImport.path);
+    }
+  }
+}
+const startupInputs = [...startupChunks].flatMap((chunkPath) =>
+  Object.keys(result.metafile.outputs[chunkPath].inputs)
+);
+for (const packageName of ['redoc', 'undici']) {
+  if (startupInputs.some((inputPath) => inputPath.includes(`node_modules/${packageName}/`))) {
+    throw new Error(
+      `${packageName} leaked into the startup chunks — check for stray static imports of it`
+    );
+  }
 }
 
 const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
@@ -98,6 +111,18 @@ cpSync(
   path.join(packageDir, 'lib', 'eject-assets'),
   { recursive: true }
 );
+
+cpSync(
+  fileURLToPath(import.meta.resolve('redoc/bundles/redoc.standalone.js')),
+  path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js')
+);
+
+for (const skill of ['redocly-cli', 'redocly-lint-rules', 'recheck-lint', 'recheck-config']) {
+  cpSync(
+    path.join(packageDir, '..', '..', '.claude', 'skills', skill, 'SKILL.md'),
+    path.join(packageDir, 'lib', 'skills', skill, 'SKILL.md')
+  );
+}
 
 // `dictionary-en` reads its Hunspell data with `new URL(..., import.meta.url)`,
 // so the two data files must sit next to the chunk esbuild bundled it into.

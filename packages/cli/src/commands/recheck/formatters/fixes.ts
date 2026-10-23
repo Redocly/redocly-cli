@@ -3,22 +3,25 @@ import type { Fix } from '@redocly/recheck';
 import { cyan, green } from 'colorette';
 
 // Describes a fix in words, built from its insert text and delete count.
+// The text is quoted as JSON, so a line break prints as `\n`, not as a new line.
 function describeFix(fix: Fix): string {
   if (fix.deleteCount === -1) {
-    return fix.insertText === undefined ? 'removed line' : `replaced line with "${fix.insertText}"`;
+    return fix.insertText === undefined
+      ? 'removed line'
+      : `replaced line with ${JSON.stringify(fix.insertText)}`;
   }
 
   const deleteCount = fix.deleteCount ?? 0;
   const insertText = fix.insertText ?? '';
 
   if (deleteCount > 0 && insertText) {
-    return `replaced ${deleteCount} character(s) with "${insertText}"`;
+    return `replaced ${deleteCount} character(s) with ${JSON.stringify(insertText)}`;
   }
   if (deleteCount > 0) {
     return `removed ${deleteCount} character(s)`;
   }
   if (insertText) {
-    return `inserted "${insertText}"`;
+    return `inserted ${JSON.stringify(insertText)}`;
   }
   return 'applied fix';
 }

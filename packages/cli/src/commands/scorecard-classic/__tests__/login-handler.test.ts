@@ -31,7 +31,6 @@ describe('handleLoginAndFetchToken', () => {
     vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.spyOn(logger, 'warn').mockImplementation(() => {});
     vi.spyOn(logger, 'error').mockImplementation(() => {});
-    vi.spyOn(logger, 'output').mockImplementation(() => {});
   });
 
   it('should return existing access token when available', async () => {
@@ -93,7 +92,9 @@ describe('handleLoginAndFetchToken', () => {
     mockOAuthClient.getAccessToken.mockResolvedValue(null);
     mockOAuthClient.login.mockRejectedValue(loginError);
 
-    await expect(handleLoginAndFetchToken(mockConfig, version, true)).rejects.toThrow();
+    await expect(handleLoginAndFetchToken(mockConfig, version, true)).rejects.toThrow(
+      'Login failed. Please try again or check your connection'
+    );
 
     expect(logger.error).toHaveBeenCalledWith('❌ Login failed.\n');
     expect(logger.error).toHaveBeenCalledWith('Error details: Network error\n');

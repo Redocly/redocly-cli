@@ -183,10 +183,12 @@ const DeviceAuthorization: NodeType = {
       description:
         'The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.',
     },
-    scopes: mapOf('string', {
+    scopes: {
+      type: 'object',
+      additionalProperties: { type: 'string' },
       description:
         'REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty.',
-    }),
+    },
   },
   required: ['deviceAuthorizationUrl', 'tokenUrl', 'scopes'],
   extensionsPrefix: 'x-',

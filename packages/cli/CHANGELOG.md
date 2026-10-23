@@ -1,5 +1,138 @@
 # @redocly/cli
 
+## 2.71.0
+
+### Minor Changes
+
+- Added the early access `project pr create` and `project pr status` commands to open a pull request in Redocly platform for the current branch of a cloned project and to show its status.
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.71.0.
+
+## 2.70.0
+
+### Minor Changes
+
+- **Breaking**: Updated the `build-docs` command to Redoc 3 and added support for AsyncAPI descriptions and GraphQL schemas.
+  Added the `--openapi`, `--asyncapi`, `--graphql`, and `--inlineBundle` options.
+  Removed `--theme.openapi` and `--disableGoogleFont`, pass Redoc options with `--openapi` instead.
+  Some Redoc 2 options were renamed or removed, see the [`build-docs` documentation](https://redocly.com/docs/cli/commands/build-docs).
+  The command now applies the [decorators](https://redocly.com/docs/cli/decorators) and [preprocessors](https://redocly.com/docs/cli/configuration/reference/preprocessors) from the configuration file.
+  Pages built with the `build-docs` command now send [Redoc telemetry](https://redocly.com/docs/redoc/telemetry) from readers' browsers by default.
+
+## 2.69.0
+
+### Minor Changes
+
+- The `preview` command now runs `@redocly/framework` and accepts the `pro`, `scale` and `enterprise` plans with the `--plan` option.
+  A project whose `package.json` lists `@redocly/realm`, `@redocly/redoc`, `@redocly/revel`, `@redocly/reef` or one of their blends still previews with that package.
+  The `--product` option is deprecated.
+
+## 2.68.0
+
+### Minor Changes
+
+- Added support for the `parameters` field of Arazzo 1.1.0 success and failure actions to the `respect` command.
+  When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule didn't report Arazzo 1.1.0 success and failure actions that had `parameters` without a `workflowId`, or action parameters with an `in` field.
+  Action parameters are passed as inputs to the target workflow, so they require a `workflowId` and can't have an `in` field.
+  Existing Arazzo descriptions with these actions fail `lint`, and `respect` doesn't run them.
+- Fixed an issue where `respect` didn't retry a step when its `retry` failure action had no `retryLimit`.
+
+  **Note:** Previously, a workflow continued with the next step after a step had failed and used up its retries.
+
+- Fixed an issue where `respect` skipped a `retry` failure action after an earlier `retry` action of the same step had used up its retries.
+- Updated @redocly/openapi-core to v2.68.0.
+- Updated @redocly/respect-core to v2.68.0.
+
+## 2.67.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command kept the inputs that a step passed to a workflow in the same file.
+  Later runs of that workflow used them instead of their `--input` values or schema defaults.
+- Updated @redocly/respect-core to v2.67.1.
+
+## 2.67.0
+
+### Minor Changes
+
+- Added an `excludedMethods` option to the `operation-4xx-response` rule, which skips operations that use the listed HTTP methods.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.0.
+
+## 2.66.1
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP and Python clients failed when a discriminator mapping pointed to a schema that is itself a `oneOf`.
+- Updated @redocly/client-generator to v0.7.5.
+
+## 2.66.0
+
+### Minor Changes
+
+- Added the `skills` command that installs the Redocly CLI agent skills for AI coding agents.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.0.
+- Updated @redocly/reunite-integration to v2.66.0.
+
+## 2.65.1
+
+### Patch Changes
+
+- Fixed the `no-schema-type-mismatch` rule to report `properties` on any non-`object` type and `items` on any non-`array` type, such as `type: string` with `properties`.
+  Previously, the rule only reported `properties` on `array` and `items` on `object`.
+
+  **Note:** Because the rule is an error in the `recommended` ruleset, descriptions that passed before may now fail.
+
+- Fixed an issue where the `struct` rule incorrectly reported an error for `type: file` in response schemas of OpenAPI 2.0 API descriptions.
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 2.65.0
+
+### Minor Changes
+
+- Added the `--openapi-version` option to the `generate-spec` command to choose between OpenAPI `3.1` and `3.2` (the default) for the generated description.
+
+### Patch Changes
+
+- Fixed the message of the `capitalization` assertion in `recheck` rules so that it names the style, such as "sentence case", instead of printing `$sentence`.
+- Fixed `redocly recheck --fix` so that the report lists only the findings that remain after the fixes, not the findings it just fixed.
+- Fixed the `redocly recheck --fix` summary so that inserted text with a line break prints as `\n` instead of breaking the output line.
+- Updated @redocly/recheck to v2.65.0.
+
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+  For example, a token read through `$response.body#/token` or a quoted value in success criteria.
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+- Updated @redocly/openapi-core to v2.64.1.
+- Updated @redocly/respect-core to v2.64.1.
+
+## 2.64.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/client-generator to v0.7.0.
+- Updated @redocly/openapi-core to v2.64.0.
+- Updated @redocly/reunite-integration to v2.64.0.
+
 ## 2.63.0
 
 ### Minor Changes

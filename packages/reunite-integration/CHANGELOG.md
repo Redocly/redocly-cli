@@ -1,5 +1,83 @@
 # @redocly/reunite-integration
 
+## 2.71.0
+
+### Minor Changes
+
+- Added the early access `project pr create` and `project pr status` commands to open a pull request in Redocly platform for the current branch of a cloned project and to show its status.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.0.
+
+## 2.70.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.70.0.
+
+## 2.69.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.69.0.
+
+## 2.68.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.68.0.
+
+## 2.67.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.1.
+
+## 2.67.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.0.
+
+## 2.66.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.1.
+
+## 2.66.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.67.0.
+- Updated @redocly/openapi-core to v2.66.0.
+
+## 2.65.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 2.65.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.0.
+
+## 2.64.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 2.64.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to v0.66.0.
+- Updated @redocly/openapi-core to v2.64.0.
+
 ## 2.63.0
 
 ### Patch Changes

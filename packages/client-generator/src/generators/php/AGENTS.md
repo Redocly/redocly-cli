@@ -47,7 +47,9 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 - **Naming:** classes PascalCase, properties/methods camelCase via
   `identifierFor(..., RESERVED_WORDS.php)`; reserved words get a trailing underscore.
 - **Enums** are native backed enums (string/int); other scalars stay aliases.
-  **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers;
+  **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers.
+  Each arm hydrates its mapping target the way a property of that type does, so a
+  target with no class of its own (a plain `oneOf`) stays a raw array;
   **allOf** is flattened.
 - **Unions keep their types where PHP 8.1 can express them.** A union of scalars, enums,
   classes, or arrays becomes a native union type (`int|string`, `PromotionType|array`)
@@ -135,6 +137,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 2. Change `index.ts` (and `runtime/runtime.php` for runtime behavior; `php -l` it,
    then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
-   `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/php.test.ts`
-   (real `php -l` + `require` bars), the e2e smoke (`tests/e2e/generate-client/php.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   `npx vitest run packages/client-generator/src/generators/php/__tests__` (output-string checks),
+   `packages/client-generator/tests/e2e/php/render.test.ts`
+   (real `php -l` + `require` bars), the e2e smoke (`packages/client-generator/tests/e2e/php/client.test.ts`),
+   and the large-description bars (`packages/client-generator/tests/e2e/php/large-descriptions.test.ts`).

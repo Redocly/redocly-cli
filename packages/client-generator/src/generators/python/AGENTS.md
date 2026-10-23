@@ -64,7 +64,8 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Naming:** fields/methods snake*case via `identifierFor(..., RESERVED_WORDS.python)`;
   reserved words get a trailing underscore (`class*`); `+1`/`-1`become`plus_1`/`minus_1`.
 - **Enums** are `class X(str, Enum)` with SCREAMING members; **unions** are `Union[...]`
-  aliases. A DISCRIMINATED union registers its dispatch table in the runtime's
+  aliases, emitted after the classes and the other aliases they name, because a
+  module-level assignment evaluates at import. A DISCRIMINATED union registers its dispatch table in the runtime's
   `DISCRIMINATORS` registry (`DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, ...})`),
   and `decode()` routes through it — `isinstance` narrowing works on decoded members.
   Undiscriminated unions decode by trying each member in order (the first that
@@ -124,6 +125,7 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 2. Change `index.ts` (and `runtime/*.py` if runtime behavior changes; then
    `npm run prepare -w @redocly/client-generator` re-embeds).
 3. Verify: `npm run compile`, then
-   `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/python.test.ts`
-   (real `py_compile` bars), the e2e smoke (`tests/e2e/generate-client/python.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   `npx vitest run packages/client-generator/src/generators/python/__tests__` (output-string checks),
+   `packages/client-generator/tests/e2e/python/render.test.ts`
+   (real `import` bars), the e2e smoke (`packages/client-generator/tests/e2e/python/client.test.ts`),
+   and the large-description bars (`packages/client-generator/tests/e2e/python/large-descriptions.test.ts`).

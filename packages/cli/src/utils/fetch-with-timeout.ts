@@ -13,7 +13,10 @@ export type FetchWithTimeoutOptions = Omit<RequestInit, 'body'> & {
   timeout?: number;
 };
 
-export default async (url: string, { timeout, ...options }: FetchWithTimeoutOptions = {}) => {
+export const fetchWithTimeout = async (
+  url: string,
+  { timeout, ...options }: FetchWithTimeoutOptions = {}
+) => {
   const proxyUrl = getProxyUrl();
   const useProxy = proxyUrl && !shouldBypassProxy(url);
   let dispatcher: Agent | ProxyAgent | undefined;

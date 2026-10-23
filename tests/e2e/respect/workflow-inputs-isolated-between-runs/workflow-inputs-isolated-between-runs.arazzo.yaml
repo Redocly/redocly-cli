@@ -1,0 +1,50 @@
+arazzo: 1.0.1
+info:
+  title: Workflow inputs isolated between runs
+  description: >-
+    Inputs passed to a local workflow apply only to that run.
+    Later runs of the workflow use its default inputs, and the caller still reads the workflow outputs.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: search-menu-twice
+    steps:
+      - stepId: search-with-parameter
+        workflowId: search-menu
+        parameters:
+          - name: search
+            value: mermaid-treasure-espresso
+      - stepId: search-with-default
+        workflowId: search-menu
+      - stepId: search-with-workflow-outputs
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: $workflows.search-menu.outputs.search
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $workflows.search-menu.outputs.search == 'mermaid-treasure-latte'
+  - workflowId: search-menu
+    inputs:
+      type: object
+      properties:
+        search:
+          type: string
+          default: mermaid-treasure-latte
+    steps:
+      - stepId: search-menu-items
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: $inputs.search
+        successCriteria:
+          - condition: $statusCode == 200
+    outputs:
+      search: $inputs.search

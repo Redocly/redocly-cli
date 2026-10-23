@@ -1,4 +1,9 @@
-import type { Config as RedoclyConfig, Oas3Definition, detectSpec } from '@redocly/openapi-core';
+import type {
+  CollectSpecData,
+  Config as RedoclyConfig,
+  Oas3Definition,
+  detectSpec,
+} from '@redocly/openapi-core';
 
 import type { ArgsStyle, CustomGenerator, OutputMode } from './generators/types.js';
 import type { PaginationConfig } from './pagination.js';
@@ -9,6 +14,8 @@ export type GenerateClientOptions = {
   output: string;
   /** Resolved Redocly config for spec loading. */
   config?: RedoclyConfig;
+  /** Receives the loaded API description; the `redocly` CLI reports its spec version in telemetry. */
+  collectSpecData?: CollectSpecData;
   /**
    * How the generated client is partitioned across files. Defaults to `single`
    * (one self-contained file).
@@ -57,6 +64,7 @@ export type GenerateClientOptions = {
   /** Leading element for every tanstack-query key — namespaces the cache when several
    * generated APIs share one QueryClient (operationIds may collide across APIs). */
   queryKeyPrefix?: string;
+  telemetry?: 'on' | 'off';
   /**
    * Generators to run, in order. Defaults to `['typescript']`. Each entry is a built-in name
    * (`typescript`/`zod`/`tanstack-query`/`swr`/`transformers`/`mock`), the `name` of an inline

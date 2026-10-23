@@ -1,0 +1,5 @@
+{
+  "name": "write-only-consumer",
+  "private": true,
+  "type": "module"
+}

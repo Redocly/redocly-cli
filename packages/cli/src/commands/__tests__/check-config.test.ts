@@ -17,10 +17,6 @@ vi.mock('@redocly/openapi-core', async () => {
   return { ...actual, loadConfig: vi.fn(), lintConfig: vi.fn(), formatProblems: vi.fn() };
 });
 
-beforeEach(() => {
-  vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-});
-
 describe('loadAndCheckConfig', () => {
   it('should print config problems in the check-config format regardless of --format', async () => {
     const config = { document: { parsed: {} } } as Config;

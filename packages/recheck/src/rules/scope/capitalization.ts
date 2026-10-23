@@ -14,10 +14,16 @@ import {
 } from './title-case.js';
 
 // Used when the rule has no `message`. The two `%s` are the segment's first line
-// and the `match` value.
+// and the name of the `$` style, or the `match` regex.
 const FALLBACK_MESSAGE = '"%s" should use %s capitalization.';
 
-const DOLLAR_STYLES = new Set(['$title', '$sentence', '$lower', '$upper']);
+// The `$` styles, each with the name that messages use for it.
+const DOLLAR_STYLES = new Map([
+  ['$title', 'title case'],
+  ['$sentence', 'sentence case'],
+  ['$lower', 'lowercase'],
+  ['$upper', 'uppercase'],
+]);
 type DollarStyle = '$title' | '$sentence' | '$lower' | '$upper';
 
 // Inline code spans (like `configFile` in a heading) are masked out so the `$`
@@ -137,7 +143,11 @@ const execute = async (
       match: sourceText,
       ruleName: rule.name,
       severity: rule.severity,
-      message: formatTemplate(rule.message ?? FALLBACK_MESSAGE, firstLine, options.match),
+      message: formatTemplate(
+        rule.message ?? FALLBACK_MESSAGE,
+        firstLine,
+        DOLLAR_STYLES.get(options.match) ?? options.match
+      ),
       fixable,
     };
   });

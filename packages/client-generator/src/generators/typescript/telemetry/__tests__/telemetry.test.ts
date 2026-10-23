@@ -1,0 +1,321 @@
+import type { Middleware, RequestContext, SettledCall } from '../../../../runtime-contract.js';
+import type { SdkUsageEvent } from '../telemetry.js';
+
+const CLI_ATTRIBUTE_NAMES = [
+  'cloudevents.event_id',
+  'cloudevents.event_type',
+  'cloudevents.event_source',
+  'cloudevents.event_spec_version',
+  'cloudevents.event_data_content_type',
+  'cloudevents.event_time',
+  'cloudevents.event_subject',
+  'cloudevents.event_origin',
+  'cloudevents.event_object',
+  'cloudevents.event_category',
+  'cloudevents.event_signal',
+  'cloudevents.event_data.usage.operation_id',
+  'cloudevents.event_data.usage.window_ms',
+  'cloudevents.event_data.usage.calls',
+  'cloudevents.event_data.usage.attempts',
+  'cloudevents.event_data.usage.duration_sum_ms',
+  'cloudevents.event_data.usage.status_2xx',
+  'cloudevents.event_data.usage.latency_lt_100ms',
+  'cloudevents.event_data.sdk.name',
+  'cloudevents.event_data.sdk.version',
+  'cloudevents.event_data.sdk.generator_version',
+  'cloudevents.event_data.sdk.language',
+  'cloudevents.event_data.sdk.runtime',
+  'cloudevents.event_data.sdk.runtime_version',
+  'cloudevents.event_data.sdk.client',
+];
+
+type OtlpSpan = {
+  traceId: string;
+  spanId: string;
+  name: string;
+  startTimeUnixNano: string;
+  endTimeUnixNano: string;
+  attributes: Array<{ key: string; value: Record<string, unknown> }>;
+};
+type OtlpRequest = {
+  resourceSpans: Array<{
+    resource: { attributes: Array<{ key: string; value: { stringValue: string } }> };
+    scopeSpans: Array<{ spans: OtlpSpan[] }>;
+  }>;
+};
+
+const identity = { sdkName: '@acme/billing-sdk', sdkVersion: '3.2.0', client: 'worker/1.8.4' };
+
+async function loadTelemetry() {
+  vi.resetModules();
+  return import('../telemetry.js');
+}
+
+function context(operationId: string): RequestContext {
+  return {
+    url: 'https://api.example.com/x',
+    method: 'GET',
+    headers: {},
+    operation: { id: operationId, path: '/x', tags: [] },
+  };
+}
+
+function settle(middleware: Middleware, operationId: string, call: SettledCall) {
+  return middleware.onSettled!(context(operationId), call);
+}
+
+function sinkSpy() {
+  const windows: SdkUsageEvent[][] = [];
+  const sink = (events: SdkUsageEvent[]) => {
+    windows.push(events);
+  };
+  return { windows, sink };
+}
+
+describe('telemetry', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-20T09:14:00.000Z'));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it('counts a call that ends with a network error, a timeout, or an abort in its own status class', async () => {
+    const { telemetry, flush } = await loadTelemetry();
+    const { windows, sink } = sinkSpy();
+    const middleware = telemetry({ ...identity, sink });
+    await settle(middleware, 'getOrder', {
+      error: new TypeError('fetch failed'),
+      attempts: 2,
+      durationMs: 20,
+    });
+    const timeout = new Error('timed out');
+    timeout.name = 'TimeoutError';
+    await settle(middleware, 'getOrder', { error: timeout, attempts: 1, durationMs: 5000 });
+    const abort = new DOMException('The operation was aborted.', 'AbortError');
+    await settle(middleware, 'getOrder', { error: abort, attempts: 0, durationMs: 0 });
+    await flush();
+    expect(windows[0][0].data.usage).toMatchObject({
+      calls: 3,
+      attempts: 3,
+      status_network_error: 1,
+      status_timeout: 1,
+      status_aborted: 1,
+      latency_lt_100ms: 2,
+      latency_lt_10s: 1,
+    });
+  });
+
+  it('sends one event per operation when the window ends, then starts from zero', async () => {
+    const { telemetry } = await loadTelemetry();
+    const { windows, sink } = sinkSpy();
+    const middleware = telemetry({ ...identity, sink });
+    const ok = { response: new Response(null, { status: 200 }), attempts: 1, durationMs: 10 };
+    await settle(middleware, 'getOrder', ok);
+    await settle(middleware, 'getOrder', ok);
+    await settle(middleware, 'listOrders', ok);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(windows).toHaveLength(1);
+    expect(windows[0][0].time).toBe('2026-10-20T09:14:00.000Z');
+    expect(windows[0][0].data.usage.window_ms).toBe(60_000);
+    expect(
+      windows[0].map((event) => [event.data.usage.operation_id, event.data.usage.calls])
+    ).toEqual([
+      ['getOrder', 2],
+      ['listOrders', 1],
+    ]);
+
+    await settle(middleware, 'getOrder', ok);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(windows[1].map((event) => event.data.usage.calls)).toEqual([1]);
+  });
+
+  it('sends nothing for an empty window and starts no timer while idle', async () => {
+    const { telemetry, flush } = await loadTelemetry();
+    const { windows, sink } = sinkSpy();
+    telemetry({ ...identity, sink });
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(180_000);
+    await flush();
+    expect(windows).toEqual([]);
+  });
+
+  it('counts nothing and sends nothing when a kill switch is set', async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    for (const [name, value] of [
+      ['REDOCLY_SDK_TELEMETRY', 'off'],
+      ['DO_NOT_TRACK', '1'],
+    ]) {
+      vi.unstubAllEnvs();
+      vi.stubEnv(name, value);
+      const { telemetry, flush } = await loadTelemetry();
+      const middleware = telemetry(identity);
+      expect(middleware.onSettled).toBeUndefined();
+      expect(vi.getTimerCount()).toBe(0);
+      await flush();
+    }
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('sends nothing when a kill switch is set after the middleware is created', async () => {
+    const { telemetry, flush } = await loadTelemetry();
+    const { windows, sink } = sinkSpy();
+    const middleware = telemetry({ ...identity, sink });
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+    vi.stubEnv('REDOCLY_SDK_TELEMETRY', 'off');
+    await flush();
+    expect(windows).toEqual([]);
+  });
+
+  it('does nothing in a browser, also when the bundle adds a process shim', async () => {
+    vi.stubGlobal('document', {});
+    const { telemetry } = await loadTelemetry();
+    expect(telemetry(identity).onSettled).toBeUndefined();
+  });
+
+  it('flush() waits for a send that the window timer started', async () => {
+    const { telemetry, flush } = await loadTelemetry();
+    let finishSend = () => {};
+    const slowSink = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finishSend = resolve;
+        })
+    );
+    const middleware = telemetry({ ...identity, sink: slowSink });
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(slowSink).toHaveBeenCalledTimes(1);
+
+    let flushed = false;
+    const flushing = flush().then(() => {
+      flushed = true;
+    });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(flushed).toBe(false);
+    finishSend();
+    await flushing;
+    expect(flushed).toBe(true);
+  });
+
+  it('drops a window whose send fails, and flush() still resolves', async () => {
+    const { telemetry, flush } = await loadTelemetry();
+    const failingSink = vi.fn().mockRejectedValue(new Error('collector down'));
+    const middleware = telemetry({ ...identity, sink: failingSink });
+    const ok = { response: new Response(null, { status: 200 }), attempts: 1, durationMs: 10 };
+    await settle(middleware, 'getOrder', ok);
+    await expect(flush()).resolves.toBeUndefined();
+    await flush();
+    expect(failingSink).toHaveBeenCalledTimes(1);
+
+    const refusingFetch = vi.fn().mockRejectedValue(new TypeError('connect ECONNREFUSED'));
+    vi.stubGlobal('fetch', refusingFetch);
+    const withDefaultSink = (await loadTelemetry()).telemetry(identity);
+    await settle(withDefaultSink, 'getOrder', ok);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(refusingFetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('telemetry default sink', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function fetchSpy() {
+    const bodies: OtlpRequest[] = [];
+    const urls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init: RequestInit) => {
+        urls.push(url);
+        bodies.push(JSON.parse(init.body as string));
+        return new Response(null, { status: 200 });
+      })
+    );
+    return { bodies, urls };
+  }
+
+  it('posts OTLP/JSON spans with the collector attribute names under service.name redocly-sdk', async () => {
+    const { bodies, urls } = fetchSpy();
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+    await flush();
+
+    expect(urls).toEqual(['https://otel.cloud.redocly.com/v1/traces']);
+    const resourceSpans = bodies[0].resourceSpans[0];
+    expect(resourceSpans.resource.attributes).toEqual([
+      { key: 'service.name', value: { stringValue: 'redocly-sdk' } },
+      { key: 'service.version', value: { stringValue: 'dev' } },
+    ]);
+    const spans = resourceSpans.scopeSpans[0].spans;
+    expect(spans).toHaveLength(1);
+    expect(spans[0].name).toBe('event.com.redocly.sdkUsage.aggregated');
+    expect(spans[0].startTimeUnixNano).toBe(spans[0].endTimeUnixNano);
+    expect(spans[0].attributes.map((attribute) => attribute.key)).toEqual(CLI_ATTRIBUTE_NAMES);
+    const values = new Map<string, unknown>();
+    for (const attribute of spans[0].attributes) values.set(attribute.key, attribute.value);
+    expect(values.get('cloudevents.event_data_content_type')).toEqual({
+      stringValue: 'application/json; charset=utf-8',
+    });
+    expect(values.get('cloudevents.event_origin')).toEqual({ stringValue: 'redocly-sdk' });
+    expect(values.get('cloudevents.event_category')).toEqual({ stringValue: 'product' });
+    expect(values.get('cloudevents.event_signal')).toEqual({ stringValue: 'metric' });
+    expect(JSON.stringify(spans[0])).not.toContain('api.example.com');
+  });
+
+  it('posts to the endpoint option when it is set', async () => {
+    const { urls } = fetchSpy();
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry({ ...identity, endpoint: 'http://localhost:4318/v1/traces' });
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+    await flush();
+
+    expect(urls).toEqual(['http://localhost:4318/v1/traces']);
+  });
+
+  it('gives every span a new non-empty TraceId and SpanId, across flushes', async () => {
+    const { bodies } = fetchSpy();
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    const ok = { response: new Response(null, { status: 200 }), attempts: 1, durationMs: 10 };
+    await settle(middleware, 'getOrder', ok);
+    await settle(middleware, 'listOrders', ok);
+    await flush();
+    await settle(middleware, 'getOrder', ok);
+    await flush();
+
+    const spans: OtlpSpan[] = [];
+    for (const body of bodies) spans.push(...body.resourceSpans[0].scopeSpans[0].spans);
+    expect(spans).toHaveLength(3);
+    const traceIds = new Set(spans.map((span) => span.traceId));
+    const spanIds = new Set(spans.map((span) => span.spanId));
+    expect(traceIds.size).toBe(3);
+    expect(spanIds.size).toBe(3);
+    for (const span of spans) {
+      expect(span.traceId).toMatch(/^[0-9a-f]{32}$/);
+      expect(span.spanId).toMatch(/^[0-9a-f]{16}$/);
+    }
+  });
+});
