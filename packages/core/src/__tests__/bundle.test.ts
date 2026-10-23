@@ -1255,6 +1255,8 @@ describe('bundle with overlays', () => {
         'https://example.com/cafe.yaml'
       ),
       overlays: [path.join(__dirname, 'fixtures/overlay/overlays/not-found.yaml')],
+      // The overlay's local files are bundled even though URL references are kept.
+      keepUrlRefs: true,
     });
 
     expect(problems).toHaveLength(0);

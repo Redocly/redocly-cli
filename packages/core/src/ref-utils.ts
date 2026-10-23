@@ -99,6 +99,10 @@ export function isAbsoluteUrl(ref: string) {
   );
 }
 
+export function isFileUrl(ref: string) {
+  return ref.startsWith('file://');
+}
+
 export function getDir(filePath: string): string {
   if (!path.extname(filePath)) {
     return filePath;

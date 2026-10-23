@@ -14,6 +14,7 @@ import {
   parseRef,
   isAbsoluteUrl,
   isAnchor,
+  isFileUrl,
   isExternalValue,
   isRefWithSiblings,
   Location,
@@ -121,12 +122,11 @@ export class BaseResolver {
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
     try {
-      const isFileUrl = absoluteRef.startsWith('file://');
-      if (isAbsoluteUrl(absoluteRef) && !isFileUrl) {
+      if (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef)) {
         const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
         return new Source(absoluteRef, body, mimeType);
       } else {
-        const filePath = isFileUrl ? fileURLToPath(absoluteRef) : absoluteRef;
+        const filePath = isFileUrl(absoluteRef) ? fileURLToPath(absoluteRef) : absoluteRef;
         if (fs.lstatSync(filePath).isDirectory()) {
           throw new Error(`Expected a file but received a folder at ${filePath}.`);
         }
