@@ -100,6 +100,14 @@ describe('git utils', () => {
       );
     });
 
+    it('reports a git killed by a signal as a failure', async () => {
+      const child = mockChild();
+      const result = runGit(['fetch']);
+      child.emit('close', null);
+
+      await expect(result).resolves.toEqual({ code: 1, output: '' });
+    });
+
     it('explains a missing git binary', async () => {
       const child = mockChild();
       const exitCode = runGit(['pull']);
