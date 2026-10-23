@@ -123,9 +123,9 @@ The `--project-dir` option is designed to help manage multiple projects by reduc
 
 - A list of ejectable components is printed when no component is found by the `eject` command.
 
-- Ejected components only [override standard components](https://redocly.com/docs/platform/extend/how-to/eject-components#override-core-components) when the new component is located in your `@theme` folder with a matching path and filename.
+- Ejected components only [override standard components](https://redocly.com/docs/platform/customization/eject-components/eject-components-using-cli#override-core-components) when the new component is located in your `@theme` folder with a matching path and filename.
 
 ## Resources
 
-- Learn to [eject components](https://redocly.com/docs/platform/extend/how-to/eject-components) and unlock deeper project customization.
-- See how component ejection is used to [add a new color mode](https://redocly.com/docs/platform/extend/how-to/add-color-mode).
+- Learn to [eject components](https://redocly.com/docs/platform/customization/eject-components) and unlock deeper project customization.
+- See how component ejection is used to [add a new color mode](https://redocly.com/docs/platform/branding/customize-color-modes#add-new-color-modes).

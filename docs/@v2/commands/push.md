@@ -13,11 +13,11 @@ The content of the destination folder (in other words the `--mount-path`) is ove
 Have the following values ready to use with the `push` command:
 
 - A user account in a [Redocly platform project](https://auth.cloud.redocly.com/).
-- An active organization [API key](https://redocly.com/docs/platform/setup/how-to/api-keys).
+- An active organization [API key](https://redocly.com/docs/platform/organization/api-keys).
 - [Redocly CLI](../installation.md) installed.
 
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
-See the [Manage API keys](https://redocly.com/docs/platform/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
+See the [Manage API keys](https://redocly.com/docs/platform/organization/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
 
 ## Command usage
 
@@ -160,4 +160,4 @@ In this case the command waits for both deployments to finish.
 ## Resources
 
 - Use the [push-status command](./push-status.md) to check on an in-progress deploy.
-- For use in a CI context, check out the [GitHub Action](https://redocly.com/docs/platform/setup/reference/reunite-push-action).
+- For use in a CI context, check out the [GitHub Action](https://redocly.com/docs/platform/project/remote-content/reunite-push-action).

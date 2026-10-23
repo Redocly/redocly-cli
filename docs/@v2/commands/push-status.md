@@ -11,13 +11,13 @@ This identifier can be used by subsequent systems to perform custom logic when t
 Have the following before you use the `push-status` command:
 
 - A user account in a [Redocly platform project](https://auth.cloud.redocly.com/).
-- An active organization [API key](https://redocly.com/docs/platform/setup/how-to/api-keys).
+- An active organization [API key](https://redocly.com/docs/platform/organization/api-keys).
 - [Redocly CLI](../installation.md) v1.10.x or later.
 
 ## Authentication
 
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
-See the [Manage API keys](https://redocly.com/docs/platform/setup/how-to/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
+See the [Manage API keys](https://redocly.com/docs/platform/organization/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
 
 ## Usage
 
