@@ -99,6 +99,7 @@ export function makeDocumentFromString<T = unknown>(
 
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
+  #dirEntries: Map<string, Set<string>> = new Map();
 
   constructor(protected config: ResolveConfig = { http: { headers: [] } }) {}
 
@@ -177,6 +178,10 @@ export class BaseResolver {
       return cachedDocument;
     }
 
+    if (base && !isAbsoluteUrl(absoluteRef)) {
+      this.#checkPathCasing(path.dirname(base), absoluteRef);
+    }
+
     const doc = this.loadExternalRef(absoluteRef).then((source) => {
       return this.parseDocument(source, isRoot) as Document<T>;
     });
@@ -184,6 +189,41 @@ export class BaseResolver {
     this.cache.set(absoluteRef, doc);
 
     return doc;
+  }
+
+  // macOS and Windows file systems ignore letter case by default, so a $ref that fails on Linux still loads there.
+  // Compare each path segment that the $ref adds with the names on disk to fail the same way everywhere.
+  #checkPathCasing(baseDir: string, absoluteRef: string) {
+    let currentPath = baseDir;
+    for (const segment of path.relative(baseDir, absoluteRef).split(path.sep)) {
+      if (segment !== '..') {
+        let entries = this.#dirEntries.get(currentPath);
+        if (entries === undefined) {
+          try {
+            entries = new Set(fs.readdirSync(currentPath));
+          } catch {
+            // loadExternalRef reports a folder that is missing or can't be read.
+            entries = new Set();
+          }
+          this.#dirEntries.set(currentPath, entries);
+        }
+
+        if (!entries.has(segment)) {
+          const entryOnDisk = [...entries].find(
+            (entry) => entry.toLowerCase() === segment.toLowerCase()
+          );
+          if (entryOnDisk === undefined) {
+            return;
+          }
+          throw new ResolveError(
+            new Error(
+              `'${absoluteRef}' doesn't match the casing on disk: use '${entryOnDisk}' instead of '${segment}'`
+            )
+          );
+        }
+      }
+      currentPath = path.join(currentPath, segment);
+    }
   }
 }
 

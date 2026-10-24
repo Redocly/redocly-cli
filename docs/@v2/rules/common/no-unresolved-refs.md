@@ -34,6 +34,10 @@ The `$ref` (reference object) is useful for keeping your OpenAPI descriptions DR
 But if you make a typo, your `$ref` might not be resolvable.
 This rule prevents that from happening.
 
+File paths in a `$ref` are case-sensitive on every operating system.
+For example, `$ref: ./Pet.yaml` doesn't resolve to a file named `pet.yaml`, even on macOS and Windows, where file names usually ignore letter case.
+This way, an API description that works on your machine doesn't break on Linux.
+
 ## Configuration
 
 | Option   | Type   | Description                                                                                |

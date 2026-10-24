@@ -139,6 +139,66 @@ describe('oas3 boolean-parameter-prefixes', () => {
     expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
 
+  it('should report on a $ref whose casing differs from the file on disk', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/test':
+            put:
+              requestBody:
+                $ref: 'fixtures/Ref.yaml'
+            post:
+              requestBody:
+                $ref: 'Fixtures/ref.yaml'
+      `,
+      path.join(__dirname, 'foobar.yaml')
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/put/requestBody",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Can't resolve $ref: 'fixtures/Ref.yaml' doesn't match the casing on disk: use 'ref.yaml' instead of 'Ref.yaml'",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
+          "ruleId": "no-unresolved-refs",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/post/requestBody",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Can't resolve $ref: 'Fixtures/ref.yaml' doesn't match the casing on disk: use 'fixtures' instead of 'Fixtures'",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
+          "ruleId": "no-unresolved-refs",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should report on unresolved localr ref', async () => {
     const document = parseYamlToDocument(
       outdent`
