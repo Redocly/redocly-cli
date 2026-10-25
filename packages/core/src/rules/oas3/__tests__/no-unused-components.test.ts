@@ -485,4 +485,69 @@ describe('Oas3 no-unused-components', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('should not report used components or $defs when schema defines $id', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 1.0.0
+        paths:
+          /user-data:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/userData'
+        components:
+          schemas:
+            userData:
+              $id: 'https://example.com/classroom/userData'
+              type: object
+              properties:
+                challenges:
+                  type: array
+                  items:
+                    $ref: '#/$defs/Challenge'
+                tag:
+                  $ref: '../schemas/tag'
+              $defs:
+                Challenge:
+                  type: object
+                UnusedDef:
+                  type: string
+            Tag:
+              $id: 'https://example.com/schemas/tag'
+              type: object
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([
+      {
+        location: [
+          {
+            pointer: '#/components/schemas/userData/$defs/UnusedDef',
+            reportOnKey: true,
+            source: 'foobar.yaml',
+          },
+        ],
+        message: 'Component: "UnusedDef" is never used.',
+        reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
+        ruleId: 'no-unused-components',
+        severity: 'error',
+        suggest: [],
+      },
+    ]);
+  });
 });

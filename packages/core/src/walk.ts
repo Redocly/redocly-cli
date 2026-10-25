@@ -1,7 +1,7 @@
 import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
-import { Location, isRef, isRefWithSiblings } from './ref-utils.js';
+import { Location, isRef, isRefWithSiblings, getSchemaId, resolveSchemaId } from './ref-utils.js';
 import type {
   ResolveError,
   Source,
@@ -165,7 +165,14 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     combinedLeave[typeName] = (normalizedVisitors[typeName]?.leave || []).concat(anyLeave);
   }
 
-  walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
+  walkNode(
+    document.parsed,
+    rootType,
+    new Location(document.source, '#/'),
+    undefined,
+    '',
+    document.source.absoluteRef
+  );
 
   // oxlint-disable-next-line sonarjs/cognitive-complexity
   function walkNode(
@@ -173,12 +180,26 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     type: NormalizedNodeType,
     location: Location,
     parent: any,
-    key: string | number
+    key: string | number,
+    baseUri: string = location.source.absoluteRef,
+    baseUriIncludesNodeSchemaId: boolean = false
   ) {
-    const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
+    const rawLocation = location;
+    let currentLocation = location;
+    const rawSchemaId =
+      !baseUriIncludesNodeSchemaId && (type.name === 'Schema' || type.name === 'Root')
+        ? getSchemaId(node)
+        : undefined;
+    const rawBaseUri = rawSchemaId ? resolveSchemaId(baseUri, rawSchemaId) : baseUri;
+    let currentBaseUri = rawBaseUri;
+
+    const resolve: ResolveFn = (ref, from = currentBaseUri) => {
       if (!isRef(ref)) return { location, node: ref };
       const refId = makeRefId(from, ref.$ref);
-      const resolvedRef = resolvedRefMap.get(refId);
+      const resolvedRef =
+        resolvedRefMap.get(refId) ??
+        resolvedRefMap.get(makeRefId(currentBaseUri, ref.$ref)) ??
+        resolvedRefMap.get(makeRefId(currentLocation.source.absoluteRef, ref.$ref));
       if (!resolvedRef) {
         return {
           location: undefined,
@@ -196,9 +217,13 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       return { location: newLocation, node, error, chain };
     };
 
-    const rawLocation = location;
-    let currentLocation = location;
     const nodeIsRef = isRef(node);
+    const resolvedBaseUri = nodeIsRef
+      ? (
+          resolvedRefMap.get(makeRefId(currentBaseUri, node.$ref)) ??
+          resolvedRefMap.get(makeRefId(currentLocation.source.absoluteRef, node.$ref))
+        )?.baseUri
+      : undefined;
     const {
       node: resolvedNode,
       location: resolvedLocation,
@@ -245,7 +270,13 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     }
 
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
-      const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
+      const walkProp = (
+        propName: string,
+        value: unknown,
+        loc: Location,
+        valueParent: unknown,
+        propBaseUri: string
+      ) => {
         let propType = getOwn(type.properties, propName);
         const isExtensionKey =
           type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
@@ -274,10 +305,19 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           return;
         }
 
-        walkNode(value, propType, loc.child([propName]), valueParent, propName);
+        walkNode(value, propType, loc.child([propName]), valueParent, propName, propBaseUri);
       };
 
       currentLocation = resolvedLocation;
+      if (nodeIsRef) {
+        const resolvedSchemaId =
+          type.name === 'Schema' || type.name === 'Root' ? getSchemaId(resolvedNode) : undefined;
+        currentBaseUri =
+          resolvedBaseUri ??
+          (resolvedSchemaId
+            ? resolveSchemaId(resolvedLocation.source.absoluteRef, resolvedSchemaId)
+            : resolvedLocation.source.absoluteRef);
+      }
       // primitives have no identity to dedupe by — use their location; objects dedupe by identity
       const seenKey =
         isPlainObject(resolvedNode) || Array.isArray(resolvedNode)
@@ -379,7 +419,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               }
 
               if (isNamedType(itemType)) {
-                walkNode(itemValue, itemType, itemLocation, resolvedNode, i);
+                walkNode(itemValue, itemType, itemLocation, resolvedNode, i, currentBaseUri);
               }
             }
           }
@@ -400,7 +440,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           for (const propName of props) {
             const resolvedValue = resolvedNode[propName];
             if (resolvedValue !== undefined) {
-              walkProp(propName, resolvedValue, resolvedLocation, resolvedNode);
+              walkProp(propName, resolvedValue, resolvedLocation, resolvedNode, currentBaseUri);
             }
           }
         }
@@ -410,7 +450,15 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         // walk the composed $ref the resolution passed through; the rest of the chain follows
         const chainHop = resolvedChain[0];
         if (!walkedComposedRefs.has(composedRefWalkId(type, chainHop.location))) {
-          walkNode(chainHop.node, type, chainHop.location, undefined, key);
+          walkNode(
+            chainHop.node,
+            type,
+            chainHop.location,
+            undefined,
+            key,
+            chainHop.baseUri ?? chainHop.location.source.absoluteRef,
+            Boolean(chainHop.baseUri)
+          );
         }
       }
 
@@ -418,7 +466,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         // walk the keys written next to $ref; they resolve against the ref's own location
         for (const propName of Object.keys(node)) {
           if (propName !== '$ref' && node[propName] !== resolvedNode?.[propName]) {
-            walkProp(propName, node[propName], location, node);
+            walkProp(propName, node[propName], location, node, rawBaseUri);
           }
         }
       }
@@ -453,6 +501,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     }
 
     currentLocation = location;
+    currentBaseUri = rawBaseUri;
 
     if (nodeIsRef && !composedRefAlreadyWalked) {
       const refLeaveVisitors = normalizedVisitors.ref.leave;

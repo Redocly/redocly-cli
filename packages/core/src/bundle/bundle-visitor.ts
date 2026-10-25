@@ -165,6 +165,7 @@ export function makeBundleVisitor({
           // operation messages must point to channel messages, not to components.
           if (parseRef(node.$ref).uri !== null && node.$ref !== target.location.pointer) {
             node.$ref = target.location.pointer;
+            resolveBundledComponent(node, resolved, ctx);
           }
 
           return;
