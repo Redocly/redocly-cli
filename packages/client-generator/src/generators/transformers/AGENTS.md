@@ -19,6 +19,10 @@ values and back — the bridge for `dateType: Date` clients.
 - **Imports the sdk's schema TYPES** (so `typescript` is required) and nothing else.
 - Converters are pure and total: every named schema gets a pair, nested structures
   recurse, and a missing optional stays missing.
+- **A transform takes response data.** A response never carries `writeOnly`
+  properties, so the sdk types it `Omit<Name, …>`. The transform of a schema with
+  `writeOnly` properties takes that shape and returns the type it was given:
+  `<T extends Omit<Name, …>>(input: T): T`. Other transforms keep `(data: Name): Name`.
 
 ## The stage files
 
@@ -39,6 +43,6 @@ and regenerate.
 1. Edit this skill: state the new behavior or decision.
 2. Change the stage files named above (the entry is plumbing — it rarely moves).
 3. Verify: `npm run compile`, the folder's unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/transformers`),
+   (`npx vitest run packages/client-generator/src/generators/transformers`),
    the e2e suites for this generator, and the large-description bars
-   (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   (`packages/client-generator/tests/e2e/typescript/large-descriptions.test.ts`).

@@ -99,7 +99,7 @@ describe('clearHtmlCommentText', () => {
     const input = '<!-- hello world -->';
     const cleared = clearHtmlCommentText(input);
     expect(cleared).toBe('<!-- ..... ..... -->');
-    expect(cleared.length).toBe(input.length);
+    expect(cleared).toHaveLength(input.length);
   });
 
   it('preserves plain (non-trailing) spaces but clears trailing-space-before-newline runs', () => {
@@ -113,8 +113,8 @@ describe('clearHtmlCommentText', () => {
   it('never removes or inserts characters, and never touches newlines (line/column positions stay identical)', () => {
     const input = 'before\n<!--\nline with tabs\t\there\n-->\nafter\n';
     const cleared = clearHtmlCommentText(input);
-    expect(cleared.length).toBe(input.length);
-    expect(cleared.split('\n').length).toBe(input.split('\n').length);
+    expect(cleared).toHaveLength(input.length);
+    expect(cleared.split('\n')).toHaveLength(input.split('\n').length);
     expect(cleared.split('\n')[0]).toBe('before');
     expect(cleared.split('\n')[4]).toBe('after');
   });

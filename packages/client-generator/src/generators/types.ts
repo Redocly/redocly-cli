@@ -47,6 +47,7 @@ export type EmitOptions = {
   /** Leading element for every tanstack-query key — namespaces the cache when several
    * generated APIs share one QueryClient (operationIds may collide across APIs). */
   queryKeyPrefix?: string;
+  telemetry?: 'on' | 'off';
   /**
    * A pre-baked publisher setup block (from `bakeSetup`) merged into the client's config
    * via `mergeSetup`. Absent when no `--setup` is given.

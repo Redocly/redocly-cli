@@ -1,0 +1,5 @@
+{
+  "name": "client-setup-consumer",
+  "private": true,
+  "type": "module"
+}

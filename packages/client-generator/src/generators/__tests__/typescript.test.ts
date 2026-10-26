@@ -1,4 +1,5 @@
 import type { ApiModel } from '../../intermediate-representation/model.js';
+import { GENERATOR_VERSION } from '../compatibility.js';
 import { HEADER } from '../typescript/banner.js';
 import { typescriptGenerator as typescriptGeneratorEntry } from '../typescript/index.js';
 import { generatorInput } from './fixtures/generator-input.js';
@@ -98,5 +99,31 @@ describe('typescriptGenerator', () => {
     const entry = files.find((file) => file.path === '/out/api.ts')!;
     expect(entry.content).toContain("from './api.schemas.ts'");
     expect(entry.content).not.toContain('.schemas.js');
+  });
+});
+
+describe('typescriptGenerator: telemetry option', () => {
+  it('writes <stem>.telemetry.ts beside an unchanged client, and keeps a `$` in the stem', () => {
+    const withTelemetry = typescriptGenerator({
+      model: apiModel(),
+      outputPath: '/out/api$&.ts',
+      outputMode: 'single',
+      emit: { telemetry: 'on' },
+    });
+    const withoutTelemetry = typescriptGenerator({
+      model: apiModel(),
+      outputPath: '/out/api$&.ts',
+      outputMode: 'single',
+      emit: {},
+    });
+
+    expect(withTelemetry.map((file) => file.path)).toEqual([
+      '/out/api$&.ts',
+      '/out/api$&.telemetry.ts',
+    ]);
+    expect(withTelemetry[0].content).toBe(withoutTelemetry[0].content);
+    const module = withTelemetry[1].content;
+    expect(module).toContain("import type { Middleware, SettledCall } from './api$&.js';");
+    expect(module).toContain(`const GENERATOR_VERSION: string = '${GENERATOR_VERSION}';`);
   });
 });

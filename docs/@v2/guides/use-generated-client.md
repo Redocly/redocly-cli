@@ -8,10 +8,14 @@ To change what the command generates (publisher defaults, custom generators), se
 ## Generators
 
 The `--generator` option selects the output (default `typescript`).
-Each non-`typescript` generator adds a standalone module next to the client.
-The client never imports this module.
-Because of this, an add-on never adds a dependency to the client.
-Incompatible selections fail immediately with an explanation.
+There are two kinds of generators:
+
+- Add-on generators (`zod`, `tanstack-query`, `swr`, `mock`, `transformers`, `cli`) write a standalone module next to the TypeScript client.
+  The client never imports this module, so an add-on never adds a dependency to the client.
+- [Language SDK](#language-sdks) generators (`python`, `go`, `php`) write a full client in another language.
+  They do not need the `typescript` generator.
+
+If the selected generators are not compatible, the command stops and tells you why.
 
 | Generator        | Emits                                                                                                                                                                                                                                                     | App peer dependency                                      |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -22,15 +26,20 @@ Incompatible selections fail immediately with an explanation.
 | `mock`           | `<output>.mocks.ts`: [MSW](https://mswjs.io) v2 handlers and `create<Schema>` factories.                                                                                                                                                                  | `msw` `^2` (+ `@faker-js/faker` for `--mock-data faker`) |
 | `transformers`   | `<output>.transformers.ts`: `transform<Name>` functions that parse wire dates to `Date`.                                                                                                                                                                  | none                                                     |
 | `cli`            | `<output>.cli.ts`: a [command-line interface](#generated-cli) for the client, ready to use as a bin. It has typed flags, `--json` bodies, env auth, and `--page-all`.                                                                                     | none                                                     |
+| `python`         | `<output>.py`: a Python SDK in one file. The file name is in snake case.                                                                                                                                                                                  | `httpx` (+ `pydantic` for `models: pydantic`)            |
+| `go`             | `<output>.go`: a Go SDK in one file.                                                                                                                                                                                                                      | none                                                     |
+| `php`            | `<output>.php`: a PHP SDK in one file.                                                                                                                                                                                                                    | the `curl` extension                                     |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator typescript --generator zod --generator mock
 ```
 
-`tanstack-query`, `swr`, and `cli` wrap the throw-mode `typescript` client.
-Because of this, they require `--error-mode throw`.
-The `transformers` generator requires `--date-type Date`.
-See the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/mock) examples.
+Some generators need specific options:
+
+- `tanstack-query`, `swr`, `cli`, `go`, and `php` work only with `--error-mode throw` (the default).
+- `transformers` works only with `--date-type Date`.
+
+For sample output, see the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/mock) examples.
 
 ### Generated CLI
 
@@ -225,27 +234,31 @@ Only the `cli` generator emits a command: the `python`, `go`, and `php` SDKs are
 
 ### Language SDKs
 
-The `python`, `go`, and `php` generators each emit a full SDK for that language.
-The SDK is one self-contained file with the default `inline` runtime.
-The [`module` runtime](../commands/generate-client.md#choose-a-runtime) writes the runtime as real files beside the client instead.
-It has no dependencies other than the HTTP support of the language: `httpx` for Python, the standard library for Go, and the curl extension for PHP.
+The `python`, `go`, and `php` generators write a full SDK in one self-contained file.
+With the [`module` runtime](../commands/generate-client.md#choose-a-runtime), the runtime goes to separate files beside the SDK.
 
-One file is the intended deliverable, not a limitation.
-Users can download the file from a docs page, commit it, and read it from start to end.
-There is no package to publish and no import graph to connect.
-A description the size of a large public API produces a file of a few megabytes.
-Each of these languages loads a file of that size without problems.
-If you want a different layout, [eject the generator](../commands/eject-generator.md).
-The `run` function returns the list of files, so you can split the output with a change to your own copy.
+You can download, commit, and read the file like any other source file.
+You do not have to publish a package.
+For a different file layout, [eject the generator](../commands/eject-generator.md).
 
-**They are the TypeScript client in another language.**
-Every capability is the same: typed models with `allOf` flattened, enums, discriminated unions decoded by their discriminator, and one method per operation.
-The SDKs also include [auth](#authentication), retries with `Retry-After` and jittered backoff, timeouts, idempotency keys, middleware, and pagination iterators.
-They also include SSE streaming, multipart bodies, binary downloads, typed response-header envelopes, and server-URL helpers for templated servers.
-Configuration is the same too: [`serverUrl`](../commands/generate-client.md), [`dateType`](../commands/generate-client.md), [`pagination`](../configuration/reference/client.md#pagination-object), and [`codeSamples`](../configuration/reference/client.md) all apply.
-Each language names its output in its own way: the Python module comes from the output file name, the PHP namespace comes from the API title, and Go uses `package client` or [`goPackage`](../configuration/reference/client.md).
-If you set an option that a language cannot apply, the generator prints a warning with the option name and the reason.
-The option never disappears silently.
+The SDKs have the same features as the TypeScript client:
+
+- Typed models, enums, and discriminated unions.
+- One method for each operation.
+- [Auth](#authentication), retries, timeouts, idempotency keys, and middleware.
+- Pagination iterators, SSE streaming, multipart bodies, and binary downloads.
+
+The [`serverUrl`, `dateType`, `pagination`, and `codeSamples`](../configuration/reference/client.md) options apply to the SDKs too.
+If an option does not apply to a language, the command prints a warning.
+
+Each SDK gets its name as follows:
+
+- Python: the module name comes from the output file name.
+- Go: the package is `client`, or the value of [`goPackage`](../configuration/reference/client.md).
+- PHP: the namespace comes from the API title.
+
+{% tabs %}
+{% tab label="Python" %}
 
 ```python
 from openapi_client import Client
@@ -255,24 +268,22 @@ for order in client.list_orders_items(limit=50):
     print(order)
 ```
 
-The Python models are dataclasses, so `httpx` stays the only requirement.
-If your project expects [pydantic](https://docs.pydantic.dev/) models, ask for them:
+{% /tab  %}
+{% tab label="Go" %}
 
-```yaml
-client:
-  generators: [python]
-  options:
-    python:
-      models: pydantic # default: dataclass
+```go
+api := client.New(client.Config{Auth: client.Auth{Bearer: func() string { return "TOKEN" }}})
+
+for order, err := range api.ListOrdersItems(ctx, nil) {
+    if err != nil {
+        break
+    }
+    fmt.Println(order.Id)
+}
 ```
 
-Every class then extends `BaseModel`, and a wire name that is not a legal Python field name becomes a field alias.
-The call sites do not change: the same class names, the same field names, the same client.
-Pydantic then validates each response as the SDK decodes it, so a response that does not match the description raises `ValidationError` instead of passing through.
-This mode needs `pydantic` next to `httpx`, and the header of the generated file says so.
-A discriminated union keeps its discriminator in both modes, and each member declares its own value as a `Literal`.
-For this to work, every member schema must declare the discriminator property.
-When a member omits it, pydantic matches the members of a nested union by shape, which can select the wrong one.
+{% /tab  %}
+{% tab label="PHP" %}
 
 ```php
 require 'client.php';
@@ -285,16 +296,28 @@ foreach ($client->listOrdersItems(limit: 50) as $order) {
 }
 ```
 
-```go
-api := client.New(client.Config{Auth: client.Auth{Bearer: func() string { return "TOKEN" }}})
+{% /tab  %}
+{% /tabs %}
 
-for order, err := range api.ListOrdersItems(ctx, nil) {
-    if err != nil {
-        break
-    }
-    fmt.Println(order.Id)
-}
+#### Pydantic models
+
+The Python SDK uses dataclasses by default.
+To get [pydantic](https://docs.pydantic.dev/) models, set the `models` option:
+
+```yaml
+client:
+  generators: [python]
+  options:
+    python:
+      models: pydantic # default: dataclass
 ```
+
+The class names, field names, and call sites stay the same.
+Pydantic validates each response, and a response that does not match the description raises `ValidationError`.
+This mode needs `pydantic` next to `httpx`.
+
+For discriminated unions, every member schema must declare the discriminator property.
+If a member does not declare it, pydantic can select the wrong member.
 
 #### Auth, middleware, and reserved names by language
 
@@ -433,7 +456,7 @@ node src/main.ts
 Keep the default `js` when the client goes through `tsc` or a bundler.
 Plain `tsc` rejects `.ts` specifiers unless the project enables `allowImportingTsExtensions`.
 Loaders such as `tsx` remap `.js` to `.ts` themselves, so they work with the default.
-See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/node-native).
+See the [`node-native` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/node-native).
 
 **Every generated TypeScript file is erasable TypeScript**, so type stripping alone is enough.
 The client, the zod module, and the generated CLI all run under plain `node` with no build step.
@@ -552,6 +575,15 @@ The position of `readOnly` matters, and it follows the specification version:
   The [`spec-ref-siblings`](../rules/oas/spec-ref-siblings.md) rule flags the same thing when you lint.
   To mark a referenced property read-only in 3.0, inline the schema or wrap the `$ref` in an `allOf`.
 
+## Write-only properties
+
+The server never returns a property marked `writeOnly: true`, for example a password.
+The generated success response types, zod response schemas, and mocks leave it out, and request bodies keep it.
+This applies to a response that is the schema, a list or map of it, or an inline object that holds it.
+When a named schema holds it, for example a `CustomerPage` with a `data` property, the response type keeps it.
+The Python, Go, and PHP clients share one model for requests and responses, so there the property is optional.
+The position of `writeOnly` next to a `$ref` follows the same rules as `readOnly`.
+
 ## Error handling
 
 By default (`--error-mode throw`), an operation throws `ApiError` on a non-2xx response.
@@ -603,6 +635,34 @@ use({
 The client serializes and sends body edits.
 `onResponse` can return a replacement `Response`.
 The client threads `onError` (throw mode only) through each middleware.
+
+`onSettled` runs once per sent call, after the last retry, in registration order.
+It runs in both error modes, for each pagination page, and for each SSE connection, before a failed response becomes an error.
+It receives the request context and the outcome: the `response`, the `error`, or both, the number of `attempts`, and the `durationMs`.
+The duration starts before the first attempt and ends after the `onResponse` hooks run on the final response.
+
+A call that fails in an `onRequest` hook or in body serialization does not reach `onSettled`.
+A call whose signal is already aborted reaches `onSettled` with 0 attempts.
+
+Use `onSettled` to count, time, or log calls:
+
+```ts
+import { use } from './client.ts';
+
+use({
+  onSettled: (ctx, call) => {
+    const outcome = call.response ? call.response.status : 'failed';
+    console.log(
+      `${ctx.operation.id}: ${outcome}, ${call.attempts} attempt(s), ${call.durationMs} ms`
+    );
+  },
+});
+```
+
+`onSettled` is a middleware hook only; `ClientConfig` has no single `onSettled` hook.
+An error that `onSettled` throws rejects a successful call after all `onSettled` hooks run.
+When the call already failed, the call rejects with its own error, and the client logs the hook error with `console.warn`.
+
 The fields of `ctx.operation` are typed as literal unions from the description (`OperationId`/`OperationPath`/`OperationTag`).
 Because of this, `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete.
 An operation id with a spelling error fails compilation, and it does not silently miss all matches.
@@ -625,7 +685,7 @@ It composes with middleware that is already registered or that the publisher pre
 Use it to reset the chain.
 But prefer `use()` to add to existing middleware, including [publisher pre-configured](./customize-client-generation.md#publisher-defaults) middleware.
 
-See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/configure-and-middleware) for a runnable version.
+See the [`configure-and-middleware` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/configure-and-middleware) for a runnable version.
 
 ## The HTTP layer
 
@@ -696,6 +756,8 @@ An aborted `AbortSignal` stops retries immediately.
 
 A `timeout` (milliseconds) aborts an attempt that takes too long, including the body read.
 The timeout composes with your own `AbortSignal`.
+The client does not need `AbortSignal.timeout()` or `AbortSignal.any()` from the browser.
+Where a browser lacks them, the client builds the same signal from an `AbortController`, so you do not need a polyfill.
 Each retry attempt gets a fresh time budget.
 An attempt that times out retries under the same policy as a network error.
 When no retries remain, the failure surfaces as a `TimeoutError`, exported next to `ApiError`.
@@ -964,7 +1026,7 @@ Each paginated operation keeps its one-shot call and gains two async iterators.
 `.pages(args?, init?)` yields full pages, and `.items(args?, init?)` yields individual items.
 Both are typed statically from the response schema.
 
-The client supports four styles.
+The client supports five styles.
 `cursor` sends the response's `nextCursor` back in `cursorParam`.
 It stops when the cursor is absent, `null`, or empty.
 It throws if the server returns the same cursor two times in a row.
@@ -983,6 +1045,14 @@ Because of this, every page goes through the same declared endpoint: auth and mi
 Iteration stops when no `rel="next"` is present, and it throws if the target repeats.
 A `link` convention rule applies only to operations whose success response documents a `Link` header.
 An explicit rule applies in all cases, but it warns when the header is undocumented.
+
+`body-link` follows the URL of the next page from a field in the response body, for example a `next_page_url` field.
+Set `nextLink` to the pointer of that field (for example `/page/nextPage`).
+The runtime handles the URL the same way as a `link` target: it merges the query parameters of the URL into the next call.
+Only the query parameters of the URL are used.
+The next call goes to the client's own `serverUrl` and the operation's path, even when the URL names another host.
+Iteration stops when the value is absent, `null`, or empty, and it throws if the URL repeats.
+A `body-link` convention rule applies only to operations whose success response resolves the pointer to a string.
 
 `limitParam` is optional metadata for any style.
 The iterator never sets it, so pass your page size in `params` yourself.
@@ -1016,6 +1086,10 @@ for await (const page of client.listOrders.pages(
 }
 ```
 
+The default `mock` handlers end the iteration: a `cursor` handler returns the last page, and an `offset` or `page` handler returns an empty page after the first one.
+An override to the handler sets the data of the first page only.
+To test more pages, write your own MSW handler.
+
 A failed page always stops iteration with a thrown `ApiError`, even on an `--error-mode result` client.
 On a result-mode client, `.pages()` yields raw pages, not `{ data, error, response }` envelopes.
 Only the one-shot call keeps the envelope.
@@ -1024,7 +1098,7 @@ The client also does not invoke the `onError` middleware hook, which is throw-mo
 The built-in styles do not cover every shape, for example a cursor that travels in the request body or in a header.
 For those shapes, write a small helper over the generated call.
 The helper stays fully typed from end to end.
-See the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-pagination).
+See the [`custom-pagination` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/custom-pagination).
 
 ## TanStack Query factories
 
@@ -1038,6 +1112,7 @@ The `tanstack-query` generator emits typed TanStack Query v5 factories for each 
   Pass it to `useInfiniteQuery`/`fetchInfiniteQuery`.
   The generator compiles the `initialPageParam`/`getNextPageParam` pair from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, and it includes the `hasMore` stop.
   Because of this, infinite queries need no hand-written `getNextPageParam`.
+  For a `body-link` operation, the URL of the next page is the page param, and the next call merges its query parameters over `vars`.
   `link`-style operations are the exception, because their next page lives in a response header that a `queryFn` cannot see.
   Use the client's `.pages()`/`.items()` iterators for those.
 - `<op>QueryKey(vars?)`.

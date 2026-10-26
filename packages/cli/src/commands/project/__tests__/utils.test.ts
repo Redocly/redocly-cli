@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
-import { buildProjectGitUrl, getCredentialHelperConfig, runGit } from '../utils.js';
+import { getCredentialHelperConfig, runGit } from '../utils.js';
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn() }));
 vi.mock('node:fs', () => ({ existsSync: vi.fn() }));
@@ -17,14 +17,6 @@ describe('git utils', () => {
 
   afterEach(() => {
     process.env = originalEnv;
-  });
-
-  describe('buildProjectGitUrl', () => {
-    it('builds the project git URL and encodes the segments', () => {
-      expect(buildProjectGitUrl('http://localhost', 'acme', 'my docs')).toBe(
-        'http://localhost/api/orgs/acme/projects/my%20docs/git'
-      );
-    });
   });
 
   describe('getCredentialHelperConfig', () => {
@@ -70,19 +62,19 @@ describe('git utils', () => {
     });
   });
 
-  describe('runGit', () => {
-    function mockChild() {
-      const child = new EventEmitter();
-      vi.mocked(spawn).mockReturnValue(child as any);
-      return child;
-    }
+  function mockChild() {
+    const child = Object.assign(new EventEmitter(), { stdout: new EventEmitter() });
+    vi.mocked(spawn).mockReturnValue(child as any);
+    return child;
+  }
 
+  describe('runGit', () => {
     it('runs git without terminal prompts and resolves with its exit code', async () => {
       const child = mockChild();
-      const exitCode = runGit(['push', '--force']);
+      const result = runGit(['push', '--force']);
       child.emit('close', 1);
 
-      await expect(exitCode).resolves.toBe(1);
+      await expect(result).resolves.toEqual({ code: 1, output: '' });
       expect(spawn).toHaveBeenCalledWith(
         'git',
         ['push', '--force'],
@@ -91,6 +83,29 @@ describe('git utils', () => {
           env: expect.objectContaining({ GIT_TERMINAL_PROMPT: '0' }),
         })
       );
+    });
+
+    it('resolves with the trimmed output of git with `capture`', async () => {
+      const child = mockChild();
+      const result = runGit(['branch', '--show-current'], { capture: true });
+      child.stdout.emit('data', Buffer.from('fix-'));
+      child.stdout.emit('data', Buffer.from('typo\n'));
+      child.emit('close', 0);
+
+      await expect(result).resolves.toEqual({ code: 0, output: 'fix-typo' });
+      expect(spawn).toHaveBeenCalledWith(
+        'git',
+        ['branch', '--show-current'],
+        expect.objectContaining({ stdio: ['ignore', 'pipe', 'ignore'] })
+      );
+    });
+
+    it('reports a git killed by a signal as a failure', async () => {
+      const child = mockChild();
+      const result = runGit(['fetch']);
+      child.emit('close', null);
+
+      await expect(result).resolves.toEqual({ code: 1, output: '' });
     });
 
     it('explains a missing git binary', async () => {

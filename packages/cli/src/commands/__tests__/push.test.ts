@@ -36,8 +36,6 @@ const argv: PushArgv = {
 describe('handlePush()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.mocked(collectFilesToPush).mockReturnValue([{ name: 'test-file', path: '/abs/test-file' }]);
     vi.mocked(pushFiles).mockImplementation(async ({ onUploadStart }) => {
       onUploadStart?.({ mountPath: 'remote-mount-path' } as UpsertRemoteResponse);

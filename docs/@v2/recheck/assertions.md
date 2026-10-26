@@ -240,7 +240,7 @@ scope: heading
 assertions:
   capitalization:
     match: $sentence
-    exceptions: [Redocly, Reunite]
+    exceptions: [Redocly, the Redocly platform]
 ```
 
 | Option              | Type     | Required | Description                                                                                                                |
@@ -262,7 +262,7 @@ Words in all caps, such as `API`, and inline code are never changed.
 `--fix` rewrites a single-line segment for the four `$` styles.
 A segment that spans several lines is skipped.
 
-Message placeholders: the segment text, then the `match` value.
+Message placeholders: the segment text, then the name of the style (`title case`, `sentence case`, `lowercase`, or `uppercase`) or the `match` regex.
 
 ### `length`
 
@@ -317,7 +317,7 @@ The English dictionary ships with Redocly CLI.
 scope: summary
 assertions:
   spelling:
-    vocab: [Redocly, Reunite]
+    vocab: [Redocly, Platform]
     ignore: ['\bAcme\w*']
 ```
 

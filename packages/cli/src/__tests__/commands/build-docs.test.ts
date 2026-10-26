@@ -1,87 +1,134 @@
-import { createConfig, HandledError } from '@redocly/openapi-core';
+import { createConfig, HandledError, logger } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
-import { renderToString } from 'react-dom/server';
-import { createStore, loadAndBundleSpec } from 'redoc';
-import { type OpenAPISpec } from 'redoc/typings/types/index.js';
 
-import { handlerBuildCommand } from '../../commands/build-docs/index.js';
-import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
-import { getObjectOrJSON, getPageHTML } from '../../commands/build-docs/utils.js';
-import type * as miscellaneous from '../../utils/miscellaneous.js';
-import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import {
+  escapeClosingScriptTag,
+  getPageHTML,
+  getRedocOptions,
+  sanitizeJSONString,
+} from '../../commands/build-docs/utils.js';
 
-vi.mock('redoc');
 vi.mock('node:fs');
-vi.mock('../../utils/miscellaneous.js', async (importOriginal) => ({
-  ...(await importOriginal<typeof miscellaneous>()),
-  getFallbackApisOrExit: vi.fn(),
-}));
-vi.mock('react-dom/server', () => ({
-  renderToString: vi.fn(),
-}));
-vi.mock('handlebars', () => ({
-  compile: vi.fn(() => vi.fn(() => '<html></html>')),
-  default: {
-    compile: vi.fn(() => vi.fn(() => '<html></html>')),
-  },
-}));
-
-const config = {
-  output: '',
-  title: 'Test',
-  disableGoogleFont: false,
-  templateFileName: '',
-  templateOptions: {},
-  redocOptions: {},
-};
 
 describe('build-docs', () => {
   beforeEach(() => {
-    vi.mocked(loadAndBundleSpec).mockResolvedValue({ openapi: '3.0.0' } as OpenAPISpec);
-    vi.mocked(createStore).mockResolvedValue({ toJS: vi.fn(async () => '{}' as any) } as any);
-
-    vi.mocked(fs.readFileSync).mockImplementation(() => '');
-
-    vi.mocked(getFallbackApisOrExit).mockImplementation(
-      async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
-    );
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
   });
 
-  it('should return correct html and call function for ssr', async () => {
-    const result = await getPageHTML({}, '../some-path/openapi.yaml', {
-      ...config,
-      redocVersion: '2.0.0',
+  describe('getRedocOptions', () => {
+    it('returns options given as an object as they are', async () => {
+      const options = { hideDownloadButtons: true };
+
+      expect(getRedocOptions(options, await createConfig({}), 'openapi')).toBe(options);
     });
-    expect(renderToString).toHaveBeenCalledTimes(1);
-    expect(createStore).toHaveBeenCalledTimes(1);
-    expect(result).toBe('<html></html>');
-  });
 
-  it('should work correctly when calling handlerBuildCommand', async () => {
-    const processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
-    await handlerBuildCommand({
-      argv: {
-        o: '',
-        title: 'test',
-        disableGoogleFont: false,
-        template: '',
-        templateOptions: {},
-        theme: { openapi: {} },
-        api: '../some-path/openapi.yaml',
-      } as BuildDocsArgv,
-      config: await createConfig({}),
-      version: 'cli-version',
+    it('reads options from a JSON file', async () => {
+      const redoclyConfig = await createConfig({});
+      vi.mocked(fs.existsSync).mockReturnValueOnce(true);
+      vi.mocked(fs.lstatSync).mockReturnValueOnce({ isFile: () => true } as fs.Stats);
+      vi.mocked(fs.readFileSync).mockReturnValueOnce('{"hideDownloadButtons":true}');
+
+      expect(getRedocOptions('options.json', redoclyConfig, 'openapi')).toEqual({
+        hideDownloadButtons: true,
+      });
+      expect(fs.readFileSync).toHaveBeenCalledWith('options.json', 'utf-8');
     });
-    expect(loadAndBundleSpec).toBeCalledTimes(1);
-    expect(getFallbackApisOrExit).toBeCalledTimes(1);
-    expect(processExitMock).toBeCalledTimes(0);
+
+    it('parses options given as a JSON string', async () => {
+      expect(
+        getRedocOptions('{"hideDownloadButtons":true}', await createConfig({}), 'openapi')
+      ).toEqual({ hideDownloadButtons: true });
+    });
+
+    it('falls back to the matching key of the configuration file', async () => {
+      const redoclyConfig = await createConfig(
+        { asyncapi: { jsonSamplesDepth: 4 } },
+        { configPath: 'redocly.yaml' }
+      );
+
+      expect(getRedocOptions(undefined, redoclyConfig, 'asyncapi')).toEqual({
+        jsonSamplesDepth: 4,
+      });
+      expect(getRedocOptions(undefined, redoclyConfig, 'graphql')).toEqual({});
+    });
+
+    it('returns no options without a configuration file', async () => {
+      expect(getRedocOptions(undefined, await createConfig({}), 'openapi')).toEqual({});
+    });
+
+    it('rejects a JSON value that is not an object', async () => {
+      const redoclyConfig = await createConfig({});
+
+      expect(() => getRedocOptions('null', redoclyConfig, 'openapi')).toThrow(
+        'Expected --openapi to be a JSON object or a path to a JSON file, got: null'
+      );
+      expect(() => getRedocOptions(['a', 'b'], redoclyConfig, 'asyncapi')).toThrow(
+        'Expected --asyncapi to be a JSON object or a path to a JSON file, got: ["a","b"]'
+      );
+    });
+
+    it('reports an invalid value with the parse error', async () => {
+      const redoclyConfig = await createConfig({});
+
+      expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(HandledError);
+      expect(() => getRedocOptions('not json', redoclyConfig, 'openapi')).toThrow(
+        /^Expected --openapi to be a JSON object or a path to a JSON file, got: not json\nUnexpected token/
+      );
+    });
   });
 
-  it('reports an invalid --theme.openapi value with the parse error only', async () => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    const redoclyConfig = await createConfig({});
+  describe('getPageHTML', () => {
+    const cafe = { openapi: '3.2.0', info: { title: 'Redocly Cafe', version: '1.0.0' }, paths: {} };
+    const options = { output: 'redoc-static.html', redocVersion: '3.0.1', templateOptions: {} };
+    const titleOf = (html: string) => html.match(/<title>(.*)<\/title>/)?.[1];
 
-    expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(HandledError);
-    expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(/^Unexpected token/);
+    beforeEach(() => {
+      vi.mocked(fs.readFileSync).mockReturnValue('export function hydrate() {}</script>');
+    });
+
+    it('prefers the title option over the title of the description', async () => {
+      const html = await getPageHTML(cafe, { ...options, title: 'Cafe docs' });
+
+      expect(titleOf(html)).toBe('Cafe docs');
+    });
+
+    it('gives a GraphQL schema a default title', async () => {
+      const html = await getPageHTML('type Query { menu: [String] }', options);
+
+      expect(titleOf(html)).toBe('ReDoc documentation');
+    });
+
+    it('uses the template file over the htmlTemplate option', async () => {
+      vi.mocked(fs.readFileSync).mockReturnValueOnce('<title>{{title}}</title>');
+
+      const html = await getPageHTML(cafe, {
+        ...options,
+        templateFileName: 'custom.hbs',
+        redocOptions: { htmlTemplate: 'other.hbs' },
+      });
+
+      expect(fs.readFileSync).toHaveBeenCalledWith('custom.hbs', 'utf-8');
+      expect(html).toBe('<title>Redocly Cafe</title>');
+    });
+
+    it('escapes </script in the inlined Redoc bundle', async () => {
+      const html = await getPageHTML(cafe, { ...options, inlineBundle: true });
+
+      expect(html).toContain('export function hydrate() {}<\\/script>');
+    });
+  });
+
+  describe('sanitizeJSONString', () => {
+    it('escapes every < and the U+2028 and U+2029 separators', () => {
+      expect(sanitizeJSONString('"</SCRIPT> <!-- \u2028 \u2029"')).toBe(
+        '"\\u003c/SCRIPT> \\u003c!-- \\u2028 \\u2029"'
+      );
+    });
+  });
+
+  describe('escapeClosingScriptTag', () => {
+    it('escapes </script in any letter case', () => {
+      expect(escapeClosingScriptTag('a</script>b</SCRIPT >c')).toBe('a<\\/script>b<\\/SCRIPT >c');
+    });
   });
 });

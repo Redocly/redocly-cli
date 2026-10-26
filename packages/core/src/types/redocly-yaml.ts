@@ -388,6 +388,7 @@ const Client: NodeType = {
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
+    telemetry: { enum: ['on', 'off'] },
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
@@ -405,11 +406,12 @@ const ClientGeneratorOptions: NodeType = {
 };
 const ClientPaginationRule: NodeType = {
   properties: {
-    style: { enum: ['cursor', 'offset', 'page', 'link'] },
+    style: { enum: ['cursor', 'offset', 'page', 'link', 'body-link'] },
     cursorParam: { type: 'string' },
     nextCursor: { type: 'string' },
     hasMore: { type: 'string' },
     offsetParam: { type: 'string' },
+    nextLink: { type: 'string' },
     limitParam: { type: 'string' },
     items: { type: 'string' },
   },

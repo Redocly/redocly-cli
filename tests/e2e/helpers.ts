@@ -1,4 +1,5 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -8,21 +9,24 @@ export function getParams(indexEntryPoint: string, args: string[] = []): string[
   return [indexEntryPoint, ...args];
 }
 
-export function runCommand(
+export type CommandResult = { status: number | null; stdout: string; stderr: string };
+
+type CommandOptions = { env?: Record<string, string>; testPath?: string };
+
+// `NODE_ENV=test` turns off the update notifier, the color variables keep the output plain,
+// and `REDOCLY_TELEMETRY=off` keeps the tests from sending usage data.
+const TEST_ENV = { NODE_ENV: 'test', NO_COLOR: 'TRUE', FORCE_COLOR: '0', REDOCLY_TELEMETRY: 'off' };
+
+/** Run a command and return its exit status, stdout, and stderr. */
+export function runCommandResult(
   command: string,
   args: string[],
-  options?: { env?: Record<string, string>; testPath?: string }
-) {
+  options?: CommandOptions
+): CommandResult {
   const result = spawnSync(command, args, {
     encoding: 'utf-8',
     stdio: 'pipe',
-    env: {
-      ...process.env,
-      NODE_ENV: 'test',
-      NO_COLOR: 'TRUE',
-      FORCE_COLOR: '0',
-      ...options?.env,
-    },
+    env: { ...process.env, ...TEST_ENV, ...options?.env },
     cwd: options?.testPath,
   });
 
@@ -30,9 +34,41 @@ export function runCommand(
     throw new Error(`Command execution failed: ${result.error.message}`);
   }
 
-  const out = result.stdout ? result.stdout.toString() : '';
-  const err = result.stderr ? result.stderr.toString() : '';
-  return `${out}\n${err}`;
+  return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
+}
+
+export function runCommand(command: string, args: string[], options?: CommandOptions) {
+  const result = runCommandResult(command, args, options);
+  return `${result.stdout}\n${result.stderr}`;
+}
+
+/**
+ * Run a command without blocking the test process and return its exit status, stdout, and
+ * stderr. A `timeout` kills a command that hangs, so the test fails instead of waiting.
+ */
+export async function runCommandResultAsync(
+  command: string,
+  args: string[],
+  options?: CommandOptions & { timeout?: number }
+): Promise<CommandResult> {
+  const child = spawn(command, args, {
+    env: { ...process.env, ...TEST_ENV, ...options?.env },
+    cwd: options?.testPath,
+    timeout: options?.timeout,
+  });
+
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', (chunk) => (stdout += chunk));
+  child.stderr.on('data', (chunk) => (stderr += chunk));
+  const [status] = await once(child, 'close');
+
+  return { status, stdout, stderr };
+}
+
+export async function runCommandAsync(command: string, args: string[], options?: CommandOptions) {
+  const result = await runCommandResultAsync(command, args, options);
+  return `${result.stdout}\n${result.stderr}`;
 }
 
 export function getCommandOutput(

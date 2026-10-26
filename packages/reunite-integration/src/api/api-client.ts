@@ -1,12 +1,17 @@
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
+import { FormData } from 'undici';
 
 import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
 import type {
+  CreatePullRequestPayload,
+  ProjectBuildResponse,
   ProjectResponse,
-  ProjectSourceResponse,
+  ProjectSourcesListResponse,
+  PullRequestCheck,
+  PullRequestResponse,
   PushResponse,
   UpsertRemoteResponse,
 } from './types.js';
@@ -52,14 +57,11 @@ export class ReuniteApiClient implements BaseApiClient {
 
       return response;
     } catch (err) {
-      let errorMessage = 'Failed to fetch.';
+      const reason = err.cause ?? err;
+      let errorMessage = `Failed to fetch. Caused by ${reason.message || reason.name}.`;
 
-      if (err.cause) {
-        errorMessage += ` Caused by ${err.cause.message || err.cause.name}.`;
-      }
-
-      if (err.code || err.cause?.code) {
-        errorMessage += ` Code: ${err.code || err.cause?.code}`;
+      if (typeof reason.code === 'string') {
+        errorMessage += ` Code: ${reason.code}`;
       }
 
       throw new Error(errorMessage);
@@ -107,8 +109,36 @@ abstract class ResourceApi {
   constructor(
     protected client: BaseApiClient,
     protected readonly domain: string,
-    protected readonly apiKey: string
+    protected readonly authHeaders: Record<string, string>
   ) {}
+
+  protected projectUrl(organization: string, project: string) {
+    return `${this.domain}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(project)}`;
+  }
+
+  // Prefixes `failure` to the message of any error.
+  protected async fetchJson<T>(
+    url: string,
+    options: FetchWithTimeoutOptions,
+    failure: string
+  ): Promise<T> {
+    try {
+      const response = await this.client.request(url, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', ...this.authHeaders },
+      });
+
+      return await this.getParsedResponse<T>(response);
+    } catch (err) {
+      const message = `${failure}. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
+    }
+  }
 
   protected async getParsedResponse<T>(response: Response): Promise<T> {
     const responseBody = await response.json();
@@ -135,7 +165,7 @@ class ProjectsApi extends ResourceApi {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
+            ...this.authHeaders,
           },
         }
       );
@@ -161,18 +191,23 @@ class RemotesApi extends ResourceApi {
   async getDefaultBranch(organizationId: string, projectId: string) {
     try {
       const response = await this.client.request(
-        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/sources`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
+            ...this.authHeaders,
           },
         }
       );
 
-      const source = await this.getParsedResponse<ProjectSourceResponse>(response);
+      const sources = await this.getParsedResponse<ProjectSourcesListResponse>(response);
+      const [source] = sources.data;
+
+      if (!source) {
+        throw new Error('Project source not found.');
+      }
 
       return source.branchName;
     } catch (err) {
@@ -202,7 +237,7 @@ class RemotesApi extends ResourceApi {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
+            ...this.authHeaders,
           },
           body: JSON.stringify({
             mountPath: remote.mountPath,
@@ -231,7 +266,7 @@ class RemotesApi extends ResourceApi {
     payload: PushPayload,
     files: { path: string; stream: ReadStream | Buffer }[]
   ): Promise<PushResponse> {
-    const formData = new globalThis.FormData();
+    const formData = new FormData();
 
     formData.append('remoteId', payload.remoteId);
     formData.append('commit[message]', payload.commit.message);
@@ -273,7 +308,7 @@ class RemotesApi extends ResourceApi {
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${this.apiKey}`,
+            ...this.authHeaders,
           },
           body: formData,
         }
@@ -308,7 +343,7 @@ class RemotesApi extends ResourceApi {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
+            ...this.authHeaders,
           },
         }
       );
@@ -323,6 +358,66 @@ class RemotesApi extends ResourceApi {
 
       throw new Error(message);
     }
+  }
+}
+
+export class PullRequestsApi extends ResourceApi {
+  create(
+    organization: string,
+    project: string,
+    pullRequest: CreatePullRequestPayload
+  ): Promise<PullRequestResponse> {
+    return this.fetchJson(
+      `${this.projectUrl(organization, project)}/pull-requests`,
+      { method: 'POST', body: JSON.stringify(pullRequest) },
+      'Failed to open a pull request'
+    );
+  }
+
+  // The most recent pull request of the branch, whatever its status.
+  async findLatest(
+    organization: string,
+    project: string,
+    branchName: string
+  ): Promise<PullRequestResponse | undefined> {
+    const query = new URLSearchParams({ branchName, limit: '1' });
+    const { data } = await this.fetchJson<{ data: PullRequestResponse[] }>(
+      `${this.projectUrl(organization, project)}/pull-requests?${query}`,
+      { method: 'GET', timeout: DEFAULT_FETCH_TIMEOUT },
+      'Failed to get the pull request'
+    );
+
+    return data[0];
+  }
+
+  // The checks of the head commit of the pull request.
+  listChecks(
+    organization: string,
+    project: string,
+    pullRequestId: string
+  ): Promise<PullRequestCheck[]> {
+    return this.fetchJson(
+      `${this.projectUrl(organization, project)}/pull-requests/${encodeURIComponent(pullRequestId)}/checks`,
+      { method: 'GET', timeout: DEFAULT_FETCH_TIMEOUT },
+      'Failed to get the checks'
+    );
+  }
+}
+
+export class BuildsApi extends ResourceApi {
+  async findLatestByCommit(
+    organization: string,
+    project: string,
+    commitHash: string
+  ): Promise<ProjectBuildResponse | undefined> {
+    const query = new URLSearchParams({ limit: '1', filter: `commitHash:${commitHash}` });
+    const { data } = await this.fetchJson<{ data: ProjectBuildResponse[] }>(
+      `${this.projectUrl(organization, project)}/builds?${query}`,
+      { method: 'GET', timeout: DEFAULT_FETCH_TIMEOUT },
+      'Failed to get the build'
+    );
+
+    return data[0];
   }
 }
 
@@ -344,9 +439,10 @@ export class ReuniteApi {
     version?: string;
   }) {
     this.apiClient = new ReuniteApiClient(command, version);
+    const authHeaders = { Authorization: `Bearer ${apiKey}` };
 
-    this.projects = new ProjectsApi(this.apiClient, domain, apiKey);
-    this.remotes = new RemotesApi(this.apiClient, domain, apiKey);
+    this.projects = new ProjectsApi(this.apiClient, domain, authHeaders);
+    this.remotes = new RemotesApi(this.apiClient, domain, authHeaders);
   }
 
   // The most urgent sunset warning the Reunite API sent through this client so far, if any.

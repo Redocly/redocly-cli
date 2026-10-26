@@ -18,8 +18,12 @@ query keys. One generator, four framework variants (`react` default, `-vue`,
 - **Options factories, not hooks:** consumers call `useQuery(<op>Options(...))`, so the
   output works with any of the framework adapters and stays testable.
 - **`queryKeyPrefix`** namespaces every key when several clients share a cache.
-- **Infinite queries** derive `getNextPageParam` from the resolved pagination rule; a
-  `link`-style rule reads the `Link` header the descriptor declares.
+- **Infinite queries** derive `getNextPageParam` from the resolved pagination rule. A
+  `body-link` rule gets one when the operation has a query parameter: the next page's
+  URL is the page param, and each later page merges the URL's query parameters over
+  `vars`. A `Link` header is invisible to a `queryFn`, so `link`-style operations get
+  only the sdk's `.pages()`/`.items()`. A page without a page parameter leaves the key
+  out of the call, so `exactOptionalPropertyTypes` holds.
 - **`envelope` is excluded and stripped** — cached data is the plain body.
 - Requires `typescript`; throw-mode only (it wraps thrown errors into query errors).
 
@@ -47,6 +51,6 @@ export (`tanstackQueryGenerator('react')`), so switch it to `'vue'`, `'svelte'`,
 1. Edit this skill: state the new behavior or decision.
 2. Change the stage files named above (the entry is plumbing — it rarely moves).
 3. Verify: `npm run compile`, the folder's unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/tanstack-query`),
+   (`npx vitest run packages/client-generator/src/generators/tanstack-query`),
    the e2e suites for this generator, and the large-description bars
-   (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   (`packages/client-generator/tests/e2e/typescript/large-descriptions.test.ts`).

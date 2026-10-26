@@ -131,7 +131,7 @@ describe('length assertion', () => {
 
     it("sanity: the segment's masked content is 36 characters, 26 of them the tag", () => {
       const ctx = buildMarkdocContext(content, (scope) => scope === 'heading.h1');
-      expect(ctx.segments[0].content.length).toBe(36);
+      expect(ctx.segments[0].content).toHaveLength(36);
       expect(ctx.segments[0].maskedRanges).toEqual([{ start: 10, end: 36 }]);
     });
 

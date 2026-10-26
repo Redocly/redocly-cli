@@ -1,0 +1,5 @@
+{
+  "name": "auth-consumer",
+  "private": true,
+  "type": "module"
+}

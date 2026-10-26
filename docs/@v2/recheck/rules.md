@@ -226,7 +226,7 @@ With `crossFile: true`, the rule replaces an external link checker for links ins
 
 - A relative link or image target must exist on disk.
 - A `file.md#anchor` fragment must exist in the target file's headings and anchors.
-- Extensionless links resolve the way the Realm router does: `./page` tries `page.md`, and a folder link reads its `index.md`.
+- Extensionless links resolve the way the Redocly router does: `./page` tries `page.md`, and a folder link reads its `index.md`.
 - Site-root links such as `/x/y` resolve against `rootDir`, and are skipped without it.
 - Links to `<details>` sections resolve, with the id derived from the `<summary>` text when none is set.
 - Markdoc tags in a heading do not change its anchor.
@@ -410,6 +410,6 @@ A file with no front matter validates as an empty object, so the schema's `requi
 Each finding points at the line of the offending top-level key.
 Front matter that is not valid YAML is one finding at the start of the block.
 
-The built-in `realm` schema checks the type of every front matter option that a Realm page accepts, such as `title`, `description`, `slug`, `sidebar`, `excludeFromSearch`, and the options that override `redocly.yaml` on one page.
-It does not check the inner shape of those option objects, because Realm evolves them independently.
+The built-in `realm` schema checks the type of every front matter option that a Redocly page accepts, such as `title`, `description`, `slug`, `sidebar`, `excludeFromSearch`, and the options that override `redocly.yaml` on one page.
+It does not check the inner shape of those option objects, because Redocly evolves them independently.
 `strict` is off by default, because pages often carry their own keys that Markdoc templates read back through `$frontmatter`.

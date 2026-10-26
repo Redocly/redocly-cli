@@ -1,11 +1,16 @@
 import { TimeoutError } from '../errors.js';
 import { defaultRetryOn } from '../index.js';
 import { middlewareChain, send } from '../send.js';
-import type { ClientConfig, RequestContext, RetryContext } from '../types.js';
+import type { ClientConfig, RequestContext, RetryContext, SettledCall } from '../types.js';
 
 const op = { id: 'createPet', path: '/pets', tags: [] as string[] };
 const ok = () =>
   new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+// Never resolves; only an abort settles it, with the signal's reason, as `fetch` does.
+const hanging = ((url: string, init: RequestInit) =>
+  new Promise((_, reject) => {
+    init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+  })) as unknown as typeof fetch;
 
 function fetchSpy(responses: Array<Response | Error>) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
@@ -86,7 +91,7 @@ describe('send', () => {
         {}
       )
     ).rejects.toThrow('ECONNRESET');
-    expect(second.calls.length).toBe(1);
+    expect(second.calls).toHaveLength(1);
   });
 
   it('fills a stream body Content-Type from the declared type, except for multipart', async () => {
@@ -219,7 +224,7 @@ describe('send', () => {
       {}
     );
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
     expect(drained).toHaveBeenCalled();
   });
 
@@ -235,7 +240,7 @@ describe('send', () => {
       {}
     );
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
   });
 
   it('rethrows a transport error when retries are exhausted', async () => {
@@ -265,7 +270,7 @@ describe('send', () => {
       {}
     );
     expect(out1.response.status).toBe(503);
-    expect(first.calls.length).toBe(1);
+    expect(first.calls).toHaveLength(1);
 
     const second = fetchSpy([new Response(null, { status: 503 }), ok()]);
     const out2 = await send(
@@ -356,7 +361,7 @@ describe('send', () => {
     );
     // The keyed POST is retried (the default policy treats it as safe to re-send)…
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
     // …and BOTH attempts carry the SAME key — that is the whole point of the header.
     const keys = calls.map(
       (call) => (call.init.headers as Record<string, string>)['Idempotency-Key']
@@ -471,6 +476,56 @@ describe('send', () => {
       attempt: 1,
     });
     await expect(rejection).rejects.toThrow('"createPet" timed out after 20 ms');
+  });
+
+  it('builds the timeout and the composed signal without AbortSignal.timeout/any (older browsers)', async () => {
+    const native = { timeout: AbortSignal.timeout, any: AbortSignal.any };
+    Object.assign(AbortSignal, { timeout: undefined, any: undefined });
+    try {
+      const controller = new AbortController();
+      await expect(
+        send(
+          { fetch: hanging, timeout: 20 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toMatchObject({ name: 'TimeoutError', operationId: 'createPet', timeout: 20 });
+      // The caller's own abort still wins the race and rethrows untouched.
+      setTimeout(() => controller.abort(new Error('gone')), 5);
+      await expect(
+        send(
+          { fetch: hanging, timeout: 60_000 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toThrow('gone');
+    } finally {
+      Object.assign(AbortSignal, native);
+    }
+  });
+
+  it('reports a timeout the platform aborts with AbortError (Chrome 103 to 123) as TimeoutError', async () => {
+    const native = AbortSignal.timeout;
+    AbortSignal.timeout = (ms: number) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(new DOMException('Aborted.', 'AbortError')), ms);
+      return controller.signal;
+    };
+    try {
+      await expect(
+        send({ fetch: hanging, timeout: 20 }, op, 'u', { method: 'GET' }, undefined, undefined, {})
+      ).rejects.toBeInstanceOf(TimeoutError);
+    } finally {
+      AbortSignal.timeout = native;
+    }
   });
 
   it('resolves async config.headers once and merges per-call headers over them', async () => {
@@ -599,7 +654,7 @@ describe('send', () => {
       {}
     );
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
   });
 
   it('defaults the method to GET in the request context', async () => {
@@ -627,11 +682,173 @@ describe('send', () => {
   });
 });
 
+describe('send onSettled', () => {
+  function settledSpy() {
+    const calls: SettledCall[] = [];
+    const middleware = {
+      onSettled: (_ctx: RequestContext, call: SettledCall) => {
+        calls.push(call);
+      },
+    };
+    return { calls, middleware };
+  }
+
+  it('runs once with the TimeoutError when the timeout aborts the last attempt', async () => {
+    const settled = settledSpy();
+    const hanging = ((url: string, init: RequestInit) =>
+      new Promise((_, reject) => {
+        init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+      })) as unknown as typeof fetch;
+    await expect(
+      send(
+        { fetch: hanging, middleware: [settled.middleware], timeout: 20 },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toBeInstanceOf(TimeoutError);
+    expect(settled.calls).toHaveLength(1);
+    expect(settled.calls[0].error).toBeInstanceOf(TimeoutError);
+    expect(settled.calls[0].attempts).toBe(1);
+  });
+
+  it('runs every hook in registration order, then rejects with the first hook error', async () => {
+    const order: string[] = [];
+    const response = ok();
+    const { fetchImpl } = fetchSpy([response]);
+    await expect(
+      send(
+        {
+          fetch: fetchImpl,
+          middleware: [
+            {
+              onSettled: () => {
+                order.push('first');
+                throw new Error('hook failed');
+              },
+            },
+            { onSettled: () => void order.push('second') },
+          ],
+        },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('hook failed');
+    expect(order).toEqual(['first', 'second']);
+    expect(response.bodyUsed).toBe(true);
+  });
+
+  it('passes the response and the error when onResponse throws after the server answered', async () => {
+    const settled = settledSpy();
+    const { fetchImpl } = fetchSpy([ok()]);
+    const invalidBody = {
+      onResponse: () => {
+        throw new Error('invalid body');
+      },
+    };
+    await expect(
+      send(
+        { fetch: fetchImpl, middleware: [settled.middleware, invalidBody] },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('invalid body');
+    expect(settled.calls[0].response?.status).toBe(200);
+    expect((settled.calls[0].error as Error).message).toBe('invalid body');
+  });
+
+  it('drops the retried response when the caller aborts during the retry wait', async () => {
+    const settled = settledSpy();
+    const controller = new AbortController();
+    const { fetchImpl } = fetchSpy([new Response(null, { status: 503 })]);
+    await expect(
+      send(
+        {
+          fetch: fetchImpl,
+          middleware: [settled.middleware],
+          retry: {
+            retries: 1,
+            retryOn: () => {
+              controller.abort();
+              return true;
+            },
+          },
+        },
+        op,
+        'u',
+        { method: 'GET', signal: controller.signal },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('This operation was aborted');
+    expect(settled.calls[0].response).toBeUndefined();
+    expect((settled.calls[0].error as Error).name).toBe('AbortError');
+  });
+
+  it('counts no attempt when the signal is already aborted', async () => {
+    const settled = settledSpy();
+    const { calls, fetchImpl } = fetchSpy([ok()]);
+    await expect(
+      send(
+        { fetch: fetchImpl, middleware: [settled.middleware] },
+        op,
+        'u',
+        { method: 'GET', signal: AbortSignal.abort() },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('This operation was aborted');
+    expect(calls).toHaveLength(0);
+    expect(settled.calls[0].attempts).toBe(0);
+  });
+
+  it('keeps the original error and logs the hook error when a hook throws on a failed call', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const failingFetch = (async () => {
+      throw new Error('down');
+    }) as typeof fetch;
+    await expect(
+      send(
+        {
+          fetch: failingFetch,
+          middleware: [
+            {
+              onSettled: () => {
+                throw new Error('hook failed');
+              },
+            },
+          ],
+        },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('down');
+    expect(warn).toHaveBeenCalledWith('onSettled hook failed', new Error('hook failed'));
+  });
+});
+
 describe('middlewareChain', () => {
   it('folds the single config hooks in as an implicit FIRST middleware', () => {
     const onRequest = vi.fn();
     const chain = middlewareChain({ onRequest, middleware: [{ onRequest: vi.fn() }] });
-    expect(chain.length).toBe(2);
+    expect(chain).toHaveLength(2);
     expect(chain[0].onRequest).toBe(onRequest);
   });
 

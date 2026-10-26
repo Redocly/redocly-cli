@@ -107,10 +107,15 @@ function writeClass(
   dateType: DateType,
   description?: string
 ): void {
+  // A response never carries a `writeOnly` property, and responses decode into this same
+  // class, so the property is optional even when the description requires it.
+  const fields = properties.map((property) =>
+    property.writeOnly ? { ...property, required: false } : property
+  );
   // PHP requires defaulted parameters after required ones.
   const ordered = [
-    ...properties.filter((property) => property.required),
-    ...properties.filter((property) => !property.required),
+    ...fields.filter((property) => property.required),
+    ...fields.filter((property) => !property.required),
   ];
   printer.doc(className(name), description);
   printer.line(`final class ${className(name)}`);
@@ -250,9 +255,9 @@ export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'):
             `return match ($data[${phpString(cases.property)}] ?? null) {`,
             () => {
               for (const entry of cases.cases) {
-                printer.line(
-                  `${phpString(entry.value)} => ${className(entry.schemaName)}::fromArray($data),`
-                );
+                const target = { kind: 'ref', name: entry.schemaName } as const;
+                const typed = hydration(target, '$data', model, dateType) ?? '$data';
+                printer.line(`${phpString(entry.value)} => ${typed},`);
               }
               printer.line('default => $data,');
             },

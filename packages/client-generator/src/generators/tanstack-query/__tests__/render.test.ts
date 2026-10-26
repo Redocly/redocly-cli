@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
 import { resolveModelPagination, type PaginationConfig } from '../../../pagination.js';
 import { renderTanstackModule } from '../render.js';
@@ -24,6 +26,10 @@ function render(
 }
 
 describe('renderTanstackModule', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  });
+
   it('returns empty string when the model has no operations', () => {
     expect(renderTanstackModule(apiModel(), { sdkModule: SDK, framework: 'react' })).toBe('');
   });
@@ -45,6 +51,9 @@ describe('renderTanstackModule', () => {
     ]);
     expect(out).toContain('getPetOptions');
     expect(out).not.toContain('streamEvents');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('skipped 1 server-sent-events operation(s)')
+    );
   });
 
   it('skips an op whose <Op>Variables name collides with a schema (would import the wrong type)', () => {
@@ -62,6 +71,9 @@ describe('renderTanstackModule', () => {
     );
     expect(out).not.toContain('getUserOptions');
     expect(out).toContain('listUsersOptions');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('skipped 1 operation(s) whose variables type name collides')
+    );
   });
 
   it('returns empty string when every operation is SSE', () => {
@@ -231,7 +243,7 @@ describe('renderTanstackModule', () => {
       );
       expect(out).toContain('queryKey: [...listOrdersQueryKey(vars), "infinite"] as const');
       expect(out).toContain(
-        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, query: { ...vars.query, after: pageParam } }, { ...init, signal, envelope: undefined })'
+        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, query: { ...vars.query, ...(pageParam === undefined ? {} : { after: pageParam }) } }, { ...init, signal, envelope: undefined })'
       );
       expect(out).toContain('initialPageParam: vars.query?.after');
       expect(out).toContain('if (lastPage.page?.hasNextPage === false)');
@@ -307,7 +319,7 @@ describe('renderTanstackModule', () => {
       expect(out).toContain('return count === 0 ? undefined : lastPageParam + 1;');
     });
 
-    it('skips InfiniteOptions for link-style pagination (the next page lives in a header)', () => {
+    it('skips InfiniteOptions for Link-header pagination (a queryFn cannot see headers)', () => {
       const linkOp = {
         ...listOp,
         successResponseHeaders: [
@@ -318,6 +330,22 @@ describe('renderTanstackModule', () => {
       expect(out).toContain('listOrdersOptions');
       expect(out).not.toContain('InfiniteOptions');
       expect(out).not.toContain('infiniteQueryOptions');
+    });
+
+    it('compiles a body-link rule: the link is the page param, its query merges over vars', () => {
+      // `listOp`'s `page.endCursor` is a nullable string: here it plays the next page's URL.
+      const out = render([listOp], {
+        pagination: { style: 'body-link', nextLink: '/page/endCursor', items: '/items' },
+      });
+      expect(out).toContain('const nextLinkQuery = (link: string) => {');
+      expect(out).toContain(
+        'queryFn: ({ pageParam, signal }) => instance.listOrders(pageParam === undefined ? vars : { ...vars, query: { ...vars.query, ...nextLinkQuery(pageParam) } } as ListOrdersVariables, { ...init, signal, envelope: undefined })'
+      );
+      expect(out).toContain('initialPageParam: undefined as string | undefined');
+      expect(out).toContain('const next = lastPage.page?.endCursor;');
+      expect(out).toContain(
+        'next === undefined || next === null || next === "" ? undefined : next'
+      );
     });
 
     it('emits no InfiniteOptions (and no infiniteQueryOptions import) without pagination', () => {

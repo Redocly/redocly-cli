@@ -7,7 +7,6 @@ describe('fetchRemoteScorecardAndPlugins', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    mockFetch.mockClear();
   });
 
   afterEach(() => {
@@ -56,7 +55,7 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   it('should handle invalid URL format', async () => {
     await expect(
       fetchRemoteScorecardAndPlugins({ projectUrl: 'not-a-valid-url', auth: testToken })
-    ).rejects.toThrow();
+    ).rejects.toThrow('Invalid URL');
   });
 
   it('should throw error when project URL pattern does not match', async () => {

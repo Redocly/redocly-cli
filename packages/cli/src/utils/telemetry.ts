@@ -36,6 +36,10 @@ type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number]
 
 const SECRET_REPLACEMENT = '***';
 
+export function isTelemetryEnabled(config?: Config): boolean {
+  return process.env.REDOCLY_TELEMETRY !== 'off' && config?.resolvedConfig.telemetry !== 'off';
+}
+
 export async function sendTelemetry({
   config,
   argv,

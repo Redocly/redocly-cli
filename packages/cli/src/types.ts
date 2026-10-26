@@ -13,12 +13,14 @@ import type { LintArgv } from './commands/lint.js';
 import type { LoginArgv } from './commands/login.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
 import type { ProjectCloneArgv } from './commands/project/index.js';
+import type { ProjectPrCreateArgv } from './commands/project/pr.js';
 import type { ProxyArgv } from './commands/proxy/index.js';
 import type { PushStatusArgv } from './commands/push-status.js';
 import type { PushArgv } from './commands/push.js';
 import type { RecheckArgv } from './commands/recheck/types.js';
 import type { RespectArgv } from './commands/respect/index.js';
 import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
+import type { SkillsArgv } from './commands/skills.js';
 import type { SplitArgv } from './commands/split/types.js';
 import type { StatsArgv } from './commands/stats/index.js';
 import type { TranslationsArgv } from './commands/translations.js';
@@ -57,7 +59,9 @@ export type CommandArgv = (
   | IntrospectMcpCommandArgv
   | RecheckArgv
   | ScorecardClassicArgv
+  | SkillsArgv
   | ProjectCloneArgv
+  | ProjectPrCreateArgv
 ) &
   VerifyConfigOptions;
 

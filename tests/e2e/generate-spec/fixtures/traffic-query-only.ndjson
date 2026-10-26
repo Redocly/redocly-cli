@@ -1,0 +1,1 @@
+{"request":{"method":"QUERY","url":"http://api.example.com/users","headers":{"host":"api.example.com","content-type":"application/json"},"body":"{\"name\":\"Ada\"}"},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[{\"id\":42,\"name\":\"Ada\"}]"}}
