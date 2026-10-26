@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
 import {
@@ -404,6 +404,37 @@ describe('bundle', () => {
     });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should not read a local file that a remote API description references', async () => {
+    const fileUrl = pathToFileURL(
+      path.join(__dirname, 'fixtures/overlay/overlays/schemas/Error.yaml')
+    ).href;
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: () => Promise.reject(new Error('Unexpected request')), headers: [] },
+      }),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.2.0
+          info:
+            title: Redocly Cafe
+            version: 1.0.0
+          paths: {}
+          components:
+            schemas:
+              Error:
+                $ref: ${fileUrl}
+        `,
+        'https://example.com/cafe.yaml'
+      ),
+    });
+
+    expect(problems.map(({ message }) => message)).toEqual([
+      `Can't resolve $ref: A remote document can't reference ${fileUrl}, which is a local file.`,
+    ]);
+    expect((res.parsed as any).components.schemas.Error).toEqual({ $ref: fileUrl });
   });
 
   it('should bundle refs using $anchors', async () => {

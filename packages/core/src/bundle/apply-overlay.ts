@@ -90,8 +90,12 @@ export function applyOverlay(
         const target = externalRefResolver.resolveExternalRef(overlayBase, uri);
         const documentRef = document.source.absoluteRef;
         if (isAbsoluteUrl(target)) return target;
-        // A remote document reaches a local file only through its `file:` URL.
-        if (isAbsoluteUrl(documentRef)) return pathToFileURL(target).href;
+        if (isAbsoluteUrl(documentRef)) {
+          // A remote document can reach a local file only through a `file:` URL the overlay adds.
+          const fileUrl = pathToFileURL(target).href;
+          externalRefResolver.overlayFiles.add(fileUrl);
+          return fileUrl;
+        }
         return slash(path.relative(path.dirname(documentRef), target));
       });
     } else {

@@ -90,17 +90,17 @@ export function refBaseName(ref: string) {
   return parts[parts.length - 1].replace(/\.[^.]+$/, ''); // replace extension with empty string
 }
 
+export function isFileUrl(ref: string) {
+  return ref.startsWith('file://');
+}
+
 export function isAbsoluteUrl(ref: string) {
   return (
     ref.startsWith('http://') ||
     ref.startsWith('https://') ||
-    ref.startsWith('file://') ||
+    isFileUrl(ref) ||
     ref.startsWith('data:')
   );
-}
-
-export function isFileUrl(ref: string) {
-  return ref.startsWith('file://');
 }
 
 export function getDir(filePath: string): string {

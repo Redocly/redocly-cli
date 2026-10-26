@@ -101,6 +101,9 @@ export function makeDocumentFromString<T = unknown>(
 
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
+  // Local files that overlays add to a remote API description. Any other `file:` URL is followed
+  // only from a local document, so a remote description can't read the user's files.
+  overlayFiles: Set<string> = new Set();
 
   constructor(protected config: ResolveConfig = { http: { headers: [] } }) {}
 
@@ -174,6 +177,18 @@ export class BaseResolver {
     isRoot: boolean = false
   ): Promise<Document<T> | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
+
+    if (
+      isFileUrl(absoluteRef) &&
+      base !== null &&
+      isAbsoluteUrl(base) &&
+      !isFileUrl(base) &&
+      !this.overlayFiles.has(absoluteRef)
+    ) {
+      throw new ResolveError(
+        new Error(`A remote document can't reference ${absoluteRef}, which is a local file.`)
+      );
+    }
 
     const cachedDocument = this.cache.get(absoluteRef) as Document<T> | ResolveError | undefined;
     if (cachedDocument) {
