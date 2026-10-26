@@ -1,6 +1,6 @@
 import { generateClient } from '@redocly/client-generator';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,6 @@ describe('generate-client python generator, base.yaml against the mock server', 
       output: join(workDir, 'client.ts'),
       generators: ['python'],
     });
-    expect(existsSync(generatedFile)).toBe(true);
   });
 
   afterAll(() => {
@@ -35,6 +34,17 @@ describe('generate-client python generator, base.yaml against the mock server', 
       encoding: 'utf-8',
     });
     expect(result.status, result.stderr).toBe(0);
+  });
+
+  // The generated file lands in the user's own package, so it must pass their strictest
+  // type checker too.
+  it('the generated client passes mypy --strict', () => {
+    const result = spawnSync(
+      'python3',
+      ['-m', 'mypy', '--strict', '--no-incremental', generatedFile],
+      { encoding: 'utf-8' }
+    );
+    expect(result.status, result.stdout).toBe(0);
   });
 
   it('runs real HTTP against the mock server: hydration, bodies, ApiError', async () => {

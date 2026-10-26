@@ -6,6 +6,8 @@ export default defineConfig({
     restoreMocks: true,
     mockReset: true,
     environment: 'node',
+    expect: { requireAssertions: true },
+    setupFiles: ['tests/silence-output.ts'],
     env: {
       FORCE_COLOR: '1',
       REDOCLY_TELEMETRY: 'off',
@@ -33,6 +35,19 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/*/src/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'types',
+          typecheck: {
+            enabled: true,
+            only: true,
+            include: ['packages/*/src/**/*.test-d.ts'],
+            // `npm run typecheck` checks the source files with the flags they need.
+            ignoreSourceErrors: true,
+          },
         },
       },
       {
@@ -82,6 +97,7 @@ export default defineConfig({
                 command: 'php',
                 args: ['-r', 'exit(extension_loaded("curl") ? 0 : 1);'],
               },
+              { name: 'PHPStan', command: 'phpstan', args: ['--version'] },
             ],
           },
           testTimeout: 120_000,
@@ -107,6 +123,7 @@ export default defineConfig({
                 command: 'python3',
                 args: ['-c', 'import pydantic'],
               },
+              { name: 'mypy', command: 'python3', args: ['-m', 'mypy', '--version'] },
             ],
           },
           testTimeout: 120_000,

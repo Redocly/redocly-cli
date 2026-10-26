@@ -14,9 +14,9 @@ import { fileURLToPath } from 'node:url';
 
 import {
   copyConsumer,
+  expectStrictTscPasses,
   expectTscPasses,
   runConsumer,
-  strictTypecheck,
 } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -52,7 +52,7 @@ describe('mock generator — generated client through MSW', () => {
   });
 
   test('the generated client + mocks type-check together under strict mode', () => {
-    strictTypecheck(dir, ['client.ts', 'client.mocks.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'client.mocks.ts']);
   });
 });
 
@@ -74,7 +74,7 @@ describe("mock generator — mock + transformers + dateType: 'Date' compile toge
   });
 
   test('strict-tsc-checks client + mocks + transformers together with 0 errors', () => {
-    strictTypecheck(dir, ['client.ts', 'client.mocks.ts', 'client.transformers.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'client.mocks.ts', 'client.transformers.ts']);
   });
 });
 
@@ -105,5 +105,51 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
     // tsconfig.faker.json checks the faker calls against the real @faker-js/faker,
     // which resolves through the linked node_modules.
     expectTscPasses(['-p', join(dir, 'tsconfig.faker.json')], dir);
+  });
+});
+
+describe('mock generator — the mocks satisfy the zod schemas of the same description', () => {
+  const dirs: string[] = [];
+  afterAll(() => {
+    for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
+  });
+
+  test.each(['cafe.yaml', 'base.yaml', 'pagination.yaml'])(
+    '%s: factories and default handlers pass validation',
+    async (name) => {
+      const dir = copyConsumer(join(__dirname, 'consumer'));
+      dirs.push(dir);
+      await generateClient({
+        api: join(__dirname, '../../fixtures', name),
+        output: join(dir, 'client.ts'),
+        generators: ['typescript', 'zod', 'mock'],
+      });
+      expect(await runConsumer(join(dir, 'zod-validation.ts'))).toEqual([]);
+    }
+  );
+
+  test('pages() over the default cursor and body-link handlers yields exactly one page', async () => {
+    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dirs.push(dir);
+    await generateClient({
+      api: join(__dirname, '../../fixtures/pagination.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'mock'],
+    });
+    expect(await runConsumer(join(dir, 'pagination-pages.ts'))).toEqual({
+      orders: 1,
+      receipts: 1,
+    });
+  });
+
+  test('items() over an offset handler with an override yields the override items once', async () => {
+    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dirs.push(dir);
+    await generateClient({
+      api: join(__dirname, 'offset-menu.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'mock'],
+    });
+    expect(await runConsumer(join(dir, 'offset-override.ts'))).toEqual(['Latte']);
   });
 });

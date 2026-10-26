@@ -1,5 +1,54 @@
 # @redocly/client-generator
 
+## 0.7.11
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.0.
+
+## 0.7.10
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.70.0.
+
+## 0.7.9
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.69.0.
+
+## 0.7.8
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.68.0.
+
+## 0.7.7
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.1.
+
+## 0.7.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.0.
+
+## 0.7.5
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP and Python clients failed when a discriminator mapping pointed to a schema that is itself a `oneOf`.
+- Updated @redocly/openapi-core to v2.66.1.
+
+## 0.7.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.0.
+
 ## 0.7.3
 
 ### Patch Changes

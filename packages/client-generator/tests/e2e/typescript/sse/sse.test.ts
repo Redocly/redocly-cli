@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import { copyConsumer, expectStrictTscPasses } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -49,7 +49,7 @@ describe('generate-client SSE', () => {
 
     // consumer-types/usage.ts proves `ServerSentEvent<Message>.data.text` is typed
     // and that `SseOptions` (reconnect/reconnectDelay) is accepted.
-    strictTypecheck(dir, ['client.ts', 'usage.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'usage.ts']);
   });
 
   it('split: SSE ops live in the entry beside the embedded runtime, strict tsc passes over both files', async () => {
@@ -65,6 +65,6 @@ describe('generate-client SSE', () => {
       'export const { getHealth, streamMessages, streamAbort, streamTicks } = client;'
     );
 
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
   });
 });

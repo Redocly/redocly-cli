@@ -17,14 +17,15 @@ import httpx
 
 from ._errors import ApiTimeoutError
 
-T = TypeVar("T")
+# Not `T`: the runtime modules share one generated file, where `_errors.py` defines `T`.
+TData = TypeVar("TData")
 
 
 @dataclass
-class Envelope(Generic[T]):
+class Envelope(Generic[TData]):
     """A *_with_headers() result: decoded body + coerced declared headers + raw response."""
 
-    data: T
+    data: TData
     headers: Dict[str, Any]
     response: httpx.Response
 

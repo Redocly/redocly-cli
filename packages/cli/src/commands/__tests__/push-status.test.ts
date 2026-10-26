@@ -64,8 +64,6 @@ const pushResponseStub: PushResponse = {
 describe('handlePushStatus()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
   afterEach(() => {
@@ -278,9 +276,10 @@ describe('handlePushStatus()', () => {
           buildType: 'production',
         })
       );
-      const notices = vi
-        .mocked(process.stderr.write)
-        .mock.calls.filter(([text]) => String(text).includes('slugs are deprecated'));
+      const stderrWrite = vi.mocked(process.stderr.write);
+      const notices = stderrWrite.mock.calls.filter(([text]) =>
+        String(text).includes('slugs are deprecated')
+      );
       expect(notices).toEqual([
         [
           `Organization and project slugs are deprecated. Use the ids instead: --organization ${resolution.organizationId} --project ${resolution.projectId}\n`,

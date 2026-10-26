@@ -1,5 +1,35 @@
 # @redocly/openapi-core
 
+## 2.71.0
+
+## 2.70.0
+
+## 2.69.0
+
+## 2.68.0
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule didn't report Arazzo 1.1.0 success and failure actions that had `parameters` without a `workflowId`, or action parameters with an `in` field.
+  Action parameters are passed as inputs to the target workflow, so they require a `workflowId` and can't have an `in` field.
+  Existing Arazzo descriptions with these actions fail `lint`, and `respect` doesn't run them.
+
+## 2.67.1
+
+## 2.67.0
+
+### Minor Changes
+
+- Added an `excludedMethods` option to the `operation-4xx-response` rule, which skips operations that use the listed HTTP methods.
+
+## 2.66.1
+
+## 2.66.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.67.0.
+
 ## 2.65.1
 
 ### Patch Changes

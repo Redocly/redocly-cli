@@ -26,7 +26,7 @@ import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index
 import type { GenerateClientCommandArgv } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
-import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { PRODUCT_PACKAGES, PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
 import { type RecheckFormat } from './commands/recheck/types.js';
 import type { RespectArgv } from './commands/respect/index.js';
@@ -35,6 +35,7 @@ import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
 } from './commands/scorecard-classic/types.js';
+import { handleSkills, SKILLS_AGENTS, type SkillsArgv } from './commands/skills.js';
 import { outputExtensions } from './types.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
@@ -317,7 +318,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'push [files...]',
-    'Push documents to Reunite.',
+    'Push documents to the Redocly platform.',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_PUSH')
@@ -747,6 +748,68 @@ yargs(hideBin(process.argv))
           commandWrapper(handleProjectClone)(argv);
         }
       )
+      .command('pr', 'Work with the pull requests of a cloned project.', (yargs) =>
+        yargs
+          .command(
+            'create',
+            'Open a pull request in the Redocly platform for the current branch.',
+            (yargs) =>
+              yargs.options({
+                title: {
+                  description: 'Pull request title. Defaults to the subject of the last commit.',
+                  alias: ['t'],
+                  type: 'string',
+                },
+                body: {
+                  description: 'Pull request body.',
+                  alias: ['b'],
+                  type: 'string',
+                },
+                'body-file': {
+                  description: 'Read the body from a file. Use `-` to read from standard input.',
+                  alias: ['F'],
+                  type: 'string',
+                  conflicts: 'body',
+                },
+                base: {
+                  description: "Branch to merge into. Defaults to the project's default branch.",
+                  alias: ['B'],
+                  type: 'string',
+                },
+                draft: {
+                  description: 'Open the pull request as a draft.',
+                  alias: ['d'],
+                  type: 'boolean',
+                },
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPrCreate } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrCreate)(argv);
+            }
+          )
+          .command(
+            'status',
+            'Show the state, review, checks, and preview URL of the pull request for the current branch.',
+            (yargs) =>
+              yargs.options({
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPrStatus } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrStatus)(argv);
+            }
+          )
+          .demandCommand(1, 'Specify a pr subcommand: create or status.')
+      )
       .command(
         'git-credentials <operation>',
         false,
@@ -768,23 +831,25 @@ yargs(hideBin(process.argv))
           );
         }
       )
-      .demandCommand(1, 'Specify a project subcommand: clone.')
+      .demandCommand(1, 'Specify a project subcommand: clone or pr.')
   )
   .command(
     'preview',
-    'Preview Redocly project using one of the product NPM packages.',
+    'Preview Redocly project.',
     (yargs) =>
       yargs.env('REDOCLY_CLI_PREVIEW').options({
         product: {
           type: 'string',
-          choices: ['redoc', 'revel', 'reef', 'realm', 'redoc-revel', 'redoc-reef', 'revel-reef'],
-          description:
-            "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
+          choices: Object.keys(PRODUCT_PACKAGES),
+          hidden: true,
+          deprecated:
+            'the preview reads the package from package.json, @redocly/framework by default.',
         },
         plan: {
           type: 'string',
           choices: PRODUCT_PLANS,
           default: 'enterprise',
+          description: 'Plan whose features the preview enables: pro, scale or enterprise.',
         },
         port: {
           alias: 'p',
@@ -833,11 +898,6 @@ yargs(hideBin(process.argv))
             describe: 'Page title.',
             type: 'string',
           },
-          disableGoogleFont: {
-            describe: 'Disable Google fonts.',
-            type: 'boolean',
-            default: false,
-          },
           t: {
             alias: 'template',
             describe:
@@ -848,9 +908,20 @@ yargs(hideBin(process.argv))
             describe:
               'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
-          theme: {
+          openapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
+          },
+          asyncapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
+          },
+          graphql: {
+            describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
+          },
+          inlineBundle: {
             describe:
-              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
+              'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
+            type: 'boolean',
+            default: false,
           },
           config: {
             describe: 'Path to the config file.',
@@ -861,10 +932,21 @@ yargs(hideBin(process.argv))
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
+          // Remove these options and the check below in the first release after January 31, 2027.
+          theme: { hidden: true },
+          disableGoogleFont: { hidden: true, type: 'boolean' },
         })
-        .check((argv: any) => {
-          if (argv.theme && !argv.theme?.openapi)
-            throw new Error('Invalid option: theme.openapi not set.');
+        .check((argv) => {
+          if (argv.theme !== undefined) {
+            throw new Error(
+              'The --theme.openapi option was removed. Pass Redoc options with --openapi instead: https://redocly.com/docs/cli/guides/migrate-to-v2#changes-in-the-build-docs-command'
+            );
+          }
+          if (argv.disableGoogleFont !== undefined) {
+            throw new Error(
+              'The --disableGoogleFont option was removed because the page no longer loads Google Fonts. Remove the option from your command.'
+            );
+          }
           return true;
         }),
     async (argv) => {
@@ -1230,6 +1312,32 @@ yargs(hideBin(process.argv))
         }),
     async (argv) => {
       commandWrapper(handleEjectGenerator)(argv as Arguments<EjectGeneratorCommandArgv>);
+    }
+  )
+  .command(
+    'skills',
+    'Install the Redocly CLI agent skills for AI coding agents.',
+    (yargs) =>
+      yargs.options({
+        agent: {
+          description: 'Agents to install the skills for. Default: detected agents.',
+          type: 'array',
+          string: true,
+          choices: SKILLS_AGENTS,
+        },
+        global: {
+          description: 'Install in your home folder instead of the current project.',
+          type: 'boolean',
+          default: false,
+        },
+        list: {
+          description: 'List the bundled skills without installing them.',
+          type: 'boolean',
+          default: false,
+        },
+      }),
+    async (argv) => {
+      commandWrapper(handleSkills)(argv as Arguments<SkillsArgv>);
     }
   )
   .command(

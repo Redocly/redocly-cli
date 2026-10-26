@@ -12,7 +12,7 @@ redocly login [--help]
 redocly login --residency https://api.example.com
 ```
 
-Note that logging in with **Reunite** API does not allow you to use the `push` command without an API key.
+Note that logging in with **Redocly platform** API does not allow you to use the `push` command without an API key.
 
 ## Options
 

@@ -42,33 +42,29 @@ function withStub(binDir: string): Record<string, string> {
   return { PATH: `${join(fixtures, binDir)}${delimiter}${process.env.PATH}` };
 }
 
-async function matchSnapshot(name: string, output: string): Promise<void> {
-  await expect(output).toMatchFileSnapshot(join(snapshots, `${name}.txt`));
-}
-
 describe('generate-spec - deterministic inference', () => {
   test('infers an OpenAPI description from NDJSON traffic', async () => {
     const { output, code } = runGenerateSpec(['traffic.ndjson']);
     expect(code).toBe(0);
-    await matchSnapshot('infer-ndjson', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-ndjson.txt'));
   });
 
   test('templatizes identifier-like path segments into path parameters', async () => {
     const { output, code } = runGenerateSpec(['traffic-ids.ndjson']);
     expect(code).toBe(0);
-    await matchSnapshot('infer-id-templates', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-id-templates.txt'));
   });
 
   test('infers an OpenAPI description from HAR traffic', async () => {
     const { output, code } = runGenerateSpec(['traffic.har', '--traffic-format', 'har']);
     expect(code).toBe(0);
-    await matchSnapshot('infer-har', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-har.txt'));
   });
 
   test('describes alternative body shapes with oneOf and nullable type unions', async () => {
     const { output, code } = runGenerateSpec(['traffic-polymorphic.ndjson']);
     expect(code).toBe(0);
-    await matchSnapshot('infer-polymorphic', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-polymorphic.txt'));
   });
 
   test('scopes traffic to --server and rebases paths onto it', async () => {
@@ -78,7 +74,7 @@ describe('generate-spec - deterministic inference', () => {
       'http://api.example.com/v2',
     ]);
     expect(code).toBe(0);
-    await matchSnapshot('infer-server-scoped', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-server-scoped.txt'));
   });
 
   test('uses --title for the generated description', () => {
@@ -155,7 +151,7 @@ describe('generate-spec - AI refinement', () => {
     );
     expect(code).toBe(0);
     expect(output).toContain('AI refinement complete: 5 of 5 operation(s) refined (claude).');
-    await matchSnapshot('ai-refined', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined.txt'));
   });
 
   test('accepts refined operations that use oneOf, allOf and discriminator', async () => {
@@ -172,7 +168,7 @@ describe('generate-spec - AI refinement', () => {
     );
     expect(code).toBe(0);
     expect(output).toContain('AI refinement complete: 2 of 2 operation(s) refined (claude).');
-    await matchSnapshot('ai-refined-polymorphic', output);
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined-polymorphic.txt'));
   });
 
   test('runs the Cursor CLI when the cursor provider is selected', () => {

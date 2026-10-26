@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { repoRoot, strictTypecheck } from '../../helpers/helpers.js';
+import { expectStrictTscPasses, repoRoot } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const generators = ['typescript', 'tanstack-query'];
@@ -56,6 +56,6 @@ describe('tanstack-query skips operations it cannot wrap', () => {
     // The module must not import the suppressed alias. The link to node_modules lets tsc
     // resolve `@tanstack/react-query`.
     symlinkSync(join(repoRoot, 'node_modules'), join(dir, 'node_modules'), 'dir');
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
   });
 });

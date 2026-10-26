@@ -1,0 +1,146 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should not leak inputs passed to a local workflow into its later runs 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-inputs-isolated-between-runs.arazzo.yaml / search-menu-twice 
+ 
+  Running child workflow for the step search-with-parameter 
+  Running workflow workflow-inputs-isolated-between-runs.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-espresso
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Running child workflow for the step search-with-default 
+  Running workflow workflow-inputs-isolated-between-runs.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ GET /menu - step search-with-workflow-outputs 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $workflows.search-menu.outputs.search == 'mermaid-...
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-inputs-isolated-between-runs.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-inputs-isolated-between-runs.arazzo.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 4 passed, 4 total
+  Checks: 17 passed, 17 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-inputs-isolated-between-runs.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+"
+`;

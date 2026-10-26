@@ -16,12 +16,12 @@
 //    typed `string` (the byte-identical default).
 
 import { generateClient } from '@redocly/client-generator';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { strictTypecheck } from '../helpers/helpers.js';
+import { expectStrictTscPasses } from '../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures', 'transformers.yaml');
@@ -59,9 +59,26 @@ describe('generate-client transformers generator', () => {
     expect(transformersSource).toContain('export const transformPet');
     expect(transformersSource).toContain('new Date(');
 
+    // A transform takes the responses of a schema with a write-only property, which
+    // leave that property out.
+    writeFileSync(
+      join(dir, 'consumer.ts'),
+      [
+        "import { client } from './client.js';",
+        "import { transformCustomer } from './client.transformers.js';",
+        'export async function load() {',
+        "  const body = { email: 'ada@example.com', password: 'correct horse' };",
+        '  const created = transformCustomer(await client.createCustomer({ body }));',
+        '  const listed = (await client.listCustomers()).map(transformCustomer);',
+        '  return { created, listed };',
+        '}',
+      ].join('\n'),
+      'utf-8'
+    );
+
     // strict-tsc the sdk + transformers TOGETHER: proves transform<Name>(data:
     // <Name>): <Name> type-checks against the Date-typed sdk schema.
-    strictTypecheck(dir, ['client.ts', 'client.transformers.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'client.transformers.ts', 'consumer.ts']);
   });
 
   it('transformPet converts top-level, array, and ref nested dates at runtime', async () => {

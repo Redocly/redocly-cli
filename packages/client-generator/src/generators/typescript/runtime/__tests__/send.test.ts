@@ -91,7 +91,7 @@ describe('send', () => {
         {}
       )
     ).rejects.toThrow('ECONNRESET');
-    expect(second.calls.length).toBe(1);
+    expect(second.calls).toHaveLength(1);
   });
 
   it('fills a stream body Content-Type from the declared type, except for multipart', async () => {
@@ -224,7 +224,7 @@ describe('send', () => {
       {}
     );
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
     expect(drained).toHaveBeenCalled();
   });
 
@@ -240,7 +240,7 @@ describe('send', () => {
       {}
     );
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
   });
 
   it('rethrows a transport error when retries are exhausted', async () => {
@@ -270,7 +270,7 @@ describe('send', () => {
       {}
     );
     expect(out1.response.status).toBe(503);
-    expect(first.calls.length).toBe(1);
+    expect(first.calls).toHaveLength(1);
 
     const second = fetchSpy([new Response(null, { status: 503 }), ok()]);
     const out2 = await send(
@@ -361,7 +361,7 @@ describe('send', () => {
     );
     // The keyed POST is retried (the default policy treats it as safe to re-send)…
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
     // …and BOTH attempts carry the SAME key — that is the whole point of the header.
     const keys = calls.map(
       (call) => (call.init.headers as Record<string, string>)['Idempotency-Key']
@@ -654,7 +654,7 @@ describe('send', () => {
       {}
     );
     expect(response.status).toBe(200);
-    expect(calls.length).toBe(2);
+    expect(calls).toHaveLength(2);
   });
 
   it('defaults the method to GET in the request context', async () => {
@@ -710,7 +710,7 @@ describe('send onSettled', () => {
         {}
       )
     ).rejects.toBeInstanceOf(TimeoutError);
-    expect(settled.calls.length).toBe(1);
+    expect(settled.calls).toHaveLength(1);
     expect(settled.calls[0].error).toBeInstanceOf(TimeoutError);
     expect(settled.calls[0].attempts).toBe(1);
   });
@@ -792,7 +792,7 @@ describe('send onSettled', () => {
         undefined,
         {}
       )
-    ).rejects.toThrow();
+    ).rejects.toThrow('This operation was aborted');
     expect(settled.calls[0].response).toBeUndefined();
     expect((settled.calls[0].error as Error).name).toBe('AbortError');
   });
@@ -810,8 +810,8 @@ describe('send onSettled', () => {
         undefined,
         {}
       )
-    ).rejects.toThrow();
-    expect(calls.length).toBe(0);
+    ).rejects.toThrow('This operation was aborted');
+    expect(calls).toHaveLength(0);
     expect(settled.calls[0].attempts).toBe(0);
   });
 
@@ -841,7 +841,6 @@ describe('send onSettled', () => {
       )
     ).rejects.toThrow('down');
     expect(warn).toHaveBeenCalledWith('onSettled hook failed', new Error('hook failed'));
-    warn.mockRestore();
   });
 });
 
@@ -849,7 +848,7 @@ describe('middlewareChain', () => {
   it('folds the single config hooks in as an implicit FIRST middleware', () => {
     const onRequest = vi.fn();
     const chain = middlewareChain({ onRequest, middleware: [{ onRequest: vi.fn() }] });
-    expect(chain.length).toBe(2);
+    expect(chain).toHaveLength(2);
     expect(chain[0].onRequest).toBe(onRequest);
   });
 

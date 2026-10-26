@@ -186,7 +186,7 @@ Use a rule object to change a preset rule's options or to add a rule.
 - schema
 - `realm` or `false`
 - **REQUIRED**.
-  `realm` validates tags against the built-in Realm schema.
+  `realm` validates tags against the built-in Redocly schema.
   `false` parses and pairs Markdoc tags without a schema check.
 
 ---

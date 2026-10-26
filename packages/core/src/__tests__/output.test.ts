@@ -7,9 +7,7 @@ describe('output', () => {
 
     logger.output(data);
 
-    expect(spyingStdout).toBeCalledTimes(1);
-    expect(spyingStdout).toBeCalledWith(data);
-
-    spyingStdout.mockRestore();
+    expect(spyingStdout).toHaveBeenCalledTimes(1);
+    expect(spyingStdout).toHaveBeenCalledWith(data);
   });
 });

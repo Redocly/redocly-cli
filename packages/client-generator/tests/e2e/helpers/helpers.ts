@@ -16,6 +16,10 @@ const STRICT_TSCONFIG = {
     target: 'es2022',
     lib: ['ES2022', 'DOM'],
     strict: true,
+    // The generated client compiles as part of the user's sources, so it must also pass
+    // the stricter flags many projects turn on.
+    noUncheckedIndexedAccess: true,
+    exactOptionalPropertyTypes: true,
     noUnusedLocals: true,
     noEmit: true,
     skipLibCheck: true,
@@ -42,12 +46,12 @@ export function writeStrictTsconfig(dir: string, include: string[] = ['**/*.ts']
 }
 
 /** Write the shared strict tsconfig into `dir` and assert that it type-checks. */
-export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): void {
+export function expectStrictTscPasses(dir: string, include: string[] = ['**/*.ts']): void {
   writeStrictTsconfig(dir, include);
   expectTscPasses(['--noEmit', '-p', dir]);
 }
 
-type CommandResult = { status: number | null; stdout: string; stderr: string };
+export type CommandResult = { status: number | null; stdout: string; stderr: string };
 
 /**
  * Run a command without blocking the test process, so a mock server in this process can

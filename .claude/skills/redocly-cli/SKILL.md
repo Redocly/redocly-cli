@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions, and for Markdown docs. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, lint Markdown or prose with recheck, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Reunite, or find the node type a rule or plugin should target.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions, and for Markdown docs. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, lint Markdown or prose with recheck, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to the Redocly platform, clone a Redocly-hosted project and open its pull requests, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -31,8 +31,8 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `lint`               | Validate an API description against the configured rules                                                          | API authoring         |
 | `split`              | Break a single-file description into a multi-file structure                                                       | API authoring         |
 | `introspect-mcp`     | Record a live MCP server's tools, prompts, and resources in `x-mcp` [experimental]                                | API authoring         |
-| `build-docs`         | Render an API description to a zero-dependency HTML page (Redoc)                                                  | Docs rendering        |
-| `preview`            | Local preview of a Redocly project (Realm, Reef, Revel)                                                           | Docs rendering        |
+| `build-docs`         | Render an OpenAPI, AsyncAPI, or GraphQL description to an HTML page (Redoc)                                       | Docs rendering        |
+| `preview`            | Local preview of a Redocly project                                                                                | Docs rendering        |
 | `recheck`            | Lint Markdown structure, prose style, and Markdoc tags; `--fix` repairs most structural findings                  | Docs linting          |
 | `bundle`             | Resolve all `$ref`s into one self-contained file; apply decorators and overlays                                   | CI and delivery       |
 | `join`               | Merge several API descriptions into one [experimental]                                                            | CI and delivery       |
@@ -47,8 +47,12 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `eject-generator`    | Copy a built-in generator into the repo to edit it [experimental]                                                 | SDK generation        |
 | `check-config`       | Lint `redocly.yaml` itself                                                                                        | Redocly configuration |
 | `inspect-node-types` | Show the node type at a pointer, or list every node with its type [experimental]                                  | Redocly configuration |
-| `push`               | Push an API description to Reunite                                                                                | Reunite platform      |
-| `push-status`        | Track an in-progress push to Reunite                                                                              | Reunite platform      |
+| `push`               | Push an API description to the Redocly platform                                                                   | Platform              |
+| `push-status`        | Track an in-progress push to the platform                                                                         | Platform              |
+| `project clone`      | Clone a Redocly-hosted project as a Git repository [early access]                                                 | Platform              |
+| `project pr create`  | Open a pull request for the current branch of a cloned project [early access]                                     | Platform              |
+| `project pr status`  | Show the state, review, checks, and preview URL of that pull request [early access]                               | Platform              |
+| `skills`             | Install the Redocly CLI agent skills into `.agents/skills/` and detected agent folders                            | Agent setup           |
 | `completion`         | Generate shell autocomplete commands                                                                              | Shell setup           |
 
 Exit codes: `0` success, `1` problems found or execution failed, `2` configuration error.
@@ -179,6 +183,22 @@ With `apis.<name>.clientOutput` set, a bare `redocly generate-client` generates 
 `client.telemetry: on` (config-only) makes the `typescript` generator also write `<output>.telemetry.ts`: register `use(telemetry({ sdkName, sdkVersion, client }))` to count calls per operation and send the counts once a minute (no request data; `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1` turns sending off).
 An API's own `client` block replaces the top-level one wholesale — repeat the shared fields in it.
 With `client.codeSamples: true`, it also writes `<output>.code-samples.yaml`, an overlay that adds `x-codeSamples`; add it to the API's `overlays` (or pass `--overlay`) so `bundle` puts the samples in the description.
+
+## Work on a Redocly-hosted project
+
+After `redocly login`, `project clone <organization>/<project>` clones a project that the Redocly platform hosts.
+The clone uses Redocly CLI as its Git credential helper, so `git pull` and `git push` work without a token.
+The platform rejects pushes to the default branch: push another branch, then open a pull request for it:
+
+```bash
+git push -u origin fix-typo
+redocly project pr create --title "Fix a typo" --body-file - <<'BODY'
+Fixes the install command in the quickstart.
+BODY
+```
+
+The command prints the pull request URL.
+The platform builds a preview in a few minutes; `redocly project pr status` then shows the state, the review decision, the checks, and the preview URL after the preview is deployed.
 
 ## Test a live API
 
