@@ -8,6 +8,7 @@ import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
 type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
+type SchemaObject = Exclude<ExtendedJSONSchema, boolean>;
 
 let ajv: Ajv2020 | undefined;
 
@@ -44,6 +45,21 @@ function findOneOf(
   };
 }
 
+function isScalarSchema(schema: SchemaObject): boolean {
+  return (
+    schema.type === 'string' ||
+    schema.type === 'number' ||
+    schema.type === 'integer' ||
+    schema.type === 'boolean'
+  );
+}
+
+// A node type for a scalar keeps the scalar schema, so the walker visits the value and `struct` checks its type.
+function scalarNodeType(schema: SchemaObject): NodeType {
+  const { default: _, nodeTypeName: __, ...scalar } = schema;
+  return { ...(scalar as NodeType), properties: {} };
+}
+
 function transformJSONSchemaToNodeType(
   propertyName: string,
   schema: ExtendedJSONSchema,
@@ -67,12 +83,11 @@ function transformJSONSchemaToNodeType(
     );
   }
 
-  if (
-    schema.type === 'string' ||
-    schema.type === 'number' ||
-    schema.type === 'integer' ||
-    schema.type === 'boolean'
-  ) {
+  if (schema.nodeTypeName) {
+    return extractNodeToContext(propertyName, schema, ctx);
+  }
+
+  if (isScalarSchema(schema)) {
     const { default: _, ...rest } = schema;
     return rest as PropType;
   }
@@ -94,7 +109,6 @@ function transformJSONSchemaToNodeType(
   }
 
   if (
-    (schema.nodeTypeName && schema.type === 'array') ||
     isPlainObject(schema.properties) ||
     isPlainObject(schema.additionalProperties) ||
     (isPlainObject(schema.items) &&
@@ -190,6 +204,11 @@ function extractNodeToContext(
   // Use nodeTypeName from schema if provided, otherwise use propertyName
   const nodeTypeName = schema.nodeTypeName ?? propertyName;
 
+  if (isScalarSchema(schema)) {
+    ctx[nodeTypeName] = scalarNodeType(schema);
+    return nodeTypeName;
+  }
+
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
     properties[name] = transformJSONSchemaToNodeType(nodeTypeName + '.' + name, property, ctx);
@@ -215,10 +234,8 @@ function extractNodeToContext(
       schema.items.oneOf) // exclude scalar array types
   ) {
     items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
-  } else if (isPlainObject(schema.items)) {
-    // a scalar item gets its own node type, so visitors see every item of the list
-    const { default: _, ...itemSchema } = schema.items;
-    ctx[nodeTypeName + '_items'] = { ...(itemSchema as NodeType), properties: {} };
+  } else if (isPlainObject(schema.items) && isScalarSchema(schema.items as SchemaObject)) {
+    ctx[nodeTypeName + '_items'] = scalarNodeType(schema.items as SchemaObject);
     items = nodeTypeName + '_items';
   }
 

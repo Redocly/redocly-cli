@@ -48,4 +48,16 @@ describe('getNodeTypesFromJSONSchema', () => {
       properties: {},
     });
   });
+
+  it('turns a scalar with a nodeTypeName into a scalar node', () => {
+    const { ctx: types } = getNodeTypesFromJSONSchema('Root', {
+      type: 'object',
+      properties: {
+        template: { type: 'string', format: 'uri-reference', nodeTypeName: 'Template' } as never,
+      },
+    });
+
+    expect(types['Root'].properties.template).toBe('Template');
+    expect(types['Template']).toEqual({ type: 'string', format: 'uri-reference', properties: {} });
+  });
 });
