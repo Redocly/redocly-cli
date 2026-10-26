@@ -55,6 +55,18 @@ describe('generate-client php generator, base.yaml against the mock server', () 
     expect(declare.stdout).toContain('DECLARED');
   });
 
+  // The generated file lands in the user's own project, so it must pass static analysis
+  // there too. Level 5 checks types, calls, and dead code; level 6 and up would ask for
+  // the element type of every `array` in every signature.
+  it('the generated client passes PHPStan level 5', () => {
+    const result = spawnSync(
+      'phpstan',
+      ['analyse', '--no-progress', '--level=5', '--memory-limit=1G', generatedFile],
+      { encoding: 'utf-8' }
+    );
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
+  });
+
   it('the smoke runs real HTTP: hydration, bodies, ApiError', async () => {
     await expectSmokePasses([]);
   });
