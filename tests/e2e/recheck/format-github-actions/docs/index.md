@@ -1,4 +1,4 @@
-# Museum API guide
+# Redocly Cafe API guide
 # Second title
 
-Buy a ticket with `POST /tickets`.
+Order a coffee with `POST /orders`.
