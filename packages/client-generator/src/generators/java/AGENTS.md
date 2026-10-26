@@ -67,11 +67,18 @@ title. The generator takes no options; a different package is a change to
   named like a runtime type (`Config`, `Envelope`) or a JDK type the runtime references
   (`Thread`, `List`) would shadow it: `naming.ts` reads those names off the runtime source
   and renames the schema (`ConfigModel`). A schema named like the enclosing class itself
-  cannot nest in it at all, so that run fails with the fix (another `--output` name).
+  cannot nest in it at all, and an enclosing class named like a runtime type (an `--output`
+  of `config.ts`) would make that name mean the class, so both runs fail with the fix
+  (another `--output` name).
 - **Naming:** types PascalCase, components and methods camelCase via
   `identifierFor(..., RESERVED_WORDS.java)`; a reserved word gets a trailing underscore
   (`class_`), `+1`/`-1` become `plus1`/`minus1`, and a digit-leading name gets `_`. Method
-  names are unique across the client (`getUser`, `getUser2`).
+  names are unique across the client (`getUser`, `getUser2`), never one of `Object`'s
+  methods (`getClass` becomes `getClass2`), and each name books its `WithHeaders`, `Pages`,
+  and `Items` variants, so a later operation named like one of them moves aside too.
+- **Hand-built comments go through `printer.doc`**, never a raw `/** … */` line: a server
+  description or a discriminator value may carry `*/` or `\u`, which end or break a Java
+  comment.
 - **Every path parameter is its own argument, so their names share one namespace** with
   the locals the method declares itself (`body`, `params`, `op`, `query`, `url`, …). Build
   them with `uniqueIdentifiers(..., { taken: … })`: a parameter named `body` becomes
@@ -123,7 +130,8 @@ title. The generator takes no options; a different package is a change to
   boundary's.
 - **Parity surface:** auth OR-alternatives, retries with `Retry-After` + full-jitter
   backoff, per-attempt timeouts, idempotency keys, middleware, pagination, SSE (`iterSse`
-  with `Last-Event-ID` reconnect and the server's `retry` hint), multipart, and the
+  with `Last-Event-ID` reconnect and the server's `retry` hint; auth resolves inside the
+  opener, so each reconnect asks a token supplier again), multipart, and the
   `X-Redocly-Client` header.
 - **The runtime is hand-written in `runtime/Runtime.java`** in this folder, an `abstract
   class Runtime` that compiles on its own (`javac --release 17 -Xlint:all -Werror`) and is

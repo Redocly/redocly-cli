@@ -275,6 +275,12 @@ describe('javaGenerator parity features', () => {
     expect(out).toContain('Body payload = multipartBody(body);');
   });
 
+  it('resolves SSE auth on every open, so a reconnect asks the token supplier again', () => {
+    expect(generateJava()).toMatch(
+      /return iterSse\(extraHeaders -> \{\n\s+ResolvedAuth auth = resolveAuth\(op\.security\(\), config\.auth\);/
+    );
+  });
+
   it('emits a WithHeaders envelope variant only for ops with declared response headers', () => {
     const out = generateJava();
     expect(out).toContain(
@@ -337,6 +343,17 @@ describe('javaGenerator parity features', () => {
       emit: {},
     });
     expect(sample.source).toContain('import cafeordersapi.Client;');
+  });
+
+  it('rejects an output stem that names a runtime type — inside the class the name would mean the class', () => {
+    expect(() =>
+      javaGenerator({
+        model: JAVA_CAFE,
+        outputPath: '/out/config.ts',
+        outputMode: 'single',
+        emit: {},
+      })
+    ).toThrow(/gives the Java class the name "Config", which the SDK already uses/);
   });
 
   it('rejects an output stem that names a schema — the schema could not nest inside the class', () => {

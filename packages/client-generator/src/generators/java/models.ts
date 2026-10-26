@@ -300,9 +300,8 @@ export function writeJavaModels(
       const table = cases.cases
         .map((entry) => `${entry.value} -> ${typeName(entry.schemaName)}`)
         .join(', ');
-      printer.line(
-        `/** ${union} is a discriminated union (${javaString(cases.property)}): ${table}. */`
-      );
+      // The table carries the description's own values, so it goes through the comment escaper.
+      printer.doc(union, `A discriminated union on ${javaString(cases.property)}: ${table}.`);
       if (sealed) {
         // The permitted records sit in the same compilation unit, so `permits` is implied.
         printer.line(`public sealed interface ${union} extends JsonValue {}`);

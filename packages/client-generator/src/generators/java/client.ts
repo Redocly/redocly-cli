@@ -43,8 +43,9 @@ export function writeServers(printer: JavaPrinter, model: ApiModel): void {
           )
           .join(', ');
         if (index > 0) printer.blank();
-        printer.line(
-          `/** The ${javaString(server.description ?? server.url)} base URL${defaults === '' ? '.' : ` (${defaults}).`} */`
+        printer.doc(
+          name,
+          `The ${javaString(server.description ?? server.url)} base URL${defaults === '' ? '.' : ` (${defaults}).`}`
         );
         printer.block(
           `public static String ${name}(${params.join(', ')}) {`,

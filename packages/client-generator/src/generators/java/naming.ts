@@ -9,7 +9,6 @@ import {
   NotSupportedError,
   type OperationModel,
   RESERVED_WORDS,
-  uniqueIdentifiers,
 } from '@redocly/client-generator';
 import { JavaPrinter } from '@redocly/client-generator/printers/java';
 import { JAVA_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
@@ -60,6 +59,12 @@ export function javaString(value: string): string {
  */
 export function javaClassName(stem: string, model: ApiModel): string {
   const name = identifierFor(stem, { style: 'pascal', reserved: JAVA }) || 'Client';
+  // Inside a class named `Config` or `List`, those names mean the class itself.
+  if (TAKEN_TYPE_NAMES.has(name)) {
+    throw new NotSupportedError(
+      `The output file name "${stem}" gives the Java class the name "${name}", which the SDK already uses for one of its own types. Choose another --output name, for example "${stem}-sdk.ts".`
+    );
+  }
   const clash = model.schemas.find((schema) => typeName(schema.name) === name);
   if (clash !== undefined) {
     throw new NotSupportedError(
@@ -94,16 +99,33 @@ export function methodName(op: OperationModel): string {
   return identifierFor(op.name, { style: 'camel', reserved: JAVA });
 }
 
+/** The methods every class inherits from `Object`; an operation named after one would override it. */
+// prettier-ignore
+const OBJECT_METHODS = [
+  'getClass', 'hashCode', 'equals', 'clone', 'toString', 'notify', 'notifyAll', 'wait',
+  'finalize',
+];
+
+/** The methods an operation may add beside its own, all named after it. */
+const METHOD_VARIANTS = ['', 'WithHeaders', 'Pages', 'Items'];
+
 /**
  * The method name for every operation, unique across the client — two operationIds may
- * camel-case to one name (`get-user`, `getUser`), and the `WithHeaders`, `Pages`, and
- * `Items` variants hang off it. Keyed by the IR name, which the sanitizer already made unique.
+ * camel-case to one name (`get-user`, `getUser`). Each name also books its `WithHeaders`,
+ * `Pages`, and `Items` variants, so a later operation named like one of them moves aside
+ * (`listOrdersPages2`). Keyed by the IR name, which the sanitizer already made unique.
  */
 export function methodIdents(model: ApiModel): Map<string, string> {
-  const operations = model.services.flatMap((service) => service.operations);
-  const names = uniqueIdentifiers(
-    operations.map((op) => op.name),
-    { style: 'camel', reserved: JAVA }
-  );
-  return new Map(operations.map((op, index) => [op.name, names[index]]));
+  const used = new Set(OBJECT_METHODS);
+  const idents = new Map<string, string>();
+  for (const op of model.services.flatMap((service) => service.operations)) {
+    const base = identifierFor(op.name, { style: 'camel', reserved: JAVA });
+    let ident = base;
+    for (let suffix = 2; METHOD_VARIANTS.some((variant) => used.has(ident + variant)); suffix++) {
+      ident = `${base}${suffix}`;
+    }
+    for (const variant of METHOD_VARIANTS) used.add(ident + variant);
+    idents.set(op.name, ident);
+  }
+  return idents;
 }

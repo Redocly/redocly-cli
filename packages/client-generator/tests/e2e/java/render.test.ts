@@ -260,6 +260,73 @@ function generateJava(): string {
 }
 
 describe('javaGenerator full client, built with javac', () => {
+  it('compiles names and comments a description can force: Object methods, variant clashes, comment breakers', () => {
+    const operation = (name: string, path: string, headers = false) => ({
+      name,
+      specName: name,
+      method: 'get',
+      path,
+      tags: [],
+      pathParams: [],
+      queryParams: [],
+      headerParams: [],
+      cookieParams: [],
+      security: [],
+      ...(headers ? { successResponseHeaders: [{ name: 'etag', schema: STRING }] } : {}),
+      successResponses: [{ status: '200', contentType: 'application/json', schema: STRING }],
+      errorResponses: [],
+    });
+    const forced = {
+      title: 'Cafe',
+      version: '1.0.0',
+      serverUrl: 'https://api.cafe.example',
+      servers: [{ url: 'https://api.cafe.example', description: 'Live */ server', variables: [] }],
+      services: [
+        {
+          name: 'Default',
+          operations: [
+            operation('getClass', '/a'),
+            operation('listOrders', '/b', true),
+            operation('listOrdersWithHeaders', '/c'),
+          ],
+        },
+      ],
+      schemas: [
+        { name: 'Cat', schema: { kind: 'object', properties: [] } },
+        { name: 'Dog', schema: { kind: 'object', properties: [] } },
+        {
+          name: 'Pet',
+          schema: {
+            kind: 'union',
+            members: [
+              { kind: 'ref', name: 'Cat' },
+              { kind: 'ref', name: 'Dog' },
+            ],
+            discriminator: {
+              propertyName: 'kind',
+              mapping: [
+                { value: 'cat*/', schemaName: 'Cat' },
+                { value: 'C:\\users', schemaName: 'Dog' },
+              ],
+            },
+          },
+        },
+      ],
+      securitySchemes: [],
+    } as unknown as ApiModel;
+    const out = javaGenerator({
+      model: forced,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    // An operation named after a final `Object` method, or after another one's variant, moves aside.
+    expect(out).toContain('public String getClass2() {');
+    expect(out).toContain('public Envelope<String> listOrdersWithHeaders() {');
+    expect(out).toContain('public String listOrdersWithHeaders2() {');
+    expectJavaCompiles(out);
+  });
+
   it('assembles one compilable file: models + embedded runtime + methods', () => {
     const out = generateJava();
     expect(out).toContain('public final class Client {');

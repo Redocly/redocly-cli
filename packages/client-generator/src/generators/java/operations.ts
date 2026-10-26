@@ -215,15 +215,19 @@ export function writeJavaMethod(
     `public ${returnType} ${name}(${args.signature.join(', ')}) {`,
     () => {
       printer.line(`Operation op = ${javaOperationLiteral(op, model, rule)};`);
-      printer.line('ResolvedAuth auth = resolveAuth(op.security(), config.auth);');
-      printer.line('Map<String, List<String>> query = auth.query();');
-      writeQueryParams(printer, args, 'query');
-      printer.line(`String url = ${urlExpression(args)};`);
       if (sse !== undefined) {
+        // Auth resolves inside the opener, so every reconnect asks a token supplier again
+        // — a long-lived stream outlives the token it started with.
         const jsonData = sse.schema !== undefined && sse.schema.kind !== 'unknown';
+        printer.line('Map<String, List<String>> base = new LinkedHashMap<>();');
+        writeQueryParams(printer, args, 'base');
+        printer.line(`String url = ${urlExpression(args)};`);
         printer.block(
           'return iterSse(extraHeaders -> {',
           () => {
+            printer.line('ResolvedAuth auth = resolveAuth(op.security(), config.auth);');
+            printer.line('Map<String, List<String>> query = cloneQuery(auth.query());');
+            printer.line('query.putAll(base);');
             printer.line('Map<String, String> headers = new LinkedHashMap<>(auth.headers());');
             printer.line('headers.putAll(extraHeaders);');
             printer.line(
@@ -234,6 +238,10 @@ export function writeJavaMethod(
         );
         return;
       }
+      printer.line('ResolvedAuth auth = resolveAuth(op.security(), config.auth);');
+      printer.line('Map<String, List<String>> query = auth.query();');
+      writeQueryParams(printer, args, 'query');
+      printer.line(`String url = ${urlExpression(args)};`);
       printer.line(
         'RequestSpec spec = new RequestSpec(op.id(), op.method(), url).headers(auth.headers()).query(query);'
       );
