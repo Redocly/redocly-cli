@@ -187,10 +187,12 @@ By default, the events go to the Redocly OpenTelemetry endpoint.
 Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
 Pass a `sink` function to receive the events yourself instead.
 
-A send fails when the endpoint answers with a status that is not `2xx`.
-It also fails when the connection fails, or when the endpoint does not answer in 3 seconds.
-After a failed send, the middleware keeps the counts and adds them to the next window.
-It does not try the send again immediately.
+When a send fails, the middleware keeps the counts or drops them:
+
+- It keeps the counts when the connection fails before a response, or when the endpoint answers `408`, `429`, or a `5xx` status.
+  The middleware adds these counts to the next window and does not try the send again immediately.
+- It drops the counts when the endpoint does not answer in 3 seconds, because the endpoint can have stored them already.
+- It drops the counts when the endpoint answers another `4xx` status, for example `403` or `413`, because the endpoint refuses the same counts again.
 
 When Node.js emits `beforeExit`, the middleware tries one send of the counts that it keeps.
 If this send fails, the process loses the counts.

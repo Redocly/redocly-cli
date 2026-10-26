@@ -300,6 +300,8 @@ describe('telemetry failed send', () => {
 
   it.each([
     ['fetch throws', new TypeError('connect ECONNREFUSED')],
+    ['fetch aborts for a reason other than the send timeout', new DOMException('', 'AbortError')],
+    ['the endpoint answers 408', 408],
     ['the endpoint answers 500', 500],
   ])('keeps the counts and sends them one interval later when %s', async (_case, answer) => {
     const bodies = fetchAnswers([answer]);
@@ -318,6 +320,25 @@ describe('telemetry failed send', () => {
     expect(sentUsage(bodies[1])).toMatchObject([
       { time: '2026-10-20T09:14:00.000Z', window_ms: 120_000, calls: 1 },
     ]);
+  });
+
+  it.each([
+    ['the send times out', new DOMException('The operation timed out.', 'TimeoutError')],
+    ['the endpoint answers 403', 403],
+    ['the endpoint answers 413', 413],
+  ])('drops the counts and sends no later copy when %s', async (_case, answer) => {
+    const bodies = fetchAnswers([answer]);
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(120_000);
+    await flush();
+    expect(bodies).toHaveLength(1);
   });
 
   it('a failed application flush() keeps its counts for the next send', async () => {

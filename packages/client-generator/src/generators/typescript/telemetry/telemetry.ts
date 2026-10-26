@@ -136,16 +136,16 @@ export function telemetry(options: TelemetryOptions): Middleware {
     const sentWindowStart = windowStart;
     counts = new Map();
     if (telemetryDisabled()) return;
-    let sendFailed = false;
+    let failedSend: OnFailedSend | undefined;
     const send = Promise.resolve()
       .then(() => sink(events))
-      .catch(() => {
-        sendFailed = true;
+      .catch((error: unknown) => {
+        failedSend = actionForFailedSend(error);
       });
     pendingSends.add(send);
     await send;
     pendingSends.delete(send);
-    if (!sendFailed || onFailedSend === 'drop') return;
+    if (failedSend !== 'keep' || onFailedSend === 'drop') return;
 
     if (counts.size === 0) openWindow();
     if (sentWindowStart < windowStart) windowStart = sentWindowStart;
@@ -285,8 +285,28 @@ async function sendOtlp(endpoint: string, events: SdkUsageEvent[]): Promise<void
   });
   await response.body?.cancel();
   if (!response.ok) {
-    throw new Error(`The telemetry endpoint answered ${response.status}.`);
+    throw new RejectedSendError(response.status);
   }
+}
+
+class RejectedSendError extends Error {
+  public readonly status: number;
+  constructor(status: number) {
+    super(`The telemetry endpoint answered ${status}.`);
+    this.name = 'RejectedSendError';
+    this.status = status;
+  }
+}
+
+function actionForFailedSend(error: unknown): OnFailedSend {
+  // The endpoint can have stored the counts of a send that timed out.
+  if (error instanceof Error && error.name === 'TimeoutError') return 'drop';
+  if (error instanceof RejectedSendError) {
+    if (error.status === 408 || error.status === 429 || error.status >= 500) return 'keep';
+    // The endpoint refuses the same counts again.
+    return 'drop';
+  }
+  return 'keep';
 }
 
 type OtlpValue = { stringValue: string } | { intValue: number } | { doubleValue: number };
