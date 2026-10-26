@@ -90,8 +90,9 @@ export class JavaPrinter extends Printer {
 /**
  * Description lines safe inside a Java comment: javac translates `\uXXXX` everywhere in a
  * source file, comments included, and rejects a `\u` that no hex digits follow (`C:\users`).
- * A second backslash turns it back into text.
+ * Doubling every backslash leaves each `u` behind an odd run of them, which javac never
+ * reads as an escape — whatever the description already had in front of it.
  */
 function commentText(text?: string): string[] {
-  return docText(text).map((line) => line.replaceAll('\\u', '\\\\u'));
+  return docText(text).map((line) => line.replaceAll('\\', '\\\\'));
 }

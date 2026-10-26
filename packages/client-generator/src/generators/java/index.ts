@@ -182,9 +182,9 @@ export function javaSample(op: OperationModel, ctx: SampleContext): CodeSample {
       javaString(`<${identifierFor(param.name, { reserved: JAVA })}>`)
     ),
     ...(op.requestBody ? ['body'] : []),
-    ...(paramsClassName(op, ident) === undefined
+    ...(paramsClassName(op, ident, ctx.model) === undefined
       ? []
-      : [`new ${className}.${paramsClassName(op, ident)}()`]),
+      : [`new ${className}.${paramsClassName(op, ident, ctx.model)}()`]),
   ];
   const call = `client.${ident}(${args.join(', ')})`;
   // The statement matches the return shape: a void method has no result, an SSE method is

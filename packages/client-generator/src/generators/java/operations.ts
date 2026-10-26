@@ -5,6 +5,7 @@
 import {
   type ApiModel,
   type DateType,
+  deref,
   isBinaryContentType,
   isMultipartBody,
   isUntypedMultipartBody,
@@ -13,12 +14,13 @@ import {
   type OperationModel,
   sseResponse,
   uniqueIdentifiers,
+  unwrapNullable,
 } from '@redocly/client-generator';
 import type { JavaPrinter } from '@redocly/client-generator/printers/java';
 
 import { envelopeHeaderSpecs, javaOperationLiteral } from './descriptor.ts';
 import { hydration } from './models.ts';
-import { JAVA, javaString } from './naming.ts';
+import { JAVA, javaString, typeName } from './naming.ts';
 import { javaType } from './types.ts';
 
 type MethodArgs = {
@@ -47,10 +49,22 @@ function passesThrough(op: OperationModel): boolean {
   );
 }
 
-/** The `<Op>Params` class name, when the operation has query parameters. */
-export function paramsClassName(op: OperationModel, ident: string): string | undefined {
+/**
+ * The `<Op>Params` class name, when the operation has query parameters. A schema may fold
+ * to the same name (`ListOrdersParams` is a plausible schema), and two nested classes cannot
+ * share one, so the class moves aside with a suffix.
+ */
+export function paramsClassName(
+  op: OperationModel,
+  ident: string,
+  model: ApiModel
+): string | undefined {
   if (op.queryParams.length === 0) return undefined;
-  return `${ident.charAt(0).toUpperCase()}${ident.slice(1)}Params`;
+  const base = `${ident.charAt(0).toUpperCase()}${ident.slice(1)}Params`;
+  const taken = new Set(model.schemas.map((schema) => typeName(schema.name)));
+  let name = base;
+  for (let suffix = 2; taken.has(name); suffix++) name = `${base}${suffix}`;
+  return name;
 }
 
 export function methodArgs(
@@ -79,9 +93,10 @@ export function methodArgs(
     java: queryNames[index],
     wire: param.name,
     type: javaType(param.schema, model, dateType),
-    isArray: param.schema.kind === 'array',
+    // Through a `$ref`: a named list alias repeats the key like an inline array does.
+    isArray: deref(unwrapNullable(param.schema), model)?.kind === 'array',
   }));
-  const paramsClass = paramsClassName(op, ident);
+  const paramsClass = paramsClassName(op, ident, model);
   const signature = [
     ...op.pathParams.map(
       (param, index) => `${javaType(param.schema, model, dateType)} ${pathNames[index]}`

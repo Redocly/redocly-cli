@@ -85,7 +85,7 @@ describe('renderJavaModels output, built with javac', () => {
       })
     );
     expect(out).toContain(' * Order — One placed order.');
-    expect(out).toContain(' * Archived under C:\\\\users\\orders.');
+    expect(out).toContain(' * Archived under C:\\\\users\\\\orders.');
     expect(out).toContain('public record Order(');
     expect(out).toContain('String id,');
     expect(out).toContain('Long quantity,');

@@ -67,6 +67,49 @@ describe('javaGenerator (full client assembly)', () => {
 });
 
 describe('query and sample shapes', () => {
+  it('repeats the key of a list parameter declared through a $ref, and moves a Params class aside from a schema of that name', () => {
+    const model = {
+      ...JAVA_CAFE,
+      schemas: [
+        ...JAVA_CAFE.schemas,
+        { name: 'TagList', schema: { kind: 'array', items: { kind: 'scalar', scalar: 'string' } } },
+        { name: 'ListOrdersParams', schema: { kind: 'object', properties: [] } },
+      ],
+      services: [
+        {
+          ...JAVA_CAFE.services[0],
+          operations: JAVA_CAFE.services[0].operations.map((op) =>
+            op.name === 'listOrders'
+              ? {
+                  ...op,
+                  queryParams: [
+                    ...op.queryParams.filter((param) => param.name !== 'tags'),
+                    {
+                      name: 'tags',
+                      in: 'query',
+                      required: false,
+                      schema: { kind: 'ref', name: 'TagList' },
+                    },
+                  ],
+                }
+              : op
+          ),
+        },
+      ],
+    } as unknown as ApiModel;
+    const out = javaGenerator({
+      model,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(out).toContain('public record ListOrdersParams(');
+    expect(out).toContain('public static final class ListOrdersParams2 {');
+    expect(out).toContain('public OrderPage listOrders(ListOrdersParams2 params) {');
+    expect(out).toContain('for (Object item : params.tags) {');
+    expect(out).toContain('addQuery(query, "tags", item);');
+  });
+
   it('the sample matches the return shape: void has no result, SSE is iterated, a stem names the class', () => {
     const ctx = { model: JAVA_CAFE, outputPath: '/out/openapi.client.ts', emit: {} };
     const listOrders = JAVA_CAFE.services[0].operations.find((op) => op.name === 'listOrders')!;
