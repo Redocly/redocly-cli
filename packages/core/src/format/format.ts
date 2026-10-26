@@ -89,7 +89,7 @@ export function formatProblems(
     color?: boolean;
     totals: Totals;
     version?: string;
-    command?: 'bundle' | 'lint' | 'join' | 'check-config' | 'split';
+    command?: 'bundle' | 'lint' | 'join' | 'check-config' | 'split' | 'diff';
   }
 ) {
   const {
@@ -121,7 +121,12 @@ export function formatProblems(
     case 'codeframe':
       for (let i = 0; i < problems.length; i++) {
         const problem = problems[i];
-        if (command === 'bundle' || command === 'check-config' || command === 'split') {
+        if (
+          command === 'bundle' ||
+          command === 'check-config' ||
+          command === 'split' ||
+          command === 'diff'
+        ) {
           logger.info(`${formatCodeframe(problem, i)}\n`);
         } else {
           logger.output(`${formatCodeframe(problem, i)}\n`);

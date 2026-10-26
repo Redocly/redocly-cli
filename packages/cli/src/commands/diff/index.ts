@@ -28,11 +28,8 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   const startedAt = performance.now();
 
-  const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
-  const [{ path: revisionPath, alias: revisionAlias }] = await getFallbackApisOrExit(
-    [argv.revision],
-    config
-  );
+  const [{ path: basePath }, { path: revisionPath, alias: revisionAlias }] =
+    await getFallbackApisOrExit([argv.base, argv.revision], config);
 
   const diffConfig = config.forAlias(revisionAlias);
   diffConfig.skipDiffRules(argv['skip-rule']);
@@ -54,7 +51,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
     formatProblems(result.problems, {
       format: 'codeframe',
       totals: getTotals(result.problems),
-      command: 'bundle',
+      command: 'diff',
     });
     logger.warn(
       '⚠️  The problems above leave parts of the descriptions unresolved, so the diff may miss changes there or judge them without knowing whether they are in a request or a response.\n'
@@ -75,6 +72,8 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   printExecutionTime('diff', startedAt, `${basePath} vs ${revisionPath}`);
 
   const failures = [
+    getTotals(result.problems).errors > 0 &&
+      '❌ The revision has errors, so the diff can miss breaking changes. Fix the problems above.',
     getDiffFailure(result.summary, argv['fail-on']),
     argv['check-version'] &&
       checkVersion({

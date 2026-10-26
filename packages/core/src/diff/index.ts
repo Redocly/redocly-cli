@@ -4,11 +4,11 @@ import { detectSpec, getMajorSpecVersion } from '../detect-spec.js';
 import { buildNodeTree } from '../node-tree/index.js';
 import { getTypes, type SpecVersion } from '../oas-types.js';
 import { BaseResolver, resolveDocument, type Document } from '../resolve.js';
+import { transformDocument } from '../transform-document.js';
 import { normalizeTypes } from '../types/index.js';
 import { HandledError } from '../utils/error.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import { normalizeVisitors } from '../visitors.js';
-import { walkDocument, type WalkContext } from '../walk.js';
+import type { WalkContext } from '../walk.js';
 import { typeOf } from './diff-node.js';
 import { compareTrees } from './diff-tree.js';
 import { highestImpact } from './impact.js';
@@ -58,7 +58,11 @@ export async function diffDocuments(opts: {
     summary: countByImpact(changes),
     bump: requiredBump(changes),
     changes,
-    problems: [...baseTree.problems, ...revisionTree.problems],
+    // The base is not the author's to fix, so its problems only warn.
+    problems: [
+      ...baseTree.problems.map((problem) => ({ ...problem, severity: 'warn' as const })),
+      ...revisionTree.problems,
+    ],
   };
 }
 
@@ -85,20 +89,13 @@ async function preparedNodeTree(
   });
 
   for (const kind of ['preprocessors', 'decorators'] as const) {
-    const visitors = initRules(rules, config, kind, specVersion);
-    if (visitors.length === 0) continue;
-
-    walkDocument({
+    resolvedRefMap = await transformDocument({
       document,
-      rootType: types.Root,
-      normalizedVisitors: normalizeVisitors(visitors, types),
+      types,
+      visitors: initRules(rules, config, kind, specVersion),
       resolvedRefMap,
-      ctx,
-    });
-    resolvedRefMap = await resolveDocument({
-      rootDocument: document,
-      rootType: types.Root,
       externalRefResolver,
+      ctx,
     });
   }
 

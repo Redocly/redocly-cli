@@ -3,6 +3,7 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
 import type { Config, RawGovernanceConfig } from '../config/index.js';
+import { impacts } from '../diff/impact.js';
 import { diffRuleIds } from '../diff/rules/index.js';
 import { graphqlNodeKinds } from '../graphql/node-kinds.js';
 import { specVersions, getTypes } from '../oas-types.js';
@@ -477,9 +478,7 @@ const DiffRules: NodeType = {
   description:
     'The `diff` block sets the semver impact of each diff rule: `off`, `patch`, `minor`, or `major`.',
   additionalProperties: (_value: unknown, key: string) =>
-    diffRuleIds.includes(key) || isCustomRuleId(key)
-      ? { enum: ['off', 'patch', 'minor', 'major'] }
-      : undefined,
+    diffRuleIds.includes(key) || isCustomRuleId(key) ? { enum: ['off', ...impacts] } : undefined,
 };
 
 const BuiltinRule: NodeType = {

@@ -1,25 +1,7 @@
-import { pointerOf } from '../diff-node.js';
+import { outdent } from 'outdent';
+
 import { defaultImpact, highestImpact, impactRank } from '../impact.js';
-import type { Change, DiffNode } from '../types.js';
-import { diffTreeOf } from './utils.js';
-
-const cafe = diffTreeOf(`
-  #/ Root
-  #/paths Paths
-  #/components Components
-  #/components/schemas NamedSchemas
-  #/components/schemas/MenuItem Schema
-  #/components/schemas/MenuItem/properties SchemaProperties
-`);
-
-function addition(node: DiffNode): Change {
-  return {
-    path: pointerOf(node),
-    kind: 'added',
-    node,
-    revision: { location: node.revision!.location, value: {} },
-  };
-}
+import { changesBetween } from './utils.js';
 
 describe('impact', () => {
   it('should rank patch below minor below major', () => {
@@ -32,37 +14,44 @@ describe('impact', () => {
     expect(highestImpact([])).toBeUndefined();
   });
 
-  it('should take an unjudged addition for a minor and anything else for a patch', () => {
-    const paths = cafe.get('#/paths')!;
-    const location = paths.base!.location;
+  it('should take an unjudged addition for a minor and anything else for a patch', async () => {
+    const cafe = (paths: string) => outdent`
+      openapi: 3.1.0
+      info: { title: Cafe, version: 1.0.0 }
+      paths: ${paths}
+    `;
+    const [menuAdded] = await changesBetween(cafe('{}'), cafe('{ /menu: {} }'));
+    const [menuRemoved] = await changesBetween(cafe('{ /menu: {} }'), cafe('{}'));
+    const [menuHidden] = await changesBetween(
+      cafe('{ /menu: {} }'),
+      cafe('{ /menu: { x-internal: true } }')
+    );
 
-    expect(defaultImpact(addition(paths))).toBe('minor');
-    expect(
-      defaultImpact({
-        path: pointerOf(paths),
-        kind: 'removed',
-        node: paths,
-        base: { location, value: {} },
-      })
-    ).toBe('patch');
-    expect(
-      defaultImpact({
-        path: pointerOf(paths),
-        kind: 'modified',
-        property: 'x-internal',
-        node: paths,
-        base: { location, value: false },
-        revision: { location, value: true },
-      })
-    ).toBe('patch');
+    expect(defaultImpact(menuAdded)).toBe('minor');
+    expect(defaultImpact(menuRemoved)).toBe('patch');
+    expect(defaultImpact(menuHidden)).toBe('patch');
   });
 
-  it('should take a new component, or a new map of them, for a patch until something uses it', () => {
-    expect(defaultImpact(addition(cafe.get('#/components')!))).toBe('patch');
-    expect(defaultImpact(addition(cafe.get('#/components/schemas')!))).toBe('patch');
-    expect(defaultImpact(addition(cafe.get('#/components/schemas/MenuItem')!))).toBe('patch');
-    expect(defaultImpact(addition(cafe.get('#/components/schemas/MenuItem/properties')!))).toBe(
-      'minor'
-    );
+  it('should take a new component, or a new map of them, for a patch until something uses it', async () => {
+    const cafe = (components: string) => outdent`
+      openapi: 3.1.0
+      info: { title: Cafe, version: 1.0.0 }
+      paths: {}
+      ${components}
+    `;
+    const impactsOf = async (base: string, revision: string) =>
+      (await changesBetween(cafe(base), cafe(revision))).map(defaultImpact);
+
+    expect(await impactsOf('', 'components: { schemas: {} }')).toEqual(['patch']);
+    expect(await impactsOf('components: {}', 'components: { schemas: {} }')).toEqual(['patch']);
+    expect(
+      await impactsOf('components: { schemas: {} }', 'components: { schemas: { MenuItem: {} } }')
+    ).toEqual(['patch']);
+    expect(
+      await impactsOf(
+        'components: { schemas: { MenuItem: {} } }',
+        'components: { schemas: { MenuItem: { properties: {} } } }'
+      )
+    ).toEqual(['minor']);
   });
 });

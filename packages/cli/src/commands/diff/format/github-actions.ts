@@ -1,10 +1,8 @@
 import {
-  displaySide,
   formatProblems,
   getTotals,
   type DiffResult,
   type Impact,
-  type JudgedChange,
   type NormalizedProblem,
   type ProblemSeverity,
 } from '@redocly/openapi-core';
@@ -14,25 +12,13 @@ import {
 const SEVERITIES: Partial<Record<Impact, ProblemSeverity>> = { major: 'error' };
 
 export function printGithubActions(result: DiffResult): void {
-  const problems: NormalizedProblem[] = result.changes.flatMap((change) => {
-    // A change no rule judged is reported on its own, under the command's name.
-    const verdicts: JudgedChange['verdicts'] = change.verdicts.length
-      ? change.verdicts
-      : [
-          {
-            ruleId: 'diff',
-            impact: change.impact,
-            message: `${change.kind} ${change.path}`,
-            location: displaySide(change).location,
-          },
-        ];
-
-    return verdicts.flatMap(({ ruleId, impact, message, location }) => {
+  const problems: NormalizedProblem[] = result.changes.flatMap((change) =>
+    change.verdicts.flatMap(({ ruleId, impact, message, location }) => {
       const severity = SEVERITIES[impact];
       if (!severity) return [];
       return [{ message, ruleId, severity, location: [location], suggest: [] }];
-    });
-  });
+    })
+  );
 
   formatProblems(problems, {
     format: 'github-actions',

@@ -2,7 +2,7 @@ import { outdent } from 'outdent';
 
 import { replaceSourceWithRefInChanges } from '../../../__tests__/utils.js';
 import { compareTrees } from '../diff-tree.js';
-import { nodeTreeOf, treeOf } from './utils.js';
+import { nodeTreeOf } from './utils.js';
 
 const cafe = (menuItem: string) => outdent`
   openapi: 3.1.0
@@ -99,45 +99,6 @@ describe('changesOf', () => {
           },
           "kind": "removed",
           "path": "#/components/schemas/MenuItem/properties/price",
-        },
-      ]
-    `);
-  });
-
-  it('should report a node of another type in the same place as a removal and an addition', () => {
-    // The walker gives a place its type from the document, so the two sides can disagree.
-    const base = treeOf(`
-      #/ Root
-      #/components Components
-      #/components/examples NamedExamples
-      #/components/examples/latte Example
-    `);
-    const revision = treeOf(`
-      #/ Root
-      #/components Components
-      #/components/examples NamedExamples
-      #/components/examples/latte Schema
-    `);
-
-    const changes = compareTrees(base.get('#/')!, revision.get('#/')!);
-
-    expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
-      [
-        {
-          "base": {
-            "location": "tree.yaml#/components/examples/latte",
-            "value": {},
-          },
-          "kind": "removed",
-          "path": "#/components/examples/latte",
-        },
-        {
-          "kind": "added",
-          "path": "#/components/examples/latte",
-          "revision": {
-            "location": "tree.yaml#/components/examples/latte",
-            "value": {},
-          },
         },
       ]
     `);

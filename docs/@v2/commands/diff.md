@@ -56,6 +56,7 @@ redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
 - The diff rules support OpenAPI 3.x and AsyncAPI 3.
   For other description types, the command lists the changes, but all changes are `minor` or `patch`.
 - The command cannot compare descriptions of different types, for example OpenAPI 2.0 and OpenAPI 3.1.
+- If the revision has errors, such as a `$ref` that does not resolve, the command fails, because it can miss changes in the unresolved parts.
 
 ## Output formats
 

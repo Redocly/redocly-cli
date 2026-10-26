@@ -2,6 +2,7 @@
 import './utils/assert-node-version.js';
 
 import {
+  impacts,
   logger,
   type OutputFormat,
   type RuleSeverity,
@@ -171,7 +172,7 @@ yargs(hideBin(process.argv))
           'fail-on': {
             description:
               'Exit with a non-zero code when changes of this impact or higher are found.',
-            choices: ['major', 'minor', 'patch', 'none'] as ReadonlyArray<DiffFailOn>,
+            choices: [...impacts, 'none'] as ReadonlyArray<DiffFailOn>,
             default: 'major' as const,
           },
           'check-version': {

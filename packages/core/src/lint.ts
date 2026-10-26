@@ -8,6 +8,7 @@ import { getTypes } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
+import { transformDocument } from './transform-document.js';
 import { normalizeTypes, type NodeType } from './types/index.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
 import type { CollectSpecData } from './utils/types.js';
@@ -96,27 +97,18 @@ export async function lintDocument(opts: {
   const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
   const regularRules = initRules(rules, config, 'rules', specVersion);
 
-  let resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-
-  if (preprocessors.length > 0) {
-    // Make additional pass to resolve refs defined in preprocessors.
-    walkDocument({
-      document,
-      rootType: types.Root,
-      normalizedVisitors: normalizeVisitors(preprocessors, types),
-      resolvedRefMap,
-      ctx,
-    });
-    resolvedRefMap = await resolveDocument({
+  const resolvedRefMap = await transformDocument({
+    document,
+    types,
+    visitors: preprocessors,
+    resolvedRefMap: await resolveDocument({
       rootDocument: document,
       rootType: types.Root,
       externalRefResolver,
-    });
-  }
+    }),
+    externalRefResolver,
+    ctx,
+  });
 
   const normalizedVisitors = normalizeVisitors(regularRules, types);
 

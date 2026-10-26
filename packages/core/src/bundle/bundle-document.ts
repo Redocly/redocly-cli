@@ -12,6 +12,7 @@ import {
   type BaseResolver,
   type ResolvedRefMap,
 } from '../resolve.js';
+import { transformDocument } from '../transform-document.js';
 import { normalizeTypes, type NormalizedNodeType, type NodeType } from '../types/index.js';
 import { VERSION_PATTERN, type Overlay1Definition } from '../typings/overlay.js';
 import { HandledError } from '../utils/error.js';
@@ -84,27 +85,18 @@ export async function bundleDocument(opts: {
     visitorsData: {},
   };
 
-  let resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: normalizedTypes.Root,
-    externalRefResolver,
-  });
-
-  if (preprocessors.length > 0) {
-    // Make additional pass to resolve refs defined in preprocessors.
-    walkDocument({
-      document,
-      rootType: normalizedTypes.Root as NormalizedNodeType,
-      normalizedVisitors: normalizeVisitors(preprocessors, normalizedTypes),
-      resolvedRefMap,
-      ctx,
-    });
-    resolvedRefMap = await resolveDocument({
+  const resolvedRefMap = await transformDocument({
+    document,
+    types: normalizedTypes,
+    visitors: preprocessors,
+    resolvedRefMap: await resolveDocument({
       rootDocument: document,
       rootType: normalizedTypes.Root,
       externalRefResolver,
-    });
-  }
+    }),
+    externalRefResolver,
+    ctx,
+  });
 
   const makeBundler = (refMap: ResolvedRefMap, dereferenceRefs: boolean) => ({
     severity: 'error' as const,

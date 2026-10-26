@@ -68,6 +68,26 @@ describe('diff', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('should fail when the revision has a $ref that does not resolve', async () => {
+    const testPath = join(__dirname, 'unresolved-refs');
+    const args = getParams(indexEntryPoint, ['diff', 'valid.yaml', 'broken.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-broken-revision.txt')
+    );
+  });
+
+  test('should only warn when the base has a $ref that does not resolve', async () => {
+    const testPath = join(__dirname, 'unresolved-refs');
+    const args = getParams(indexEntryPoint, ['diff', 'broken.yaml', 'valid.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-broken-base.txt')
+    );
+  });
+
   test.each(['markdown', 'html'])(
     'should write a %s report to the file --output names',
     async (format) => {

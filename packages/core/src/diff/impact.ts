@@ -9,11 +9,7 @@ export function impactRank(impact: Impact): number {
 }
 
 export function highestImpact(candidates: Impact[]): Impact | undefined {
-  return candidates.reduce<Impact | undefined>(
-    (highest, impact) =>
-      highest === undefined || impactRank(impact) > impactRank(highest) ? impact : highest,
-    undefined
-  );
+  return impacts.findLast((impact) => candidates.includes(impact));
 }
 
 // What a change means when no rule spoke: something new is a minor, everything else a patch.
