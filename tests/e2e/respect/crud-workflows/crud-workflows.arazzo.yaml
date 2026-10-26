@@ -1,0 +1,115 @@
+arazzo: 1.0.1
+info:
+  title: CRUD workflows
+  description: >-
+    Creates, reads, and deletes Redocly Cafe orders.
+    The `authorize` workflow registers a new OAuth2 client and must run first.
+    Orders belong to the client that created them, so every run starts with no orders.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: authorize
+    steps:
+      - stepId: register-client
+        operationId: registerOAuth2Client
+        requestBody:
+          payload:
+            client_name: respect-e2e-client
+            grant_types:
+              - client_credentials
+            scope: orders:read orders:write
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          clientId: $response.body#/client_id
+          clientSecret: $response.body#/client_secret
+      - stepId: create-access-token
+        operationId: createAccessToken
+        requestBody:
+          payload:
+            grant_type: client_credentials
+            client_id: $steps.register-client.outputs.clientId
+            client_secret: $steps.register-client.outputs.clientSecret
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          accessToken: $response.body#/access_token
+    outputs:
+      accessToken: $steps.create-access-token.outputs.accessToken
+
+  - workflowId: before
+    x-security:
+      - schemeName: OAuth2
+        values:
+          accessToken: $workflows.authorize.outputs.accessToken
+    steps:
+      - stepId: get-all-orders-before
+        operationId: listOrders
+
+  - workflowId: crud-orders
+    x-security:
+      - schemeName: OAuth2
+        values:
+          accessToken: $workflows.authorize.outputs.accessToken
+    steps:
+      - stepId: add-order
+        operationId: createOrder
+        requestBody:
+          payload:
+            customerName: Respect
+            orderItems:
+              - menuItemId: prd_0000000000seedtrams0000000
+                quantity: '$faker.number.integer({ min: 1, max: 10 })'
+        parameters:
+          - in: header
+            name: Content-Type
+            value: application/json
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          createdOrderId: $response.body#/id
+          createdOrderQuantity: $response.body#/orderItems/0/quantity
+      - stepId: get-all-orders
+        operationId: listOrders
+        successCriteria:
+          - condition: $response.body#/items/0/id == $steps.add-order.outputs.createdOrderId
+
+      - stepId: get-order-by-id
+        operationId: getOrderById
+        parameters:
+          - in: path
+            name: orderId
+            value: $steps.add-order.outputs.createdOrderId
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/id == $steps.add-order.outputs.createdOrderId
+          - condition: $response.body#/orderItems/0/quantity == $steps.add-order.outputs.createdOrderQuantity
+
+      - stepId: drop-order
+        operationId: deleteOrder
+        parameters:
+          - in: path
+            name: orderId
+            value: $steps.add-order.outputs.createdOrderId
+        successCriteria:
+          - condition: $statusCode == 204
+
+      - stepId: get-after-deleting
+        operationId: getOrderById
+        parameters:
+          - in: path
+            name: orderId
+            value: $steps.add-order.outputs.createdOrderId
+        successCriteria:
+          - condition: $statusCode == 404
+
+      - stepId: get-all-orders-again
+        operationId: listOrders
+        successCriteria:
+          # Fails on purpose: the default page limit is 10
+          - condition: $response.body#/page/limit == 100

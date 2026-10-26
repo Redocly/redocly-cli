@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should take missing request data from the description examples 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow auto-inherit.arazzo.yaml / auto-inherit 
+ 
+  ✓ POST /orders - step add-order-auto-inherit 
+    ✓ success criteria check - $statusCode == 401
+    ✓ success criteria check - $request.header.content-type == 'application/json'
+    ✓ success criteria check - $request.body#/customerName == 'Mary Ann'
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /orders/{orderId} - step get-order-by-id-auto-inherit 
+    ✓ success criteria check - $request.path.orderId == 'ord_01h1s5z6vf2mm1mz3hev...
+    ✓ status code check - $statusCode in [200, 400, 401, 403, 404, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /menu-item-images/{menuItemId} - step get-menu-item-photo-auto-inherit 
+    ✓ success criteria check - $request.path.menuItemId == 'prd_01khr487f7qm7p44x...
+    ✓ status code check - $statusCode in [200, 404, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for auto-inherit.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 3 passed, 3 total
+  Checks: 14 passed, 14 total
+  Time: <test>ms 
+ 
+ 
+┌──────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                         │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ auto-inherit.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+"
+`;
