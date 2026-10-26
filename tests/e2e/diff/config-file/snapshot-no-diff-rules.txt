@@ -1,0 +1,25 @@
+info
+  · patch  modified  version
+      at revision.yaml:2:31
+
+GET /menu
+  · patch  modified  summary
+      at revision.yaml:6:16
+  · patch  modified  parameters/0 · required
+      at revision.yaml:8:47
+
+/orders/{orderId}
+  · patch  removed
+      at base.yaml:12:5
+
+/specials
+  ✔ minor  added
+      at revision.yaml:12:5
+
+0 major, 1 minor, 4 patch.
+
+⚠️  No diff rules are on, so the command cannot find breaking changes. Add diff-recommended to extends in your configuration file.
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+✅ Diff passed.

@@ -4,11 +4,11 @@ import { detectSpec, getMajorSpecVersion } from '../detect-spec.js';
 import { buildNodeTree } from '../node-tree/index.js';
 import { getTypes, type SpecVersion } from '../oas-types.js';
 import { BaseResolver, resolveDocument, type Document } from '../resolve.js';
-import { transformDocument } from '../transform-document.js';
 import { normalizeTypes } from '../types/index.js';
 import { HandledError } from '../utils/error.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import type { WalkContext } from '../walk.js';
+import { normalizeVisitors } from '../visitors.js';
+import { walkDocument, type WalkContext } from '../walk.js';
 import { typeOf } from './diff-node.js';
 import { compareTrees } from './diff-tree.js';
 import { highestImpact } from './impact.js';
@@ -82,20 +82,29 @@ async function preparedNodeTree(
     visitorsData: {},
   };
 
+  const decorators = initRules(rules, config, 'decorators', specVersion);
+
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
     externalRefResolver,
   });
 
-  for (const kind of ['preprocessors', 'decorators'] as const) {
-    resolvedRefMap = await transformDocument({
+  // Decorators change the document the way `bundle` publishes it, so the diff compares the
+  // descriptions that clients get.
+  if (decorators.length > 0) {
+    walkDocument({
       document,
-      types,
-      visitors: initRules(rules, config, kind, specVersion),
+      rootType: types.Root,
+      normalizedVisitors: normalizeVisitors(decorators, types),
       resolvedRefMap,
-      externalRefResolver,
       ctx,
+    });
+    // Decorators can add or move `$ref`s.
+    resolvedRefMap = await resolveDocument({
+      rootDocument: document,
+      rootType: types.Root,
+      externalRefResolver,
     });
   }
 

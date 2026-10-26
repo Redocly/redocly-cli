@@ -8,7 +8,7 @@ import {
 import { createConfig, type Config } from '../../config/index.js';
 import { makeDocumentFromString, type Document } from '../../resolve.js';
 import { HandledError } from '../../utils/error.js';
-import type { Oas3Preprocessor } from '../../visitors.js';
+import type { Oas3Decorator } from '../../visitors.js';
 import { diffDocuments } from '../index.js';
 
 const orderStatus = (paths: string, statuses: string) => outdent`
@@ -726,9 +726,9 @@ describe('diffDocuments of a document that another file refers back into', () =>
     return result;
   }
 
-  it('should compare what the preprocessors left of it', async () => {
+  it('should compare what the decorators left of it', async () => {
     // It changes `Price` from the components map, which the `$ref` in `item.yaml` does not pass through.
-    const removeCost: Oas3Preprocessor = () => ({
+    const removeCost: Oas3Decorator = () => ({
       NamedSchemas: {
         leave(schemas) {
           delete schemas.Price?.properties?.cost;
@@ -738,8 +738,8 @@ describe('diffDocuments of a document that another file refers back into', () =>
 
     const result = await diffCafes(
       await createConfig({
-        plugins: [{ id: 'cafe', preprocessors: { oas3: { 'remove-cost': removeCost } } }],
-        preprocessors: { 'cafe/remove-cost': 'on' },
+        plugins: [{ id: 'cafe', decorators: { oas3: { 'remove-cost': removeCost } } }],
+        decorators: { 'cafe/remove-cost': 'on' },
       })
     );
 

@@ -51,7 +51,7 @@ redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
 - The command detects renamed items, such as paths, properties, and parameters.
   If the new item is at least half the same as the old one, the command shows one rename instead of a removal and an addition.
 - A new order of list items, such as parameters or `oneOf` subschemas, is not a change.
-- The command applies the preprocessors and [decorators](../decorators.md) from your configuration, as the `bundle` command does.
+- The command applies the [decorators](../decorators.md) from your configuration, as the `bundle` command does.
   For example, with the `remove-x-internal` decorator, the command does not report changes to internal operations.
 - The diff rules support OpenAPI 3.x and AsyncAPI 3.
   For other description types, the command lists the changes, but all changes are `minor` or `patch`.
@@ -148,7 +148,7 @@ apis:
 redocly diff cafe@v1 cafe@v2
 ```
 
-The command applies the preprocessors and decorators of the revision API, `cafe@v2`, to both descriptions.
+The command applies the decorators of the revision API, `cafe@v2`, to both descriptions.
 
 ### Change the impact of a rule
 

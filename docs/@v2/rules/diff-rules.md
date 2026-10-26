@@ -19,6 +19,7 @@ The `diff-recommended` ruleset turns on all diff rules with the `major` impact.
 The `diff` command uses this ruleset if you do not have a `redocly.yaml` file.
 
 If you have a `redocly.yaml` file, only the rules from that file run.
+If the file turns on no diff rule, every change is `minor` or `patch`, and the command shows a warning.
 To use the ruleset, add it to `extends`:
 
 ```yaml

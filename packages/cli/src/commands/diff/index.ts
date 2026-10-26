@@ -58,6 +58,13 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
     );
   }
 
+  const impacts = diffConfig.diff[result.specVersions.revision];
+  if (impacts && Object.values(impacts).every((impact) => impact === 'off')) {
+    logger.warn(
+      '⚠️  No diff rules are on, so the command cannot find breaking changes. Add diff-recommended to extends in your configuration file.\n'
+    );
+  }
+
   result.changes.sort(byPathAndProperty);
 
   if (argv.format === 'github-actions') {
