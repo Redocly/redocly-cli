@@ -61,7 +61,9 @@ type ProcessLike = {
   on?: (event: 'beforeExit', listener: () => void) => void;
 };
 
-const activeWindows = new Set<() => Promise<void>>();
+type OnFailedSend = 'keep' | 'drop';
+
+const activeWindows = new Set<(onFailedSend: OnFailedSend) => Promise<void>>();
 const pendingSends = new Set<Promise<void>>();
 let exitHookInstalled = false;
 
@@ -80,8 +82,12 @@ function telemetryDisabled(): boolean {
   return false;
 }
 
-export async function flush(): Promise<void> {
-  for (const flushWindow of activeWindows) void flushWindow();
+export function flush(): Promise<void> {
+  return flushWindows('keep');
+}
+
+async function flushWindows(onFailedSend: OnFailedSend): Promise<void> {
+  for (const flushWindow of activeWindows) void flushWindow(onFailedSend);
   await Promise.all(pendingSends);
 }
 
@@ -113,32 +119,51 @@ export function telemetry(options: TelemetryOptions): Middleware {
   let windowStart = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
 
-  async function flushWindow(): Promise<void> {
+  function openWindow(): void {
+    windowStart = Date.now();
+    timer = setTimeout(() => void flushWindow('keep'), intervalMs);
+    unrefTimer(timer);
+    activeWindows.add(flushWindow);
+  }
+
+  async function flushWindow(onFailedSend: OnFailedSend): Promise<void> {
     if (counts.size === 0) return;
     if (timer !== undefined) clearTimeout(timer);
     timer = undefined;
     activeWindows.delete(flushWindow);
     const events = toEvents(counts, windowStart, Date.now() - windowStart, options.sdkName, sdk);
+    const sentCounts = counts;
+    const sentWindowStart = windowStart;
     counts = new Map();
     if (telemetryDisabled()) return;
+    let sendFailed = false;
     const send = Promise.resolve()
       .then(() => sink(events))
-      .catch(() => undefined);
+      .catch(() => {
+        sendFailed = true;
+      });
     pendingSends.add(send);
     await send;
     pendingSends.delete(send);
+    if (!sendFailed || onFailedSend === 'drop') return;
+
+    if (counts.size === 0) openWindow();
+    if (sentWindowStart < windowStart) windowStart = sentWindowStart;
+    for (const [operationId, sentOperation] of sentCounts) {
+      const operation = counts.get(operationId);
+      if (operation === undefined) {
+        counts.set(operationId, sentOperation);
+      } else {
+        addCounts(operation, sentOperation);
+      }
+    }
   }
 
   installExitHook();
 
   return {
     onSettled: (ctx, call) => {
-      if (counts.size === 0) {
-        windowStart = Date.now();
-        timer = setTimeout(() => void flushWindow(), intervalMs);
-        unrefTimer(timer);
-        activeWindows.add(flushWindow);
-      }
+      if (counts.size === 0) openWindow();
       let operation = counts.get(ctx.operation.id);
       if (operation === undefined) {
         operation = emptyCounts();
@@ -152,7 +177,9 @@ export function telemetry(options: TelemetryOptions): Middleware {
 function installExitHook(): void {
   if (exitHookInstalled) return;
   exitHookInstalled = true;
-  nodeProcess()?.on?.('beforeExit', () => void flush());
+  // Node emits `beforeExit` again after each send at exit.
+  // Kept counts then cause one more send each time, so a failed send here drops its counts.
+  nodeProcess()?.on?.('beforeExit', () => void flushWindows('drop'));
 }
 
 function unrefTimer(timer: unknown): void {
@@ -181,6 +208,18 @@ function record(operation: OperationCounts, call: SettledCall): void {
       operation.latency[bucket] += 1;
       break;
     }
+  }
+}
+
+function addCounts(target: OperationCounts, source: OperationCounts): void {
+  target.calls += source.calls;
+  target.attempts += source.attempts;
+  target.durationSumMs += source.durationSumMs;
+  for (const statusClass of STATUS_CLASSES) {
+    target.status[statusClass] += source.status[statusClass];
+  }
+  for (const { bucket } of LATENCY_BUCKETS) {
+    target.latency[bucket] += source.latency[bucket];
   }
 }
 
@@ -245,6 +284,9 @@ async function sendOtlp(endpoint: string, events: SdkUsageEvent[]): Promise<void
     signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
   });
   await response.body?.cancel();
+  if (!response.ok) {
+    throw new Error(`The telemetry endpoint answered ${response.status}.`);
+  }
 }
 
 type OtlpValue = { stringValue: string } | { intValue: number } | { doubleValue: number };

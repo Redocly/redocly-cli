@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { TELEMETRY_RUNTIME_SOURCE } from '../telemetry.js';
 import { RUNTIME_SOURCES } from '../typescript.js';
 
 const pkgSrc = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -58,5 +59,16 @@ describe('runtime-sources', () => {
     expect(embedded, STALE).toContain(
       between(source, '/** Client configuration:', '\n\n/** Response readers')
     );
+  });
+
+  it('the embedded telemetry source matches telemetry.ts', () => {
+    const source = readFileSync(
+      join(pkgSrc, 'generators', 'typescript', 'telemetry', 'telemetry.ts'),
+      'utf-8'
+    );
+    expect(
+      TELEMETRY_RUNTIME_SOURCE,
+      'runtime-sources/telemetry.ts is stale — run `npm run prepare -w @redocly/client-generator`'
+    ).toBe(source);
   });
 });
