@@ -2,7 +2,6 @@ import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 import * as path from 'node:path';
 
 import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
-import { isNamedType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -94,22 +93,15 @@ function resolvePath(value: unknown, sourceRef: string) {
 }
 
 // Commands resolve relative config paths from the root config folder, so a path written in a referenced file is made absolute.
-function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
+function resolveUriReference(node: unknown, ctx: UserContext) {
   const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
-  if (sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
-    return;
-  }
-  if (ctx.type.scalar?.format === 'uri-reference') {
+  if (
+    sourceRef !== rootRef &&
+    !isAbsoluteUrl(sourceRef) &&
+    ctx.type.scalar?.format === 'uri-reference'
+  ) {
     ctx.parent[ctx.key] = resolvePath(node, sourceRef);
-  }
-  if (isPlainObject(node)) {
-    for (const [field, value] of Object.entries(node)) {
-      const schema = ctx.type.properties[field];
-      if (isPlainObject(schema) && !isNamedType(schema) && schema.format === 'uri-reference') {
-        node[field] = resolvePath(value, sourceRef);
-      }
-    }
   }
 }
 
@@ -121,13 +113,12 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-            resolveUriReferenceProperties(node, ctx);
             replaceRef(node, resolved, ctx);
           },
         },
         any: {
           leave(node: unknown, ctx: UserContext) {
-            resolveUriReferenceProperties(node, ctx);
+            resolveUriReference(node, ctx);
           },
         },
         ConfigGovernance: {

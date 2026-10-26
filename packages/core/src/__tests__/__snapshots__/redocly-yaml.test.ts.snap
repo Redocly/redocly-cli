@@ -74,6 +74,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "auth",
     ],
   },
+  "ApiOutput": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "pattern": "(.ya?ml|.json)$",
+      "type": "string",
+    },
+  },
+  "ApiRoot": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "type": "string",
+      "uiHint": "file",
+    },
+  },
   "Assertions": {
     "additionalProperties": [Function],
     "description": "A minimum of one assertion property is required to be defined.",
@@ -220,10 +236,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "grouped",
         ],
       },
-      "cliOutput": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "cliOutput": "ClientCliOutput",
       "codeSamples": {
         "type": "boolean",
       },
@@ -293,10 +306,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "serverUrl": {
         "type": "string",
       },
-      "setup": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "setup": "ClientSetup",
       "telemetry": {
         "enum": [
           "on",
@@ -305,9 +315,23 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
   },
+  "ClientCliOutput": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "type": "string",
+    },
+  },
   "ClientGeneratorOptions": {
     "additionalProperties": {},
     "properties": {},
+  },
+  "ClientOutput": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "type": "string",
+    },
   },
   "ClientPagination": {
     "properties": {
@@ -388,6 +412,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
   },
+  "ClientSetup": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "type": "string",
+    },
+  },
   "ConfigApis": {
     "additionalProperties": "ConfigApisProperties",
     "description": "The \`apis\` configuration section is used when a project contains multiple API descriptions to set up different rules and settings for individual APIs. It allows defining specific configurations for each API, which must be identified by a unique name.",
@@ -414,10 +445,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Rules": "Rules",
       "asyncapi": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi",
       "client": "Client",
-      "clientOutput": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "clientOutput": "ClientOutput",
       "decorators": "Decorators",
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
@@ -447,22 +475,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "openrpc1Decorators": "Decorators",
       "openrpc1Preprocessors": "Preprocessors",
       "openrpc1Rules": "Rules",
-      "output": {
-        "format": "uri-reference",
-        "pattern": "(.ya?ml|.json)$",
-        "type": "string",
-      },
+      "output": "ApiOutput",
       "overlay1Decorators": "Decorators",
       "overlay1Preprocessors": "Preprocessors",
       "overlay1Rules": "Rules",
       "overlays": "Overlays",
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
-      "root": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
+      "root": "ApiRoot",
       "rules": "Rules",
       "theme": "rootRedoclyConfigSchema.apis_additionalProperties.theme",
       "title": {
@@ -880,6 +900,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "idp",
     ],
   },
+  "HtmlTemplate": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "type": "string",
+    },
+  },
   "NamedSchemas": {
     "additionalProperties": [Function],
     "name": "SchemaMap",
@@ -1051,6 +1078,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "description": "Preprocessors define transformations that can be applied to the API document before bundling.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/preprocessors",
     "properties": {},
+  },
+  "RecheckTagsFile": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "minLength": 1,
+      "type": "string",
+    },
   },
   "RedirectSource": {
     "additionalProperties": undefined,
@@ -3059,11 +3094,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "openrpc1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.openrpc1Rules",
-      "output": {
-        "format": "uri-reference",
-        "pattern": "(.ya?ml|.json)$",
-        "type": "string",
-      },
+      "output": "ApiOutput",
       "overlay1Decorators": {
         "type": "object",
       },
@@ -3076,11 +3107,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
-      "root": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
+      "root": "ApiRoot",
       "rules": "rootRedoclyConfigSchema.apis_additionalProperties.rules",
       "theme": "rootRedoclyConfigSchema.apis_additionalProperties.theme",
       "title": {
@@ -4304,10 +4331,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hideTryItPanel": {
         "type": "boolean",
       },
-      "htmlTemplate": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "htmlTemplate": "HtmlTemplate",
       "ignoreNamedSchemas": [Function],
       "jsonSampleExpandLevel": [Function],
       "jsonSamplesExpandLevel": [Function],
@@ -7269,10 +7293,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hideTryItPanel": {
         "type": "boolean",
       },
-      "htmlTemplate": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "htmlTemplate": "HtmlTemplate",
       "ignoreNamedSchemas": [Function],
       "jsonSampleExpandLevel": [Function],
       "jsonSamplesExpandLevel": [Function],
@@ -12533,11 +12554,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "openrpc1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openrpc1Rules",
-      "output": {
-        "format": "uri-reference",
-        "pattern": "(.ya?ml|.json)$",
-        "type": "string",
-      },
+      "output": "ApiOutput",
       "overlay1Decorators": {
         "type": "object",
       },
@@ -12550,11 +12567,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rbac",
-      "root": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
+      "root": "ApiRoot",
       "rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rules",
       "theme": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme",
       "title": {
@@ -13778,10 +13791,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hideTryItPanel": {
         "type": "boolean",
       },
-      "htmlTemplate": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "htmlTemplate": "HtmlTemplate",
       "ignoreNamedSchemas": [Function],
       "jsonSampleExpandLevel": [Function],
       "jsonSamplesExpandLevel": [Function],
@@ -16743,10 +16753,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hideTryItPanel": {
         "type": "boolean",
       },
-      "htmlTemplate": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "htmlTemplate": "HtmlTemplate",
       "ignoreNamedSchemas": [Function],
       "jsonSampleExpandLevel": [Function],
       "jsonSamplesExpandLevel": [Function],
@@ -23025,10 +23032,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hideTryItPanel": {
         "type": "boolean",
       },
-      "htmlTemplate": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "htmlTemplate": "HtmlTemplate",
       "ignoreNamedSchemas": [Function],
       "jsonSampleExpandLevel": [Function],
       "jsonSamplesExpandLevel": [Function],
@@ -25755,11 +25759,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "tags": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags",
-      "tagsFile": {
-        "format": "uri-reference",
-        "minLength": 1,
-        "type": "string",
-      },
+      "tagsFile": "RecheckTagsFile",
     },
     "required": undefined,
   },
@@ -31903,10 +31903,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hideTryItPanel": {
         "type": "boolean",
       },
-      "htmlTemplate": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "htmlTemplate": "HtmlTemplate",
       "ignoreNamedSchemas": [Function],
       "jsonSampleExpandLevel": [Function],
       "jsonSamplesExpandLevel": [Function],
@@ -37563,10 +37560,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hideTryItPanel": {
         "type": "boolean",
       },
-      "htmlTemplate": {
-        "format": "uri-reference",
-        "type": "string",
-      },
+      "htmlTemplate": "HtmlTemplate",
       "ignoreNamedSchemas": [Function],
       "jsonSampleExpandLevel": [Function],
       "jsonSamplesExpandLevel": [Function],
@@ -40293,11 +40287,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "tags": "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags",
-      "tagsFile": {
-        "format": "uri-reference",
-        "minLength": 1,
-        "type": "string",
-      },
+      "tagsFile": "RecheckTagsFile",
     },
     "required": undefined,
   },
