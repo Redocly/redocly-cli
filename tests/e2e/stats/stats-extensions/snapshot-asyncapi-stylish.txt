@@ -17,3 +17,5 @@ Document: asyncapi.yaml stats:
 
 asyncapi.yaml: stats processed in <test>ms
 
+
+Exit code: 0

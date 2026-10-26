@@ -51,5 +51,6 @@ exports[`should apply x-security schemes in Top-Down order, the Last one have bi
 └───────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

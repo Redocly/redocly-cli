@@ -37,5 +37,6 @@ exports[`should end workflow execution, context returns to the caller with appli
 └─────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

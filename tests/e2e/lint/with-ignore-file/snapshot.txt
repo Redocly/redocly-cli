@@ -6,3 +6,5 @@ Woohoo! Your API description is valid. 🎉
 2 problems are explicitly ignored.
 
 
+
+Exit code: 0

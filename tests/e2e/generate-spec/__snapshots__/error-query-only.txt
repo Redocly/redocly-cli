@@ -1,0 +1,5 @@
+
+All observed HTTP exchanges use the QUERY method, which OpenAPI 3.1 does not support. Use --openapi-version 3.2 to include them.
+
+
+Exit code: 1

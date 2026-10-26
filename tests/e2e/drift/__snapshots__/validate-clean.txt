@@ -11,3 +11,5 @@
 
 ✔ No findings.
 
+
+Exit code: 0

@@ -4,3 +4,5 @@ Something went wrong when processing ./tests/e2e/lint/assertions-property-key-re
 
   - The 'nonEmpty' assertion can't be used on all keys. Please provide a single property.
 
+
+Exit code: 1

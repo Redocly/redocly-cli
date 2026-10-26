@@ -14,3 +14,5 @@ first-line-h1             notes.yaml:1:1                           First line in
 
 ❌ Found 1 error(s). Exiting with code 1.
    Completed in <time>
+
+Exit code: 1
