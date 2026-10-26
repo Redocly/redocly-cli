@@ -100,20 +100,14 @@ function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
   if (sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
     return;
   }
-  if (isString(node)) {
-    if (ctx.type.scalar?.format === 'uri-reference') {
-      ctx.parent[ctx.key] = resolvePath(node, sourceRef);
-    }
-    return;
-  }
-  if (!isPlainObject(node)) {
-    return;
-  }
-  for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    const isPath =
-      isPlainObject(schema) && !isNamedType(schema) && schema.format === 'uri-reference';
-    if (node[field] !== undefined && isPath) {
-      node[field] = resolvePath(node[field], sourceRef);
+  if (ctx.type.scalar?.format === 'uri-reference') {
+    ctx.parent[ctx.key] = resolvePath(node, sourceRef);
+  } else if (isPlainObject(node)) {
+    for (const [field, value] of Object.entries(node)) {
+      const schema = ctx.type.properties[field];
+      if (isPlainObject(schema) && !isNamedType(schema) && schema.format === 'uri-reference') {
+        node[field] = resolvePath(value, sourceRef);
+      }
     }
   }
 }
