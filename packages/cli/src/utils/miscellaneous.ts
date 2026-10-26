@@ -489,7 +489,7 @@ function sortDocumentKeys<T extends object>(document: T, orderedKeys: string[]):
   return Object.assign(result, document);
 }
 
-export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
+export function checkIfRulesetExist(rules: Config['rules']) {
   const ruleset = {
     ...rules.oas2,
     ...rules.oas3_0,
