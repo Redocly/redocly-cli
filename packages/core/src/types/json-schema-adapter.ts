@@ -94,6 +94,7 @@ function transformJSONSchemaToNodeType(
   }
 
   if (
+    (schema.nodeTypeName && schema.type === 'array') ||
     isPlainObject(schema.properties) ||
     isPlainObject(schema.additionalProperties) ||
     (isPlainObject(schema.items) &&
@@ -214,6 +215,11 @@ function extractNodeToContext(
       schema.items.oneOf) // exclude scalar array types
   ) {
     items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
+  } else if (isPlainObject(schema.items)) {
+    // a scalar item gets its own node type, so visitors see every item of the list
+    const { default: _, ...itemSchema } = schema.items;
+    ctx[nodeTypeName + '_items'] = { ...(itemSchema as NodeType), properties: {} };
+    items = nodeTypeName + '_items';
   }
 
   let required = schema.required as NodeType['required'];

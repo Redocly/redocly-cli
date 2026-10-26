@@ -97,21 +97,24 @@ function resolvePath(value: unknown, sourceRef: string) {
 function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
   const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
-  if (!isPlainObject(node) || sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
+  if (sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
+    return;
+  }
+  if (isString(node)) {
+    if (ctx.type.format === 'uri-reference') {
+      ctx.parent[ctx.key] = resolvePath(node, sourceRef);
+    }
+    return;
+  }
+  if (!isPlainObject(node)) {
     return;
   }
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    const value = node[field];
     const isPath =
-      isPlainObject(schema) &&
-      !isNamedType(schema) &&
-      (schema.format ?? schema.items?.format) === 'uri-reference';
-    if (value === undefined || !isPath) {
-      continue;
+      isPlainObject(schema) && !isNamedType(schema) && schema.format === 'uri-reference';
+    if (node[field] !== undefined && isPath) {
+      node[field] = resolvePath(node[field], sourceRef);
     }
-    node[field] = Array.isArray(value)
-      ? value.map((item) => resolvePath(item, sourceRef))
-      : resolvePath(value, sourceRef);
   }
 }
 

@@ -455,13 +455,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Decorators": "Decorators",
       "overlay1Preprocessors": "Preprocessors",
       "overlay1Rules": "Rules",
-      "overlays": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
+      "overlays": "Overlays",
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
@@ -1032,6 +1026,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {},
     "required": undefined,
+  },
+  "Overlays": {
+    "additionalProperties": undefined,
+    "description": "List of overlay files",
+    "documentationLink": undefined,
+    "items": "Overlays_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "Overlays_items": {
+    "format": "uri-reference",
+    "properties": {},
+    "type": "string",
   },
   "PatternProperties": {
     "additionalProperties": [Function],
@@ -3062,13 +3069,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "overlay1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.overlay1Rules",
-      "overlays": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
+      "overlays": "Overlays",
       "preprocessors": {
         "type": "object",
       },
@@ -12542,13 +12543,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "overlay1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.overlay1Rules",
-      "overlays": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
+      "overlays": "Overlays",
       "preprocessors": {
         "type": "object",
       },

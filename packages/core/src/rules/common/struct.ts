@@ -33,6 +33,16 @@ export const Struct:
       const nodeType = oasTypeOf(node);
       const refLocation = rawLocation !== location ? rawLocation : undefined;
 
+      if (type.type) {
+        if (!matchesJsonSchemaType(node, type.type, false)) {
+          report({
+            message: `Expected type \`${type.type}\` but got \`${nodeType}\`.`,
+            from: refLocation,
+          });
+        }
+        return;
+      }
+
       if (type.items) {
         if (nodeType !== 'array') {
           report({
