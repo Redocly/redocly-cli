@@ -2,6 +2,7 @@ import { type RuleSeverity } from '../config/types.js';
 import { type SpecMajorVersion } from '../oas-types.js';
 import {
   isAbsoluteUrl,
+  isFileUrl,
   replaceRef,
   isExternalValue,
   isRef,
@@ -169,7 +170,8 @@ export function makeBundleVisitor({
           return;
         }
 
-        if (keepUrlRefs && isAbsoluteUrl(node.$ref)) {
+        // A `file:` URL is a local file, so it is bundled even when URL references are kept.
+        if (keepUrlRefs && isAbsoluteUrl(node.$ref) && !isFileUrl(node.$ref)) {
           return;
         }
 
