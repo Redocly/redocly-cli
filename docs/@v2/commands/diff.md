@@ -5,9 +5,9 @@
 The `diff` command compares two API descriptions and lists the changes between them.
 The command gives each change an impact: the semver part that a release with this change must bump.
 
-- `major`: the change can break a client, for example a removed operation.
-- `minor`: the change adds to the API, for example a new path.
-- `patch`: the change does not break or add anything, for example a new description.
+- `major`: can break a client, for example a removed operation
+- `minor`: adds to the API, for example a new path
+- `patch`: does not break or add anything, for example a new description
 
 Use the command in CI to stop breaking changes, or to get the next version of your API.
 
@@ -39,16 +39,18 @@ redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
 | --lint-config   | string   | Specify the severity level for the configuration file. <br /> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                            |
 | --output, -o    | string   | Write the report to this file. All formats support this option, except `github-actions`.                                                                                                       |
 | --skip-rule     | [string] | Turn off these [diff rules](../rules/diff-rules.md) for this run.                                                                                                                              |
-| --version       | boolean  | Show version number.                                                                                                                                                                           |
+| --version       | boolean  | Display version number.                                                                                                                                                                           |
 
 ## How the command compares descriptions
 
 - The [diff rules](../rules/diff-rules.md) find the changes that can break a client and set their impact.
-  A change that no rule reports is `minor` if you add something, and `patch` in all other cases.
+  If no rule reports a change, an addition is `minor` and any other change is `patch`.
 - A new component is `patch`, because it has no effect until something uses it.
 - The command follows `$ref`s, also into other files.
   It shows a change in a component at the first place that uses the component, with the line of the change in its file.
-- If you rename an item, such as a path, a property, or a parameter, and the new item is similar to the old item, the command shows one changed item.
+- The command detects renamed items, such as paths, properties, and parameters.
+  If the new item is at least half the same as the old one, the command shows one rename instead of a removal and an addition.
+
   It does not show a removed item and an added item.
 - A new order of list items, such as parameters or `oneOf` subschemas, is not a change.
 - The command applies the preprocessors from your configuration, but not the [decorators](../decorators.md).
@@ -158,5 +160,8 @@ diff:
 
 ## Resources
 
-- [Diff rules](../rules/diff-rules.md)
-- [`diff` configuration](../configuration/reference/diff.md)
+- **[Diff rules](../rules/diff-rules.md)** - Changes that each rule reports and how the rules use the direction of the data
+- **[`diff` configuration](../configuration/reference/diff.md)** - Set the impact of each diff rule in `redocly.yaml`
+- **[Per-API configuration](../configuration/apis.md)** - Define API aliases to compare two APIs by name
+- **[`bundle` command](./bundle.md)** - Apply your decorators before you compare the descriptions that you publish
+- **[`lint` command](./lint.md)** - Check one API description against your API standards

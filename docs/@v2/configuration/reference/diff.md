@@ -65,5 +65,6 @@ oas3_1Diff:
 
 ## Resources
 
-- [Diff rules](../../rules/diff-rules.md)
-- [`diff` command](../../commands/diff.md)
+- **[Diff rules](../../rules/diff-rules.md)** - Changes that each rule reports and the impact of the `diff-recommended` ruleset
+- **[`diff` command](../../commands/diff.md)** - Compare two API descriptions and report the impact of each change
+- **[`apis` configuration](./apis.md)** - Define the API aliases that the `diff` command can compare

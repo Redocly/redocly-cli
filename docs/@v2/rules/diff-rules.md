@@ -56,9 +56,12 @@ For example, a new `enum` value is safe in a request, but it can break a client 
 - AsyncAPI 3: the messages of an operation with `action: receive` are requests, and the messages of an operation with `action: send` are responses.
   A `reply` has the opposite direction.
 - A schema with `readOnly: true` is response data, and a schema with `writeOnly: true` is request data.
-- A component has the directions of all places that use it.
-  If a request and a response use the same schema, the rules check its changes in both directions.
-  A component that nothing uses has no direction.
+- A component gets its directions from the places that reference it.
+  If a request and a response reference the same schema, the rules check a change to that schema for both.
+  For example, a new `enum` value in the schema is a `major` change, because it can break a client that reads the response.
+- If no request or response references a component, the component has no direction.
+  The rules that check the direction do not report changes to it.
+
 
 ## Rules
 
@@ -139,3 +142,10 @@ These changes do not break a client:
 - A changed case of a header name.
 - A removed `servers` list of a path or an operation. The path or operation then uses the servers of the document.
 - A new `operationId` where there was none.
+
+## Resources
+
+- **[`diff` command](../commands/diff.md)** - Compare two API descriptions, choose an output format, and stop breaking changes in CI
+- **[`diff` configuration](../configuration/reference/diff.md)** - Set the impact of each diff rule in `redocly.yaml`
+- **[Built-in rules](./built-in-rules.md)** - Lint rules that check one API description against your API standards
+
