@@ -8,3 +8,5 @@ Could not read API description broken.yaml: unexpected end of the stream within 
 
    Annotations prepared: 0
    Completed in <time>
+
+Exit code: 1

@@ -14,3 +14,5 @@ paths:
 bundling openapi.yaml using configuration for api 'test-api'...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
 🧹 Removed 2 unused components.
+
+Exit code: 0

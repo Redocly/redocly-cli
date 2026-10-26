@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
 import {
@@ -404,6 +404,37 @@ describe('bundle', () => {
     });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should not read a local file that a remote API description references', async () => {
+    const fileUrl = pathToFileURL(
+      path.join(__dirname, 'fixtures/overlay/overlays/schemas/Error.yaml')
+    ).href;
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: () => Promise.reject(new Error('Unexpected request')), headers: [] },
+      }),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.2.0
+          info:
+            title: Redocly Cafe
+            version: 1.0.0
+          paths: {}
+          components:
+            schemas:
+              Error:
+                $ref: ${fileUrl}
+        `,
+        'https://example.com/cafe.yaml'
+      ),
+    });
+
+    expect(problems.map(({ message }) => message)).toEqual([
+      `Can't resolve $ref: A remote document can't reference ${fileUrl}, which is a local file.`,
+    ]);
+    expect((res.parsed as any).components.schemas.Error).toEqual({ $ref: fileUrl });
   });
 
   it('should bundle refs using $anchors', async () => {
@@ -1228,6 +1259,74 @@ describe('bundle with overlays', () => {
               id:
                 type: string
 
+    `);
+  });
+
+  it('should bundle the files a local overlay references when the API description is remote', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: () => Promise.reject(new Error('Unexpected request')), headers: [] },
+      }),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.2.0
+          info:
+            title: Redocly Cafe
+            version: 1.0.0
+          paths:
+            /menu/{menuItemId}:
+              delete:
+                summary: Delete a menu item
+                operationId: deleteMenuItem
+                responses:
+                  '204':
+                    description: Menu item deleted successfully.
+        `,
+        'https://example.com/cafe.yaml'
+      ),
+      overlays: [path.join(__dirname, 'fixtures/overlay/overlays/not-found.yaml')],
+      // The overlay's local files are bundled even though URL references are kept.
+      keepUrlRefs: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths:
+        /menu/{menuItemId}:
+          delete:
+            summary: Delete a menu item
+            operationId: deleteMenuItem
+            responses:
+              '204':
+                description: Menu item deleted successfully.
+              '404':
+                $ref: '#/components/responses/NotFound'
+      components:
+        schemas:
+          Error:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Short summary of the problem type.
+              status:
+                type: integer
+                format: int32
+            required:
+              - title
+              - status
+        responses:
+          NotFound:
+            description: Resource not found.
+            content:
+              application/problem+json:
+                schema:
+                  $ref: '#/components/schemas/Error'
     `);
   });
 

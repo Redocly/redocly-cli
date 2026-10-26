@@ -5,7 +5,8 @@ exports[`push > fails the push when the API does not answer within the fetch tim
 ✗ File upload failed. Reason: Failed to fetch project. Failed to fetch. Caused by The operation was aborted due to timeout.
 
 
-"
+
+Exit code: 1"
 `;
 
 exports[`push > fails the push when the proxy does not answer within the fetch timeout 1`] = `
@@ -13,5 +14,6 @@ exports[`push > fails the push when the proxy does not answer within the fetch t
 ✗ File upload failed. Reason: Failed to fetch project. Failed to fetch. Caused by The operation was aborted due to timeout.
 
 
-"
+
+Exit code: 1"
 `;

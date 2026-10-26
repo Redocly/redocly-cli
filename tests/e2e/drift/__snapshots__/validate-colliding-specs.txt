@@ -12,3 +12,5 @@
 ✔ No findings.
 
 "GET /users/{userId}" is documented for the same server in multiple descriptions (./tests/e2e/drift/fixtures/colliding-apis/legacy.yaml, ./tests/e2e/drift/fixtures/colliding-apis/main.yaml). Matching traffic is validated against only one of them.
+
+Exit code: 0

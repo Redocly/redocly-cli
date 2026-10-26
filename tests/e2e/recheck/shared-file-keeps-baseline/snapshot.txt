@@ -12,3 +12,5 @@ Could not read API description ./tests/e2e/recheck/shared-file-keeps-baseline/sh
 
 ✅ No errors found!
    Completed in <time>
+
+Exit code: 1

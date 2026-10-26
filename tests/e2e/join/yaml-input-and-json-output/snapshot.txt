@@ -105,3 +105,5 @@
 }
 openapi.json: join processed in <test>ms
 
+
+Exit code: 0

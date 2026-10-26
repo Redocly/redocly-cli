@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.7.11 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.7.12 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -9,6 +9,7 @@ import {
   type ApiModel,
   type DateType,
   deref,
+  discriminatorCases,
   enumValues,
   flattenAllOf,
   isNullable,
@@ -61,7 +62,16 @@ export function phpType(
       const kind = classify(schema.name, model);
       if (kind === 'class' || kind === 'enum') return className(schema.name);
       const target = deref(schema, model);
-      return target === undefined ? 'mixed' : phpType(target, model, dateType);
+      if (target === undefined) return 'mixed';
+      const type = phpType(target, model, dateType);
+      // A discriminated union hydrates through `unmarshalX`, which hands a value with an
+      // unknown discriminator back as the raw array.
+      // A nullable type drops its `?` first, because PHP forbids `?` inside a union.
+      const raw = discriminatorCases(target, model) !== undefined;
+      if (!raw || type === 'mixed' || type.split('|').includes('array')) return type;
+      const nullable = type.startsWith('?') || type.endsWith('|null');
+      const bare = type.startsWith('?') ? type.slice(1) : type.replace(/\|null$/, '');
+      return nullable ? phpNullable(`${bare}|array`) : `${bare}|array`;
     }
     case 'enum':
       // Anonymous (inline) enums keep the wire scalar; only NAMED enums get types.

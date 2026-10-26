@@ -1,6 +1,7 @@
 import { paths, type JsonValue } from 'jsonpath-rfc9535';
 import parseJsonPath from 'jsonpath-rfc9535/parser';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { isAbsoluteUrl, isRef, type Location, unescapePointerFragment } from '../ref-utils.js';
 import type { BaseResolver, Document } from '../resolve.js';
@@ -88,9 +89,14 @@ export function applyOverlay(
       rebaseRefs(value, (uri) => {
         const target = externalRefResolver.resolveExternalRef(overlayBase, uri);
         const documentRef = document.source.absoluteRef;
-        return isAbsoluteUrl(target) || isAbsoluteUrl(documentRef)
-          ? target
-          : slash(path.relative(path.dirname(documentRef), target));
+        if (isAbsoluteUrl(target)) return target;
+        if (isAbsoluteUrl(documentRef)) {
+          // A remote document can reach a local file only through a `file:` URL the overlay adds.
+          const fileUrl = pathToFileURL(target).href;
+          externalRefResolver.overlayFiles.add(fileUrl);
+          return fileUrl;
+        }
+        return slash(path.relative(path.dirname(documentRef), target));
       });
     } else {
       const sources = select('copy');
