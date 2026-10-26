@@ -1,4 +1,5 @@
 import Ajv from '@redocly/ajv/dist/2020.js';
+import type { LoggerInterface } from '@redocly/openapi-core';
 
 import type { InputSchema } from '../../../types.js';
 
@@ -6,15 +7,25 @@ type MappedValue = {
   [key: string]: any;
 };
 
-export class WorkflowInputValidationError extends Error {}
+export type WorkflowInputValidationContext = {
+  workflowId: string;
+  logger: Pick<LoggerInterface, 'warn'>;
+};
 
 export function resolveInputValuesToSchema(
   value: any,
   schema: InputSchema,
-  validateInputs = false
+  validationContext?: WorkflowInputValidationContext
 ): MappedValue {
   if (!schema || Object.keys(schema).length === 0) {
     return {};
+  }
+
+  if (schema.type && schema.type !== 'object') {
+    validationContext?.logger.warn(
+      `Workflow "${validationContext.workflowId}" has a non-object input schema. Named inputs are preserved without validation. Use an object schema to validate named inputs.\n`
+    );
+    return { ...value };
   }
 
   const ajv = new (Ajv as any)({
@@ -33,12 +44,11 @@ export function resolveInputValuesToSchema(
 
   const validate = ajv.compile(schema);
   const result = { ...value };
-  // Scalar reusable schemas do not describe the named workflow input object.
-  const isInputObjectSchema = !schema.type || schema.type === 'object';
-
-  if (!validate(result) && validateInputs && isInputObjectSchema) {
-    throw new WorkflowInputValidationError(
-      `Invalid workflow inputs: ${ajv.errorsText(validate.errors, { dataVar: 'inputs' })}. Provide values that match the workflow input schema.`
+  if (!validate(result) && validationContext) {
+    const error = validate.errors[0];
+    // Report the schema location, since data paths can contain supplied secret keys.
+    validationContext.logger.warn(
+      `Invalid inputs for workflow "${validationContext.workflowId}": ${error.message} (${error.schemaPath}). Provide values that match the workflow input schema.\n`
     );
   }
 

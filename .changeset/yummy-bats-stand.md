@@ -3,10 +3,7 @@
 '@redocly/cli': patch
 ---
 
-Fixed an issue where `respect` ran workflows with inputs that did not satisfy their input schema.
-Object inputs are validated after merging runtime and environment values, before the workflow's operation requests.
-Named input mappings through scalar reusable components retain their existing behavior.
-Invalid inputs for a selected workflow also prevent its dependencies from starting.
-Input failures preserve workflow failure actions and allow unrelated workflows and files to continue.
-
-**Note:** Workflows with missing required inputs or invalid input values now fail instead of sending requests with those values.
+Added workflow-specific warnings when `respect` inputs do not satisfy their object input schema after merging runtime and environment values.
+Execution continues with the mapped inputs, including defaults, type coercion, and removal of additional properties.
+Non-object input schemas produce a warning and preserve existing named mappings without validation; use an object schema to validate named inputs.
+Input warnings do not trigger failure actions or change the exit code.

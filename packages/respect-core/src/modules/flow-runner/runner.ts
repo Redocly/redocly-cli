@@ -29,7 +29,6 @@ import { createTestContext } from './context/create-test-context.js';
 import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
 import { bundleArazzo } from './get-test-description-from-file.js';
 import { getWorkflowsToRun } from './get-workflows-to-run.js';
-import { WorkflowInputValidationError } from './inputs/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 import { runStep } from './run-step.js';
 
@@ -162,15 +161,13 @@ export async function runWorkflow({
       fromStepId,
     });
   } catch (error) {
-    if (
-      !(error instanceof WorkflowInputValidationError || error instanceof WorkflowDependencyError)
-    ) {
+    if (!(error instanceof WorkflowDependencyError)) {
       throw error;
     }
 
     // Return a failed workflow so callers can apply their normal failure actions.
     const failedStep = {
-      stepId: workflow.dependsOn?.length ? 'dependsOn' : 'inputs',
+      stepId: 'dependsOn',
       checks: [
         {
           name: CHECKS.UNEXPECTED_ERROR,
@@ -358,13 +355,6 @@ async function prepareDependencies(
   return await Promise.all(
     resolvedDependencies.map(async ({ workflowId, resolvedWorkflow }) => {
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
-      mergeWorkflowInputs({
-        inputs: workflowCtx.$workflows[resolvedWorkflow.workflowId].inputs,
-        workflowInputSchema: resolvedWorkflow.inputs,
-        env: workflowCtx.options.envVariables,
-        validateInputs: true,
-      });
-
       const dependencies = await prepareDependencies(
         resolvedWorkflow,
         workflowCtx,
@@ -396,7 +386,7 @@ async function prepareWorkflow({
       inputs: ctx.$workflows[workflow.workflowId].inputs,
       workflowInputSchema: workflow.inputs,
       env: ctx.options.envVariables,
-      validateInputs: true,
+      validationContext: { workflowId: workflow.workflowId, logger: ctx.options.logger },
     });
   }
   if (fromStepId || !workflow.dependsOn?.length) return;

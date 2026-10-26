@@ -1,26 +1,33 @@
 arazzo: 1.1.0
 info:
-  title: Invalid inputs preserve workflow failure handling
+  title: Input warnings preserve workflow execution and failure handling
   version: 1.0.0
 sourceDescriptions:
   - name: cafe
     type: openapi
-    url: ./openapi.yaml
+    url: ../../../../resources/cafe.yaml
 workflows:
   - workflowId: invalid-parent
     inputs: &required-inputs
       type: object
-      required: [text]
+      required: [customerName]
       properties:
-        text:
+        customerName:
           type: string
           minLength: 1
     dependsOn: [sibling]
     steps: &unexpected-steps
       - stepId: unexpected
         operationId: cafe.createOrder
+        requestBody: &order-body
+          contentType: application/json
+          payload:
+            customerName: Cafe Guest
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: 1
         successCriteria:
-          - condition: $statusCode == 200
+          - condition: $statusCode == 201
   - workflowId: invalid-dependency
     dependsOn: [sibling, child]
     steps: *unexpected-steps
@@ -34,13 +41,27 @@ workflows:
         requestBody:
           contentType: application/json
           payload:
-            text: $inputs.text
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: 1
         successCriteria:
-          - condition: $statusCode == 200
+          - condition: $statusCode == 201
+  - workflowId: failing-child
+    inputs: *required-inputs
+    steps:
+      - stepId: failed-order
+        operationId: cafe.createOrder
+        requestBody: *order-body
+        successCriteria:
+          - condition: $statusCode == 400
+  - workflowId: failed-dependency
+    dependsOn: [sibling, failing-child]
+    steps: *unexpected-steps
   - workflowId: invoke-end
     steps:
       - stepId: invoke
-        workflowId: child
+        workflowId: failing-child
         onFailure:
           - name: stop-parent
             type: end
@@ -49,7 +70,7 @@ workflows:
   - workflowId: invoke-goto
     steps:
       - stepId: invoke
-        workflowId: child
+        workflowId: failing-child
         onFailure:
           - name: recover
             type: goto
@@ -57,31 +78,46 @@ workflows:
       - stepId: unexpected
         operationId: cafe.createOrder
       - stepId: recovery
-        operationId: cafe.prepareOrder
+        operationId: cafe.listMenuItems
         successCriteria:
           - condition: $statusCode == 200
+  - workflowId: recoverable-child
+    inputs: *required-inputs
+    steps:
+      - stepId: recoverable-order
+        operationId: cafe.createOrder
+        requestBody:
+          contentType: application/json
+          payload:
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: 1
+        successCriteria:
+          - condition: $statusCode == 201
+          - condition: $inputs.customerName == "Recovered Guest"
   - workflowId: workflow-failure-action
     failureActions:
       - name: recover-with-valid-inputs
         type: goto
-        workflowId: child
+        workflowId: recoverable-child
         parameters:
-          - name: text
-            value: recovered-order
+          - name: customerName
+            value: Recovered Guest
     steps:
       - stepId: invoke
-        workflowId: child
+        workflowId: recoverable-child
       - stepId: unexpected
-        operationId: cafe.prepareOrder
+        operationId: cafe.listMenuItems
   - workflowId: invoke-invalid-dependency
     steps:
       - stepId: invoke
-        workflowId: invalid-dependency
+        workflowId: failed-dependency
         onFailure:
           - name: stop-parent
             type: end
       - stepId: unexpected
-        operationId: cafe.prepareOrder
+        operationId: cafe.listMenuItems
   - workflowId: deep-dependency
     dependsOn: [sibling, invalid-dependency]
     steps: *unexpected-steps
@@ -89,7 +125,7 @@ workflows:
     dependsOn: [valid-middle]
     steps:
       - stepId: finish
-        operationId: cafe.prepareOrder
+        operationId: cafe.listMenuItems
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: valid-middle
@@ -101,15 +137,47 @@ workflows:
         requestBody:
           contentType: application/json
           payload:
-            text: $inputs.text
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: 1
         successCriteria:
-          - condition: $statusCode == 200
+          - condition: $statusCode == 201
   - workflowId: circular-dependency
     dependsOn: [circular-dependency]
     steps: *unexpected-steps
   - workflowId: following
     steps:
       - stepId: independent
-        operationId: cafe.prepareOrder
+        operationId: cafe.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
+  - workflowId: invoke-warning
+    steps:
+      - stepId: invoke
+        workflowId: child
+        onFailure:
+          - name: stop-parent
+            type: end
+      - stepId: continued-order
+        operationId: cafe.createOrder
+        requestBody: *order-body
+        successCriteria:
+          - condition: $statusCode == 201
+  - workflowId: invoke-warning-goto
+    steps:
+      - stepId: invoke
+        workflowId: child
+        onFailure:
+          - name: recover
+            type: goto
+            stepId: recovery
+      - stepId: continued-order
+        operationId: cafe.createOrder
+        requestBody: *order-body
+        successCriteria:
+          - condition: $statusCode == 201
+      - stepId: recovery
+        operationId: cafe.listMenuItems
         successCriteria:
           - condition: $statusCode == 200

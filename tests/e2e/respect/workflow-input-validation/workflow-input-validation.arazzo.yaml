@@ -1,25 +1,25 @@
 arazzo: 1.0.1
 info:
-  title: Validate cafe order inputs before requests
+  title: Warn about cafe workflow inputs
   version: 1.0.0
 sourceDescriptions:
   - name: cafe
     type: openapi
-    url: ./openapi.yaml
+    url: ../../../../resources/cafe.yaml
 workflows:
   - workflowId: create-order
     inputs: &order-inputs
       type: object
-      required: [callerKey, text]
+      required: [callerKey, customerName]
       properties:
         callerKey:
           type: string
           minLength: 3
           format: password
-        text:
+        customerName:
           type: string
           minLength: 1
-        count:
+        quantity:
           type: integer
           default: 1
     steps: &order-steps
@@ -32,11 +32,13 @@ workflows:
         requestBody:
           contentType: application/json
           payload:
-            text: $inputs.text
-            count: $inputs.count
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: $inputs.quantity
         successCriteria:
-          - condition: $statusCode == 200
-          - condition: $response.body#/accepted == true
+          - condition: $statusCode == 201
+          - condition: $response.body#/status == "placed"
         outputs:
           orderId: $response.body#/id
   - workflowId: with-dependency
@@ -46,7 +48,7 @@ workflows:
   - workflowId: prepare-order
     steps: &preparation-steps
       - stepId: prepare
-        operationId: cafe.prepareOrder
+        operationId: cafe.listMenuItems
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: unbound-order
@@ -65,7 +67,7 @@ workflows:
     inputs:
       type: object
       properties:
-        orderText:
+        orderName:
           type: string
     steps:
       - stepId: invoke
@@ -73,12 +75,12 @@ workflows:
         parameters:
           - name: callerKey
             value: runtime-key
-          - name: text
-            value: $inputs.orderText
+          - name: customerName
+            value: $inputs.orderName
   - workflowId: environment-order
     inputs:
       type: object
-      required: [env, text]
+      required: [env, customerName]
       properties:
         env:
           type: object
@@ -91,7 +93,7 @@ workflows:
             CAFE_REGION:
               type: string
               default: local
-        text:
+        customerName:
           type: string
     steps:
       - stepId: write-environment-order
@@ -103,7 +105,27 @@ workflows:
         requestBody:
           contentType: application/json
           payload:
-            text: $inputs.text
-            region: $inputs.env.CAFE_REGION
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: 1
+                comment: $inputs.env.CAFE_REGION
         successCriteria:
-          - condition: $statusCode == 200
+          - condition: $statusCode == 201
+  - workflowId: scalar-order
+    inputs:
+      $ref: '#/components/inputs/reusable-scalar'
+    steps: *order-steps
+  - workflowId: array-order
+    inputs:
+      type: array
+      items:
+        type: string
+    steps: *order-steps
+  - workflowId: empty-schema
+    inputs: {}
+    steps: *preparation-steps
+components:
+  inputs:
+    reusable-scalar:
+      type: string
