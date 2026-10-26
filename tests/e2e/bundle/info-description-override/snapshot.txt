@@ -30,3 +30,5 @@ components: {}
 
 bundling main.yaml using configuration for api 'main'...
 📦 Created a bundle for main.yaml at stdout <test>ms.
+
+Exit code: 0

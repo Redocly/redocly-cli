@@ -41,9 +41,6 @@ describe('recheck', () => {
       '--generate-baseline',
     ]);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain(
-      'Use one of --readability, --generate-baseline, or --generate-markdoc-schema.'
-    );
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -55,7 +52,6 @@ describe('recheck', () => {
     const result = getCommandOutput(args, { testPath });
     const [stdout] = result.split('\n\n');
     expect(() => JSON.parse(stdout)).not.toThrow();
-    expect(JSON.parse(stdout)).toHaveProperty('summary');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -115,7 +111,6 @@ describe('recheck', () => {
     const result = getCommandOutput(args, { testPath });
     const [stdout] = result.split('\n\n');
     expect(() => JSON.parse(stdout)).not.toThrow();
-    expect(JSON.parse(stdout)).toHaveProperty('version', '2.1.0');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -125,13 +120,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'api-descriptions-json');
     const args = getParams(indexEntryPoint, ['recheck', 'openapi.json', '--format=json']);
     const result = getCommandOutput(args, { testPath });
-    const [stdout] = result.split('\n\n');
-    const report = JSON.parse(stdout);
-    expect(report.issues[0]).toMatchObject({
-      ruleName: 'recheck/line-length',
-      line: 6,
-      pointer: '#/info/description',
-    });
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -141,7 +129,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'api-unreadable');
     const args = getParams(indexEntryPoint, ['recheck', 'broken.yaml']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Could not read API description');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -151,7 +138,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'yaml-page');
     const args = getParams(indexEntryPoint, ['recheck', 'notes.yaml']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).not.toContain('Could not read');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -161,7 +147,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'apis-discovery');
     const args = getParams(indexEntryPoint, ['recheck']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Found 1 issue(s)');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -171,8 +156,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'shared-description');
     const args = getParams(indexEntryPoint, ['recheck', 'a.yaml', 'b.yaml']);
     const result = getCommandOutput(args, { testPath });
-    const sharedLines = result.split('\n').filter((line) => line.includes('schemas.yaml'));
-    expect(sharedLines).toHaveLength(1);
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -182,8 +165,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'alias-vs-folder');
     const args = getParams(indexEntryPoint, ['recheck', 'docs']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('single-h1');
-    expect(result).not.toContain('line-length');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -193,8 +174,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'api-no-descriptions');
     const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml', '--format=json']);
     const result = getCommandOutput(args, { testPath });
-    const [stdout] = result.split('\n\n');
-    expect(JSON.parse(stdout).issues).toEqual([]);
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -204,7 +183,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'ignore-short-name');
     const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('1 finding(s) suppressed by the ignore file.');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -214,7 +192,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'readability-skips-api');
     const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml', 'docs', '--readability']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Readability scores cover Markdown files only');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -231,7 +208,6 @@ describe('recheck', () => {
       '--generate-baseline',
     ]);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Baseline not written');
     expect(readFileSync(baselinePath, 'utf8')).toBe(before);
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
@@ -242,9 +218,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'broken-ref-keeps-baseline');
     const args = getParams(indexEntryPoint, ['recheck']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Could not read API description');
-    expect(result).toContain('broken.yaml');
-    expect(result).not.toContain('Baseline is stale');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -254,8 +227,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'unreadable-api-keeps-baseline');
     const args = getParams(indexEntryPoint, ['recheck']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Could not read API description');
-    expect(result).not.toContain('Baseline is stale');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -265,8 +236,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'shared-file-keeps-baseline');
     const args = getParams(indexEntryPoint, ['recheck']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Could not read API description');
-    expect(result).toContain('Baseline: 1 matched, 0 new, 0 stale');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );

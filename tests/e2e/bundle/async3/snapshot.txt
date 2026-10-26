@@ -50,3 +50,5 @@ components:
 
 bundling simple.yml using configuration for api 'main'...
 📦 Created a bundle for simple.yml at stdout <test>ms.
+
+Exit code: 0

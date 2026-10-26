@@ -1,0 +1,26 @@
+
+index.js inspect-node-types <api>
+
+Show the node types of an API description, for writing configurable rules and cu
+stom plugins [experimental].
+
+Positionals:
+  api  API description file to inspect.                      [string] [required]
+
+Options:
+      --help         Show help.                                        [boolean]
+      --config       Path to the config file.                           [string]
+      --lint-config  Severity level for config file linting.
+                             [choices: "warn", "error", "off"] [default: "warn"]
+  -p, --pointer      JSON pointer to a node, optionally prefixed with a file: `#
+                     /paths` or `schemas.yaml#/User`.                   [string]
+      --type         List only the nodes of this type.                  [string]
+      --summary      List the node types used in the description, with counts.
+                                                                       [boolean]
+      --parents      Show the chain of node types leading to the node: down to t
+                     he node with --pointer, or the distinct chains that reach t
+                     he type with --type.                              [boolean]
+
+The --parents option requires --pointer or --type.
+
+Exit code: 1

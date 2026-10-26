@@ -68,5 +68,6 @@ exports[`should fail the workflow whose dependsOn workflow has failed steps and 
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

@@ -79,3 +79,5 @@ x-tagGroups:
 
 openapi.yaml: join processed in <test>ms
 
+
+Exit code: 0

@@ -38,3 +38,5 @@ Document: async.yaml stats:
 
 async.yaml: stats processed in <test>ms
 
+
+Exit code: 0

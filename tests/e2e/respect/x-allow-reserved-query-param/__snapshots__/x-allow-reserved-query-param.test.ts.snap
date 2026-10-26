@@ -45,5 +45,6 @@ exports[`should leave reserved chars unencoded in query when x-allowReserved is 
 └──────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

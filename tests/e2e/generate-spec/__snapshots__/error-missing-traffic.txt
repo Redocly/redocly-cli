@@ -1,0 +1,10 @@
+
+An unexpected error occurred. This is likely a bug that should be reported.
+Error: ENOENT: no such file or directory, stat './tests/e2e/generate-spec/fixtures/does-not-exist.ndjson'
+    at async stat (node:internal/fs/promises:1038:18)
+    at async Y (file://./packages/cli/lib/chunks/GAKWND4S.js:7:694)
+    at async we (file://./packages/cli/lib/chunks/EAFZ6DNQ.js:7:7512)
+    at async gn (file://./packages/cli/lib/chunks/EAFZ6DNQ.js:46:9486)
+    at async file://./packages/cli/lib/index.js:159:752
+
+Exit code: 1

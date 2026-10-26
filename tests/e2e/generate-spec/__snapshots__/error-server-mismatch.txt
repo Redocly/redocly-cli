@@ -1,0 +1,9 @@
+
+An unexpected error occurred. This is likely a bug that should be reported.
+Error: No HTTP exchanges in the traffic matched the server "http://unrelated.example.com".
+    at we (file://./packages/cli/lib/chunks/EAFZ6DNQ.js:8:338)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async gn (file://./packages/cli/lib/chunks/EAFZ6DNQ.js:46:9486)
+    at async file://./packages/cli/lib/index.js:159:752
+
+Exit code: 1
