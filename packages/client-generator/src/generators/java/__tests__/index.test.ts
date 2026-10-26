@@ -1,9 +1,9 @@
 import { logger } from '@redocly/openapi-core';
 
-import type { ApiModel } from '../../../intermediate-representation/model.js';
+import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { JAVA_CAFE } from '../../__tests__/fixtures/cafe-models.js';
 import { generatorInput } from '../../__tests__/fixtures/generator-input.js';
-import { javaGenerator as javaGeneratorEntry, javaSample } from '../index.js';
+import { javaDocs, javaGenerator as javaGeneratorEntry, javaSample, javaType } from '../index.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
 // mirrors those steps for these direct calls.
@@ -63,6 +63,135 @@ describe('javaGenerator (full client assembly)', () => {
     const out = generateJava();
     expect(out).toContain('public byte[] getOrderPdf(String orderId) {');
     expect(out).toContain('return readBody(response);');
+  });
+});
+
+describe('javaType', () => {
+  const model = {
+    ...JAVA_CAFE,
+    schemas: [
+      ...JAVA_CAFE.schemas,
+      { name: 'Tags', schema: { kind: 'array', items: { kind: 'scalar', scalar: 'string' } } },
+    ],
+  } as unknown as ApiModel;
+
+  it.each<[string, SchemaModel, string]>([
+    [
+      'a nullable scalar stays boxed',
+      { kind: 'union', members: [{ kind: 'scalar', scalar: 'integer' }, { kind: 'null' }] },
+      'Long',
+    ],
+    [
+      'a map',
+      { kind: 'record', value: { kind: 'scalar', scalar: 'boolean' } },
+      'Map<String, Boolean>',
+    ],
+    [
+      'an inline enum keeps its wire type',
+      { kind: 'enum', values: ['a'], scalar: 'string' },
+      'String',
+    ],
+    ['a number literal', { kind: 'literal', value: 1 }, 'Double'],
+    ['a boolean literal', { kind: 'literal', value: true }, 'Boolean'],
+    ['an omit is its base record', { kind: 'omit', base: 'Order', keys: ['id'] }, 'Order'],
+    ['a ref to an alias is the alias target', { kind: 'ref', name: 'Tags' }, 'List<String>'],
+    ['a ref to nothing', { kind: 'ref', name: 'Missing' }, 'Object'],
+    [
+      'an undiscriminated union',
+      {
+        kind: 'union',
+        members: [
+          { kind: 'scalar', scalar: 'string' },
+          { kind: 'scalar', scalar: 'integer' },
+        ],
+      },
+      'Object',
+    ],
+  ])('%s', (_case, schema, expected) => {
+    expect(javaType(schema, model)).toBe(expected);
+  });
+});
+
+describe('security, binary bodies, and the reference page', () => {
+  const secured = {
+    ...JAVA_CAFE,
+    securitySchemes: [
+      { key: 'BearerAuth', kind: 'bearer' },
+      { key: 'ApiKey', kind: 'apiKeyHeader', headerName: 'X-Api-Key' },
+      { key: 'Basic', kind: 'basic' },
+    ],
+    services: [
+      {
+        ...JAVA_CAFE.services[0],
+        operations: [
+          {
+            name: 'putReceipt',
+            specName: 'putReceipt',
+            method: 'put',
+            path: '/orders/{orderId}/receipt',
+            tags: ['Orders'],
+            pathParams: [
+              {
+                name: 'orderId',
+                in: 'path',
+                required: true,
+                schema: { kind: 'scalar', scalar: 'string' },
+              },
+            ],
+            queryParams: [],
+            headerParams: [],
+            cookieParams: [],
+            security: [['ApiKey'], ['Basic']],
+            requestBody: {
+              contentType: 'application/pdf',
+              required: true,
+              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'binary' } },
+            },
+            successResponseHeaders: [
+              { name: 'etag', schema: { kind: 'scalar', scalar: 'string' } },
+            ],
+            successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
+            errorResponses: [],
+          },
+        ],
+      },
+    ],
+  } as unknown as ApiModel;
+
+  it('denormalizes apiKey and basic alternatives and passes a binary body through', () => {
+    const out = javaGenerator({
+      model: secured,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(out).toContain(
+      'List.of(List.of(new SecuritySpec("ApiKey", "apiKey", "X-Api-Key", "header")), List.of(SecuritySpec.of("Basic", "basic")))'
+    );
+    expect(out).toContain('public void putReceipt(String orderId, Object body) {');
+    expect(out).toContain('Body payload = binaryBody(body, "application/pdf");');
+    // A bodiless success still gets its headers.
+    expect(out).toContain(
+      'public Envelope<Void> putReceiptWithHeaders(String orderId, Object body) {'
+    );
+    expect(out).toContain(
+      'return new Envelope<>(null, readEnvelopeHeaders(response, new String[][] {{"etag", "etag", "string"}}), response.statusCode());'
+    );
+  });
+
+  it('writes <stem>.java.md with the Java call of each operation', () => {
+    const [page] = javaDocs(
+      generatorInput({
+        model: secured,
+        outputPath: '/out/client.ts',
+        outputMode: 'single',
+        emit: {},
+      })
+    );
+    expect(page.path).toBe('/out/client.java.md');
+    expect(page.content).toContain('# Cafe Orders API Java SDK reference');
+    expect(page.content).toContain('```java');
+    expect(page.content).toContain('client.putReceipt("<orderId>", body);');
   });
 });
 
