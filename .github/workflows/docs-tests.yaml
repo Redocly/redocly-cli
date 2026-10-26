@@ -211,12 +211,20 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
-      - name: Markdown Link Checker
+
+      # A regular PR checks only the Markdown files it changed. The release PR checks every file.
+      - name: Markdown Link Checker on changed files
+        if: github.head_ref != 'changeset-release/main'
         run: |
-          check() {
-            npx --yes markdown-link-check@3.15.0 --quiet --config .markdown-link-check.json docs cookbook README.md CONTRIBUTING.md packages/*/README.md
-          }
-          check || { echo "Link check failed, retrying once in 60 seconds."; sleep 60; check; }
+          git diff --name-only --diff-filter=d origin/${{ github.base_ref }}...${{ github.event.pull_request.head.sha }} \
+            | grep -E '^((docs|cookbook)/.*|README|CONTRIBUTING|packages/[^/]+/README)\.md$' \
+            | xargs -r npx --yes markdown-link-check@3.15.0 --quiet --config .markdown-link-check.json
+
+      - name: Markdown Link Checker on all files
+        if: github.head_ref == 'changeset-release/main'
+        run: npx --yes markdown-link-check@3.15.0 --quiet --config .markdown-link-check.json docs cookbook README.md CONTRIBUTING.md packages/*/README.md

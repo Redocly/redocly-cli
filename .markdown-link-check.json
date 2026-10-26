@@ -1,6 +1,9 @@
 {
   "timeout": "30s",
-  "aliveStatusCodes": [200, 429, 500, 502, 503, 504],
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "10s",
+  "aliveStatusCodes": [200],
   "ignorePatterns": [
     { "pattern": "^https://hub\\.docker\\.com/" },
     { "pattern": "^https://www\\.npmjs\\.com/" },
