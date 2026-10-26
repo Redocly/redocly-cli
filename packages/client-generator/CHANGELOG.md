@@ -1,5 +1,12 @@
 # @redocly/client-generator
 
+## 0.7.12
+
+### Patch Changes
+
+- Fixed `writeOnly` properties in response types, mock data that broke the API description, and generated code that failed strict type checks.
+- Updated @redocly/openapi-core to v2.71.1.
+
 ## 0.7.11
 
 ### Patch Changes
