@@ -44,8 +44,8 @@ describe('schema-combinator-changed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/oneOf/1",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/oneOf/1",
           "verdicts": [
             {
               "impact": "major",
@@ -63,8 +63,8 @@ describe('schema-combinator-changed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf/1",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf/1",
           "verdicts": [],
         },
       ]
@@ -85,8 +85,8 @@ describe('schema-combinator-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf/1",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf/1",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf/1",
             "value": {
@@ -106,8 +106,8 @@ describe('schema-combinator-changed', () => {
         },
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/allOf/1",
           "kind": "added",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/allOf/1",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/allOf/1",
             "value": {
@@ -139,8 +139,8 @@ describe('schema-combinator-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf",
             "value": [
@@ -173,8 +173,8 @@ describe('schema-combinator-changed', () => {
             ],
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf",
           "verdicts": [
             {
               "impact": "major",

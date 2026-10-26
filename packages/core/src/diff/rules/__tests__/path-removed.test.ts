@@ -38,8 +38,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1revenue",
           "kind": "removed",
+          "path": "#/paths/~1revenue",
           "verdicts": [
             {
               "impact": "major",
@@ -71,8 +71,8 @@ describe('path-removed', () => {
             "value": "/menu",
           },
           "impact": "major",
-          "key": "#/paths/~1menus",
           "kind": "modified",
+          "path": "#/paths/~1menus",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1menus",
@@ -106,8 +106,8 @@ describe('path-removed', () => {
             "value": "/menu/{id}",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu~1{itemId}",
           "kind": "modified",
+          "path": "#/paths/~1menu~1{itemId}",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1menu~1{itemId}",
@@ -150,8 +150,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/webhooks/orderReady",
           "kind": "removed",
+          "path": "#/webhooks/orderReady",
           "verdicts": [
             {
               "impact": "major",
@@ -202,8 +202,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/callbacks/ready",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/callbacks/ready",
           "verdicts": [
             {
               "impact": "major",
@@ -238,8 +238,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/callbacks/ready/{$request.body#~1other}",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/callbacks/ready/{$request.body#~1other}",
           "verdicts": [
             {
               "impact": "major",
@@ -291,8 +291,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/callbacks",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/callbacks",
           "verdicts": [
             {
               "impact": "major",
@@ -339,8 +339,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths",
           "kind": "removed",
+          "path": "#/paths",
           "verdicts": [
             {
               "impact": "major",
@@ -391,8 +391,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/webhooks",
           "kind": "removed",
+          "path": "#/webhooks",
           "verdicts": [
             {
               "impact": "major",
@@ -447,8 +447,8 @@ describe('path-removed', () => {
             "value": "notifyReady",
           },
           "impact": "patch",
-          "key": "#/components/callbacks/Ready/{$request.body#~1url}/post",
           "kind": "modified",
+          "path": "#/components/callbacks/Ready/{$request.body#~1url}/post",
           "property": "operationId",
           "revision": {
             "location": "revision.yaml#/components/callbacks/Ready/{$request.body#~1url}/post/operationId",
@@ -468,8 +468,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/callbacks/Ready/{$request.body#~1url}/put",
           "kind": "removed",
+          "path": "#/components/callbacks/Ready/{$request.body#~1url}/put",
           "verdicts": [],
         },
         {
@@ -486,8 +486,8 @@ describe('path-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/callbacks/Ready/{$request.body#~1other}",
           "kind": "removed",
+          "path": "#/components/callbacks/Ready/{$request.body#~1other}",
           "verdicts": [],
         },
       ]

@@ -49,8 +49,8 @@ describe('enum-values-removed', () => {
             ],
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/enum",
@@ -78,8 +78,8 @@ describe('enum-values-removed', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/enum",
@@ -136,8 +136,8 @@ describe('enum-values-removed', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders~1{orderId}/get/responses/200/content/application~1json/schema/properties/note",
           "kind": "modified",
+          "path": "#/paths/~1orders~1{orderId}/get/responses/200/content/application~1json/schema/properties/note",
           "property": "writeOnly",
           "revision": {
             "location": "revision.yaml#/components/schemas/Order/properties/note",
@@ -154,8 +154,8 @@ describe('enum-values-removed', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders~1{orderId}/get/responses/200/content/application~1json/schema/properties/note",
           "kind": "modified",
+          "path": "#/paths/~1orders~1{orderId}/get/responses/200/content/application~1json/schema/properties/note",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/components/schemas/Order/properties/note/enum",
@@ -192,8 +192,8 @@ describe('enum-values-removed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status/enum",
@@ -220,8 +220,8 @@ describe('enum-values-removed', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size",
@@ -235,8 +235,8 @@ describe('enum-values-removed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status/enum",
@@ -256,8 +256,8 @@ describe('enum-values-removed', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size",

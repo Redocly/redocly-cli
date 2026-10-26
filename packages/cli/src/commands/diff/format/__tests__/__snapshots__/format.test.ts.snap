@@ -201,7 +201,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
   "bump": "major",
   "changes": [
     {
-      "key": "#/paths/~1menu/get",
+      "path": "#/paths/~1menu/get",
       "typeName": "Operation",
       "kind": "modified",
       "impact": "patch",
@@ -223,7 +223,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       }
     },
     {
-      "key": "#/paths/~1menu/get/parameters/0",
+      "path": "#/paths/~1menu/get/parameters/0",
       "typeName": "Parameter",
       "kind": "modified",
       "impact": "major",
@@ -256,7 +256,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       }
     },
     {
-      "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
+      "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
       "typeName": "Schema",
       "kind": "modified",
       "impact": "major",
@@ -290,7 +290,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       }
     },
     {
-      "key": "#/paths/~1orders/delete",
+      "path": "#/paths/~1orders/delete",
       "typeName": "Operation",
       "kind": "removed",
       "impact": "major",
@@ -323,7 +323,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       }
     },
     {
-      "key": "#/webhooks/orderReady/post/requestBody/content/application~1json/schema/properties/eta",
+      "path": "#/webhooks/orderReady/post/requestBody/content/application~1json/schema/properties/eta",
       "typeName": "Schema",
       "kind": "removed",
       "impact": "major",
@@ -351,7 +351,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       }
     },
     {
-      "key": "#/components",
+      "path": "#/components",
       "typeName": "Components",
       "kind": "added",
       "impact": "patch",

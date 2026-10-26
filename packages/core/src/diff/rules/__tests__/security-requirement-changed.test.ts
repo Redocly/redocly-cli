@@ -39,8 +39,8 @@ describe('security-requirement-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/get/security",
           "kind": "added",
+          "path": "#/paths/~1orders/get/security",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security",
             "value": [
@@ -76,8 +76,8 @@ describe('security-requirement-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "added",
+          "path": "#/paths/~1orders/get/security/0",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security/0",
             "value": {
@@ -111,8 +111,8 @@ describe('security-requirement-changed', () => {
       [
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/get/security/1",
           "kind": "added",
+          "path": "#/paths/~1orders/get/security/1",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security/1",
             "value": {
@@ -150,8 +150,8 @@ describe('security-requirement-changed', () => {
             ],
           },
           "impact": "major",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "modified",
+          "path": "#/paths/~1orders/get/security/0",
           "property": "OAuth",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security/0/OAuth",
@@ -191,8 +191,8 @@ describe('security-requirement-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "modified",
+          "path": "#/paths/~1orders/get/security/0",
           "property": "OAuth",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security/0/OAuth",
@@ -229,8 +229,8 @@ describe('security-requirement-changed', () => {
             "value": [],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "modified",
+          "path": "#/paths/~1orders/get/security/0",
           "property": "ApiKey",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security/0",
@@ -244,8 +244,8 @@ describe('security-requirement-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "modified",
+          "path": "#/paths/~1orders/get/security/0",
           "property": "OAuth",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security/0/OAuth",
@@ -287,8 +287,8 @@ describe('security-requirement-changed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "removed",
+          "path": "#/paths/~1orders/get/security/0",
           "verdicts": [
             {
               "impact": "major",
@@ -328,8 +328,8 @@ describe('security-requirement-changed', () => {
             "value": [],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "modified",
+          "path": "#/paths/~1orders/get/security/0",
           "property": "OAuth",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/get/security/0",
@@ -349,8 +349,8 @@ describe('security-requirement-changed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/get/security/0",
           "kind": "removed",
+          "path": "#/paths/~1orders/get/security/0",
           "verdicts": [],
         },
       ]

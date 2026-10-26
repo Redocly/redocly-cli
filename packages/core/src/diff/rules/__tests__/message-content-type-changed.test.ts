@@ -31,8 +31,8 @@ describe('message-content-type-changed', () => {
             "value": "application/json",
           },
           "impact": "major",
-          "key": "#/channels/orders/messages/orderPlaced",
           "kind": "modified",
+          "path": "#/channels/orders/messages/orderPlaced",
           "property": "contentType",
           "revision": {
             "location": "revision.yaml#/channels/orders/messages/orderPlaced/contentType",
@@ -71,8 +71,8 @@ describe('message-content-type-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/channels/orders/messages/orderPlaced",
           "kind": "modified",
+          "path": "#/channels/orders/messages/orderPlaced",
           "property": "contentType",
           "revision": {
             "location": "revision.yaml#/channels/orders/messages/orderPlaced/contentType",
@@ -97,8 +97,8 @@ describe('message-content-type-changed', () => {
             "value": "application/json",
           },
           "impact": "major",
-          "key": "#/channels/orders/messages/orderPlaced",
           "kind": "modified",
+          "path": "#/channels/orders/messages/orderPlaced",
           "property": "contentType",
           "revision": {
             "location": "revision.yaml#/channels/orders/messages/orderPlaced",

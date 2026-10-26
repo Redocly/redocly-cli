@@ -40,8 +40,8 @@ describe('media-type-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/responses/200/content/text~1csv",
           "kind": "removed",
+          "path": "#/paths/~1menu/get/responses/200/content/text~1csv",
           "verdicts": [
             {
               "impact": "major",
@@ -76,8 +76,8 @@ describe('media-type-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/responses/200/content",
           "kind": "removed",
+          "path": "#/paths/~1menu/get/responses/200/content",
           "verdicts": [
             {
               "impact": "major",
@@ -107,8 +107,8 @@ describe('media-type-removed', () => {
             "value": "application/json",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/responses/200/content/application~1xml",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/responses/200/content/application~1xml",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/responses/200/content/application~1xml",
@@ -155,8 +155,8 @@ describe('media-type-removed', () => {
             "value": "application/json",
           },
           "impact": "patch",
-          "key": "#/components/responses/Unused/content/application~1xml",
           "kind": "modified",
+          "path": "#/components/responses/Unused/content/application~1xml",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/components/responses/Unused/content/application~1xml",
@@ -174,8 +174,8 @@ describe('media-type-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/responses/Unused/content/text~1plain",
           "kind": "removed",
+          "path": "#/components/responses/Unused/content/text~1plain",
           "verdicts": [],
         },
       ]

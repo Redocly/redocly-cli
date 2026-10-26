@@ -14,7 +14,7 @@ const cafe = diffTreeOf(`
 
 function addition(node: DiffNode): Change {
   return {
-    key: pointerOf(node),
+    path: pointerOf(node),
     kind: 'added',
     node,
     revision: { location: node.revision!.location, value: {} },
@@ -39,7 +39,7 @@ describe('impact', () => {
     expect(defaultImpact(addition(paths))).toBe('minor');
     expect(
       defaultImpact({
-        key: pointerOf(paths),
+        path: pointerOf(paths),
         kind: 'removed',
         node: paths,
         base: { location, value: {} },
@@ -47,7 +47,7 @@ describe('impact', () => {
     ).toBe('patch');
     expect(
       defaultImpact({
-        key: pointerOf(paths),
+        path: pointerOf(paths),
         kind: 'modified',
         property: 'x-internal',
         node: paths,

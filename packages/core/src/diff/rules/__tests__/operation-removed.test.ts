@@ -37,8 +37,8 @@ describe('operation-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders~1{orderId}/delete",
           "kind": "removed",
+          "path": "#/paths/~1orders~1{orderId}/delete",
           "verdicts": [
             {
               "impact": "major",
@@ -82,8 +82,8 @@ describe('operation-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/operations/sendOrderReady",
           "kind": "removed",
+          "path": "#/operations/sendOrderReady",
           "verdicts": [
             {
               "impact": "major",
@@ -130,8 +130,8 @@ describe('operation-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/callbacks/ready/{$request.body#~1url}/post",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/callbacks/ready/{$request.body#~1url}/post",
           "verdicts": [
             {
               "impact": "major",
@@ -176,8 +176,8 @@ describe('operation-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/webhooks/orderReady/post",
           "kind": "removed",
+          "path": "#/webhooks/orderReady/post",
           "verdicts": [
             {
               "impact": "major",
@@ -225,8 +225,8 @@ describe('operation-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/operations",
           "kind": "removed",
+          "path": "#/operations",
           "verdicts": [
             {
               "impact": "major",
@@ -260,8 +260,8 @@ describe('operation-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/operations",
           "kind": "removed",
+          "path": "#/components/operations",
           "verdicts": [],
         },
       ]

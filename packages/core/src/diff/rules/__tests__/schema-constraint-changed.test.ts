@@ -39,8 +39,8 @@ describe('schema-constraint-changed', () => {
             "value": 20,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "maximum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/maximum",
@@ -61,8 +61,8 @@ describe('schema-constraint-changed', () => {
             "value": 20,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "maximum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/maximum",
@@ -89,8 +89,8 @@ describe('schema-constraint-changed', () => {
             "value": 1,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "minimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/minimum",
@@ -104,8 +104,8 @@ describe('schema-constraint-changed', () => {
             "value": 1,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "minimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/minimum",
@@ -145,8 +145,8 @@ describe('schema-constraint-changed', () => {
             "value": "3.0.3",
           },
           "impact": "patch",
-          "key": "#/",
           "kind": "modified",
+          "path": "#/",
           "property": "openapi",
           "revision": {
             "location": "revision.yaml#/openapi",
@@ -160,8 +160,8 @@ describe('schema-constraint-changed', () => {
             "value": 0,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "minimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
@@ -175,8 +175,8 @@ describe('schema-constraint-changed', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "exclusiveMinimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/exclusiveMinimum",
@@ -190,8 +190,8 @@ describe('schema-constraint-changed', () => {
             "value": 0,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "minimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
@@ -205,8 +205,8 @@ describe('schema-constraint-changed', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "exclusiveMinimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/exclusiveMinimum",
@@ -236,8 +236,8 @@ describe('schema-constraint-changed', () => {
             "value": 0,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "minimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
@@ -258,8 +258,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "exclusiveMinimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/exclusiveMinimum",
@@ -273,8 +273,8 @@ describe('schema-constraint-changed', () => {
             "value": 0,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "minimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
@@ -288,8 +288,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "exclusiveMinimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/exclusiveMinimum",
@@ -316,8 +316,8 @@ describe('schema-constraint-changed', () => {
             "value": 200,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "maxLength",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/maxLength",
@@ -338,8 +338,8 @@ describe('schema-constraint-changed', () => {
             "value": 200,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "maxLength",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/maxLength",
@@ -369,8 +369,8 @@ describe('schema-constraint-changed', () => {
             "value": "^[a-z]+$",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "pattern",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/pattern",
@@ -391,8 +391,8 @@ describe('schema-constraint-changed', () => {
             "value": "^[a-z]+$",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "pattern",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/pattern",
@@ -429,8 +429,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "format",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/format",
@@ -451,8 +451,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "format",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/format",
@@ -485,8 +485,8 @@ describe('schema-constraint-changed', () => {
             "value": true,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "additionalProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/additionalProperties",
@@ -507,8 +507,8 @@ describe('schema-constraint-changed', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "additionalProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/additionalProperties",
@@ -541,8 +541,8 @@ describe('schema-constraint-changed', () => {
             "value": false,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "additionalProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/additionalProperties",
@@ -556,8 +556,8 @@ describe('schema-constraint-changed', () => {
             "value": false,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "additionalProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/additionalProperties",
@@ -591,8 +591,8 @@ describe('schema-constraint-changed', () => {
             "value": 10,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "maxItems",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/maxItems",
@@ -613,8 +613,8 @@ describe('schema-constraint-changed', () => {
             "value": 10,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "maxItems",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/maxItems",
@@ -651,8 +651,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "uniqueItems",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/uniqueItems",
@@ -673,8 +673,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "uniqueItems",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/uniqueItems",
@@ -692,8 +692,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "uniqueItems",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/uniqueItems",
@@ -707,8 +707,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "uniqueItems",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/uniqueItems",
@@ -735,8 +735,8 @@ describe('schema-constraint-changed', () => {
             "value": "small",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "const",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/const",
@@ -757,8 +757,8 @@ describe('schema-constraint-changed', () => {
             "value": "small",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "const",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/const",
@@ -799,8 +799,8 @@ describe('schema-constraint-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/not",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/not",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/not",
             "value": {
@@ -832,8 +832,8 @@ describe('schema-constraint-changed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/not",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/not",
           "verdicts": [
             {
               "impact": "major",
@@ -864,8 +864,8 @@ describe('schema-constraint-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/prefixItems",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/prefixItems",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/prefixItems",
             "value": [
@@ -895,8 +895,8 @@ describe('schema-constraint-changed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/dependentSchemas",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/dependentSchemas",
           "verdicts": [
             {
               "impact": "major",
@@ -927,8 +927,8 @@ describe('schema-constraint-changed', () => {
       [
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/not",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/not",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/not",
             "value": {
@@ -965,8 +965,8 @@ describe('schema-constraint-changed', () => {
             "value": false,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "unevaluatedProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/unevaluatedProperties",
@@ -983,8 +983,8 @@ describe('schema-constraint-changed', () => {
         },
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/unevaluatedProperties",
           "kind": "added",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/unevaluatedProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/unevaluatedProperties",
             "value": {
@@ -1003,8 +1003,8 @@ describe('schema-constraint-changed', () => {
             "value": false,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "unevaluatedProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/unevaluatedProperties",
@@ -1014,8 +1014,8 @@ describe('schema-constraint-changed', () => {
         },
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/unevaluatedProperties",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/unevaluatedProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/unevaluatedProperties",
             "value": {
@@ -1049,8 +1049,8 @@ describe('schema-constraint-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "minimum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/minimum",
@@ -1071,8 +1071,8 @@ describe('schema-constraint-changed', () => {
             "value": 10,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "maximum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
@@ -1105,8 +1105,8 @@ describe('schema-constraint-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/dependentRequired",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/dependentRequired",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/dependentRequired",
             "value": {
@@ -1142,8 +1142,8 @@ describe('schema-constraint-changed', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/additionalProperties",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/additionalProperties",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/additionalProperties",
             "value": {
@@ -1181,8 +1181,8 @@ describe('schema-constraint-changed', () => {
             "value": false,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "items",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/items",
@@ -1192,8 +1192,8 @@ describe('schema-constraint-changed', () => {
         },
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/items",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/items",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/items",
             "value": {
@@ -1208,8 +1208,8 @@ describe('schema-constraint-changed', () => {
             "value": false,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "items",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/items",
@@ -1226,8 +1226,8 @@ describe('schema-constraint-changed', () => {
         },
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/items",
           "kind": "added",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/items",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/items",
             "value": {
@@ -1254,8 +1254,8 @@ describe('schema-constraint-changed', () => {
       [
         {
           "impact": "minor",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/if",
           "kind": "added",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/if",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/if",
             "value": {

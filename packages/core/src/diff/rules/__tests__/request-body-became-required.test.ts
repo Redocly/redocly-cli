@@ -34,8 +34,8 @@ describe('request-body-became-required', () => {
             "value": false,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/required",
@@ -69,8 +69,8 @@ describe('request-body-became-required', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/required",

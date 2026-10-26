@@ -34,8 +34,8 @@ describe('server-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/servers/sandbox",
           "kind": "removed",
+          "path": "#/servers/sandbox",
           "verdicts": [
             {
               "impact": "major",
@@ -69,8 +69,8 @@ describe('server-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/servers",
           "kind": "removed",
+          "path": "#/servers",
           "verdicts": [
             {
               "impact": "major",
@@ -105,8 +105,8 @@ describe('server-removed', () => {
             "value": "kitchen.cafe.test",
           },
           "impact": "major",
-          "key": "#/servers/production",
           "kind": "modified",
+          "path": "#/servers/production",
           "property": "host",
           "revision": {
             "location": "revision.yaml#/servers/production/host",
@@ -150,8 +150,8 @@ describe('server-removed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/servers/production",
           "kind": "modified",
+          "path": "#/servers/production",
           "property": "pathname",
           "revision": {
             "location": "revision.yaml#/servers/production/pathname",
@@ -176,8 +176,8 @@ describe('server-removed', () => {
             "value": "/v1",
           },
           "impact": "major",
-          "key": "#/servers/production",
           "kind": "modified",
+          "path": "#/servers/production",
           "property": "pathname",
           "revision": {
             "location": "revision.yaml#/servers/production",
@@ -223,8 +223,8 @@ describe('server-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/servers",
           "kind": "removed",
+          "path": "#/components/servers",
           "verdicts": [],
         },
       ]
@@ -263,8 +263,8 @@ describe('server-removed for OpenAPI', () => {
             },
           },
           "impact": "major",
-          "key": "#/servers/0",
           "kind": "removed",
+          "path": "#/servers/0",
           "verdicts": [
             {
               "impact": "major",
@@ -297,8 +297,8 @@ describe('server-removed for OpenAPI', () => {
             ],
           },
           "impact": "major",
-          "key": "#/servers",
           "kind": "removed",
+          "path": "#/servers",
           "verdicts": [
             {
               "impact": "major",
@@ -331,8 +331,8 @@ describe('server-removed for OpenAPI', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1menu/get/servers",
           "kind": "removed",
+          "path": "#/paths/~1menu/get/servers",
           "verdicts": [],
         },
       ]
@@ -354,8 +354,8 @@ describe('server-removed for OpenAPI', () => {
             "value": "https://api.cafe.test",
           },
           "impact": "major",
-          "key": "#/servers/0",
           "kind": "modified",
+          "path": "#/servers/0",
           "property": "url",
           "revision": {
             "location": "revision.yaml#/servers/0/url",

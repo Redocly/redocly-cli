@@ -14,14 +14,14 @@ export function changesOf(node: DiffNode): Change[] {
   const { base, revision } = comparedSidesOf(node);
 
   if (!base) {
-    return [{ key: pointerOf(node), node, kind: 'added', revision: located(latestOf(node)) }];
+    return [{ path: pointerOf(node), node, kind: 'added', revision: located(latestOf(node)) }];
   }
   if (!revision) {
-    return [{ key: pointerOf(node), node, kind: 'removed', base: located(base) }];
+    return [{ path: pointerOf(node), node, kind: 'removed', base: located(base) }];
   }
 
   const changes: Change[] = [];
-  let key: string | undefined;
+  let path: string | undefined;
 
   const before = comparableValues(base);
   const after = comparableValues(revision);
@@ -29,9 +29,9 @@ export function changesOf(node: DiffNode): Change[] {
   for (const property of Object.keys({ ...before, ...after })) {
     if (dequal(before[property], after[property])) continue;
 
-    key ??= pointerOf(node);
+    path ??= pointerOf(node);
     changes.push({
-      key,
+      path,
       node,
       kind: 'modified',
       property,

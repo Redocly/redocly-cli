@@ -49,8 +49,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "verdicts": [],
         },
         {
@@ -61,8 +61,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note",
           "verdicts": [
             {
               "impact": "major",
@@ -96,8 +96,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/oneOf/1",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/oneOf/1",
           "verdicts": [],
         },
         {
@@ -108,8 +108,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf/1",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf/1",
           "verdicts": [],
         },
       ]
@@ -137,8 +137,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/pin",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/pin",
           "verdicts": [],
         },
         {
@@ -150,8 +150,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/pin",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/pin",
           "verdicts": [],
         },
       ]
@@ -180,8 +180,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties",
           "verdicts": [],
         },
         {
@@ -194,8 +194,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties",
           "verdicts": [
             {
               "impact": "major",
@@ -230,8 +230,8 @@ describe('property-removed', () => {
             "value": "name",
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/names",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/names",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/names",
@@ -245,8 +245,8 @@ describe('property-removed', () => {
             "value": "name",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/names",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/names",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/names",
@@ -367,8 +367,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/extras/properties/milk",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/extras/properties/milk",
           "verdicts": [],
         },
         {
@@ -379,8 +379,8 @@ describe('property-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "verdicts": [
             {
               "impact": "major",

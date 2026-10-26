@@ -45,8 +45,8 @@ describe('parameter-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "removed",
+          "path": "#/paths/~1menu/get/parameters/0",
           "verdicts": [
             {
               "impact": "major",
@@ -83,8 +83,8 @@ describe('parameter-removed', () => {
             ],
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters",
           "kind": "removed",
+          "path": "#/paths/~1menu/get/parameters",
           "verdicts": [
             {
               "impact": "major",
@@ -116,8 +116,8 @@ describe('parameter-removed', () => {
             "value": "sort",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "name",
           "revision": {
             "location": "revision.yaml#/components/parameters/Category/name",
@@ -138,8 +138,8 @@ describe('parameter-removed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/components/parameters/Category/required",
@@ -172,8 +172,8 @@ describe('parameter-removed', () => {
             "value": "query",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "in",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/0/in",
@@ -213,8 +213,8 @@ describe('parameter-removed', () => {
             "value": "id",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "name",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/0/name",
@@ -235,8 +235,8 @@ describe('parameter-removed', () => {
             "value": "query",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "in",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/0/in",
@@ -298,8 +298,8 @@ describe('parameter-removed', () => {
             "value": "/menu/{id}",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu~1{itemId}",
           "kind": "modified",
+          "path": "#/paths/~1menu~1{itemId}",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1menu~1{itemId}",
@@ -313,8 +313,8 @@ describe('parameter-removed', () => {
             "value": "id",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu~1{itemId}/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu~1{itemId}/get/parameters/0",
           "property": "name",
           "revision": {
             "location": "revision.yaml#/paths/~1menu~1{itemId}/get/parameters/0/name",
@@ -328,8 +328,8 @@ describe('parameter-removed', () => {
             "value": "X-Token",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu~1{itemId}/get/parameters/1",
           "kind": "modified",
+          "path": "#/paths/~1menu~1{itemId}/get/parameters/1",
           "property": "name",
           "revision": {
             "location": "revision.yaml#/paths/~1menu~1{itemId}/get/parameters/1/name",

@@ -65,7 +65,7 @@ function headingOf(change: Change): { heading: string; depth: number } {
 // The label leaves out what the heading names, so a change on the heading's own node has only
 // its property, if any. Each segment is unescaped, so a `/` inside a name reads as one.
 function labelOf(change: JudgedChange): string {
-  const below = segmentsOf(change.key).slice(headingOf(change).depth).join('/');
+  const below = segmentsOf(change.path).slice(headingOf(change).depth).join('/');
   if (change.kind !== 'modified') return below;
   return below ? `${below} · ${change.property}` : change.property;
 }

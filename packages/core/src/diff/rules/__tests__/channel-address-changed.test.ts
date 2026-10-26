@@ -28,8 +28,8 @@ describe('channel-address-changed', () => {
             "value": "orders.placed",
           },
           "impact": "major",
-          "key": "#/channels/orderPlaced",
           "kind": "modified",
+          "path": "#/channels/orderPlaced",
           "property": "address",
           "revision": {
             "location": "revision.yaml#/channels/orderPlaced/address",
@@ -73,8 +73,8 @@ describe('channel-address-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/channels/orders",
           "kind": "modified",
+          "path": "#/channels/orders",
           "property": "address",
           "revision": {
             "location": "revision.yaml#/channels/orders/address",
@@ -115,8 +115,8 @@ describe('channel-address-changed', () => {
             "value": "orders",
           },
           "impact": "major",
-          "key": "#/channels/orders",
           "kind": "modified",
+          "path": "#/channels/orders",
           "property": "address",
           "revision": {
             "location": "revision.yaml#/channels/orders",

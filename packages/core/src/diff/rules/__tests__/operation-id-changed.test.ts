@@ -34,8 +34,8 @@ describe('operation-id-changed', () => {
             "value": "listMenu",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get",
           "kind": "modified",
+          "path": "#/paths/~1menu/get",
           "property": "operationId",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/operationId",
@@ -63,8 +63,8 @@ describe('operation-id-changed', () => {
             "value": "listMenu",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get",
           "kind": "modified",
+          "path": "#/paths/~1menu/get",
           "property": "operationId",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get",
@@ -92,8 +92,8 @@ describe('operation-id-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1menu/get",
           "kind": "modified",
+          "path": "#/paths/~1menu/get",
           "property": "operationId",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/operationId",
@@ -140,8 +140,8 @@ describe('operation-id-changed', () => {
             "value": "notifyReady",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/callbacks/ready/{$request.body#~1url}/post",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/callbacks/ready/{$request.body#~1url}/post",
           "property": "operationId",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/callbacks/ready/{$request.body#~1url}/post/operationId",
@@ -162,8 +162,8 @@ describe('operation-id-changed', () => {
             "value": "onReady",
           },
           "impact": "major",
-          "key": "#/webhooks/orderReady/post",
           "kind": "modified",
+          "path": "#/webhooks/orderReady/post",
           "property": "operationId",
           "revision": {
             "location": "revision.yaml#/webhooks/orderReady/post/operationId",

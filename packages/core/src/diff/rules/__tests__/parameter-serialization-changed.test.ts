@@ -46,8 +46,8 @@ describe('parameter-serialization-changed', () => {
             "value": true,
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "explode",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/0/explode",
@@ -91,8 +91,8 @@ describe('parameter-serialization-changed', () => {
             "value": "form",
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "style",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/0",
@@ -113,8 +113,8 @@ describe('parameter-serialization-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/1",
           "property": "explode",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1/explode",

@@ -32,8 +32,8 @@ describe('operation-action-changed', () => {
             "value": "receive",
           },
           "impact": "major",
-          "key": "#/operations/onOrderPlaced",
           "kind": "modified",
+          "path": "#/operations/onOrderPlaced",
           "property": "action",
           "revision": {
             "location": "revision.yaml#/operations/onOrderPlaced/action",

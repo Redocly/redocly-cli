@@ -45,8 +45,8 @@ describe('enum-values-added', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/enum",
@@ -67,8 +67,8 @@ describe('enum-values-added', () => {
             ],
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/enum",
@@ -118,8 +118,8 @@ describe('enum-values-added', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status",
@@ -133,8 +133,8 @@ describe('enum-values-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size/enum",
@@ -154,8 +154,8 @@ describe('enum-values-added', () => {
             ],
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
@@ -176,8 +176,8 @@ describe('enum-values-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size/enum",

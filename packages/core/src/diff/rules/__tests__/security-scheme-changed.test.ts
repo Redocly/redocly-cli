@@ -35,8 +35,8 @@ describe('security-scheme-changed', () => {
             "value": "X-Api-Key",
           },
           "impact": "major",
-          "key": "#/components/securitySchemes/ApiKey",
           "kind": "modified",
+          "path": "#/components/securitySchemes/ApiKey",
           "property": "name",
           "revision": {
             "location": "revision.yaml#/components/securitySchemes/ApiKey/name",
@@ -73,8 +73,8 @@ describe('security-scheme-changed', () => {
             "value": "apiKey",
           },
           "impact": "major",
-          "key": "#/components/securitySchemes/ApiKey",
           "kind": "modified",
+          "path": "#/components/securitySchemes/ApiKey",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/components/securitySchemes/ApiKey/type",
@@ -95,8 +95,8 @@ describe('security-scheme-changed', () => {
             "value": "header",
           },
           "impact": "patch",
-          "key": "#/components/securitySchemes/ApiKey",
           "kind": "modified",
+          "path": "#/components/securitySchemes/ApiKey",
           "property": "in",
           "revision": {
             "location": "revision.yaml#/components/securitySchemes/ApiKey",
@@ -110,8 +110,8 @@ describe('security-scheme-changed', () => {
             "value": "X-Api-Key",
           },
           "impact": "patch",
-          "key": "#/components/securitySchemes/ApiKey",
           "kind": "modified",
+          "path": "#/components/securitySchemes/ApiKey",
           "property": "name",
           "revision": {
             "location": "revision.yaml#/components/securitySchemes/ApiKey",
@@ -125,8 +125,8 @@ describe('security-scheme-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/components/securitySchemes/ApiKey",
           "kind": "modified",
+          "path": "#/components/securitySchemes/ApiKey",
           "property": "scheme",
           "revision": {
             "location": "revision.yaml#/components/securitySchemes/ApiKey/scheme",
@@ -159,8 +159,8 @@ describe('security-scheme-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/components/securitySchemes/Bearer",
           "kind": "modified",
+          "path": "#/components/securitySchemes/Bearer",
           "property": "bearerFormat",
           "revision": {
             "location": "revision.yaml#/components/securitySchemes/Bearer/bearerFormat",
@@ -185,8 +185,8 @@ describe('security-scheme-changed', () => {
             "value": "JWT",
           },
           "impact": "major",
-          "key": "#/components/securitySchemes/Bearer",
           "kind": "modified",
+          "path": "#/components/securitySchemes/Bearer",
           "property": "bearerFormat",
           "revision": {
             "location": "revision.yaml#/components/securitySchemes/Bearer",
@@ -223,8 +223,8 @@ describe('security-scheme-changed', () => {
             },
           },
           "impact": "major",
-          "key": "#/components/securitySchemes/Bearer",
           "kind": "removed",
+          "path": "#/components/securitySchemes/Bearer",
           "verdicts": [
             {
               "impact": "major",

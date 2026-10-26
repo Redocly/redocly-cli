@@ -20,7 +20,7 @@
   "bump": "major",
   "changes": [
     {
-      "key": "#/info",
+      "path": "#/info",
       "typeName": "Info",
       "kind": "modified",
       "impact": "patch",
@@ -42,7 +42,7 @@
       }
     },
     {
-      "key": "#/paths/~1menu/get",
+      "path": "#/paths/~1menu/get",
       "typeName": "Operation",
       "kind": "modified",
       "impact": "patch",
@@ -64,7 +64,7 @@
       }
     },
     {
-      "key": "#/paths/~1menu/get/parameters/0",
+      "path": "#/paths/~1menu/get/parameters/0",
       "typeName": "Parameter",
       "kind": "modified",
       "impact": "major",
@@ -97,7 +97,7 @@
       }
     },
     {
-      "key": "#/paths/~1orders~1{orderId}",
+      "path": "#/paths/~1orders~1{orderId}",
       "typeName": "PathItem",
       "kind": "removed",
       "impact": "major",
@@ -131,7 +131,7 @@
       }
     },
     {
-      "key": "#/paths/~1specials",
+      "path": "#/paths/~1specials",
       "typeName": "PathItem",
       "kind": "added",
       "impact": "minor",

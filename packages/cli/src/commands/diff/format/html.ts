@@ -26,7 +26,7 @@ function escapeHtml(value: unknown): string {
 }
 
 function renderChange(change: JudgedChange): string {
-  const address = change.kind === 'modified' ? `${change.key} · ${change.property}` : change.key;
+  const address = change.kind === 'modified' ? `${change.path} · ${change.property}` : change.path;
   const { base, revision } = toJsonChange(change);
   return `
     <details class="change ${change.impact}">

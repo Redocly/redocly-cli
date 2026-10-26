@@ -57,7 +57,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
     );
   }
 
-  result.changes.sort(byKeyAndProperty);
+  result.changes.sort(byPathAndProperty);
 
   if (argv.format === 'github-actions') {
     printGithubActions(result);
@@ -89,8 +89,8 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   logger.info(green('✅ Diff passed.\n'));
 }
 
-function byKeyAndProperty(left: JudgedChange, right: JudgedChange): number {
-  if (left.key !== right.key) return left.key < right.key ? -1 : 1;
+function byPathAndProperty(left: JudgedChange, right: JudgedChange): number {
+  if (left.path !== right.path) return left.path < right.path ? -1 : 1;
 
   const leftProperty = left.kind === 'modified' ? left.property : '';
   const rightProperty = right.kind === 'modified' ? right.property : '';

@@ -21,7 +21,7 @@ function toJsonNode({ location, value }: LocatedNode) {
 // Fields a change does not have stay undefined, and JSON.stringify leaves them out.
 export function toJsonChange(change: JudgedChange) {
   return {
-    key: change.key,
+    path: change.path,
     typeName: typeOf(change.node),
     kind: change.kind,
     impact: change.impact,

@@ -40,7 +40,7 @@ export function compareTrees(base: NodeEntry, revision: NodeEntry): Change[] {
         pair.base.key !== pair.revision.key
       ) {
         changes.push({
-          key: pointerOf(child),
+          path: pointerOf(child),
           node: child,
           kind: 'modified',
           property: 'key',

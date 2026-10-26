@@ -39,8 +39,8 @@ describe('schema-type-changed', () => {
             "value": "number",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
@@ -61,8 +61,8 @@ describe('schema-type-changed', () => {
             "value": "number",
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/type",
@@ -89,8 +89,8 @@ describe('schema-type-changed', () => {
             "value": "integer",
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
@@ -104,8 +104,8 @@ describe('schema-type-changed', () => {
             "value": "integer",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/type",
@@ -139,8 +139,8 @@ describe('schema-type-changed', () => {
             "value": true,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "nullable",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
@@ -161,8 +161,8 @@ describe('schema-type-changed', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "nullable",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
@@ -192,8 +192,8 @@ describe('schema-type-changed', () => {
             "value": "3.0.3",
           },
           "impact": "patch",
-          "key": "#/",
           "kind": "modified",
+          "path": "#/",
           "property": "openapi",
           "revision": {
             "location": "revision.yaml#/openapi",
@@ -207,8 +207,8 @@ describe('schema-type-changed', () => {
             "value": "number",
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
@@ -225,8 +225,8 @@ describe('schema-type-changed', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "nullable",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
@@ -240,8 +240,8 @@ describe('schema-type-changed', () => {
             "value": "number",
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/type",
@@ -258,8 +258,8 @@ describe('schema-type-changed', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "nullable",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
@@ -289,8 +289,8 @@ describe('schema-type-changed', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
@@ -311,8 +311,8 @@ describe('schema-type-changed', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/type",
@@ -342,8 +342,8 @@ describe('schema-type-changed', () => {
             "value": "number",
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
@@ -357,8 +357,8 @@ describe('schema-type-changed', () => {
             "value": "number",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",

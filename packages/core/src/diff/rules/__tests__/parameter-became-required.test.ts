@@ -48,8 +48,8 @@ describe('parameter-became-required', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/0",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/0/required",
@@ -70,8 +70,8 @@ describe('parameter-became-required', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/1",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1/required",
@@ -99,8 +99,8 @@ describe('parameter-became-required', () => {
       [
         {
           "impact": "minor",
-          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "added",
+          "path": "#/paths/~1menu/get/parameters/1",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1",
             "value": {
@@ -115,8 +115,8 @@ describe('parameter-became-required', () => {
         },
         {
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/2",
           "kind": "added",
+          "path": "#/paths/~1menu/get/parameters/2",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/2",
             "value": {
@@ -184,8 +184,8 @@ describe('parameter-became-required', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters",
           "kind": "added",
+          "path": "#/paths/~1menu/get/parameters",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters",
             "value": [
@@ -244,8 +244,8 @@ describe('parameter-became-required', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "added",
+          "path": "#/paths/~1menu/get/parameters/1",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1",
             "value": {

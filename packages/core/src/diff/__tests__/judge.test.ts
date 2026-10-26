@@ -20,13 +20,13 @@ describe('judgeChanges', () => {
     const order = cafe.get('#/Order')!;
     const items = cafe.get('#/Order/properties/items')!;
     const orderRemoved: Change = {
-      key: '#/Order',
+      path: '#/Order',
       kind: 'removed',
       node: order,
       base: { location: order.base!.location, value: {} },
     };
     const itemsRemoved: Change = {
-      key: '#/Order/properties/items',
+      path: '#/Order/properties/items',
       kind: 'removed',
       node: items,
       base: { location: items.base!.location, value: {} },
@@ -57,7 +57,7 @@ describe('judgeChanges', () => {
     `);
     const order = cafe.get('#/Order')!;
     const orderRemoved: Change = {
-      key: '#/Order',
+      path: '#/Order',
       kind: 'removed',
       node: order,
       base: { location: order.base!.location, value: {} },
@@ -88,7 +88,7 @@ describe('judgeChanges', () => {
     `);
     const order = cafe.get('#/Order')!;
     const orderAdded: Change = {
-      key: '#/Order',
+      path: '#/Order',
       kind: 'added',
       node: order,
       revision: { location: order.revision!.location, value: {} },
@@ -108,7 +108,7 @@ describe('judgeChanges', () => {
     `);
     const limit = cafe.get('#/paths/~1orders/get/parameters/0')!;
     const limitRemoved: Change = {
-      key: '#/paths/~1orders/get/parameters/0',
+      path: '#/paths/~1orders/get/parameters/0',
       kind: 'removed',
       node: limit,
       base: { location: limit.base!.location, value: {} },

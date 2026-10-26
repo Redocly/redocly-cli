@@ -20,7 +20,7 @@ export type DiffNode = {
 
 export type LocatedNode = { location: Location; value: unknown };
 
-export type Change = { key: string; node: DiffNode } & (
+export type Change = { path: string; node: DiffNode } & (
   | { kind: 'added'; revision: LocatedNode }
   | { kind: 'removed'; base: LocatedNode }
   | {

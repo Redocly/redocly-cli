@@ -37,8 +37,8 @@ describe('message-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/channels/orders/messages/orderCancelled",
           "kind": "removed",
+          "path": "#/channels/orders/messages/orderCancelled",
           "verdicts": [
             {
               "impact": "major",
@@ -73,8 +73,8 @@ describe('message-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/channels/orders/messages",
           "kind": "removed",
+          "path": "#/channels/orders/messages",
           "verdicts": [
             {
               "impact": "major",
@@ -126,8 +126,8 @@ describe('message-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/messages",
           "kind": "removed",
+          "path": "#/components/messages",
           "verdicts": [],
         },
       ]

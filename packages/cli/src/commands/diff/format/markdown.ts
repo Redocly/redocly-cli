@@ -34,7 +34,8 @@ export function markdownDiff(result: DiffResult): string {
   ];
 
   for (const change of result.changes) {
-    const address = change.kind === 'modified' ? `${change.key} · ${change.property}` : change.key;
+    const address =
+      change.kind === 'modified' ? `${change.path} · ${change.property}` : change.path;
     const { file, line, col } = lineColOf(displaySide(change).location);
     // Only the message comes from the compared document and needs escaping. A rule id is
     // lowercase letters and hyphens, and the backticks around it are ours to keep.

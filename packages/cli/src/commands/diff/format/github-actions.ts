@@ -22,7 +22,7 @@ export function printGithubActions(result: DiffResult): void {
           {
             ruleId: 'diff',
             impact: change.impact,
-            message: `${change.kind} ${change.key}`,
+            message: `${change.kind} ${change.path}`,
             location: displaySide(change).location,
           },
         ];

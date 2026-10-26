@@ -40,8 +40,8 @@ describe('request-body-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/requestBody",
           "verdicts": [
             {
               "impact": "major",

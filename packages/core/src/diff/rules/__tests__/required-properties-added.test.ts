@@ -44,8 +44,8 @@ describe('required-properties-added', () => {
             ],
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/required",
@@ -71,8 +71,8 @@ describe('required-properties-added', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/required",
@@ -108,8 +108,8 @@ describe('required-properties-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/required",
@@ -125,8 +125,8 @@ describe('required-properties-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/required",
@@ -165,8 +165,8 @@ describe('required-properties-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "property": "readOnly",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note/readOnly",
@@ -180,8 +180,8 @@ describe('required-properties-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note/required",
@@ -197,8 +197,8 @@ describe('required-properties-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note",
           "property": "readOnly",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note/readOnly",
@@ -212,8 +212,8 @@ describe('required-properties-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note/required",
@@ -269,8 +269,8 @@ describe('required-properties-added', () => {
             "value": undefined,
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/required",

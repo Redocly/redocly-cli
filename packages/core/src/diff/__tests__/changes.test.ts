@@ -31,8 +31,8 @@ describe('changesOf', () => {
             "location": "api.yaml#/components/schemas/MenuItem/type",
             "value": "integer",
           },
-          "key": "#/components/schemas/MenuItem",
           "kind": "modified",
+          "path": "#/components/schemas/MenuItem",
           "property": "type",
           "revision": {
             "location": "api.yaml#/components/schemas/MenuItem/type",
@@ -44,8 +44,8 @@ describe('changesOf', () => {
             "location": "api.yaml#/components/schemas/MenuItem/x-price~1unit",
             "value": "cents",
           },
-          "key": "#/components/schemas/MenuItem",
           "kind": "modified",
+          "path": "#/components/schemas/MenuItem",
           "property": "x-price/unit",
           "revision": {
             "location": "api.yaml#/components/schemas/MenuItem/x-price~1unit",
@@ -69,8 +69,8 @@ describe('changesOf', () => {
             "location": "api.yaml#/components/schemas/MenuItem",
             "value": undefined,
           },
-          "key": "#/components/schemas/MenuItem",
           "kind": "modified",
+          "path": "#/components/schemas/MenuItem",
           "property": "minProperties",
           "revision": {
             "location": "api.yaml#/components/schemas/MenuItem/minProperties",
@@ -97,8 +97,8 @@ describe('changesOf', () => {
               "type": "number",
             },
           },
-          "key": "#/components/schemas/MenuItem/properties/price",
           "kind": "removed",
+          "path": "#/components/schemas/MenuItem/properties/price",
         },
       ]
     `);
@@ -128,12 +128,12 @@ describe('changesOf', () => {
             "location": "tree.yaml#/components/examples/latte",
             "value": {},
           },
-          "key": "#/components/examples/latte",
           "kind": "removed",
+          "path": "#/components/examples/latte",
         },
         {
-          "key": "#/components/examples/latte",
           "kind": "added",
+          "path": "#/components/examples/latte",
           "revision": {
             "location": "tree.yaml#/components/examples/latte",
             "value": {},
@@ -156,8 +156,8 @@ describe('changesOf', () => {
             "location": "api.yaml#/components/schemas/MenuItem/$ref",
             "value": "#/components/schemas/Beverage",
           },
-          "key": "#/components/schemas/MenuItem",
           "kind": "modified",
+          "path": "#/components/schemas/MenuItem",
           "property": "$ref",
           "revision": {
             "location": "api.yaml#/components/schemas/MenuItem/$ref",
@@ -180,7 +180,7 @@ describe('changesOf', () => {
     );
 
     expect(changes).toMatchObject([
-      { key: '#/security/0', kind: 'modified', property: 'OAuth', revision: { value: [] } },
+      { path: '#/security/0', kind: 'modified', property: 'OAuth', revision: { value: [] } },
     ]);
   });
 
@@ -192,7 +192,7 @@ describe('changesOf', () => {
 
     const changes = compareTrees(await orders('[]'), await orders('[{ ApiKey: [] }]'));
 
-    expect(changes).toMatchObject([{ key: '#/security/0', kind: 'added' }]);
+    expect(changes).toMatchObject([{ path: '#/security/0', kind: 'added' }]);
   });
 
   it('should report nothing when the documents are the same', async () => {

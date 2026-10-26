@@ -44,8 +44,8 @@ describe('response-header-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/headers/X-Rate-Limit",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/headers/X-Rate-Limit",
           "verdicts": [
             {
               "impact": "major",
@@ -83,8 +83,8 @@ describe('response-header-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/headers",
           "kind": "removed",
+          "path": "#/paths/~1orders/post/responses/201/headers",
           "verdicts": [
             {
               "impact": "major",
@@ -122,8 +122,8 @@ describe('response-header-removed', () => {
             "value": "X-Rate",
           },
           "impact": "major",
-          "key": "#/paths/~1orders/post/responses/201/headers/X-RateLimit",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/headers/X-RateLimit",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/headers/X-RateLimit",
@@ -148,8 +148,8 @@ describe('response-header-removed', () => {
             "value": "X-Rate",
           },
           "impact": "patch",
-          "key": "#/paths/~1orders/post/responses/201/headers/x-rate",
           "kind": "modified",
+          "path": "#/paths/~1orders/post/responses/201/headers/x-rate",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/headers/x-rate",
@@ -194,8 +194,8 @@ describe('response-header-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/headers/X-Rate",
           "kind": "removed",
+          "path": "#/components/headers/X-Rate",
           "verdicts": [],
         },
       ]

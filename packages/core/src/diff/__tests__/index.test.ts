@@ -61,8 +61,8 @@ describe('diffDocuments', () => {
       [
         {
           "impact": "minor",
-          "key": "#/paths/~1orders",
           "kind": "added",
+          "path": "#/paths/~1orders",
           "revision": {
             "location": "revision.yaml#/paths/~1orders",
             "value": {
@@ -96,8 +96,8 @@ describe('diffDocuments', () => {
             ],
           },
           "impact": "patch",
-          "key": "#/components/schemas/OrderStatus",
           "kind": "modified",
+          "path": "#/components/schemas/OrderStatus",
           "property": "enum",
           "revision": {
             "location": "revision.yaml#/components/schemas/OrderStatus/enum",
@@ -140,7 +140,7 @@ describe('diffDocuments', () => {
     });
 
     expect(result.changes.find((change) => change.kind === 'removed')).toMatchObject({
-      key: '#/paths/~1orders/get/responses/200/content/application~1json/schema/properties/meta/properties/b',
+      path: '#/paths/~1orders/get/responses/200/content/application~1json/schema/properties/meta/properties/b',
       impact: 'major',
       verdicts: [{ ruleId: 'property-removed' }],
     });
@@ -198,8 +198,8 @@ describe('diffDocuments', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/1",
           "property": "required",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1/required",
@@ -220,8 +220,8 @@ describe('diffDocuments', () => {
             "value": "integer",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu/get/parameters/1/schema",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/parameters/1/schema",
           "property": "type",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1/schema/type",
@@ -235,8 +235,8 @@ describe('diffDocuments', () => {
             "value": "OK",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu/get/responses/200",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/responses/200",
           "property": "description",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/responses/200/description",
@@ -265,8 +265,8 @@ describe('diffDocuments', () => {
             "value": "/menu/{id}",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu~1{menuItemId}",
           "kind": "modified",
+          "path": "#/paths/~1menu~1{menuItemId}",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1menu~1{menuItemId}",
@@ -280,8 +280,8 @@ describe('diffDocuments', () => {
             "value": "id",
           },
           "impact": "patch",
-          "key": "#/paths/~1menu~1{menuItemId}/get/parameters/0",
           "kind": "modified",
+          "path": "#/paths/~1menu~1{menuItemId}/get/parameters/0",
           "property": "name",
           "revision": {
             "location": "revision.yaml#/paths/~1menu~1{menuItemId}/get/parameters/0/name",
@@ -321,8 +321,8 @@ describe('diffDocuments', () => {
       config: await createConfig({ extends: ['diff-recommended'] }),
     });
 
-    expect(result.changes.map(({ key, kind, impact }) => ({ key, kind, impact }))).toEqual([
-      { key: '#/components/schemas/Item', kind: 'added', impact: 'patch' },
+    expect(result.changes.map(({ path, kind, impact }) => ({ path, kind, impact }))).toEqual([
+      { path: '#/components/schemas/Item', kind: 'added', impact: 'patch' },
     ]);
   });
 
@@ -375,8 +375,8 @@ describe('diffDocuments', () => {
             },
           },
           "impact": "patch",
-          "key": "#/paths/~1menu",
           "kind": "removed",
+          "path": "#/paths/~1menu",
           "verdicts": [],
         },
       ]
@@ -405,7 +405,7 @@ describe('diffDocuments', () => {
 
     expect(result.changes).toMatchObject([
       {
-        key: '#/paths/~1menu/get/responses/200/headers/X-Rate-Limit',
+        path: '#/paths/~1menu/get/responses/200/headers/X-Rate-Limit',
         kind: 'added',
         node: { revision: { key: 'X-Rate-Limit' } },
       },
@@ -448,7 +448,7 @@ describe('diffDocuments', () => {
 
     expect(result.changes).toMatchObject([
       {
-        key: '#/webhooks/orderReady/post/requestBody/content/application~1json/schema/properties/note',
+        path: '#/webhooks/orderReady/post/requestBody/content/application~1json/schema/properties/note',
         kind: 'removed',
         impact: 'major',
         verdicts: [{ ruleId: 'property-removed' }],
@@ -496,7 +496,7 @@ describe('diffDocuments', () => {
 
     expect(result.changes).toMatchObject([
       {
-        key: '#/paths/~1menu/$ref/get/responses/200/content/application~1json/schema',
+        path: '#/paths/~1menu/$ref/get/responses/200/content/application~1json/schema',
         kind: 'modified',
         property: 'type',
         impact: 'major',
@@ -541,7 +541,7 @@ describe('diffDocuments', () => {
 
     expect(result.changes).toMatchObject([
       {
-        key: '#/paths/~1orders/post/callbacks/done/{$request.body#~1url}/post/requestBody/content/application~1json/schema',
+        path: '#/paths/~1orders/post/callbacks/done/{$request.body#~1url}/post/requestBody/content/application~1json/schema',
         kind: 'modified',
         property: 'required',
         impact: 'major',
@@ -679,8 +679,8 @@ describe('diffDocuments configuration', () => {
 
     const result = await diffDocuments({ base, revision: withKitchen, config });
 
-    expect(result.changes.map(({ key, kind }) => ({ key, kind }))).toEqual([
-      { key: '#/paths/~1kitchen', kind: 'added' },
+    expect(result.changes.map(({ path, kind }) => ({ path, kind }))).toEqual([
+      { path: '#/paths/~1kitchen', kind: 'added' },
     ]);
   });
 });

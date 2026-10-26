@@ -31,7 +31,7 @@ describe('compareTrees', () => {
     );
 
     expect(changes).toMatchObject([
-      { key: '#/paths/~1menu/get/parameters/1', kind: 'modified', property: 'description' },
+      { path: '#/paths/~1menu/get/parameters/1', kind: 'modified', property: 'description' },
     ]);
   });
 
@@ -43,7 +43,7 @@ describe('compareTrees', () => {
 
     expect(changes).toMatchObject([
       {
-        key: '#/paths/~1orders',
+        path: '#/paths/~1orders',
         kind: 'modified',
         property: 'key',
         base: { value: '/order' },
@@ -61,8 +61,8 @@ describe('compareTrees', () => {
     );
 
     expect(changes).toMatchObject([
-      { key: '#/components/schemas/Order/unevaluatedProperties', kind: 'removed' },
-      { key: '#/components/schemas/Order/unevaluatedItems', kind: 'added' },
+      { path: '#/components/schemas/Order/unevaluatedProperties', kind: 'removed' },
+      { path: '#/components/schemas/Order/unevaluatedItems', kind: 'added' },
     ]);
   });
 });
@@ -115,8 +115,8 @@ describe('compareTrees through $refs', () => {
             "location": "api.yaml#/components/schemas/Item/properties/name/type",
             "value": "string",
           },
-          "key": "#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name",
           "kind": "modified",
+          "path": "#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name",
           "property": "type",
           "revision": {
             "location": "api.yaml#/components/schemas/MenuItem/properties/name/type",
@@ -132,7 +132,7 @@ describe('compareTrees through $refs', () => {
     const revision = await nodeTreeOf(menu(itemRef, `{ Item: ${item('string')} }`));
 
     expect(compareTrees(base, revision)).toMatchObject([
-      { key: '#/components/schemas/Item', kind: 'added' },
+      { path: '#/components/schemas/Item', kind: 'added' },
     ]);
   });
 
@@ -140,7 +140,7 @@ describe('compareTrees through $refs', () => {
     const base = await nodeTreeOf(menu(itemRef, `{ Item: ${item('string')} }`));
     const revision = await nodeTreeOf(menu(itemRef, `{ Item: ${item('integer')} }`));
 
-    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+    expect(compareTrees(base, revision).map((change) => change.path)).toEqual([
       '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
     ]);
   });
@@ -162,7 +162,7 @@ describe('compareTrees through $refs', () => {
     const base = await nodeTreeOf(orders(itemRef));
     const revision = await nodeTreeOf(orders(menuItemRef));
 
-    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+    expect(compareTrees(base, revision).map((change) => change.path)).toEqual([
       '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
     ]);
   });
@@ -205,7 +205,7 @@ describe('compareTrees through $refs', () => {
 
     expect(compareTrees(base, revision)).toMatchObject([
       {
-        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema',
+        path: '#/paths/~1menu/get/responses/200/content/application~1json/schema',
         kind: 'modified',
         property: 'description',
       },
@@ -224,7 +224,7 @@ describe('compareTrees through $refs', () => {
 
     expect(compareTrees(base, revision)).toMatchObject([
       {
-        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
+        path: '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
         kind: 'modified',
         property: 'type',
         base: {
@@ -266,7 +266,7 @@ describe('compareTrees through $refs', () => {
     const base = await nodeTreeOf(order("$ref: '#/components/schemas/Item'", 'string'));
     const revision = await nodeTreeOf(order("$ref: '#/components/schemas/MenuItem'", 'integer'));
 
-    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+    expect(compareTrees(base, revision).map((change) => change.path)).toEqual([
       '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/extra',
       '#/paths/~1menu/get/responses/200/content/application~1json/schema/$ref/properties/name',
     ]);
@@ -284,7 +284,7 @@ describe('compareTrees through $refs', () => {
       resolved: { key: 'Item' },
     });
     expect(nameChanged).toMatchObject({
-      key: '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
+      path: '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
       revision: { location: { pointer: '#/components/schemas/Item/properties/name/type' } },
     });
   });
@@ -298,7 +298,7 @@ describe('compareTrees through $refs', () => {
 
     expect(compareTrees(base, revision)).toMatchObject([
       {
-        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema',
+        path: '#/paths/~1menu/get/responses/200/content/application~1json/schema',
         kind: 'modified',
         property: 'description',
         base: { value: undefined },
@@ -322,7 +322,7 @@ describe('compareTrees through $refs', () => {
 
     expect(compareTrees(base, revision)).toMatchObject([
       {
-        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema/$ref/properties/name',
+        path: '#/paths/~1menu/get/responses/200/content/application~1json/schema/$ref/properties/name',
         kind: 'modified',
         property: 'type',
       },
@@ -334,7 +334,7 @@ describe('compareTrees through $refs', () => {
     const base = await nodeTreeOf(menu(schema, `{ Item: ${item('string')} }`));
     const revision = await nodeTreeOf(menu(schema, `{ Item: ${item('integer')} }`));
 
-    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+    expect(compareTrees(base, revision).map((change) => change.path)).toEqual([
       '#/paths/~1menu/get/responses/200/content/application~1json/schema/$ref/properties/name',
     ]);
   });
@@ -359,8 +359,8 @@ describe('compareTrees through $refs', () => {
             "location": "api.yaml#/paths/~1menu~1{id}",
             "value": "/menu/{id}",
           },
-          "key": "#/paths/~1menu~1{itemId}",
           "kind": "modified",
+          "path": "#/paths/~1menu~1{itemId}",
           "property": "key",
           "revision": {
             "location": "api.yaml#/paths/~1menu~1{itemId}",

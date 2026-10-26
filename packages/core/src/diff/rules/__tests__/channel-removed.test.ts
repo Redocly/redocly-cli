@@ -33,8 +33,8 @@ describe('channel-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/channels/orderReady",
           "kind": "removed",
+          "path": "#/channels/orderReady",
           "verdicts": [
             {
               "impact": "major",
@@ -67,8 +67,8 @@ describe('channel-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/channels",
           "kind": "removed",
+          "path": "#/channels",
           "verdicts": [
             {
               "impact": "major",
@@ -107,8 +107,8 @@ describe('channel-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/channels",
           "kind": "removed",
+          "path": "#/components/channels",
           "verdicts": [],
         },
       ]

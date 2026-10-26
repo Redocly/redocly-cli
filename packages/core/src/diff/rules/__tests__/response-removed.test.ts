@@ -37,8 +37,8 @@ describe('response-removed', () => {
             },
           },
           "impact": "major",
-          "key": "#/paths/~1orders~1{orderId}/get/responses/404",
           "kind": "removed",
+          "path": "#/paths/~1orders~1{orderId}/get/responses/404",
           "verdicts": [
             {
               "impact": "major",
@@ -67,8 +67,8 @@ describe('response-removed', () => {
             "value": "200",
           },
           "impact": "major",
-          "key": "#/paths/~1orders~1{orderId}/get/responses/204",
           "kind": "modified",
+          "path": "#/paths/~1orders~1{orderId}/get/responses/204",
           "property": "key",
           "revision": {
             "location": "revision.yaml#/paths/~1orders~1{orderId}/get/responses/204",
@@ -118,8 +118,8 @@ describe('response-removed', () => {
             },
           },
           "impact": "patch",
-          "key": "#/components/responses/NotFound",
           "kind": "removed",
+          "path": "#/components/responses/NotFound",
           "verdicts": [],
         },
       ]
