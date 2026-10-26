@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { runCommandResult } from '../../helpers.js';
+import { cleanupOutput, getCommandOutput } from '../../helpers.js';
 import { cliEntry, repoRoot } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -25,12 +25,12 @@ describe('generate-client --help', () => {
       .map((entry) => entry.name);
     expect(generatorNames).toContain('typescript');
 
-    const result = runCommandResult('node', [cliEntry, 'generate-client', '--help'], {
+    const output = getCommandOutput([cliEntry, 'generate-client', '--help'], {
       testPath: __dirname,
     });
     // yargs wraps help text mid-token (`tanstack-query-v\nue`), so read it with the
     // whitespace removed — a generator name never contains any.
-    const help = `${result.stdout}\n${result.stderr}`.replace(/\s+/g, '');
+    const help = output.replace(/\s+/g, '');
     // The `--generator` description lists the names as `Built-in: typescript, zod, ... — or ...`.
     const listStart = help.indexOf('Built-in:') + 'Built-in:'.length;
     const listEnd = help.indexOf('—or', listStart);
@@ -40,9 +40,8 @@ describe('generate-client --help', () => {
 });
 
 describe('generate-client generator compatibility contract', () => {
-  it('fails with exit code 1 when the generator rejects the selection', () => {
-    const result = runCommandResult(
-      'node',
+  it('fails with exit code 1 when the generator rejects the selection', async () => {
+    const output = getCommandOutput(
       [
         cliEntry,
         'generate-client',
@@ -58,8 +57,8 @@ describe('generate-client generator compatibility contract', () => {
       ],
       { testPath: __dirname }
     );
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain('Failed to generate client');
-    expect(result.stderr).toMatch(/does not support --error-mode "result"/);
+    await expect(cleanupOutput(output)).toMatchFileSnapshot(
+      join(__dirname, '__snapshots__/unsupported-error-mode.txt')
+    );
   });
 });

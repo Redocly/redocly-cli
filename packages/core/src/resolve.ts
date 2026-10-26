@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 import type { ResolveConfig } from './config/types.js';
@@ -13,6 +14,7 @@ import {
   parseRef,
   isAbsoluteUrl,
   isAnchor,
+  isFileUrl,
   isExternalValue,
   isRefWithSiblings,
   Location,
@@ -100,6 +102,9 @@ export function makeDocumentFromString<T = unknown>(
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
   #dirEntries: Map<string, Set<string>> = new Map();
+  // Local files that overlays add to a remote API description. Any other `file:` URL is followed
+  // only from a local document, so a remote description can't read the user's files.
+  overlayFiles: Set<string> = new Set();
 
   constructor(protected config: ResolveConfig = { http: { headers: [] } }) {}
 
@@ -121,14 +126,15 @@ export class BaseResolver {
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
     try {
-      if (isAbsoluteUrl(absoluteRef)) {
+      if (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef)) {
         const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
         return new Source(absoluteRef, body, mimeType);
       } else {
-        if (fs.lstatSync(absoluteRef).isDirectory()) {
-          throw new Error(`Expected a file but received a folder at ${absoluteRef}.`);
+        const filePath = isFileUrl(absoluteRef) ? fileURLToPath(absoluteRef) : absoluteRef;
+        if (fs.lstatSync(filePath).isDirectory()) {
+          throw new Error(`Expected a file but received a folder at ${filePath}.`);
         }
-        const content = await fs.promises.readFile(absoluteRef, 'utf-8');
+        const content = await fs.promises.readFile(filePath, 'utf-8');
         // In some cases file have \r\n line delimeters like on windows, we should skip it.
         return new Source(absoluteRef, content.replace(/\r\n/g, '\n'));
       }
@@ -172,6 +178,18 @@ export class BaseResolver {
     isRoot: boolean = false
   ): Promise<Document<T> | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
+
+    if (
+      isFileUrl(absoluteRef) &&
+      base !== null &&
+      isAbsoluteUrl(base) &&
+      !isFileUrl(base) &&
+      !this.overlayFiles.has(absoluteRef)
+    ) {
+      throw new ResolveError(
+        new Error(`A remote document can't reference ${absoluteRef}, which is a local file.`)
+      );
+    }
 
     const cachedDocument = this.cache.get(absoluteRef) as Document<T> | ResolveError | undefined;
     if (cachedDocument) {

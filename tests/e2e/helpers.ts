@@ -17,7 +17,11 @@ type CommandOptions = { env?: Record<string, string>; testPath?: string };
 // and `REDOCLY_TELEMETRY=off` keeps the tests from sending usage data.
 const TEST_ENV = { NODE_ENV: 'test', NO_COLOR: 'TRUE', FORCE_COLOR: '0', REDOCLY_TELEMETRY: 'off' };
 
-/** Run a command and return its exit status, stdout, and stderr. */
+/**
+ * Run a command and return its exit status, stdout, and stderr.
+ * Use `getCommandOutput` and a file snapshot instead, because the snapshot holds the whole output.
+ * Use this only when a test needs stderr alone.
+ */
 export function runCommandResult(
   command: string,
   args: string[],
@@ -39,7 +43,7 @@ export function runCommandResult(
 
 export function runCommand(command: string, args: string[], options?: CommandOptions) {
   const result = runCommandResult(command, args, options);
-  return `${result.stdout}\n${result.stderr}`;
+  return `${result.stdout}\n${result.stderr}\nExit code: ${result.status}`;
 }
 
 /**
@@ -68,7 +72,7 @@ export async function runCommandResultAsync(
 
 export async function runCommandAsync(command: string, args: string[], options?: CommandOptions) {
   const result = await runCommandResultAsync(command, args, options);
-  return `${result.stdout}\n${result.stderr}`;
+  return `${result.stdout}\n${result.stderr}\nExit code: ${result.status}`;
 }
 
 export function getCommandOutput(

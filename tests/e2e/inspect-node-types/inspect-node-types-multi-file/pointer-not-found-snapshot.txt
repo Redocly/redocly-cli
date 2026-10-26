@@ -1,0 +1,6 @@
+
+No node at #/paths/foo. The closest node is Paths at #/paths. Did you mean:
+  #/paths/~1foo
+
+
+Exit code: 1

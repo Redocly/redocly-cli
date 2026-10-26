@@ -36,6 +36,17 @@ describe('generate-client python generator, base.yaml against the mock server', 
     expect(result.status, result.stderr).toBe(0);
   });
 
+  // The generated file lands in the user's own package, so it must pass their strictest
+  // type checker too.
+  it('the generated client passes mypy --strict', () => {
+    const result = spawnSync(
+      'python3',
+      ['-m', 'mypy', '--strict', '--no-incremental', generatedFile],
+      { encoding: 'utf-8' }
+    );
+    expect(result.status, result.stdout).toBe(0);
+  });
+
   it('runs real HTTP against the mock server: hydration, bodies, ApiError', async () => {
     const server = await MockServer.start(fixture);
     try {

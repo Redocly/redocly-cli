@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.7.11 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.7.12 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -111,10 +111,15 @@ function writeClass(
   dateType: DateType,
   description?: string
 ): void {
+  // A response never carries a `writeOnly` property, and responses decode into this same
+  // class, so the property is optional even when the description requires it.
+  const fields = properties.map((property) =>
+    property.writeOnly ? { ...property, required: false } : property
+  );
   // PHP requires defaulted parameters after required ones.
   const ordered = [
-    ...properties.filter((property) => property.required),
-    ...properties.filter((property) => !property.required),
+    ...fields.filter((property) => property.required),
+    ...fields.filter((property) => !property.required),
   ];
   printer.doc(className(name), description);
   printer.line(`final class ${className(name)}`);

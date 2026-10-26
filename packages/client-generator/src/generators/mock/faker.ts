@@ -18,7 +18,7 @@ import {
 } from '@redocly/client-generator';
 import { codeLiteral } from '@redocly/client-generator/printers/typescript';
 
-import { splitIntersection } from './sample.ts';
+import { numericRange, omitsFromResponse, splitIntersection } from './sample.ts';
 import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './values.ts';
 
 /** The faker-call value for an IR schema. Refs resolve against `schemas`;
@@ -65,6 +65,7 @@ function walk(
     case 'object':
       return objectValue(
         schema.properties.flatMap((p): MockEntry[] => {
+          if (omitsFromResponse(p)) return [];
           const value = walk(p.schema, byName, visiting, dateType);
           // A cyclic optional property is omitted; a cyclic required property is
           // uninhabitable, so null is the only stand-in.
@@ -138,8 +139,8 @@ function scalarExpr(
 ): string {
   if (meta?.format === 'binary') return 'new Blob([])';
   if (scalar === 'boolean') return 'faker.datatype.boolean()';
-  if (scalar === 'integer') return `faker.number.int(${boundsArg(meta)})`;
-  if (scalar === 'number') return `faker.number.float(${boundsArg(meta)})`;
+  if (scalar === 'integer') return `faker.number.int(${boundsArg(scalar, meta)})`;
+  if (scalar === 'number') return `faker.number.float(${boundsArg(scalar, meta)})`;
   switch (meta?.format) {
     case 'email':
       return 'faker.internet.email()';
@@ -169,13 +170,20 @@ function dateExpr(dateType: DateType, dateOnly: boolean): string {
   return dateOnly ? `${iso}.slice(0, 10)` : iso;
 }
 
-/** `{ min, max }` arg for a bounded numeric, or empty when neither bound is set. */
-function boundsArg(meta: SchemaMetadata | undefined): string {
+/**
+ * `{ min, max, multipleOf }` for a bounded numeric, or empty when unbounded. Both ends are
+ * always set, because faker's defaults (`0`, and `1` for floats) can sit on the wrong side
+ * of a single bound: the missing end is 100 steps away from the set one.
+ */
+function boundsArg(scalar: 'integer' | 'number', meta: SchemaMetadata | undefined): string {
+  const { min, max, step = 1 } = numericRange(scalar, meta);
+  if (min === undefined && max === undefined) return '';
   const props = [
-    ...(meta?.minimum !== undefined ? [`min: ${meta.minimum}`] : []),
-    ...(meta?.maximum !== undefined ? [`max: ${meta.maximum}`] : []),
+    `min: ${min ?? (max ?? 0) - 100 * step}`,
+    `max: ${max ?? (min ?? 0) + 100 * step}`,
+    ...(meta?.multipleOf !== undefined ? [`multipleOf: ${meta.multipleOf}`] : []),
   ];
-  return props.length > 0 ? `{ ${props.join(', ')} }` : '';
+  return `{ ${props.join(', ')} }`;
 }
 
 /** `faker.helpers.multiple(() => <item>, { count: 1 })` — one element keeps output small.

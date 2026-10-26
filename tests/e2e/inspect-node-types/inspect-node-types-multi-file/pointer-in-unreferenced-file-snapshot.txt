@@ -1,0 +1,5 @@
+
+No node at unreferenced.yaml#/foo. Check the pointer, and make sure the file is referenced from openapi.yaml.
+
+
+Exit code: 1

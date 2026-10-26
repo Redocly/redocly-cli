@@ -1,0 +1,12 @@
+
+
+  Generating client for shop... 
+
+Client successfully generated: 3 files (124905 bytes) at <project>/src/shop.ts.
+
+❌  client.cliOutput must point at a TypeScript file (ending in .ts).
+   Got: <project>/bin/cafe.js
+
+
+
+Exit code: 1

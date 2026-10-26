@@ -1,0 +1,125 @@
+openapi: 3.2.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List users
+      responses:
+        '200':
+          description: A page of users
+    post:
+      operationId: post-users
+      responses:
+        '201':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+              required:
+                - name
+                - email
+  /users/{userId}:
+    get:
+      operationId: get-users-userId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+    delete:
+      operationId: delete-users-userId
+      responses:
+        '204':
+          description: Observed response
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+  /sessions:
+    post:
+      operationId: post-sessions
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                required:
+                  - token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - name
+
+Inferred a baseline OpenAPI description from traffic: 5 operation(s).
+Refining the description with AI provider "claude"...
+Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.
+[1/5] Refining GET /users...
+[1/5] GET /users — refined (<t>s)
+[2/5] Refining POST /users...
+[2/5] POST /users — kept the baseline: the response does not contain the POST operation
+[3/5] Refining GET /users/{userId}...
+[3/5] GET /users/{userId} — kept the baseline: the response does not keep the path template "/users/{userId}"
+[4/5] Refining DELETE /users/{userId}...
+[4/5] DELETE /users/{userId} — kept the baseline: the response does not keep the path template "/users/{userId}"
+[5/5] Refining POST /sessions...
+[5/5] POST /sessions — kept the baseline: the response does not keep the path template "/sessions"
+AI refinement complete: 1 of 5 operation(s) refined (claude).
+Done in <t>.
+
+Exit code: 0

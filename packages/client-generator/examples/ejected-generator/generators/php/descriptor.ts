@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.7.11 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.7.12 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -28,6 +28,15 @@ export function phpSecurityLiteral(op: OperationModel, model: ApiModel): string 
   });
   if (alternatives.length === 0) return undefined;
   return `[${alternatives.join(', ')}]`;
+}
+
+/**
+ * The `resolveAuth` argument: the table's `security` entry, or `[]` for an operation the
+ * table gives none. Reading an absent key with `?? []` reads as dead code to PHPStan,
+ * which knows the table's exact shape.
+ */
+export function phpSecurityArg(op: OperationModel, model: ApiModel): string {
+  return phpSecurityLiteral(op, model) === undefined ? '[]' : "$op['security']";
 }
 
 export function phpPaginationLiteral(rule: NeutralPaginationRule): string {

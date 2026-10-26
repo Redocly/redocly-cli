@@ -187,7 +187,8 @@ describe('build-docs', () => {
       Prerendering docs
 
       🎉 bundled successfully in: nested/redoc-static.html (244 KiB) [⏱ <test>ms].
-      "
+
+      Exit code: 0"
     `);
 
     expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
@@ -223,7 +224,8 @@ describe('build-docs', () => {
         Prerendering docs
 
         🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -254,7 +256,8 @@ describe('build-docs', () => {
         Prerendering docs
 
         🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -284,7 +287,8 @@ describe('build-docs', () => {
         Prerendering docs
 
         🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -314,7 +318,8 @@ describe('build-docs', () => {
         Prerendering docs
 
         🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -344,7 +349,8 @@ describe('build-docs', () => {
         Prerendering docs
 
         🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);

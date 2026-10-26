@@ -214,5 +214,6 @@ exports[`should retry a step up to the limit of each retry action and then run t
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

@@ -1,0 +1,5 @@
+
+The --server and --match-mode options are mutually exclusive: --match-mode controls how requests are located via the description servers, while --server replaces the description servers with the one the traffic was captured against.
+
+
+Exit code: 1

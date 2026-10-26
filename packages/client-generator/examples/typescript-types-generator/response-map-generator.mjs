@@ -51,11 +51,13 @@ export default {
   },
 };
 
-/** The named schemas a schema tree references (refs nested in arrays/objects/unions). */
+/** The named schemas a schema tree references (refs nested in arrays/objects/unions/omits). */
 function refNames(schema) {
   switch (schema.kind) {
     case 'ref':
       return [schema.name];
+    case 'omit':
+      return [schema.base];
     case 'array':
       return refNames(schema.items);
     case 'object':

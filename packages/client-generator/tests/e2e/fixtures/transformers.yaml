@@ -6,7 +6,8 @@ info:
     Exercises the `--date-type Date` sdk knob + the `transformers` generator
     across the date-bearing shapes: a top-level `date-time` scalar, an array of
     `date` scalars, and a `$ref` to another schema that also carries a date (to
-    drive transformer composition `transformPet -> transformOwner`).
+    drive transformer composition `transformPet -> transformOwner`), plus a
+    `Customer` whose write-only `password` never comes back in a response.
 servers:
   - url: http://localhost:3199
 paths:
@@ -26,6 +27,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pet'
+  /customers:
+    get:
+      operationId: listCustomers
+      responses:
+        '200':
+          description: The customers, without their passwords.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: The registered customer, without the password.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
 components:
   schemas:
     Pet:
@@ -59,3 +87,19 @@ components:
           description: Nested/ref'd date — converted via transformOwner.
           type: string
           format: date
+    Customer:
+      type: object
+      required: [id, email, password, createdAt]
+      properties:
+        id:
+          type: string
+          readOnly: true
+        email:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true

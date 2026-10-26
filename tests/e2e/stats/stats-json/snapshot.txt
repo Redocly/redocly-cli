@@ -46,3 +46,5 @@ Document: museum.yaml stats:
 
 museum.yaml: stats processed in <test>ms
 
+
+Exit code: 0
