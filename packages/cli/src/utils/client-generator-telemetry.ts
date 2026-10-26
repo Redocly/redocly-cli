@@ -32,6 +32,7 @@ export const BUILTIN_GENERATOR_NAMES = new Set([
   'python',
   'go',
   'php',
+  'java',
 ]);
 
 const IMPORT_RE =

@@ -22,6 +22,7 @@ const GENERATORS: Array<{ name: string; printer?: string; contracts?: string[] }
   { name: 'python', printer: 'python' },
   { name: 'go', printer: 'go' },
   { name: 'php', printer: 'php' },
+  { name: 'java', printer: 'java' },
   { name: 'typescript', printer: 'typescript' },
   { name: 'zod', printer: 'typescript' },
   { name: 'mock', printer: 'typescript' },

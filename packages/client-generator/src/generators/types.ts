@@ -111,7 +111,8 @@ export type GeneratorName =
   | 'cli'
   | 'python'
   | 'go'
-  | 'php';
+  | 'php'
+  | 'java';
 
 /**
  * One option a generator accepts: a scalar, a closed set of values, or a list of scalars.

@@ -61,8 +61,8 @@ describe('validateGenerators', () => {
     );
   });
 
-  it('rejects --error-mode result for the go and php SDKs (their idiom IS the error mode)', () => {
-    for (const language of ['go', 'php']) {
+  it('rejects --error-mode result for the go, php, and java SDKs (their idiom IS the error mode)', () => {
+    for (const language of ['go', 'php', 'java']) {
       expect(() => validateGenerators([language], { errorMode: 'result' })).toThrow(
         /does not support --error-mode "result"/
       );
