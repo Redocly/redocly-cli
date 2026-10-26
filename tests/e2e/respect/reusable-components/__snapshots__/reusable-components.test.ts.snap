@@ -223,6 +223,9 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 └─────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
+Workflow "get-menu-items" has a non-object input schema. Named inputs are preserved without validation. Use an object schema to validate named inputs.
+Workflow "final-workflow" has a non-object input schema. Named inputs are preserved without validation. Use an object schema to validate named inputs.
+Workflow "final-workflow" has a non-object input schema. Named inputs are preserved without validation. Use an object schema to validate named inputs.
  Tests exited with error 
 
 "
