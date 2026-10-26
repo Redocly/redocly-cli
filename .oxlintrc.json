@@ -13,10 +13,9 @@
     "packages/*/lib/**",
     "*.js",
     "*.cjs",
-    "tests/e2e/generate-client/examples/*/src/api/**",
-    "tests/e2e/generate-client/examples/*/generate.ts",
-    "tests/e2e/generate-client/*.snapshot.ts",
-    "tests/e2e/generate-client/*-consumer/api*.ts"
+    "packages/client-generator/examples/*/src/api/**",
+    "packages/client-generator/examples/*/generate.ts",
+    "packages/client-generator/tests/e2e/typescript/cafe/__snapshots__/*.snapshot.ts"
   ],
   "rules": {
     "eslint/no-array-constructor": "error",
@@ -63,8 +62,39 @@
   },
   "overrides": [
     {
-      "files": ["**/__tests__/**"],
+      "files": ["**/__tests__/**", "**/*.test.ts"],
       "plugins": ["vitest"],
+      "rules": {
+        "vitest/expect-expect": [
+          "error",
+          { "assertFunctionNames": ["expect", "expect*", "assertType"] }
+        ],
+        "vitest/hoisted-apis-on-top": "error",
+        "vitest/no-alias-methods": "error",
+        "vitest/no-commented-out-tests": "error",
+        "vitest/no-conditional-expect": "error",
+        "vitest/no-conditional-tests": "error",
+        "vitest/no-disabled-tests": "error",
+        "vitest/no-duplicate-hooks": "error",
+        "vitest/no-focused-tests": "error",
+        "vitest/no-identical-title": "error",
+        "vitest/no-import-node-test": "error",
+        "vitest/no-interpolation-in-snapshots": "error",
+        "vitest/no-standalone-expect": "error",
+        "vitest/no-test-return-statement": "error",
+        "vitest/no-unneeded-async-expect-function": "error",
+        "vitest/prefer-hooks-on-top": "error",
+        "vitest/prefer-mock-promise-shorthand": "error",
+        "vitest/prefer-spy-on": "error",
+        "vitest/prefer-to-have-length": "error",
+        "vitest/require-to-throw-message": "error",
+        "vitest/valid-describe-callback": "error",
+        "vitest/valid-expect": ["error", { "maxArgs": 2 }],
+        "vitest/warn-todo": "error"
+      }
+    },
+    {
+      "files": ["**/__tests__/**"],
       "rules": {
         "typescript/no-explicit-any": "allow",
         "typescript/ban-ts-comment": "allow",
@@ -79,8 +109,9 @@
     },
     {
       "files": [
-        "tests/e2e/generate-client/examples/*/src/**",
-        "tests/e2e/generate-client/examples/*/worker.ts"
+        "packages/client-generator/examples/*/src/**",
+        "packages/client-generator/examples/*/worker.ts",
+        "packages/client-generator/tests/e2e/**/consumer*/**"
       ],
       "rules": {
         "eslint/no-console": "allow"

@@ -14,6 +14,7 @@
   },
   "_historicalVersions": {
     "cli-2.58.1": "npm:@redocly/cli@2.58.1",
+    "cli-2.66.0": "npm:@redocly/cli@2.66.0",
     "cli-latest": "npm:@redocly/cli@latest",
     "cli-next": "file:../../redocly-cli.tgz"
   },

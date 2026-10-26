@@ -1998,6 +1998,93 @@ describe('buildApiModel — request body readOnly stripping', () => {
   });
 });
 
+describe('buildApiModel — success response writeOnly stripping', () => {
+  it('drops writeOnly props from success responses and keeps them in the request body', () => {
+    const op = buildOpOnly({
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            required: ['id', 'email', 'password'],
+            properties: {
+              id: { type: 'string', readOnly: true },
+              email: { type: 'string' },
+              password: { type: 'string', writeOnly: true },
+            },
+          },
+        },
+      } as never,
+      paths: {
+        '/users': {
+          post: {
+            operationId: 'createUser',
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+            },
+            responses: {
+              '201': {
+                description: 'ok',
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+              },
+            },
+          },
+        },
+      },
+    } as Partial<Oas3Definition>);
+    expect(op.requestBody?.schema).toEqual({ kind: 'omit', base: 'User', keys: ['id'] });
+    expect(op.successResponses[0].schema).toEqual({
+      kind: 'omit',
+      base: 'User',
+      keys: ['password'],
+    });
+  });
+
+  it('drops writeOnly props from lists and inline wrappers of a schema', () => {
+    const response = (schema: unknown) => ({
+      responses: {
+        '200': { description: 'ok', content: { 'application/json': { schema } } },
+      },
+    });
+    const model = buildApiModel(
+      doc({
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: { password: { type: 'string', writeOnly: true } },
+            },
+          },
+        } as never,
+        paths: {
+          '/users': {
+            get: {
+              operationId: 'listUsers',
+              ...response({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+            },
+          },
+          '/users/{id}': {
+            get: {
+              operationId: 'getUser',
+              ...response({
+                type: 'object',
+                properties: { data: { $ref: '#/components/schemas/User' } },
+              }),
+            },
+          },
+        } as never,
+      })
+    );
+    const [list, get] = model.services.flatMap((service) => service.operations);
+    const omitted = { kind: 'omit', base: 'User', keys: ['password'] };
+    expect(list.successResponses[0].schema).toEqual({ kind: 'array', items: omitted });
+    expect(get.successResponses[0].schema).toMatchObject({
+      kind: 'object',
+      properties: [{ name: 'data', schema: omitted }],
+    });
+  });
+});
+
 describe('buildApiModel — security (C6.6)', () => {
   function withSchemes(
     schemes: Record<string, unknown>,

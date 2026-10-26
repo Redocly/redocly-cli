@@ -1,0 +1,9 @@
+extends: []
+client:
+  # A directory nothing else creates — the composed entry makes its own.
+  cliOutput: ./bin/cafe.ts
+  importExt: ts
+  generators: [typescript, zod, cli]
+apis:
+  shop: { root: ./openapi.yaml, clientOutput: ./src/shop.ts }
+  kitchen: { root: ./openapi.yaml, clientOutput: ./src/kitchen.ts }

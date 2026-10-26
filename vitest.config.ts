@@ -1,64 +1,142 @@
-import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 
-const configExtension: { [key: string]: ViteUserConfig } = {
-  unit: defineConfig({
-    test: {
-      include: ['packages/*/src/**/*.test.ts'],
-      coverage: {
-        enabled: true,
-        reporter: ['text', 'json-summary', 'json'],
-        reportOnFailure: true,
-        include: ['packages/*/src/**/*.ts'],
-        provider: 'istanbul',
-        exclude: [
-          'packages/**/__tests__/**/*',
-          'packages/cli/src/index.ts',
-          'packages/cli/src/utils/assert-node-version.ts',
-          'packages/recheck/src/**/__typecheck__/**',
-        ],
-        thresholds: {
-          lines: 80,
-          functions: 80,
-          statements: 80,
-          branches: 75,
+export default defineConfig({
+  test: {
+    globals: true,
+    restoreMocks: true,
+    mockReset: true,
+    environment: 'node',
+    expect: { requireAssertions: true },
+    setupFiles: ['tests/silence-output.ts'],
+    env: {
+      FORCE_COLOR: '1',
+      REDOCLY_TELEMETRY: 'off',
+    },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'json'],
+      reportOnFailure: true,
+      include: ['packages/*/src/**/*.ts'],
+      exclude: [
+        'packages/**/__tests__/**/*',
+        'packages/cli/src/index.ts',
+        'packages/cli/src/utils/assert-node-version.ts',
+      ],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        statements: 80,
+        branches: 75,
+      },
+    },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['packages/*/src/**/*.test.ts'],
         },
       },
-    },
-  }),
-  e2e: defineConfig({
-    test: {
-      include: ['tests/e2e/**/*.test.ts'],
-      // Client generation has its own suite and its own CI job (see `client-generators` below):
-      // its bars compile real Python/Go/PHP/TypeScript output, so a growing set of them
-      // must not slow the job everything else shares.
-      exclude: ['tests/e2e/generate-client/**'],
-    },
-  }),
-  'client-generators': defineConfig({
-    test: {
-      include: ['tests/e2e/generate-client/**/*.test.ts'],
-    },
-  }),
-  'smoke-rebilly': defineConfig({
-    test: {
-      include: ['tests/smoke/rebilly/**/*.smoke.ts'],
-    },
-  }),
-  default: defineConfig({}),
-};
-
-export default mergeConfig(
-  defineConfig({
-    test: {
-      globals: true,
-      restoreMocks: true,
-      mockReset: true,
-      environment: 'node',
-      env: {
-        FORCE_COLOR: '1',
-        REDOCLY_TELEMETRY: 'off',
+      {
+        extends: true,
+        test: {
+          name: 'types',
+          typecheck: {
+            enabled: true,
+            only: true,
+            include: ['packages/*/src/**/*.test-d.ts'],
+            // `npm run typecheck` checks the source files with the flags they need.
+            ignoreSourceErrors: true,
+          },
+        },
       },
-    },
-  }),
-  configExtension[process.env.VITEST_SUITE || 'default']
-);
+      {
+        extends: true,
+        test: {
+          name: 'e2e',
+          include: ['tests/e2e/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators',
+          include: ['packages/client-generator/tests/e2e/typescript/**/*.test.ts'],
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-go',
+          include: ['packages/client-generator/tests/e2e/go/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'Go', command: 'go', args: ['version'] },
+              { name: 'gofmt', command: 'gofmt', args: ['-l'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-php',
+          include: ['packages/client-generator/tests/e2e/php/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'PHP', command: 'php', args: ['--version'] },
+              // The generated client sends requests with curl.
+              {
+                name: 'the PHP curl extension',
+                command: 'php',
+                args: ['-r', 'exit(extension_loaded("curl") ? 0 : 1);'],
+              },
+              { name: 'PHPStan', command: 'phpstan', args: ['--version'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-python',
+          include: ['packages/client-generator/tests/e2e/python/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'Python 3', command: 'python3', args: ['--version'] },
+              {
+                name: 'the httpx Python package',
+                command: 'python3',
+                args: ['-c', 'import httpx'],
+              },
+              {
+                name: 'the pydantic Python package',
+                command: 'python3',
+                args: ['-c', 'import pydantic'],
+              },
+              { name: 'mypy', command: 'python3', args: ['-m', 'mypy', '--version'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'smoke-rebilly',
+          include: ['tests/smoke/rebilly/**/*.smoke.ts'],
+        },
+      },
+    ],
+  },
+});

@@ -18,6 +18,9 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 
 - **Models are structs**: required fields by value, optionals as pointers with
   `,omitempty`; the `json` tag always carries the exact wire name.
+- **A `writeOnly` property is optional** even when required: requests and responses share
+  one struct, and a response never carries it. A pointer with `,omitempty` still sends it
+  in a request, and leaves it `nil` in a response instead of claiming a zero value.
 - **Package clause:** `package client` by default, `goPackage` to override — a generated
   file usually lands in a package the consumer already owns. The value is checked against
   Go's own rule (lowercase letters, digits, `_`, no leading digit, not a keyword) and an
@@ -102,6 +105,7 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 2. Change `index.ts` (and `runtime/runtime.go` for runtime behavior; `gofmt -w` +
    `go vet ./...` it, then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
-   `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/go.test.ts`
-   (real `go build` + `go vet` bars), the e2e smoke (`tests/e2e/generate-client/go.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   `npx vitest run packages/client-generator/src/generators/go/__tests__` (output-string checks),
+   `packages/client-generator/tests/e2e/go/render.test.ts`
+   (real `go build` + `go vet` bars), the e2e smoke (`packages/client-generator/tests/e2e/go/client.test.ts`),
+   and the large-description bars (`packages/client-generator/tests/e2e/go/large-descriptions.test.ts`).

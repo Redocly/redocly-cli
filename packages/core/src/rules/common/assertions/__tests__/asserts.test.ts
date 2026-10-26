@@ -992,7 +992,7 @@ describe('oas3 assertions', () => {
             location: baseLocation.key(),
           },
         ]);
-        expect(customFn.mock.calls.length).toBe(1);
+        expect(customFn.mock.calls).toHaveLength(1);
         expect(customFn.mock.calls[0][0]).toEqual(Object.keys(fakeNode));
       });
     });

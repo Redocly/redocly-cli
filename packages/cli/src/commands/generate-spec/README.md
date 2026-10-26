@@ -25,7 +25,8 @@ The supported formats are:
 
 Formats are auto-detected, or can be forced with `--traffic-format`.
 The traffic parsing infrastructure is shared with the `drift` command.
-The command generates OpenAPI 3.2 descriptions only.
+The command generates OpenAPI 3.2 descriptions by default; `--openapi-version 3.1` generates OpenAPI 3.1 instead.
+With 3.1, exchanges that use the `QUERY` HTTP method are skipped, because OpenAPI 3.1 has no `query` operation.
 
 ## Deterministic inference
 
@@ -107,17 +108,18 @@ When changing the refinement prompt, run the manual quality checks in [`ai/PROMP
 
 ## Options
 
-| Option             | Description                                                                                           |
-| ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `--type`           | Target description type. Only `openapi` is supported.                                                 |
-| `--traffic-format` | Traffic input format (`auto`, `har`, `kong`, `nginx-json`, `apache-json`, `ndjson`).                  |
-| `--server`         | Server URL the traffic was captured against. Scopes which requests are considered and sets `servers`. |
-| `--title`          | Title for the generated description.                                                                  |
-| `--with-ai`        | Refine the inferred description with an AI provider.                                                  |
-| `--ai-provider`    | `claude`, `codex`, or `cursor` (default `claude`).                                                    |
-| `--ai-model`       | Model passed to the selected provider.                                                                |
-| `--ai-concurrency` | Number of operations refined in parallel. Default: `4`.                                               |
-| `-o, --output`     | Write the result to a file instead of stdout.                                                         |
+| Option              | Description                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `--type`            | Target description type. Only `openapi` is supported.                                                 |
+| `--openapi-version` | OpenAPI version of the generated description: `3.1` or `3.2` (default `3.2`).                         |
+| `--traffic-format`  | Traffic input format (`auto`, `har`, `kong`, `nginx-json`, `apache-json`, `ndjson`).                  |
+| `--server`          | Server URL the traffic was captured against. Scopes which requests are considered and sets `servers`. |
+| `--title`           | Title for the generated description.                                                                  |
+| `--with-ai`         | Refine the inferred description with an AI provider.                                                  |
+| `--ai-provider`     | `claude`, `codex`, or `cursor` (default `claude`).                                                    |
+| `--ai-model`        | Model passed to the selected provider.                                                                |
+| `--ai-concurrency`  | Number of operations refined in parallel. Default: `4`.                                               |
+| `-o, --output`      | Write the result to a file instead of stdout.                                                         |
 
 ## AI providers
 
