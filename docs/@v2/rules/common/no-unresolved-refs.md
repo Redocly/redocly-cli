@@ -34,8 +34,10 @@ The `$ref` (reference object) is useful for keeping your OpenAPI descriptions DR
 But if you make a typo, your `$ref` might not be resolvable.
 This rule prevents that from happening.
 
-The rule also checks discriminator `mapping` values.
-A value that is a reference must resolve, and a value that is a schema name (for example, `dog: Dog`) must match a schema in `components.schemas`.
+The rule also checks the values in a discriminator `mapping`:
+
+- A reference, such as `'#/components/schemas/Dog'`, must resolve.
+- A schema name, such as `Dog`, must match the name of a schema in `components.schemas`.
 
 ## Configuration
 
