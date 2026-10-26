@@ -27,9 +27,8 @@ export type NormalizedScalarSchema = {
 
 export type NodeType = {
   properties: Record<string, PropType | ResolveTypeFn>;
-  // set on a node type for a scalar: an item of a named list of strings
-  type?: ScalarSchema['type'];
-  format?: string;
+  // set when the node is a scalar value: the schema of that value
+  scalar?: ScalarSchema;
   additionalProperties?: PropType | ResolveTypeFn;
   items?: PropType | ResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
@@ -45,8 +44,7 @@ export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
-  type?: ScalarSchema['type'];
-  format?: string;
+  scalar?: NormalizedScalarSchema;
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);

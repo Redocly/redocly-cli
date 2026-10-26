@@ -101,7 +101,7 @@ function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
     return;
   }
   if (isString(node)) {
-    if (ctx.type.format === 'uri-reference') {
+    if (ctx.type.scalar?.format === 'uri-reference') {
       ctx.parent[ctx.key] = resolvePath(node, sourceRef);
     }
     return;

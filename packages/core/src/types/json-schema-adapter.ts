@@ -5,7 +5,7 @@ import type { JSONSchema } from 'json-schema-to-ts';
 
 import type { Oas3Schema } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import type { NodeType, PropType, ResolveTypeFn } from './index.js';
+import type { NodeType, PropType, ResolveTypeFn, ScalarSchema } from './index.js';
 
 type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
 type SchemaObject = Exclude<ExtendedJSONSchema, boolean>;
@@ -45,19 +45,17 @@ function findOneOf(
   };
 }
 
-function isScalarSchema(schema: SchemaObject): boolean {
-  return (
-    schema.type === 'string' ||
-    schema.type === 'number' ||
-    schema.type === 'integer' ||
-    schema.type === 'boolean'
-  );
+const SCALAR_TYPES = new Set(['string', 'number', 'integer', 'boolean']);
+type ScalarSchemaObject = SchemaObject & { type: 'string' | 'number' | 'integer' | 'boolean' };
+
+function isScalarSchema(schema: unknown): schema is ScalarSchemaObject {
+  return isPlainObject(schema) && typeof schema.type === 'string' && SCALAR_TYPES.has(schema.type);
 }
 
-// A node type for a scalar keeps the scalar schema, so the walker visits the value and `struct` checks its type.
-function scalarNodeType(schema: SchemaObject): NodeType {
+function scalarNodeType(schema: ScalarSchemaObject): NodeType {
   const { default: _, nodeTypeName: __, ...scalar } = schema;
-  return { ...(scalar as NodeType), properties: {} };
+  // the scalar keywords of a JSON Schema are the ones ScalarSchema lists, as in the scalar branch below
+  return { properties: {}, scalar: scalar as ScalarSchema };
 }
 
 function transformJSONSchemaToNodeType(
@@ -234,8 +232,8 @@ function extractNodeToContext(
       schema.items.oneOf) // exclude scalar array types
   ) {
     items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
-  } else if (isPlainObject(schema.items) && isScalarSchema(schema.items as SchemaObject)) {
-    ctx[nodeTypeName + '_items'] = scalarNodeType(schema.items as SchemaObject);
+  } else if (isScalarSchema(schema.items)) {
+    ctx[nodeTypeName + '_items'] = scalarNodeType(schema.items);
     items = nodeTypeName + '_items';
   }
 

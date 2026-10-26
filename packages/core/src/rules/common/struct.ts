@@ -1,5 +1,5 @@
-import { isRef } from '../../ref-utils.js';
-import { isNamedType, SpecExtension } from '../../types/index.js';
+import { isRef, type Location } from '../../ref-utils.js';
+import { isNamedType, SpecExtension, type NormalizedScalarSchema } from '../../types/index.js';
 import { getOwn } from '../../utils/get-own.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type {
@@ -33,12 +33,9 @@ export const Struct:
       const nodeType = oasTypeOf(node);
       const refLocation = rawLocation !== location ? rawLocation : undefined;
 
-      if (type.type) {
-        if (!matchesJsonSchemaType(node, type.type, false)) {
-          report({
-            message: `Expected type \`${type.type}\` but got \`${nodeType}\`.`,
-            from: refLocation,
-          });
+      if (type.scalar) {
+        if (!validateScalar(node, type.scalar, String(key), location, refLocation, report)) {
+          ignoreNextVisitorsOnNode();
         }
         return;
       }
@@ -126,7 +123,6 @@ export const Struct:
         }
 
         const propSchema = propType;
-        const propValueType = oasTypeOf(propValue);
 
         if (propSchema === undefined) {
           if (propName.startsWith('x-')) continue;
@@ -147,65 +143,74 @@ export const Struct:
           propValue = resolve(propValue).node;
         }
 
-        if (propSchema.items && propSchema.items?.enum && Array.isArray(propValue)) {
-          for (let i = 0; i < propValue.length; i++) {
-            validateSchemaEnumType(
-              propSchema.items?.enum,
-              propValue[i],
-              propName,
-              refLocation,
-              {
-                report,
-                location: location.child([propName, i]),
-              } as UserContext,
-              propSchema.items?.documentationLink
-            );
-          }
-        }
-
-        if (propSchema.enum) {
-          validateSchemaEnumType(
-            propSchema.enum,
-            propValue,
-            propName,
-            refLocation,
-            {
-              report,
-              location: location.child([propName]),
-            } as UserContext,
-            propSchema.documentationLink
-          );
-        } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type, false)) {
-          report({
-            message: `Expected type \`${propSchema.type}\` but got \`${propValueType}\`.`,
-            from: refLocation,
-            location: propLocation,
-          });
+        if (!validateScalar(propValue, propSchema, propName, propLocation, refLocation, report)) {
           ignoreNextVisitorsOnNode();
-        } else if (propValueType === 'array' && propSchema.items?.type) {
-          const itemsType = propSchema.items?.type;
-          for (let i = 0; i < propValue.length; i++) {
-            const item = propValue[i];
-            if (!matchesJsonSchemaType(item, itemsType, false)) {
-              report({
-                message: `Expected type \`${itemsType}\` but got \`${oasTypeOf(item)}\`.`,
-                from: refLocation,
-                location: propLocation.child([i]),
-              });
-            }
-          }
-        }
-
-        if (typeof propSchema.minimum === 'number') {
-          if (propSchema.minimum > node[propName]) {
-            report({
-              message: `The value of the ${propName} field must be greater than or equal to ${propSchema.minimum}`,
-              from: refLocation,
-              location: location.child([propName]),
-            });
-          }
         }
       }
     },
   };
 };
+
+// Reports the problems of a value against its scalar schema; returns false when its type does not match.
+function validateScalar(
+  value: unknown,
+  schema: NormalizedScalarSchema,
+  name: string,
+  valueLocation: Location,
+  refLocation: Location | undefined,
+  report: UserContext['report']
+): boolean {
+  const valueType = oasTypeOf(value);
+  if (schema.items && schema.items?.enum && Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      validateSchemaEnumType(
+        schema.items?.enum,
+        value[i],
+        name,
+        refLocation,
+        { report, location: valueLocation.child([i]) } as UserContext,
+        schema.items?.documentationLink
+      );
+    }
+  }
+
+  let typeMatches = true;
+  if (schema.enum) {
+    validateSchemaEnumType(
+      schema.enum,
+      // a value of another type is not in the enum either, so it is reported the same way
+      value as string,
+      name,
+      refLocation,
+      { report, location: valueLocation } as UserContext,
+      schema.documentationLink
+    );
+  } else if (schema.type && !matchesJsonSchemaType(value, schema.type, false)) {
+    report({
+      message: `Expected type \`${schema.type}\` but got \`${valueType}\`.`,
+      from: refLocation,
+      location: valueLocation,
+    });
+    typeMatches = false;
+  } else if (Array.isArray(value) && schema.items?.type) {
+    const itemsType = schema.items?.type;
+    for (let i = 0; i < value.length; i++) {
+      if (!matchesJsonSchemaType(value[i], itemsType, false)) {
+        report({
+          message: `Expected type \`${itemsType}\` but got \`${oasTypeOf(value[i])}\`.`,
+          from: refLocation,
+          location: valueLocation.child([i]),
+        });
+      }
+    }
+  }
+
+  if (typeof schema.minimum === 'number' && typeof value === 'number' && schema.minimum > value) {
+    report({
+      message: `The value of the ${name} field must be greater than or equal to ${schema.minimum}`,
+      from: refLocation,
+      location: valueLocation,
+    });
+  }
+  return typeMatches;
+}

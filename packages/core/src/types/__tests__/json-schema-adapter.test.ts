@@ -43,9 +43,8 @@ describe('getNodeTypesFromJSONSchema', () => {
     expect(types['Root'].properties.overlays).toBe('Overlays');
     expect(types['Overlays'].items).toBe('Overlays_items');
     expect(types['Overlays_items']).toEqual({
-      type: 'string',
-      format: 'uri-reference',
       properties: {},
+      scalar: { type: 'string', format: 'uri-reference' },
     });
   });
 
@@ -58,6 +57,9 @@ describe('getNodeTypesFromJSONSchema', () => {
     });
 
     expect(types['Root'].properties.template).toBe('Template');
-    expect(types['Template']).toEqual({ type: 'string', format: 'uri-reference', properties: {} });
+    expect(types['Template']).toEqual({
+      properties: {},
+      scalar: { type: 'string', format: 'uri-reference' },
+    });
   });
 });
