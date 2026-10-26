@@ -273,6 +273,9 @@ jobs:
           git diff
 
           cd packages/core
+          # test only (Redocly/redocly-cli#3309): ship the vendored @redocly/config inside the snapshot so it installs outside this repo
+          npm pkg set "dependencies.@redocly/config=$(node -p "JSON.parse(require('fs').readFileSync('node_modules/@redocly/config/package.json', 'utf8')).version")"
+          npm pkg set "bundleDependencies[0]=@redocly/config"
           npm publish --tag snapshot
           sleep 10
 
