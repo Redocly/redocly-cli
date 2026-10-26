@@ -1,7 +1,12 @@
 import type { ApiConfig, RecheckConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
-import type { DiffRuleId, DiffRuleSets } from '../diff/rules/index.js';
+import type {
+  Async3DiffRuleId,
+  DiffRuleId,
+  DiffRuleSets,
+  Oas3DiffRuleId,
+} from '../diff/rules/index.js';
 import type { DiffRule, Impact } from '../diff/types.js';
 import type {
   SpecMajorVersion,
@@ -147,10 +152,10 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
 
   recheck?: RecheckConfig;
   diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  oas3_0Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  oas3_1Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  oas3_2Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  async3Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  oas3_0Diff?: RuleMap<Oas3DiffRuleId, Impact | 'off', T>;
+  oas3_1Diff?: RuleMap<Oas3DiffRuleId, Impact | 'off', T>;
+  oas3_2Diff?: RuleMap<Oas3DiffRuleId, Impact | 'off', T>;
+  async3Diff?: RuleMap<Async3DiffRuleId, Impact | 'off', T>;
 };
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;

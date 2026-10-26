@@ -51,8 +51,8 @@ redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
 - The command detects renamed items, such as paths, properties, and parameters.
   If the new item is at least half the same as the old one, the command shows one rename instead of a removal and an addition.
 - A new order of list items, such as parameters or `oneOf` subschemas, is not a change.
-- The command applies the preprocessors from your configuration, but not the [decorators](../decorators.md).
-  To compare the descriptions that you publish, bundle them with your decorators first.
+- The command applies the preprocessors and [decorators](../decorators.md) from your configuration, as the `bundle` command does.
+  For example, with the `remove-x-internal` decorator, the command does not report changes to internal operations.
 - The diff rules support OpenAPI 3.x and AsyncAPI 3.
   For other description types, the command lists the changes, but all changes are `minor` or `patch`.
 - The command cannot compare descriptions of different types, for example OpenAPI 2.0 and OpenAPI 3.1.
@@ -139,11 +139,15 @@ apis:
     root: v1/openapi.yaml
   cafe@v2:
     root: v2/openapi.yaml
+    decorators:
+      remove-x-internal: on
 ```
 
 ```bash
 redocly diff cafe@v1 cafe@v2
 ```
+
+The command applies the preprocessors and decorators of the revision API, `cafe@v2`, to both descriptions.
 
 ### Change the impact of a rule
 
@@ -161,5 +165,5 @@ diff:
 - **[Diff rules](../rules/diff-rules.md)** - Changes that each rule reports and how the rules use the direction of the data
 - **[`diff` configuration](../configuration/reference/diff.md)** - Set the impact of each diff rule in `redocly.yaml`
 - **[Per-API configuration](../configuration/apis.md)** - Define API aliases to compare two APIs by name
-- **[`bundle` command](./bundle.md)** - Apply your decorators before you compare the descriptions that you publish
+- **[Decorators](../decorators.md)** - Change the descriptions that you publish and that the `diff` command compares
 - **[`lint` command](./lint.md)** - Check one API description against your API standards

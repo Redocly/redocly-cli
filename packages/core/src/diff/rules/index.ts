@@ -77,9 +77,9 @@ export const diffRuleSets = {
 
 export type DiffRuleSets = typeof diffRuleSets;
 export type DiffFamily = keyof DiffRuleSets;
-export type DiffRuleId = {
-  [Family in DiffFamily]: keyof DiffRuleSets[Family] & string;
-}[DiffFamily];
+export type Oas3DiffRuleId = keyof typeof oas3Rules;
+export type Async3DiffRuleId = keyof typeof async3Rules;
+export type DiffRuleId = Oas3DiffRuleId | Async3DiffRuleId;
 
 export function isDiffFamily(family: string): family is DiffFamily {
   return Object.hasOwn(diffRuleSets, family);

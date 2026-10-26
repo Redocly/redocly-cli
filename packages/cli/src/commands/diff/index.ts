@@ -28,10 +28,14 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   const startedAt = performance.now();
 
-  config.skipDiffRules(argv['skip-rule']);
-
   const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
-  const [{ path: revisionPath }] = await getFallbackApisOrExit([argv.revision], config);
+  const [{ path: revisionPath, alias: revisionAlias }] = await getFallbackApisOrExit(
+    [argv.revision],
+    config
+  );
+
+  const diffConfig = config.forAlias(revisionAlias);
+  diffConfig.skipDiffRules(argv['skip-rule']);
 
   // One resolver loads both documents and resolves their `$ref`s, as lint does.
   const externalRefResolver = new BaseResolver(config.resolve);
@@ -44,7 +48,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   collectSpecData?.(revision);
 
-  const result = await diffDocuments({ base, revision, config, externalRefResolver });
+  const result = await diffDocuments({ base, revision, config: diffConfig, externalRefResolver });
 
   if (result.problems.length) {
     formatProblems(result.problems, {

@@ -60,6 +60,14 @@ describe('diff', () => {
     );
   });
 
+  test('should compare what the decorators of each API leave, and so pass on removed internal parts', async () => {
+    const testPath = join(__dirname, 'decorators');
+    const args = getParams(indexEntryPoint, ['diff', 'cafe@v1', 'cafe@v2']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test.each(['markdown', 'html'])(
     'should write a %s report to the file --output names',
     async (format) => {

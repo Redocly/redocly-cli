@@ -1,0 +1,11 @@
+extends:
+  - diff-recommended
+apis:
+  cafe@v1:
+    root: base.yaml
+    decorators:
+      remove-x-internal: on
+  cafe@v2:
+    root: revision.yaml
+    decorators:
+      remove-x-internal: on

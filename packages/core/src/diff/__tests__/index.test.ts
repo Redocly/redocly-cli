@@ -659,7 +659,7 @@ describe('diffDocuments configuration', () => {
     expect(cancelRemoved.impact).toBe('patch');
   });
 
-  it('should compare the descriptions as written, without the configured decorators', async () => {
+  it('should compare the descriptions the configured decorators leave', async () => {
     const config = await createConfig({
       extends: ['diff-recommended'],
       decorators: { 'remove-x-internal': 'on' },
@@ -679,9 +679,7 @@ describe('diffDocuments configuration', () => {
 
     const result = await diffDocuments({ base, revision: withKitchen, config });
 
-    expect(result.changes.map(({ path, kind }) => ({ path, kind }))).toEqual([
-      { path: '#/paths/~1kitchen', kind: 'added' },
-    ]);
+    expect(result.changes).toEqual([]);
   });
 });
 

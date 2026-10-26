@@ -62,7 +62,6 @@ export async function diffDocuments(opts: {
   };
 }
 
-// Preprocessors change the document first, as they do before lint.
 async function preparedNodeTree(
   document: Document,
   specVersion: SpecVersion,
@@ -79,20 +78,20 @@ async function preparedNodeTree(
     visitorsData: {},
   };
 
-  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
-
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
     externalRefResolver,
   });
 
-  if (preprocessors.length > 0) {
-    // Make additional pass to resolve refs defined in preprocessors.
+  for (const kind of ['preprocessors', 'decorators'] as const) {
+    const visitors = initRules(rules, config, kind, specVersion);
+    if (visitors.length === 0) continue;
+
     walkDocument({
       document,
       rootType: types.Root,
-      normalizedVisitors: normalizeVisitors(preprocessors, types),
+      normalizedVisitors: normalizeVisitors(visitors, types),
       resolvedRefMap,
       ctx,
     });
