@@ -39,7 +39,7 @@ redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
 | --lint-config   | string   | Specify the severity level for the configuration file. <br /> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                            |
 | --output, -o    | string   | Write the report to this file. All formats support this option, except `github-actions`.                                                                                                       |
 | --skip-rule     | [string] | Turn off these [diff rules](../rules/diff-rules.md) for this run.                                                                                                                              |
-| --version       | boolean  | Display version number.                                                                                                                                                                           |
+| --version       | boolean  | Display version number.                                                                                                                                                                        |
 
 ## How the command compares descriptions
 
@@ -50,8 +50,6 @@ redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
   It shows a change in a component at the first place that uses the component, with the line of the change in its file.
 - The command detects renamed items, such as paths, properties, and parameters.
   If the new item is at least half the same as the old one, the command shows one rename instead of a removal and an addition.
-
-  It does not show a removed item and an added item.
 - A new order of list items, such as parameters or `oneOf` subschemas, is not a change.
 - The command applies the preprocessors from your configuration, but not the [decorators](../decorators.md).
   To compare the descriptions that you publish, bundle them with your decorators first.

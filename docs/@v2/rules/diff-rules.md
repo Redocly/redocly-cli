@@ -62,7 +62,6 @@ For example, a new `enum` value is safe in a request, but it can break a client 
 - If no request or response references a component, the component has no direction.
   The rules that check the direction do not report changes to it.
 
-
 ## Rules
 
 The rules apply to OpenAPI 3.x and AsyncAPI 3, except the rules that name one of them.
@@ -148,4 +147,3 @@ These changes do not break a client:
 - **[`diff` command](../commands/diff.md)** - Compare two API descriptions, choose an output format, and stop breaking changes in CI
 - **[`diff` configuration](../configuration/reference/diff.md)** - Set the impact of each diff rule in `redocly.yaml`
 - **[Built-in rules](./built-in-rules.md)** - Lint rules that check one API description against your API standards
-
