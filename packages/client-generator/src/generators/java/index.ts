@@ -8,7 +8,6 @@
 import {
   type CodeSample,
   type Generator,
-  type GeneratorOptionsSchema,
   identifierFor,
   jsonSuccessSchema,
   type NeutralPaginationRule,
@@ -30,17 +29,6 @@ import { javaType } from './types.ts';
 export { renderJavaModels } from './models.ts';
 export { javaType } from './types.ts';
 
-export const javaOptions: GeneratorOptionsSchema = {
-  type: 'object',
-  properties: {
-    package: {
-      type: 'string',
-      description:
-        'The package clause of the generated file, for example `com.example.api`. Absent, the class is in the default package.',
-    },
-  },
-};
-
 /** The `import` lines of the runtime, which the generated file declares for both of them. */
 function runtimeImports(): string[] {
   return JAVA_RUNTIME_SOURCE.split('\n').filter((line) => line.startsWith('import '));
@@ -60,11 +48,11 @@ function runtimeBody(): string[] {
 }
 
 /** The whole generated file: package, imports, and the class nesting models, runtime, and methods. */
-export const javaGenerator: Generator = ({ model, output, banner, emit, pagination, options }) => {
+export const javaGenerator: Generator = ({ model, output, banner, emit, pagination }) => {
   const printer = new JavaPrinter();
   const dateType = emit.dateType ?? 'string';
   const className = javaClassName(output.stem, model);
-  const packageName = javaPackageName(options?.package);
+  const packageName = javaPackageName(model.title);
   const moduleRuntime = emit.runtime === 'module';
   const runtimeClass = `${className}Runtime`;
   const operations = model.services.flatMap((service) => service.operations);
@@ -83,10 +71,8 @@ export const javaGenerator: Generator = ({ model, output, banner, emit, paginati
     '// Regenerate with `redocly generate-client`. Java >= 17, standard library only — zero dependencies.'
   );
   printer.blank();
-  if (packageName !== undefined) {
-    printer.line(`package ${packageName};`);
-    printer.blank();
-  }
+  printer.line(`package ${packageName};`);
+  printer.blank();
   for (const line of runtimeImports()) printer.line(line);
   printer.blank();
   printer.doc(className, `Client for ${model.title} (${model.version}).`);
@@ -158,12 +144,11 @@ export const javaGenerator: Generator = ({ model, output, banner, emit, paginati
     /^abstract class Runtime \{$/m,
     `public abstract class ${runtimeClass} {`
   );
-  const packageClause = packageName === undefined ? '' : `package ${packageName};\n\n`;
   return [
     entry,
     {
       path: output.path.replace(/[^\\/]+$/, `${runtimeClass}.java`),
-      content: `${header}\n${packageClause}${runtimeSource
+      content: `${header}\npackage ${packageName};\n\n${runtimeSource
         .replace(/^\/\/.*\n/gm, '')
         .trimStart()
         .trimEnd()}\n`,
@@ -195,10 +180,11 @@ export function javaSample(op: OperationModel, ctx: SampleContext): CodeSample {
       : jsonSuccessSchema(op) === undefined
         ? `${call};`
         : `${javaType(jsonSuccessSchema(op)!, ctx.model, dateType)} result = ${call};`;
+  // The import names the package this run writes, so the snippet compiles as shown.
   return {
     lang: 'java',
     label: 'Java SDK',
-    source: `${className} client = new ${className}(new ${className}.Config());\n${statement}\n`,
+    source: `import ${javaPackageName(ctx.model.title)}.${className};\n\n${className} client = new ${className}(new ${className}.Config());\n${statement}\n`,
   };
 }
 

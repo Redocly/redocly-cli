@@ -2,6 +2,8 @@
 // java/write-only.test.ts with the server base URL as the only argument. The request sends
 // the password; the response comes back without it and must still hydrate.
 
+import cafecustomers.Client;
+
 public final class Smoke {
     public static void main(String[] args) {
         Client client = new Client(new Client.Config().serverUrl(args[0]));

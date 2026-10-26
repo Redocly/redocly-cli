@@ -2,6 +2,8 @@
 // server the other consumers use. Compiled and run by java/client.test.ts with the
 // server base URL as the only argument.
 
+import baseconsumer.Client;
+
 public final class Smoke {
     public static void main(String[] args) {
         String base = args[0];

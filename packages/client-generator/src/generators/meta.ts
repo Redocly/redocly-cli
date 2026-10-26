@@ -132,7 +132,6 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
         run: m.javaGenerator,
         sample: m.javaSample,
         docs: m.javaDocs,
-        options: m.javaOptions,
       })),
   },
 };

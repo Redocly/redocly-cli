@@ -136,13 +136,7 @@ const GENERATORS = [
   { name: 'python', run: 'pythonGenerator', sample: 'pythonSample', docs: 'pythonDocs' },
   { name: 'go', run: 'goGenerator', sample: 'goSample', docs: 'goDocs' },
   { name: 'php', run: 'phpGenerator', sample: 'phpSample', docs: 'phpDocs' },
-  {
-    name: 'java',
-    run: 'javaGenerator',
-    sample: 'javaSample',
-    docs: 'javaDocs',
-    options: 'javaOptions',
-  },
+  { name: 'java', run: 'javaGenerator', sample: 'javaSample', docs: 'javaDocs' },
   {
     name: 'typescript',
     run: 'typescriptGenerator',
@@ -157,7 +151,7 @@ const GENERATORS = [
   { name: 'tanstack-query', run: "tanstackQueryGenerator('react')" },
 ];
 
-for (const { name, run, sample, docs, options } of GENERATORS) {
+for (const { name, run, sample, docs } of GENERATORS) {
   const sourceDir = join(pkgRoot, 'src', 'generators', name);
   const assetDir = join(outDir, name);
   mkdirSync(assetDir, { recursive: true });
@@ -170,7 +164,7 @@ for (const { name, run, sample, docs, options } of GENERATORS) {
     const content =
       provenanceHeader(name) +
       source +
-      (file === 'index.ts' ? defaultExport(name, { run, sample, docs, options }) : '');
+      (file === 'index.ts' ? defaultExport(name, { run, sample, docs }) : '');
     const checked = ts.transpileModule(content, { reportDiagnostics: true });
     if (checked.diagnostics !== undefined && checked.diagnostics.length > 0) {
       const message = ts.flattenDiagnosticMessageText(checked.diagnostics[0].messageText, '\n');

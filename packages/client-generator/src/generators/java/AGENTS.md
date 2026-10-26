@@ -16,8 +16,10 @@ because Java puts one public class per file and names the file after it. The cla
 the model records, the enums, the union interfaces, the embedded runtime, and one typed
 method per operation. Java ≥ 17 (records, sealed interfaces, `instanceof` patterns), HTTP
 over `java.net.http.HttpClient`, JSON over the runtime's own reader/writer — zero
-dependencies. The class is in the default package unless `client.options.java.package`
-names one.
+dependencies. The package derives from the API title the way the PHP namespace does:
+lowercase words run together (`Cafe Orders API` → `package cafeordersapi;`), because a
+class in the default package cannot be imported from any named package. The generator
+takes no options; a different package is a change to `javaPackageName` in an ejected copy.
 
 ## Design decisions that must hold
 

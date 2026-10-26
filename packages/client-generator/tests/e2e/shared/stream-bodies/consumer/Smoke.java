@@ -5,6 +5,7 @@
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import streambodies.Client;
 
 public final class Smoke {
     private static final String MULTIPART =

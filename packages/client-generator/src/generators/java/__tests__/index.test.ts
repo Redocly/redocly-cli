@@ -176,25 +176,16 @@ describe('javaGenerator parity features', () => {
     expect(out).toContain('organizationId default: "unknown"');
   });
 
-  it('declares the package from client.options.java.package and rejects an invalid one', () => {
-    const out = javaGenerator({
+  it('declares a package derived from the API title, so the class can be imported', () => {
+    const out = generateJava();
+    // `Cafe Orders API`: lowercase words run together, the Java package convention.
+    expect(out).toContain('\npackage cafeordersapi;\n');
+    const sample = javaSample(JAVA_CAFE.services[0].operations[0], {
       model: JAVA_CAFE,
       outputPath: '/out/client.ts',
-      outputMode: 'single',
       emit: {},
-      options: { package: 'com.example.cafe' },
-    })[0].content;
-    expect(out).toContain('\npackage com.example.cafe;\n');
-
-    expect(() =>
-      javaGenerator({
-        model: JAVA_CAFE,
-        outputPath: '/out/client.ts',
-        outputMode: 'single',
-        emit: {},
-        options: { package: 'com.Example' },
-      })
-    ).toThrow(/"com.Example" is not a valid Java package name/);
+    });
+    expect(sample.source).toContain('import cafeordersapi.Client;');
   });
 
   it('rejects an output stem that names a schema — the schema could not nest inside the class', () => {

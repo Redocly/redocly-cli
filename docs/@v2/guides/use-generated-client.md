@@ -257,7 +257,7 @@ Each SDK gets its name as follows:
 - Python: the module name comes from the output file name.
 - Go: the package is `client`, or the value of [`goPackage`](../configuration/reference/client.md).
 - PHP: the namespace comes from the API title.
-- Java: the class and file name come from the output file name in PascalCase, for example `OpenapiClient.java` for `openapi.client.ts`; the package comes from the `package` option in `client.options.java`, or the file has none.
+- Java: the class and file name come from the output file name in PascalCase, for example `OpenapiClient.java` for `openapi.client.ts`; the package comes from the API title in lowercase, for example `redoclycafe` for `Redocly Cafe`.
 
 {% tabs %}
 {% tab label="Python" %}

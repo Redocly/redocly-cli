@@ -69,20 +69,14 @@ export function javaClassName(stem: string, model: ApiModel): string {
 }
 
 /**
- * The package clause the output declares, from `client.options.java.package`. Rewriting an
- * invalid name would hide the publisher's typo behind a package their imports don't
- * mention, so this rejects it. Absent means the default package.
+ * The package clause the output declares, derived from the API title the way the PHP
+ * generator derives its namespace: lowercase letters and digits run together, as Java
+ * package names conventionally are (`Cafe Orders API` → `cafeordersapi`). A class in the
+ * default package cannot be imported from any named package, so there is always one.
  */
-export function javaPackageName(configured: unknown): string | undefined {
-  if (configured === undefined || configured === '') return undefined;
-  const name = String(configured);
-  const segments = name.split('.');
-  if (!segments.every((segment) => /^[a-z_][a-z0-9_]*$/.test(segment) && !JAVA.has(segment))) {
-    throw new NotSupportedError(
-      `The java package "${name}" is not a valid Java package name: use lowercase segments of letters, digits, and underscores separated by dots, and avoid Java keywords.`
-    );
-  }
-  return name;
+export function javaPackageName(title: string): string {
+  const name = identifierFor(title, { style: 'pascal', reserved: JAVA }).toLowerCase();
+  return /^[a-z][a-z0-9_]*$/.test(name) ? name : `api${name.replace(/[^a-z0-9_]/g, '')}`;
 }
 
 export function methodName(op: OperationModel): string {
