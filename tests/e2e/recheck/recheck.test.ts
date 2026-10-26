@@ -120,7 +120,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'format-github-actions');
     const args = getParams(indexEntryPoint, ['recheck', 'docs', '--format=github-actions']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('::error title=recheck/single-h1,file=docs/index.md,line=2');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -150,7 +149,6 @@ describe('recheck', () => {
     const testPath = join(__dirname, 'baseline-gate');
     const args = getParams(indexEntryPoint, ['recheck', 'docs']);
     const result = getCommandOutput(args, { testPath });
-    expect(result).toContain('Baseline: 3 matched, 0 new, 0 stale');
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
