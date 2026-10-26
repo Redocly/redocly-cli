@@ -12,3 +12,5 @@ GET /menu
 base/openapi.yaml vs revision/openapi.yaml: diff processed in <test>ms
 
 ❌ Diff failed with 2 major changes.
+
+Exit code: 1

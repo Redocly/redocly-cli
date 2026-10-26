@@ -1,3 +1,5 @@
 
 The github-actions format prints to stdout only. To write a report to a file, use one of these formats: stylish, json, markdown, html, next-version.
 
+
+Exit code: 1

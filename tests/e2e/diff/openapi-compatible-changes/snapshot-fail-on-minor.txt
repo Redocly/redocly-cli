@@ -16,3 +16,5 @@ GET /menu
 base.yaml vs revision.yaml: diff processed in <test>ms
 
 ❌ Diff failed with 2 minor changes.
+
+Exit code: 1

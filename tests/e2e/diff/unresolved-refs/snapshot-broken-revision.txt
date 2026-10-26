@@ -30,3 +30,5 @@ Reference: https://redocly.com/docs/cli/rules/oas/no-unresolved-refs
 valid.yaml vs broken.yaml: diff processed in <test>ms
 
 ❌ The revision has errors, so the diff can miss breaking changes. Fix the problems above.
+
+Exit code: 1

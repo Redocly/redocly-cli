@@ -59,3 +59,5 @@ POST orderReady (webhook)
 base.yaml vs revision.yaml: diff processed in <test>ms
 
 ❌ info.version went 1.2.0 → 1.3.0, but these changes require a major bump (2.0.0).
+
+Exit code: 1

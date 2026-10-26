@@ -40,3 +40,5 @@ server staging
 base.yaml vs revision.yaml: diff processed in <test>ms
 
 ❌ Diff failed with 8 major changes.
+
+Exit code: 1

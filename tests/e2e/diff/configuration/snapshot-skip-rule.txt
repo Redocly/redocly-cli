@@ -55,3 +55,5 @@ POST orderReady (webhook)
 ./tests/e2e/diff/configuration/base.yaml vs ./tests/e2e/diff/configuration/revision.yaml: diff processed in <test>ms
 
 ❌ Diff failed with 4 major changes.
+
+Exit code: 1

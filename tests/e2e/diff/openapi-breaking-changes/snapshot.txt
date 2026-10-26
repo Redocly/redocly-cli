@@ -59,3 +59,5 @@ POST orderReady (webhook)
 base.yaml vs revision.yaml: diff processed in <test>ms
 
 ❌ Diff failed with 9 major changes.
+
+Exit code: 1
