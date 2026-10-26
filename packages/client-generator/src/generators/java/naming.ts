@@ -4,6 +4,7 @@
 
 import {
   type ApiModel,
+  casing,
   identifierFor,
   NotSupportedError,
   type OperationModel,
@@ -70,13 +71,23 @@ export function javaClassName(stem: string, model: ApiModel): string {
 
 /**
  * The package clause the output declares, derived from the API title the way the PHP
- * generator derives its namespace: lowercase letters and digits run together, as Java
- * package names conventionally are (`Cafe Orders API` → `cafeordersapi`). A class in the
- * default package cannot be imported from any named package, so there is always one.
+ * generator derives its namespace: the title's words in lowercase, run together, as Java
+ * package names are written (`Cafe Orders API` → `cafeordersapi`). A class in the default
+ * package cannot be imported from any named package, so there is always one. A name that
+ * cannot be a package as is follows Oracle's package-naming convention: a keyword gets a
+ * trailing underscore (`class_`), and so does `java`, which the JVM keeps for the JDK; a
+ * leading digit gets a leading underscore (`_3dprintingapi`).
  */
 export function javaPackageName(title: string): string {
-  const name = identifierFor(title, { style: 'pascal', reserved: JAVA }).toLowerCase();
-  return /^[a-z][a-z0-9_]*$/.test(name) ? name : `api${name.replace(/[^a-z0-9_]/g, '')}`;
+  const plain = plainPackageName(title);
+  if (plain === '') return 'api';
+  if (/^[0-9]/.test(plain)) return `_${plain}`;
+  return JAVA.has(plain) || plain === 'java' ? `${plain}_` : plain;
+}
+
+/** The title's words in lowercase, run together — the package before any convention applies. */
+export function plainPackageName(title: string): string {
+  return casing.pascal(title).toLowerCase();
 }
 
 export function methodName(op: OperationModel): string {

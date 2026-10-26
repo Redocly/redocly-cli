@@ -18,10 +18,18 @@ import {
 } from '@redocly/client-generator';
 import { JavaPrinter } from '@redocly/client-generator/printers/java';
 import { JAVA_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
+import { logger } from '@redocly/openapi-core';
 
 import { writeServers } from './client.ts';
 import { writeJavaModels } from './models.ts';
-import { JAVA, javaClassName, javaPackageName, javaString, methodIdents } from './naming.ts';
+import {
+  JAVA,
+  javaClassName,
+  javaPackageName,
+  javaString,
+  methodIdents,
+  plainPackageName,
+} from './naming.ts';
 import { paramsClassName, writeJavaMethod, writeParamsClass } from './operations.ts';
 import { writeJavaPaginationWrappers } from './pagination.ts';
 import { javaType } from './types.ts';
@@ -53,6 +61,12 @@ export const javaGenerator: Generator = ({ model, output, banner, emit, paginati
   const dateType = emit.dateType ?? 'string';
   const className = javaClassName(output.stem, model);
   const packageName = javaPackageName(model.title);
+  // A package the reader cannot see in the title would surprise the code that imports it.
+  if (packageName !== plainPackageName(model.title)) {
+    logger.warn(
+      `generate-client: the API title ${JSON.stringify(model.title)} cannot be a Java package as is, so the java SDK uses package "${packageName}" — rename the API title in the description to choose another.\n`
+    );
+  }
   const moduleRuntime = emit.runtime === 'module';
   const runtimeClass = `${className}Runtime`;
   const operations = model.services.flatMap((service) => service.operations);

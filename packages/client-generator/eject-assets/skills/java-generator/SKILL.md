@@ -19,8 +19,13 @@ method per operation. Java ≥ 17 (records, sealed interfaces, `instanceof` patt
 over `java.net.http.HttpClient`, JSON over the runtime's own reader/writer — zero
 dependencies. The package derives from the API title the way the PHP namespace does:
 lowercase words run together (`Cafe Orders API` → `package cafeordersapi;`), because a
-class in the default package cannot be imported from any named package. The generator
-takes no options; a different package is a change to `javaPackageName` in an ejected copy.
+class in the default package cannot be imported from any named package. A title that
+cannot be a package as is follows Oracle's package-naming convention — a keyword, or `java`,
+which the JVM keeps for the JDK, gets a trailing underscore (`java_`, `class_`); a leading
+digit gets a leading underscore (`_3dprintingapi`); a title with no usable letters becomes
+`api` — and the run warns with the package it used, since the reader cannot see it in the
+title. The generator takes no options; a different package is a change to
+`javaPackageName` in an ejected copy.
 
 ## Design decisions that must hold
 

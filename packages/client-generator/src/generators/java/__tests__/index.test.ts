@@ -176,10 +176,32 @@ describe('javaGenerator parity features', () => {
     expect(out).toContain('organizationId default: "unknown"');
   });
 
+  it.each([
+    ['Java', 'java_'],
+    ['Class', 'class_'],
+    ['3D Printing API', '_3dprintingapi'],
+    ['Кафе', 'api'],
+  ])('follows the Oracle package convention for the title %j and says so', (title, expected) => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const out = javaGenerator({
+      model: { ...JAVA_CAFE, title } as ApiModel,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(out).toContain(`\npackage ${expected};\n`);
+    expect(warn).toHaveBeenCalledWith(
+      `generate-client: the API title ${JSON.stringify(title)} cannot be a Java package as is, so the java SDK uses package "${expected}" — rename the API title in the description to choose another.\n`
+    );
+  });
+
   it('declares a package derived from the API title, so the class can be imported', () => {
-    const out = generateJava();
     // `Cafe Orders API`: lowercase words run together, the Java package convention.
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const out = generateJava();
     expect(out).toContain('\npackage cafeordersapi;\n');
+    // The package is the title's own words, so there is nothing to explain.
+    expect(warn).not.toHaveBeenCalled();
     const sample = javaSample(JAVA_CAFE.services[0].operations[0], {
       model: JAVA_CAFE,
       outputPath: '/out/client.ts',
