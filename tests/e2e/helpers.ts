@@ -19,8 +19,8 @@ const TEST_ENV = { NODE_ENV: 'test', NO_COLOR: 'TRUE', FORCE_COLOR: '0', REDOCLY
 
 /**
  * Run a command and return its exit status, stdout, and stderr.
- * Use `runCommand` and a file snapshot instead, because the snapshot holds the whole output.
- * Use this only when a test needs stdout or stderr alone, for example to parse the JSON on stdout.
+ * Use `getCommandOutput` and a file snapshot instead, because the snapshot holds the whole output.
+ * Use this only when a test needs stderr alone.
  */
 export function runCommandResult(
   command: string,
