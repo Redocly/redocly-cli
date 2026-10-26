@@ -109,7 +109,7 @@ describe('doc slots', () => {
     java.doc('Page', 'First.\n\nEnds */ here, under C:\\users.');
     java.comment('a\n\nb');
     expect(java.toString()).toBe(
-      '/** Order — One order. */\n/**\n * Page — First.\n *\n * Ends *&#47; here, under C:\\\\users.\n */\n// a\n//\n// b\n'
+      '/** Order — One order. */\n/**\n * Page — First.\n *\n * Ends *&#47; here, under C:\\u005cusers.\n */\n// a\n//\n// b\n'
     );
   });
 

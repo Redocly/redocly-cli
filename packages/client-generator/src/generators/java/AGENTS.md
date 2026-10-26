@@ -78,7 +78,9 @@ title. The generator takes no options; a different package is a change to
   and `Items` variants, so a later operation named like one of them moves aside too.
 - **Hand-built comments go through `printer.doc`**, never a raw `/** … */` line: a server
   description or a discriminator value may carry `*/` or `\u`, which end or break a Java
-  comment.
+  comment. `printer.doc` writes `*/` as `*&#47;` and every backslash as `\u005c`, the escape
+  of a backslash, which javac turns back into one without starting another escape — so the
+  Javadoc reads exactly as the description does.
 - **Every path parameter is its own argument, so their names share one namespace** with
   the locals the method declares itself (`body`, `params`, `op`, `query`, `url`, …). Build
   them with `uniqueIdentifiers(..., { taken: … })`: a parameter named `body` becomes
