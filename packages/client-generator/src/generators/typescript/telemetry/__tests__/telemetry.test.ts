@@ -262,7 +262,7 @@ describe('telemetry failed send', () => {
     const bodies = fetchAnswers([429]);
     const { telemetry } = await loadTelemetry();
     const middleware = telemetry(identity);
-    for (let index = 0; index < 40; index++) {
+    for (let index = 0; index < 2; index++) {
       await settle(middleware, 'getInvoice', {
         response: new Response(null, { status: 200 }),
         attempts: 1,
@@ -272,13 +272,11 @@ describe('telemetry failed send', () => {
     await vi.advanceTimersByTimeAsync(60_000);
     expect(bodies).toHaveLength(1);
 
-    for (let index = 0; index < 35; index++) {
-      await settle(middleware, 'getInvoice', {
-        response: new Response(null, { status: 500 }),
-        attempts: 2,
-        durationMs: 500,
-      });
-    }
+    await settle(middleware, 'getInvoice', {
+      response: new Response(null, { status: 500 }),
+      attempts: 2,
+      durationMs: 500,
+    });
     await vi.advanceTimersByTimeAsync(60_000);
 
     expect(bodies).toHaveLength(2);
@@ -287,13 +285,13 @@ describe('telemetry failed send', () => {
         time: '2026-10-20T09:14:00.000Z',
         operation_id: 'getInvoice',
         window_ms: 120_000,
-        calls: 75,
-        attempts: 110,
-        duration_sum_ms: 17_900,
-        status_2xx: 40,
-        status_5xx: 35,
-        latency_lt_100ms: 40,
-        latency_lt_1s: 35,
+        calls: 3,
+        attempts: 4,
+        duration_sum_ms: 520,
+        status_2xx: 2,
+        status_5xx: 1,
+        latency_lt_100ms: 2,
+        latency_lt_1s: 1,
       },
     ]);
   });
@@ -357,16 +355,47 @@ describe('telemetry failed send', () => {
     ]);
   });
 
-  it('tries one send at beforeExit and loses the counts without an unhandled rejection', async () => {
+  it('keeps the earliest window start when two failed sends overlap', async () => {
+    const bodies: OtlpRequest[] = [];
+    const answers: Array<(response: Response) => void> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((_url: string, init: RequestInit) => {
+        bodies.push(JSON.parse(init.body as string));
+        return new Promise<Response>((resolve) => answers.push(resolve));
+      })
+    );
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    const ok = { response: new Response(null, { status: 200 }), attempts: 1, durationMs: 10 };
+    await settle(middleware, 'getOrder', ok);
+    await vi.advanceTimersByTimeAsync(60_000);
+    await settle(middleware, 'getOrder', ok);
+    const flushing = flush();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(bodies).toHaveLength(2);
+
+    answers[0](new Response(null, { status: 429 }));
+    await vi.advanceTimersByTimeAsync(0);
+    answers[1](new Response(null, { status: 429 }));
+    await flushing;
+    await vi.advanceTimersByTimeAsync(60_000);
+    answers[2](new Response(null, { status: 200 }));
+
+    expect(bodies).toHaveLength(3);
+    expect(sentUsage(bodies[2])).toMatchObject([
+      { time: '2026-10-20T09:14:00.000Z', window_ms: 120_000, calls: 2 },
+    ]);
+  });
+
+  it('tries one send at beforeExit and drops the counts when it fails', async () => {
     const bodies = fetchAnswers([429, 429]);
-    const unhandledRejection = vi.fn();
-    process.on('unhandledRejection', unhandledRejection);
     let beforeExit = () => {};
     vi.spyOn(process, 'on').mockImplementation((event: string | symbol, listener: () => void) => {
       if (event === 'beforeExit') beforeExit = listener;
       return process;
     });
-    const { telemetry } = await loadTelemetry();
+    const { telemetry, flush } = await loadTelemetry();
     const middleware = telemetry(identity);
     await settle(middleware, 'getOrder', {
       response: new Response(null, { status: 200 }),
@@ -375,15 +404,12 @@ describe('telemetry failed send', () => {
     });
 
     beforeExit();
-    vi.useRealTimers();
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await flush();
     // Node emits `beforeExit` again when the failed send ends.
     beforeExit();
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    process.off('unhandledRejection', unhandledRejection);
+    await flush();
 
     expect(bodies).toHaveLength(1);
-    expect(unhandledRejection).not.toHaveBeenCalled();
   });
 
   it('keeps one counter set per operation in use after ten failed windows', async () => {

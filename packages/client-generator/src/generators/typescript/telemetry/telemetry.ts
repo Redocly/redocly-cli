@@ -136,16 +136,16 @@ export function telemetry(options: TelemetryOptions): Middleware {
     const sentWindowStart = windowStart;
     counts = new Map();
     if (telemetryDisabled()) return;
-    let failedSend: OnFailedSend | undefined;
+    let action: OnFailedSend | undefined;
     const send = Promise.resolve()
       .then(() => sink(events))
       .catch((error: unknown) => {
-        failedSend = actionForFailedSend(error);
+        action = actionForFailedSend(error);
       });
     pendingSends.add(send);
     await send;
     pendingSends.delete(send);
-    if (failedSend !== 'keep' || onFailedSend === 'drop') return;
+    if (action !== 'keep' || onFailedSend === 'drop') return;
 
     if (counts.size === 0) openWindow();
     if (sentWindowStart < windowStart) windowStart = sentWindowStart;
