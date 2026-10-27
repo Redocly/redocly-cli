@@ -88,9 +88,7 @@ export async function getPageHTML(
 ) {
   logger.info('Prerendering docs\n');
 
-  // htmlTemplate is used only here to build the page, so its local path is not published in the page.
-  const { htmlTemplate, ...pageRedocOptions } = redocOptions;
-  const pageOptions = { ...pageRedocOptions, skipBundle: true };
+  const pageOptions = { ...redocOptions, skipBundle: true };
   const prepared = await prepareApiDocs({ spec: definition, options: pageOptions });
   const app = createElement(RedoclyApiDocsStandalone, {
     items: prepared.items,
@@ -107,8 +105,8 @@ export async function getPageHTML(
 
   const customTemplate =
     templateFileName ||
-    (typeof htmlTemplate === 'string'
-      ? path.resolve(configPath ? path.dirname(configPath) : '', htmlTemplate)
+    (typeof redocOptions.htmlTemplate === 'string'
+      ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
       : undefined);
 
   const templateSource = customTemplate
