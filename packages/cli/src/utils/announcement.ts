@@ -26,8 +26,7 @@ const ANNOUNCEMENT = {
 const SHOWN_ANNOUNCEMENT_FILE = join(homedir(), '.redocly', 'announcement');
 
 export const showAnnouncement = () => {
-  // Each Docker run starts with an empty home folder, so the announcement would show every time.
-  if (SHOULD_NOT_NOTIFY || process.env.REDOCLY_ENVIRONMENT === 'docker') {
+  if (SHOULD_NOT_NOTIFY) {
     return;
   }
   try {
