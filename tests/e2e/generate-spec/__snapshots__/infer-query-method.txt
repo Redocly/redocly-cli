@@ -1,0 +1,63 @@
+openapi: 3.2.0
+info:
+  title: Generated API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+  - url: http://search.example.com
+paths:
+  /users/{userId}:
+    get:
+      operationId: get-users-userId
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+  /users:
+    query:
+      operationId: query-users
+      responses:
+        '200':
+          description: Observed response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+
+Inferred a baseline OpenAPI description from traffic: 2 operation(s).
+Done in <t>.
+
+Exit code: 0

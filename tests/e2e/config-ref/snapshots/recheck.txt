@@ -10,3 +10,5 @@
 
 ✅ No errors found!
    Completed in <time>
+
+Exit code: 0

@@ -20,3 +20,5 @@
 
 📖 Measuring readability of: docs
    Scoring 1 markdown file(s)
+
+Exit code: 0

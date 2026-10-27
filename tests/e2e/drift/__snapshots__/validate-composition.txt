@@ -82,3 +82,5 @@ Problems by type (showing first 5 of 5)
     path: /
     actual: {"channel":"email"}
 
+
+Exit code: 1

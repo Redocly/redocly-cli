@@ -14,3 +14,5 @@ line-length               ./tests/e2e/recheck/apis-discovery/openapi.yaml:6:85 L
 
 ❌ Found 1 error(s). Exiting with code 1.
    Completed in <time>
+
+Exit code: 1

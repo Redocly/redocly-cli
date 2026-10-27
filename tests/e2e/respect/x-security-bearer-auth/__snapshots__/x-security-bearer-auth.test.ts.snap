@@ -48,5 +48,6 @@ exports[`should make request with Authorization header \`Bearer ...\`, actual re
 └────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

@@ -17,3 +17,5 @@ API coverage
   schema properties  ████████░░░░░░░░░░░░   41%    16/39
   response codes     ███████████░░░░░░░░░   57%      4/7
 
+
+Exit code: 0

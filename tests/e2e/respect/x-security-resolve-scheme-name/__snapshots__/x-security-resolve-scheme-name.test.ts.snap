@@ -75,5 +75,6 @@ exports[`should resolve securitySchemes described in x-security by schemeName 1`
 └────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;
