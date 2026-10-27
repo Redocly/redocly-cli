@@ -136,16 +136,16 @@ Inferred a baseline OpenAPI description from traffic: 5 operation(s).
 Refining the description with AI provider "cursor"...
 Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.
 [1/5] Refining GET /users...
-[1/5] GET /users — refined (<t>s)
+[1/5] GET /users — refined (<test>ms)
 [2/5] Refining POST /users...
-[2/5] POST /users — refined (<t>s)
+[2/5] POST /users — refined (<test>ms)
 [3/5] Refining GET /users/{userId}...
-[3/5] GET /users/{userId} — refined (<t>s)
+[3/5] GET /users/{userId} — refined (<test>ms)
 [4/5] Refining DELETE /users/{userId}...
-[4/5] DELETE /users/{userId} — refined (<t>s)
+[4/5] DELETE /users/{userId} — refined (<test>ms)
 [5/5] Refining POST /sessions...
-[5/5] POST /sessions — refined (<t>s)
+[5/5] POST /sessions — refined (<test>ms)
 AI refinement complete: 5 of 5 operation(s) refined (cursor).
-Done in <t>.
+Done in <test>ms.
 
 Exit code: 0

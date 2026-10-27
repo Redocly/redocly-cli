@@ -7,6 +7,6 @@ Could not read API description broken.yaml: unexpected end of the stream within 
 🔧 Running 53 rule(s)...
 
    Annotations prepared: 0
-   Completed in <time>
+   Completed in <test>ms
 
 Exit code: 1

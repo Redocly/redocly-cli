@@ -1,5 +1,4 @@
 import {
-  Timer,
   type BaselineRunResult,
   type Fix,
   type LintRunReport,
@@ -11,6 +10,7 @@ import { cyan, green, yellow } from 'colorette';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -83,7 +83,7 @@ describe('printLintRun', () => {
     const code = await printLintRun(
       { status: 'completed', ...LINTED_REPORT, problems: [ERROR] },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(1);
     expect(stderr.join('')).toContain('Running 3 rule(s)');
@@ -96,7 +96,7 @@ describe('printLintRun', () => {
     const code = await printLintRun(
       { status: 'unknown-rule', message: 'no rule matches x', available: ['recheck/line-length'] },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(1);
     expect(stderr.join('')).toContain('no rule matches x');
@@ -108,13 +108,13 @@ describe('printLintRun', () => {
     const code = await printLintRun(
       { status: 'completed', ...EMPTY_REPORT },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(0);
     const printed = stderr.join('');
     expect(printed).toContain('No markdown files found in: docs');
     expect(printed).toContain('\n   Annotations prepared: 0\n');
-    expect(printed).toMatch(/ {3}Completed in \d+ms\n$/);
+    expect(printed).toMatch(/ {3}Completed in <test>ms\n$/);
     expect(printed).not.toContain('Found 0 markdown file(s)');
   });
 
@@ -123,11 +123,11 @@ describe('printLintRun', () => {
     const code = await printLintRun(
       { status: 'failed', message: 'baseline file is not valid', report: EMPTY_REPORT },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(1);
     expect(stderr.join('')).toContain('💥 Error running recheck: baseline file is not valid');
-    expect(stderr.join('')).toMatch(/ {3}Failed after \d+ms\n$/);
+    expect(stderr.join('')).toMatch(/ {3}Failed after <test>ms\n$/);
   });
 
   it('prints the applied fixes and the count of skipped fixes', async () => {
@@ -135,7 +135,7 @@ describe('printLintRun', () => {
     const code = await printLintRun(
       { status: 'completed', ...LINTED_REPORT, fixes: { applied: [FIX], skippedCount: 2 } },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(0);
     const printed = stderr.join('');
@@ -154,7 +154,7 @@ describe('printLintRun', () => {
         descriptionFixesSkipped: 2,
       },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     const printed = stderr.join('');
     const noticeAt = printed.indexOf(
@@ -174,7 +174,7 @@ describe('printLintRun', () => {
         baseline: { matched: 0, new: 0, stale: 0 },
       },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     const printed = stderr.join('');
     const suppressedAt = printed.indexOf('   1 finding(s) suppressed by the ignore file.\n');
@@ -193,7 +193,7 @@ describe('printLintRun', () => {
         unreadableFiles: ['docs/a.md', 'docs/b.md'],
       },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     const printed = stderr.join('');
     expect(printed).toContain('Warning: Could not read file docs/a.md');
@@ -206,7 +206,7 @@ describe('printLintRun', () => {
     await printLintRun(
       { status: 'completed', ...LINTED_REPORT, baseline: { matched: 2, new: 1, stale: 0 } },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     const printed = stderr.join('');
     const baselineAt = printed.indexOf('   Baseline: 2 matched, 1 new, 0 stale\n');
@@ -219,7 +219,7 @@ describe('printLintRun', () => {
     const code = await printLintRun(
       { status: 'completed', ...LINTED_REPORT, problems: [WARNING] },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(0);
     const printed = stderr.join('');
@@ -236,7 +236,7 @@ describe('printLintRun', () => {
         report: { ...LINTED_REPORT, fixes: { applied: [FIX], skippedCount: 0 } },
       },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(1);
     const printed = stderr.join('');
@@ -256,7 +256,7 @@ describe('printLintRun', () => {
         report: LINTED_REPORT,
       },
       { format: 'table' },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(1);
     const printed = stderr.join('');
@@ -278,11 +278,11 @@ describe('printLintRun', () => {
           summary: 'json',
           summaryPath: path.join(dir, 'missing', 'summary.json'),
         },
-        new Timer()
+        performance.now()
       );
       expect(code).toBe(1);
       expect(stderr.join('')).toContain('💥 Error running recheck: ENOENT');
-      expect(stderr.join('')).toMatch(/ {3}Failed after \d+ms\n$/);
+      expect(stderr.join('')).toMatch(/ {3}Failed after <test>ms\n$/);
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
@@ -294,7 +294,7 @@ describe('printLintRun', () => {
     const code = await printLintRun(
       { status: 'completed', ...LINTED_REPORT, problems },
       { format: 'sarif', maxProblems: 2 },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(1);
     const sarif = JSON.parse(stdout.join(''));
@@ -325,7 +325,7 @@ describe('printLintRun summary file', () => {
     const code = await printLintRun(
       { status: 'completed', ...LINTED_REPORT, problems: [WARNING] },
       { format: 'table', summary: 'json', summaryPath },
-      new Timer()
+      performance.now()
     );
     expect(code).toBe(0);
     const summary = JSON.parse(await fs.readFile(summaryPath, 'utf8'));
