@@ -13,7 +13,6 @@ import {
   resolveRecheckConfig,
   runLint,
   runReadability,
-  Timer,
   type LintOptions,
   type NormalizedRule,
   type Problem,
@@ -21,6 +20,7 @@ import {
 } from '@redocly/recheck';
 import { presets } from '@redocly/recheck/presets';
 import { existsSync } from 'node:fs';
+import { performance } from 'node:perf_hooks';
 
 import { getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -218,7 +218,7 @@ async function runAction(
     return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs, isIgnored }));
   }
 
-  const timer = new Timer();
+  const startedAt = performance.now();
   printLintStart(roots, embeddedInputs.length);
   const result = await runLint(roots, resolved, {
     ...toLintOptions(argv),
@@ -227,7 +227,7 @@ async function runAction(
     unreadableFiles,
     isIgnored,
   });
-  const exitCode = await printLintRun(result, toLintPresentation(argv), timer);
+  const exitCode = await printLintRun(result, toLintPresentation(argv), startedAt);
   // An API description that could not be read fails the run, even when lint found nothing.
   return failureCount > 0 && exitCode === 0 ? 1 : exitCode;
 }

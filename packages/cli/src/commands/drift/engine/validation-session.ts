@@ -198,7 +198,6 @@ export interface ValidationSessionOptions {
  * can be rendered without a database.
  */
 export class ValidationSession {
-  private readonly startedAt = Date.now();
   private readonly runId = randomUUID();
   private readonly previewLimit: number;
   private readonly rules: TrafficRule[];
@@ -373,7 +372,6 @@ export class ValidationSession {
       findingsByRule: this.counters.findingsByRule,
       problemGroupsByRule: this.problemGroupsByRule,
       totalProblemGroups: this.totalProblemGroups,
-      durationMs: Date.now() - this.startedAt,
       previewFindings: this.previewFindings,
       previewLimit: this.previewLimit,
       previewTruncated: this.totalProblemGroups > this.previewFindings.length,

@@ -1,0 +1,28 @@
+asyncapi: 3.0.0
+info: { title: Cafe kitchen, version: 1.0.0 }
+servers:
+  production: { host: kitchen.cafe.test, protocol: mqtt }
+channels:
+  orderPlaced:
+    address: orders/new
+    messages:
+      orderPlaced:
+        contentType: application/avro
+        payload:
+          type: object
+          required: [items]
+          properties:
+            orderId: { type: string }
+            items: { type: array }
+  orderReady:
+    address: orders/ready
+    messages:
+      orderReady:
+        payload: { type: object, properties: {} }
+operations:
+  onOrderPlaced:
+    action: receive
+    channel: { $ref: '#/channels/orderPlaced' }
+  sendOrderReady:
+    action: receive
+    channel: { $ref: '#/channels/orderReady' }

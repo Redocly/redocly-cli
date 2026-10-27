@@ -206,6 +206,30 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
 {% /table %}
 
+## Request data from the API description
+
+A step that calls an operation doesn't have to list its parameters or request body.
+When the step leaves them out, `respect` takes them from the OpenAPI description:
+
+- Without `parameters`, the step sends the operation's required parameters, including the ones defined on the path.
+- Without `requestBody`, the step sends a body for the first media type of the operation's request body.
+
+Each value comes from the `example` field, or from the first entry in `examples` (its `value` or, in OpenAPI 3.2, its `dataValue`).
+Without an example, `respect` generates a value from the schema.
+
+For example, if the `orderId` path parameter of `getOrderById` has the example `ord_01h1s5z6vf2mm1mz3hevnn9va7`, the following step sends `GET /orders/ord_01h1s5z6vf2mm1mz3hevnn9va7`:
+
+```yaml
+steps:
+  - stepId: get-order
+    operationId: getOrderById
+```
+
+{% admonition type="warning" %}
+A step that lists any `parameters` takes no parameters from the description.
+List every required parameter in that step.
+{% /admonition %}
+
 ## Examples
 
 - Run the tests by running the following command: `npx @redocly/cli@latest respect <your-test-file>`.

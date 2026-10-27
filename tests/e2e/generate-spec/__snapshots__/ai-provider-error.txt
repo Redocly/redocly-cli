@@ -136,6 +136,6 @@ Note: --with-ai sends samples of the recorded traffic (URLs, query strings, requ
 [5/5] Refining POST /sessions...
 [5/5] POST /sessions — kept the baseline: claude CLI exited with code 7: stub provider crashed
 AI refinement failed, falling back to the baseline description: the claude provider did not produce a usable refinement for any operation
-Done in <t>.
+Done in <test>ms.
 
 Exit code: 0
