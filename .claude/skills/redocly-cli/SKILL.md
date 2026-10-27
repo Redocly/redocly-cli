@@ -204,6 +204,11 @@ The platform builds a preview in a few minutes; `redocly project pr status` then
 
 `respect` executes an [Arazzo](https://spec.openapis.org/arazzo/latest.html) description as a test suite against a running API, asserting real responses match the description.
 Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine the steps and success criteria by hand.
+Workflow object inputs are validated after merging supplied values and environment inputs.
+Invalid inputs produce workflow-specific warnings and execution continues; defaults, coercion, and removal of additional properties still apply.
+Non-object schemas produce a warning and preserve named input mappings without validation; use an object schema to validate named inputs.
+Inputs passed by a step or action are validated when its target workflow is invoked; unused workflows do not produce input warnings.
+Input warnings do not trigger failure actions or change the exit code; request and response failures still follow normal failure handling.
 
 ## Workflow
 

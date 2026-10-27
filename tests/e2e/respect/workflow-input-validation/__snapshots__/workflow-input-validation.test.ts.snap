@@ -1,0 +1,2131 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`continues after deep-dependency input warnings through a following workflow and file 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "Following workflows don't exist: prepare-order 
+  Running required workflow for deep-dependency
+ 
+  Running required workflow for deep-dependency
+ 
+  Running required workflow for invalid-dependency
+ 
+  Running required workflow for invalid-dependency
+  Running workflow failure-continuity.arazzo.yaml / sibling 
+  Running workflow failure-continuity.arazzo.yaml / sibling 
+  Running workflow failure-continuity.arazzo.yaml / child 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ POST /orders - step child-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running workflow failure-continuity.arazzo.yaml / invalid-dependency 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / deep-dependency 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / following 
+ 
+  ✓ GET /menu - step independent 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+Following workflows don't exist: deep-dependency, following──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+ 
+  ✓ GET /menu - step prepare 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ failure-continuity.arazzo.yaml                                              │ 2          │ 2       │ -       │ -        │
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`continues after invalid-dependency input warnings through a following workflow and file 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "Following workflows don't exist: prepare-order 
+  Running required workflow for invalid-dependency
+ 
+  Running required workflow for invalid-dependency
+  Running workflow failure-continuity.arazzo.yaml / sibling 
+  Running workflow failure-continuity.arazzo.yaml / child 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ POST /orders - step child-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / invalid-dependency 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / following 
+ 
+  ✓ GET /menu - step independent 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+Following workflows don't exist: invalid-dependency, following──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+ 
+  ✓ GET /menu - step prepare 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ failure-continuity.arazzo.yaml                                              │ 2          │ 2       │ -       │ -        │
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`continues after invalid-parent input warnings through a following workflow and file 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "invalid-parent": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "Following workflows don't exist: prepare-order 
+  Running required workflow for invalid-parent
+  Running workflow failure-continuity.arazzo.yaml / sibling 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / invalid-parent 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / following 
+ 
+  ✓ GET /menu - step independent 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+Following workflows don't exist: invalid-parent, following──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+ 
+  ✓ GET /menu - step prepare 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ failure-continuity.arazzo.yaml                                              │ 2          │ 2       │ -       │ -        │
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`does not trigger failure actions for an input warning: invoke-warning 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / invoke-warning 
+ 
+  Running child workflow for the step invoke 
+  Running workflow failure-continuity.arazzo.yaml / child 
+ 
+  ✓ POST /orders - step child-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ POST /orders - step continued-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ failure-continuity.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`does not trigger failure actions for an input warning: invoke-warning-goto 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / invoke-warning-goto 
+ 
+  Running child workflow for the step invoke 
+  Running workflow failure-continuity.arazzo.yaml / child 
+ 
+  ✓ POST /orders - step child-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ POST /orders - step continued-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /menu - step recovery 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 3 passed, 3 total
+  Checks: 12 passed, 12 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ failure-continuity.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`does not warn about empty schemas or unused workflows: empty-schema 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / empty-schema 
+ 
+  ✓ GET /menu - step prepare 
+
+    Request URL: http://127.0.0.1:<port>/menu
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "endCursor": null,
+          "startCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`does not warn about empty schemas or unused workflows: prepare-order 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+ 
+  ✓ GET /menu - step prepare 
+
+    Request URL: http://127.0.0.1:<port>/menu
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "endCursor": null,
+          "startCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`honors goto after a failed response check without running intervening steps 1`] = `
+{
+  "status": 1,
+  "stderr": "Invalid inputs for workflow "failing-child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+ Tests exited with error 
+
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / invoke-goto 
+ 
+  Running child workflow for the step invoke 
+  Running workflow failure-continuity.arazzo.yaml / failing-child 
+ 
+  ✗ POST /orders - step failed-order 
+    ✗ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Running failure action recover for the step invoke 
+ 
+  ✓ GET /menu - step recovery 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+
+  Failed tests info:
+
+  Workflow name: invoke-goto
+ 
+    stepId - failed-order 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 400"}
+       
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 7 passed, 1 failed, 8 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x failure-continuity.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`isolates actual dependency failures and still executes a following workflow and file 1`] = `
+{
+  "status": 1,
+  "stderr": "Invalid inputs for workflow "failing-child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+ Tests exited with error 
+
+",
+  "stdout": "Following workflows don't exist: prepare-order 
+  Running required workflow for failed-dependency
+ 
+  Running required workflow for failed-dependency
+  Running workflow failure-continuity.arazzo.yaml / sibling 
+  Running workflow failure-continuity.arazzo.yaml / failing-child 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✗ POST /orders - step failed-order 
+    ✗ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / failed-dependency 
+ 
+  ✗ dependsOn 
+    ✗ unexpected error
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / following 
+ 
+  ✓ GET /menu - step independent 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: failed-dependency
+ 
+    stepId - dependsOn 
+    ✗ unexpected error 
+    Reason: Dependent workflows of workflow failed-dependency have failed steps: failing-child. 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 4 passed, 1 failed, 5 total
+  Time: <test>ms 
+ 
+Following workflows don't exist: failed-dependency, following──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+ 
+  ✓ GET /menu - step prepare 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x failure-continuity.arazzo.yaml                                              │ 2          │ 1       │ 1       │ -        │
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`maps valid inputs after a warning and leaves unused workflows unbound 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "create-order": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`maps valid inputs after a warning and leaves unused workflows unbound 2`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 2
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`prepares and executes valid nested dependencies with their mapped inputs 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": " 
+  Running required workflow for valid-nested
+ 
+  Running required workflow for valid-middle
+  Running workflow failure-continuity.arazzo.yaml / sibling 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running workflow failure-continuity.arazzo.yaml / valid-middle 
+ 
+  ✓ POST /orders - step mapped-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / valid-nested 
+ 
+  ✓ GET /menu - step finish 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ failure-continuity.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`reports a circular dependency without starting its operation requests 1`] = `
+{
+  "status": 1,
+  "stderr": " Tests exited with error 
+
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / circular-dependency 
+ 
+  ✗ dependsOn 
+    ✗ unexpected error
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / following 
+ 
+  ✓ GET /menu - step independent 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: circular-dependency
+ 
+    stepId - dependsOn 
+    ✗ unexpected error 
+    Reason: Circular dependsOn dependency for workflow circular-dependency. 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 4 passed, 1 failed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x failure-continuity.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`returns an actual failed child result and honors end: invoke-end 1`] = `
+{
+  "status": 1,
+  "stderr": "Invalid inputs for workflow "failing-child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+ Tests exited with error 
+
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / invoke-end 
+ 
+  Running child workflow for the step invoke 
+  Running workflow failure-continuity.arazzo.yaml / failing-child 
+ 
+  ✗ POST /orders - step failed-order 
+    ✗ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+
+  Failed tests info:
+
+  Workflow name: invoke-end
+ 
+    stepId - failed-order 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 400"}
+       
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 failed, 1 total
+  Checks: 3 passed, 1 failed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x failure-continuity.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`returns an actual failed child result and honors end: invoke-invalid-dependency 1`] = `
+{
+  "status": 1,
+  "stderr": "Invalid inputs for workflow "failing-child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+ Tests exited with error 
+
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / invoke-invalid-dependency 
+ 
+  Running child workflow for the step invoke 
+ 
+  Running required workflow for failed-dependency
+ 
+  Running required workflow for failed-dependency
+  Running workflow failure-continuity.arazzo.yaml / sibling 
+  Running workflow failure-continuity.arazzo.yaml / failing-child 
+ 
+  ✓ POST /orders - step unexpected 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✗ POST /orders - step failed-order 
+    ✗ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running workflow failure-continuity.arazzo.yaml / failed-dependency 
+ 
+  ✗ dependsOn 
+    ✗ unexpected error
+ 
+
+  Failed tests info:
+
+  Workflow name: invoke-invalid-dependency
+ 
+    stepId - dependsOn 
+    ✗ unexpected error 
+    Reason: Dependent workflows of workflow failed-dependency have failed steps: failing-child. 
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 failed, 1 total
+  Checks: 1 failed, 1 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x failure-continuity.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`runs valid dependencies before the selected workflow with mapped inputs 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": " 
+  Running required workflow for with-dependency
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+ 
+  ✓ GET /menu - step prepare 
+
+    Request URL: http://127.0.0.1:<port>/menu
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "endCursor": null,
+          "startCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / with-dependency 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`uses workflow failure actions to invoke a child again with corrected inputs 1`] = `
+{
+  "status": 1,
+  "stderr": "Invalid inputs for workflow "recoverable-child": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+ Tests exited with error 
+
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow failure-continuity.arazzo.yaml / workflow-failure-action 
+ 
+  Running child workflow for the step invoke 
+  Running workflow failure-continuity.arazzo.yaml / recoverable-child 
+ 
+  ✗ POST /orders - step recoverable-order 
+    ✓ success criteria check - $statusCode == 201
+    ✗ success criteria check - $inputs.customerName == "Recovered Guest"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Running failure action recover-with-valid-inputs for the step invoke 
+  Running workflow failure-continuity.arazzo.yaml / recoverable-child 
+ 
+  ✓ POST /orders - step recoverable-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $inputs.customerName == "Recovered Guest"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+
+  Failed tests info:
+
+  Workflow name: workflow-failure-action
+ 
+    stepId - recoverable-order 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$inputs.customerName == \\"Recovered Guest\\""}
+       
+  Summary for failure-continuity.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 9 passed, 1 failed, 10 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                               │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x failure-continuity.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`validates environment inputs after merging their values and defaults 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / environment-order 
+ 
+  ✓ POST /orders - step write-environment-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1,
+            "comment": "local"
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`validates inputs passed at workflow invocation 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / invoke-order 
+ 
+  Running child workflow for the step invoke 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: runtime-key
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about a non-object schema and preserves named mappings: array-order 1`] = `
+{
+  "status": 0,
+  "stderr": "Workflow "array-order" has a non-object input schema. Named inputs are preserved without validation. Use an object schema to validate named inputs.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / array-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 2
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about a non-object schema and preserves named mappings: scalar-order 1`] = `
+{
+  "status": 0,
+  "stderr": "Workflow "scalar-order" has a non-object input schema. Named inputs are preserved without validation. Use an object schema to validate named inputs.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / scalar-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 2
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: create-order, {"callerKey":"synthetic-input-secret-sentinel","customerName":""} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "create-order": must NOT have fewer than 1 characters (#/properties/customerName/minLength). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: create-order, {"callerKey":"synthetic-input-secret-sentinel","customerName":{}} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "create-order": must be string (#/properties/customerName/type). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": {},
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: create-order, {"callerKey":"synthetic-input-secret-sentinel"} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "create-order": must have required property 'customerName' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: create-order, {"customerName":"Cafe Guest"} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "create-order": must have required property 'callerKey' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: undefined
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: environment-order, {"customerName":"Cafe Guest"} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "environment-order": must NOT have fewer than 3 characters (#/properties/env/properties/CAFE_CALLER_KEY/minLength). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / environment-order 
+ 
+  ✓ POST /orders - step write-environment-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: 
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1,
+            "comment": "local"
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: invoke-order, {"orderName":""} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "create-order": must NOT have fewer than 1 characters (#/properties/customerName/minLength). Provide values that match the workflow input schema.
+",
+  "stdout": "──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / invoke-order 
+ 
+  Running child workflow for the step invoke 
+  Running workflow workflow-input-validation.arazzo.yaml / create-order 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: runtime-key
+    Request Body:
+      {
+        "customerName": "",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: with-dependency, {"callerKey":"synthetic-input-secret-sentinel","customerName":""} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "with-dependency": must NOT have fewer than 1 characters (#/properties/customerName/minLength). Provide values that match the workflow input schema.
+",
+  "stdout": " 
+  Running required workflow for with-dependency
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+ 
+  ✓ GET /menu - step prepare 
+
+    Request URL: http://127.0.0.1:<port>/menu
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "endCursor": null,
+          "startCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / with-dependency 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
+
+exports[`warns about invalid inputs and executes requests: with-invalid-dependency, {"callerKey":"synthetic-input-secret-sentinel","customerName":"Cafe Guest"} 1`] = `
+{
+  "status": 0,
+  "stderr": "Invalid inputs for workflow "unbound-order": must have required property 'approval' (#/required). Provide values that match the workflow input schema.
+",
+  "stdout": " 
+  Running required workflow for with-invalid-dependency
+ 
+  Running required workflow for with-invalid-dependency
+  Running workflow workflow-input-validation.arazzo.yaml / prepare-order 
+  Running workflow workflow-input-validation.arazzo.yaml / unbound-order 
+ 
+  ✓ GET /menu - step prepare 
+
+    Request URL: http://127.0.0.1:<port>/menu
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "endCursor": null,
+          "startCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ GET /menu - step prepare 
+
+    Request URL: http://127.0.0.1:<port>/menu
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "endCursor": null,
+          "startCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-input-validation.arazzo.yaml / with-invalid-dependency 
+ 
+  ✓ POST /orders - step write-order 
+
+    Request URL: http://127.0.0.1:<port>/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      x-caller-key: ********
+    Request Body:
+      {
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ]
+      } 
+ 
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "id": "ord_01h1s5z6vf2mm1mz3hevnn9va7",
+        "customerName": "Cafe Guest",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 1
+          }
+        ],
+        "status": "placed"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $response.body#/status == "placed"
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for workflow-input-validation.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-input-validation.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  JSON logs saved in <outputDir>/results.json 
+ 
+",
+}
+`;
