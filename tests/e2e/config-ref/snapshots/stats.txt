@@ -14,3 +14,5 @@ Document: ./tests/e2e/config-ref/project/config/apis/cafe.yaml stats:
 
 ./tests/e2e/config-ref/project/config/apis/cafe.yaml: stats processed in <test>ms
 
+
+Exit code: 0
