@@ -12,12 +12,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 const testPath = join(__dirname, 'project');
 
-// recheck prints wall-clock timings; they are not stable across runs.
 function run(args: string[]) {
-  return cleanupOutput(getCommandOutput(getParams(indexEntryPoint, args), { testPath })).replace(
-    /Completed in \d+(\.\d+)?m?s/g,
-    'Completed in <time>'
-  );
+  return cleanupOutput(getCommandOutput(getParams(indexEntryPoint, args), { testPath }));
 }
 
 function generated(path: string) {
