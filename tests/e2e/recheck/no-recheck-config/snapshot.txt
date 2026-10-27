@@ -1,2 +1,4 @@
 
 No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.
+
+Exit code: 0

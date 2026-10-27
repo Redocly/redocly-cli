@@ -15,3 +15,5 @@ line-length               ./tests/e2e/recheck/api-descriptions/openapi.yaml:7:85
 
 ❌ Found 1 error(s). Exiting with code 1.
    Completed in <time>
+
+Exit code: 1

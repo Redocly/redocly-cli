@@ -164,5 +164,6 @@ exports[`should quit an infinite loop on REDOCLY_CLI_RESPECT_MAX_STEPS 1`] = `
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

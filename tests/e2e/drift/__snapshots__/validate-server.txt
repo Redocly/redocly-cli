@@ -20,3 +20,5 @@ Problems by type (showing first 1 of 1)
 
     http://localhost:9000/unknown-endpoint
 
+
+Exit code: 1

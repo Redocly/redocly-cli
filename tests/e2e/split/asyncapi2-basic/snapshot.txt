@@ -33,3 +33,5 @@ channels:
 
 asyncapi.yaml: split processed in <test>ms
 
+
+Exit code: 0

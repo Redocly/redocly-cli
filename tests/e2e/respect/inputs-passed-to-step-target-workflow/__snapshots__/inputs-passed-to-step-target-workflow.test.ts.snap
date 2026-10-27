@@ -60,5 +60,6 @@ exports[`should pass inputs to step target workflow with additional input parame
 └───────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

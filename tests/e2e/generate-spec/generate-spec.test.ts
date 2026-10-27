@@ -1,39 +1,21 @@
-import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cleanupOutput } from '../helpers.js';
+import { cleanupOutput, getCommandOutput, getParams } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 const fixtures = join(__dirname, 'fixtures');
 const snapshots = join(__dirname, '__snapshots__');
 
-function runGenerateSpec(
-  args: string[],
-  env: Record<string, string> = {}
-): { output: string; code: number | null } {
-  const result = spawnSync('node', [indexEntryPoint, 'generate-spec', ...args], {
-    encoding: 'utf-8',
-    stdio: 'pipe',
-    cwd: fixtures,
-    env: { ...process.env, NODE_ENV: 'test', NO_COLOR: 'TRUE', FORCE_COLOR: '0', ...env },
-  });
-
-  if (result.error) {
-    throw new Error(`Command execution failed: ${result.error.message}`);
-  }
-
-  const out = result.stdout?.toString() ?? '';
-  const err = result.stderr?.toString() ?? '';
-  // Per-operation progress lines and the closing summary report wall-clock
-  // durations; normalize them.
-  const output = cleanupOutput(`${out}\n${err}`)
+// Per-operation progress lines and the closing summary report wall-clock
+// durations; normalize them.
+function cleanupGenerateSpec(output: string): string {
+  return cleanupOutput(output)
     .replace(/\(\d+s\)/g, '(<t>s)')
     .replace(/Done in (?:\d+m )?\d+s\./g, 'Done in <t>.');
-  return { output, code: result.status };
 }
 
 // Prepend a stub-provider bin directory to PATH so the spawned "claude" CLI
@@ -44,67 +26,87 @@ function withStub(binDir: string): Record<string, string> {
 
 describe('generate-spec - deterministic inference', () => {
   test('infers an OpenAPI description from NDJSON traffic', async () => {
-    const { output, code } = runGenerateSpec(['traffic.ndjson']);
-    expect(code).toBe(0);
+    const args = getParams(indexEntryPoint, ['generate-spec', 'traffic.ndjson']);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-ndjson.txt'));
   });
 
   test('templatizes identifier-like path segments into path parameters', async () => {
-    const { output, code } = runGenerateSpec(['traffic-ids.ndjson']);
-    expect(code).toBe(0);
+    const args = getParams(indexEntryPoint, ['generate-spec', 'traffic-ids.ndjson']);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-id-templates.txt'));
   });
 
   test('infers an OpenAPI description from HAR traffic', async () => {
-    const { output, code } = runGenerateSpec(['traffic.har', '--traffic-format', 'har']);
-    expect(code).toBe(0);
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.har',
+      '--traffic-format',
+      'har',
+    ]);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-har.txt'));
   });
 
   test('describes alternative body shapes with oneOf and nullable type unions', async () => {
-    const { output, code } = runGenerateSpec(['traffic-polymorphic.ndjson']);
-    expect(code).toBe(0);
+    const args = getParams(indexEntryPoint, ['generate-spec', 'traffic-polymorphic.ndjson']);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-polymorphic.txt'));
   });
 
   test('scopes traffic to --server and rebases paths onto it', async () => {
-    const { output, code } = runGenerateSpec([
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
       'traffic-servers.ndjson',
       '--server',
       'http://api.example.com/v2',
     ]);
-    expect(code).toBe(0);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-server-scoped.txt'));
   });
 
-  test('uses --title for the generated description', () => {
-    const { output, code } = runGenerateSpec(['traffic.ndjson', '--title', 'Custom Users API']);
-    expect(code).toBe(0);
-    expect(output).toContain('title: Custom Users API');
+  test('uses --title for the generated description', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.ndjson',
+      '--title',
+      'Custom Users API',
+    ]);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-title.txt'));
   });
 
-  test('generates OpenAPI 3.1 with --openapi-version and skips the QUERY method', () => {
-    const { output, code } = runGenerateSpec(['traffic-query.ndjson', '--openapi-version', '3.1']);
-    expect(code).toBe(0);
-    expect(output).toContain('openapi: 3.1.0');
-    expect(output).toContain('operationId: get-users-userId');
-    expect(output).not.toContain('query:');
-    expect(output).not.toContain('http://search.example.com');
-
-    const latest = runGenerateSpec(['traffic-query.ndjson']);
-    expect(latest.output).toContain('openapi: 3.2.0');
-    expect(latest.output).toContain('operationId: query-users');
-    expect(latest.output).toContain('http://search.example.com');
+  test('generates OpenAPI 3.1 with --openapi-version and skips the QUERY method', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic-query.ndjson',
+      '--openapi-version',
+      '3.1',
+    ]);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-openapi-3-1.txt'));
   });
 
-  test('writes the description to a file with --output', () => {
+  test('describes the QUERY method in OpenAPI 3.2', async () => {
+    const args = getParams(indexEntryPoint, ['generate-spec', 'traffic-query.ndjson']);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-query-method.txt'));
+  });
+
+  test('writes the description to a file with --output', async () => {
     const outputDir = mkdtempSync(join(tmpdir(), 'generate-spec-'));
     const outputFile = join(outputDir, 'nested', 'openapi.yaml');
     try {
-      const { output, code } = runGenerateSpec(['traffic.ndjson', '--output', outputFile]);
-      expect(code).toBe(0);
-      expect(output).toContain('Written to:');
-      expect(output).not.toContain('openapi: 3.2.0');
+      const args = getParams(indexEntryPoint, [
+        'generate-spec',
+        'traffic.ndjson',
+        '--output',
+        outputFile,
+      ]);
+      const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+      await expect(output.replaceAll(outputDir, '<output-dir>')).toMatchFileSnapshot(
+        join(snapshots, 'output-file.txt')
+      );
       const document = readFileSync(outputFile, 'utf-8');
       expect(document).toContain('openapi: 3.2.0');
       expect(document).toContain('/users/{userId}');
@@ -115,29 +117,32 @@ describe('generate-spec - deterministic inference', () => {
 });
 
 describe('generate-spec - error handling', () => {
-  test('fails when no traffic matches the --server', () => {
-    const { output, code } = runGenerateSpec([
+  test('fails when no traffic matches the --server', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
       'traffic.ndjson',
       '--server',
       'http://unrelated.example.com',
     ]);
-    expect(code).toBe(1);
-    expect(output).toContain('No HTTP exchanges in the traffic matched the server');
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'error-server-mismatch.txt'));
   });
 
-  test('fails when --openapi-version 3.1 skips every QUERY exchange', () => {
-    const { output, code } = runGenerateSpec([
+  test('fails when --openapi-version 3.1 skips every QUERY exchange', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
       'traffic-query-only.ndjson',
       '--openapi-version',
       '3.1',
     ]);
-    expect(code).toBe(1);
-    expect(output).toContain('All observed HTTP exchanges use the QUERY method');
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'error-query-only.txt'));
   });
 
-  test('fails when the traffic path does not exist', () => {
-    const { code } = runGenerateSpec(['does-not-exist.ndjson']);
-    expect(code).toBe(1);
+  test('fails when the traffic path does not exist', async () => {
+    const args = getParams(indexEntryPoint, ['generate-spec', 'does-not-exist.ndjson']);
+    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'error-missing-traffic.txt'));
   });
 });
 
@@ -145,83 +150,115 @@ describe('generate-spec - AI refinement', () => {
   test('refines every operation with the provider fragments', async () => {
     // Sequential refinement keeps the per-operation progress lines in a
     // deterministic order for the snapshot.
-    const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude', '--ai-concurrency', '1'],
-      withStub('bin-ok')
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.ndjson',
+      '--with-ai',
+      '--ai-provider',
+      'claude',
+      '--ai-concurrency',
+      '1',
+    ]);
+    const output = cleanupGenerateSpec(
+      getCommandOutput(args, { testPath: fixtures, env: withStub('bin-ok') })
     );
-    expect(code).toBe(0);
-    expect(output).toContain('AI refinement complete: 5 of 5 operation(s) refined (claude).');
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined.txt'));
   });
 
   test('accepts refined operations that use oneOf, allOf and discriminator', async () => {
-    const { output, code } = runGenerateSpec(
-      [
-        'traffic-polymorphic.ndjson',
-        '--with-ai',
-        '--ai-provider',
-        'claude',
-        '--ai-concurrency',
-        '1',
-      ],
-      withStub('bin-ok-polymorphic')
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic-polymorphic.ndjson',
+      '--with-ai',
+      '--ai-provider',
+      'claude',
+      '--ai-concurrency',
+      '1',
+    ]);
+    const output = cleanupGenerateSpec(
+      getCommandOutput(args, { testPath: fixtures, env: withStub('bin-ok-polymorphic') })
     );
-    expect(code).toBe(0);
-    expect(output).toContain('AI refinement complete: 2 of 2 operation(s) refined (claude).');
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined-polymorphic.txt'));
   });
 
-  test('runs the Cursor CLI when the cursor provider is selected', () => {
-    const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'cursor', '--ai-concurrency', '1'],
-      withStub('bin-ok')
+  test('runs the Cursor CLI when the cursor provider is selected', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.ndjson',
+      '--with-ai',
+      '--ai-provider',
+      'cursor',
+      '--ai-concurrency',
+      '1',
+    ]);
+    const output = cleanupGenerateSpec(
+      getCommandOutput(args, { testPath: fixtures, env: withStub('bin-ok') })
     );
-    expect(code).toBe(0);
-    expect(output).toContain('AI refinement complete: 5 of 5 operation(s) refined (cursor).');
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined-cursor.txt'));
   });
 
-  test('keeps the baseline for operations the provider does not refine', () => {
-    const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude', '--ai-concurrency', '1'],
-      withStub('bin-partial')
+  test('keeps the baseline for operations the provider does not refine', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.ndjson',
+      '--with-ai',
+      '--ai-provider',
+      'claude',
+      '--ai-concurrency',
+      '1',
+    ]);
+    const output = cleanupGenerateSpec(
+      getCommandOutput(args, { testPath: fixtures, env: withStub('bin-partial') })
     );
-    expect(code).toBe(0);
-    expect(output).toContain('[1/5] GET /users — refined');
-    expect(output).toContain('kept the baseline');
-    expect(output).toContain('AI refinement complete: 1 of 5 operation(s) refined (claude).');
-    expect(output).toContain('operationId: post-sessions');
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-partial.txt'));
   });
 
-  test('falls back to the baseline when the provider returns a non-YAML answer', () => {
-    const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
-      withStub('bin-bad')
+  test('falls back to the baseline when the provider returns a non-YAML answer', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.ndjson',
+      '--with-ai',
+      '--ai-provider',
+      'claude',
+      '--ai-concurrency',
+      '1',
+    ]);
+    const output = cleanupGenerateSpec(
+      getCommandOutput(args, { testPath: fixtures, env: withStub('bin-bad') })
     );
-    expect(code).toBe(0);
-    expect(output).toContain('AI refinement failed, falling back to the baseline description');
-    expect(output).toContain('did not produce a usable refinement for any operation');
-    expect(output).toContain('openapi: 3.2.0');
-    expect(output).toContain('/users/{userId}');
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-bad-answer.txt'));
   });
 
-  test('falls back to the baseline when the provider CLI exits with an error', () => {
-    const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
-      withStub('bin-fail')
+  test('falls back to the baseline when the provider CLI exits with an error', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.ndjson',
+      '--with-ai',
+      '--ai-provider',
+      'claude',
+      '--ai-concurrency',
+      '1',
+    ]);
+    const output = cleanupGenerateSpec(
+      getCommandOutput(args, { testPath: fixtures, env: withStub('bin-fail') })
     );
-    expect(code).toBe(0);
-    expect(output).toContain('claude CLI exited with code 7');
-    expect(output).toContain('openapi: 3.2.0');
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-provider-error.txt'));
   });
 
-  test('falls back to the baseline when the provider CLI is not installed', () => {
-    const { output, code } = runGenerateSpec(
-      ['traffic.ndjson', '--with-ai', '--ai-provider', 'claude'],
-      // Restrict PATH to the node binary directory so "claude" cannot resolve.
-      { PATH: dirname(process.execPath) }
+  test('falls back to the baseline when the provider CLI is not installed', async () => {
+    const args = getParams(indexEntryPoint, [
+      'generate-spec',
+      'traffic.ndjson',
+      '--with-ai',
+      '--ai-provider',
+      'claude',
+      '--ai-concurrency',
+      '1',
+    ]);
+    // Restrict PATH to the node binary directory so "claude" cannot resolve.
+    const output = cleanupGenerateSpec(
+      getCommandOutput(args, { testPath: fixtures, env: { PATH: dirname(process.execPath) } })
     );
-    expect(code).toBe(0);
-    expect(output).toContain('Could not find the "claude" CLI on PATH');
-    expect(output).toContain('openapi: 3.2.0');
+    await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-provider-missing.txt'));
   });
 });
