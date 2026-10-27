@@ -1,0 +1,38 @@
+arazzo: 1.0.1
+info:
+  title: Auto-inherit request data
+  description: >-
+    Steps without parameters or a request body take them from the examples in the description.
+    The steps send no token and check only the request, so no data is created.
+    Each case is its own workflow, so a failing case does not stop the others.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: request-body-from-example
+    steps:
+      - stepId: add-order-auto-inherit
+        description: Takes the request body from the `dataValue` of the first example.
+        operationId: createOrder
+        successCriteria:
+          - condition: $statusCode == 401
+          - condition: $request.header.content-type == 'application/json'
+          - condition: $request.body#/customerName == 'Mary Ann'
+  - workflowId: operation-level-parameter-from-example
+    steps:
+      - stepId: get-order-by-id-auto-inherit
+        description: Takes an operation-level path parameter from its example.
+        operationId: getOrderById
+        successCriteria:
+          - condition: $request.path.orderId == 'ord_01h1s5z6vf2mm1mz3hevnn9va7'
+  - workflowId: path-level-parameter-from-example
+    steps:
+      - stepId: get-menu-item-photo-auto-inherit
+        description: Takes a path-level path parameter from its example.
+        operationId: getMenuItemPhoto
+        successCriteria:
+          - condition: $request.path.menuItemId == 'prd_01khr487f7qm7p44xn427m43vb'
