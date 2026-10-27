@@ -52,7 +52,7 @@ npm run unit:types
 # Run e2e tests (everything under tests/e2e)
 npm run e2e
 
-# Run the client generator tests in packages/client-generator/tests/e2e (they compile real Python/Go/PHP/TypeScript output)
+# Run the client generator tests in packages/client-generator/tests/e2e (they compile real Python/Go/PHP/Java/TypeScript output)
 npm run client-generators
 
 # Run the full test suite (compile + typecheck + unit + type tests + e2e)
@@ -113,7 +113,7 @@ Naming and reuse:
 
 - **Compile before testing.** Unit tests import from `lib/` (compiled output), not `src/` — run `npm run compile` after every change.
   Do not work around the compile step with aliases, `tsconfig` changes, or a separate test suite for one package.
-  The `client-generators` projects are the one exception, because they need Go, PHP, and Python.
+  The `client-generators` projects are the one exception, because they need Go, PHP, Java, and Python.
 - Cover the feature or fix with one focused test, not a pile of redundant ones.
   A single clear test that exercises the behavior is enough.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
@@ -127,7 +127,7 @@ Naming and reuse:
   Remove it before running them.
 - Run the full suite (`npm test`) before you open a pull request.
 - Run `npm run client-generators` when you touch client generation.
-  It needs Go, PHP, and Python; see [`CONTRIBUTING.md`](./CONTRIBUTING.md#client-generator-tests).
+  It needs Go, PHP, Java, and Python; see [`CONTRIBUTING.md`](./CONTRIBUTING.md#client-generator-tests).
 
 The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).

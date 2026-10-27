@@ -33,6 +33,7 @@ export const EJECTABLE = new Set([
   'python',
   'go',
   'php',
+  'java',
   'typescript',
   'zod',
   'mock',

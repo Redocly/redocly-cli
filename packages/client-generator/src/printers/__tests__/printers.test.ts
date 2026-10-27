@@ -1,9 +1,10 @@
 import { GoPrinter, exported } from '../go.js';
+import { JavaPrinter } from '../java.js';
 import { PhpPrinter } from '../php.js';
 import { PythonPrinter } from '../python.js';
 import { TypeScriptPrinter } from '../typescript.js';
 
-// The check that the abstraction is real: four printers fill the same slots, each with
+// The check that the abstraction is real: five printers fill the same slots, each with
 // its language's answer — not a bag of leftovers (ADR-0021).
 
 describe('naming slots', () => {
@@ -35,6 +36,14 @@ describe('naming slots', () => {
     expect(ts.key('not-valid')).toBe('"not-valid"');
     expect(ts.identifiers(['a-b', 'a.b'])).toEqual(['a_b', 'a_b_2']);
   });
+
+  it('java: pascal types, camel members, keywords and contextual keywords suffixed', () => {
+    const java = new JavaPrinter();
+    expect(java.typeName('order-item')).toBe('OrderItem');
+    expect(java.memberName('class')).toBe('class_');
+    expect(java.identifier('record')).toBe('record_');
+    expect(java.identifiers(['id', 'id'], ['body'])).toEqual(['id', 'id2']);
+  });
 });
 
 describe('string slots — each language a real policy, not JSON by coincidence', () => {
@@ -62,6 +71,16 @@ describe('string slots — each language a real policy, not JSON by coincidence'
   it('php: quotes and backslashes, single-quoted', () => {
     expect(new PhpPrinter().string("it's \\")).toBe("'it\\'s \\\\'");
   });
+
+  it('java: controls as \\uXXXX, non-ASCII raw, a lone surrogate becomes U+FFFD', () => {
+    const java = new JavaPrinter();
+    expect(java.string(HOSTILE)).toBe('"it\'s \\"x\\"\\n\\t\\\\ €😀"');
+    expect(java.string('\u0000\r')).toBe('"\\u0000\\r"');
+    expect(java.string('\ud83d')).toBe('"\\uFFFD"');
+    expect(java.literal({ id: 1, tags: ['a'], ok: true, rate: 0.5, none: null })).toBe(
+      'java.util.Map.of("id", 1L, "tags", java.util.List.of("a"), "ok", true, "rate", 0.5, "none", null)'
+    );
+  });
 });
 
 describe('doc slots', () => {
@@ -82,6 +101,16 @@ describe('doc slots', () => {
     const php = new PhpPrinter();
     php.doc('items', 'The items.', ['@return array<int, Order>']);
     expect(php.toString()).toContain(' * @return array<int, Order>');
+  });
+
+  it('java: a one-line Javadoc, a multi-line one, and comments javac cannot misread', () => {
+    const java = new JavaPrinter();
+    java.doc('Order', 'One order.');
+    java.doc('Page', 'First.\n\nEnds */ here, under C:\\users.');
+    java.comment('a\n\nb');
+    expect(java.toString()).toBe(
+      '/** Order — One order. */\n/**\n * Page — First.\n *\n * Ends *&#47; here, under C:\\u005cusers.\n */\n// a\n//\n// b\n'
+    );
   });
 
   it('typescript: a star-slash in spec text cannot terminate the comment', () => {

@@ -6,8 +6,7 @@
 ┃ Traffic format: auto (auto-detect)
 ┃ Exchanges: total=6 documented=6 undocumented=0
 ┃ Findings: total=5 error=5 warning=0 info=0
-┃ Problems: total=5
-┗ Duration: <ms>ms
+┗ Problems: total=5
 
 Types (1)
   • schema-consistency: 5 problems / 5 findings
@@ -81,6 +80,9 @@ Problems by type (showing first 5 of 5)
     schema: Request schema mismatch at "root": must match exactly one schema in oneOf
     path: /
     actual: {"channel":"email"}
+
+
+composition-openapi.yaml: drift processed in <test>ms
 
 
 Exit code: 1

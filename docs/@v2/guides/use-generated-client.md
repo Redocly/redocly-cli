@@ -12,7 +12,7 @@ There are two kinds of generators:
 
 - Add-on generators (`zod`, `tanstack-query`, `swr`, `mock`, `transformers`, `cli`) write a standalone module next to the TypeScript client.
   The client never imports this module, so an add-on never adds a dependency to the client.
-- [Language SDK](#language-sdks) generators (`python`, `go`, `php`) write a full client in another language.
+- [Language SDK](#language-sdks) generators (`python`, `go`, `php`, `java`) write a full client in another language.
   They do not need the `typescript` generator.
 
 If the selected generators are not compatible, the command stops and tells you why.
@@ -29,6 +29,7 @@ If the selected generators are not compatible, the command stops and tells you w
 | `python`         | `<output>.py`: a Python SDK in one file. The file name is in snake case.                                                                                                                                                                                  | `httpx` (+ `pydantic` for `models: pydantic`)            |
 | `go`             | `<output>.go`: a Go SDK in one file.                                                                                                                                                                                                                      | none                                                     |
 | `php`            | `<output>.php`: a PHP SDK in one file.                                                                                                                                                                                                                    | the `curl` extension                                     |
+| `java`           | `<Output>.java`: a Java SDK in one file, named after its class.                                                                                                                                                                                           | Java 17 or newer                                         |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator typescript --generator zod --generator mock
@@ -36,7 +37,7 @@ redocly generate-client openapi.yaml --output src/client.ts --generator typescri
 
 Some generators need specific options:
 
-- `tanstack-query`, `swr`, `cli`, `go`, and `php` work only with `--error-mode throw` (the default).
+- `tanstack-query`, `swr`, `cli`, `go`, `php`, and `java` work only with `--error-mode throw` (the default).
 - `transformers` works only with `--date-type Date`.
 
 For sample output, see the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/mock) examples.
@@ -230,11 +231,11 @@ cafe listOrders --limit 3     # CAFE_TOKEN from the environment
 The help output follows the name you install, because the CLI reads it from the process.
 The credential variables do not: they come from the output file name, so a renamed command never invalidates the variables your users already set.
 For a one-off run, `npx tsx src/cafe.cli.ts listOrders --limit 3` uses the same entry with no build step.
-Only the `cli` generator emits a command: the `python`, `go`, and `php` SDKs are libraries.
+Only the `cli` generator emits a command: the `python`, `go`, `php`, and `java` SDKs are libraries.
 
 ### Language SDKs
 
-The `python`, `go`, and `php` generators write a full SDK in one self-contained file.
+The `python`, `go`, `php`, and `java` generators write a full SDK in one self-contained file.
 With the [`module` runtime](../commands/generate-client.md#choose-a-runtime), the runtime goes to separate files beside the SDK.
 
 You can download, commit, and read the file like any other source file.
@@ -256,6 +257,7 @@ Each SDK gets its name as follows:
 - Python: the module name comes from the output file name.
 - Go: the package is `client`, or the value of [`goPackage`](../configuration/reference/client.md).
 - PHP: the namespace comes from the API title.
+- Java: the class and file name come from the output file name in PascalCase, for example `OpenapiClient.java` for `openapi.client.ts`; the package comes from the API title in lowercase, for example `redoclycafe` for `Redocly Cafe`, and a title that cannot be a package as is gets an underscore (`java_`, `_3dprintingapi`) with a warning.
 
 {% tabs %}
 {% tab label="Python" %}
@@ -297,6 +299,16 @@ foreach ($client->listOrdersItems(limit: 50) as $order) {
 ```
 
 {% /tab  %}
+{% tab label="Java" %}
+
+```java
+Client client = new Client(new Client.Config().auth(new Client.Auth().bearer("TOKEN")));
+for (Client.Order order : client.listOrdersItems(new Client.ListOrdersParams().limit(50L))) {
+    System.out.println(order.id());
+}
+```
+
+{% /tab  %}
 {% /tabs %}
 
 #### Pydantic models
@@ -324,7 +336,7 @@ If a member does not declare it, pydantic can select the wrong member.
 Every language gives credentials to a client instance, and the constructor is that one way.
 `createClient(OPERATIONS, { auth })` in TypeScript is the same thing as the constructors below.
 TypeScript adds `configure({ auth })` for one reason: it also exports a module-level client, whose methods the module exports by name, and `configure` is how you set up that instance.
-The Python, PHP, and Go SDKs export no module-level client, so they need no equivalent.
+The Python, PHP, Go, and Java SDKs export no module-level client, so they need no equivalent.
 
 Auth accepts a static credential, or a provider function that the client resolves for each request:
 
@@ -346,6 +358,12 @@ api := client.New(client.Config{Auth: client.Auth{
     Bearer: func() string { return "TOKEN" },
     APIKey: map[string]func() string{"SecretApiKey": func() string { return "KEY" }},
 }})
+```
+
+```java
+Client client = new Client(new Client.Config().auth(new Client.Auth().bearer("TOKEN")));
+Client client = new Client(new Client.Config().auth(new Client.Auth().bearer(() -> freshToken())));
+Client client = new Client(new Client.Config().auth(new Client.Auth().apiKey("SecretApiKey", "KEY")));
 ```
 
 Middleware follows the natural shape of each language.
@@ -385,13 +403,28 @@ api := client.New(client.Config{Middleware: []client.Middleware{{
 }}})
 ```
 
+```java
+// Java: hooks on the HttpRequest.Builder before each attempt and on the HttpResponse after it.
+Client client = new Client(new Client.Config().middleware(new Client.Middleware() {
+    @Override
+    public void onRequest(HttpRequest.Builder request) {
+        request.header("X-Trace", traceId());
+    }
+
+    @Override
+    public void onResponse(HttpResponse<InputStream> response) {
+        log.info("status {}", response.statusCode());
+    }
+}));
+```
+
 A property or parameter whose name is a reserved word gets a trailing underscore.
 The wire name does not change.
-For example, `tag.type_` in Python, `$tag->type_` in PHP, and `tag.Type_` in Go all serialize as `type`.
+For example, `tag.type_` in Python, `$tag->type_` in PHP, `tag.Type_` in Go, and `tag.class_()` in Java all serialize as the wire name.
 The same applies to method arguments: `list_tags(type_=...)`, `ListTagsParams{Type_: ...}`.
 
 OpenAPI lets one operation use the same parameter name in two locations, such as `id` in the path and `id` in the query.
-The SDKs whose methods take one argument per parameter cannot declare that name twice, so the later parameter gets a suffix: `id_2` in Python, `$id2` in PHP, `id2` in Go.
+The SDKs whose methods take one argument per parameter cannot declare that name twice, so the later parameter gets a suffix: `id_2` in Python, `$id2` in PHP, `id2` in Go and Java.
 A parameter named after an argument the method declares itself, such as `body` or `headers`, moves aside the same way.
 The wire names never change, so both values reach the API as written, and the generator reports each rename.
 To choose the names yourself, rename the parameter in the description.
@@ -401,7 +434,7 @@ The generator resolves type and method **names** once, in the shared model.
 It checks them against a reserved set that is the union across the supported languages.
 Because of this, a schema keeps the same name in every SDK that you generate from the description.
 For example, `Error` becomes `Error_2` in the Python SDK too, although Python accepts `Error`.
-As a result, the TypeScript, Python, PHP, and Go clients of an API share one vocabulary.
+As a result, the TypeScript, Python, PHP, Go, and Java clients of an API share one vocabulary.
 The generator reports each rename with its cause.
 A publisher who wants a different name can rename the schema or the operation in the description.
 
@@ -410,11 +443,11 @@ A publisher who wants a different name can rename the schema or the operation in
 `client.docs: true`, or the `--docs` flag, also writes the reference documentation for what the run generates.
 Each generator documents itself, and it writes one Markdown page next to its own output:
 
-| Generator             | Page                     | Contents                                                                                               |
-| --------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `cli`                 | `<output>.cli.md`        | The usage line, the global flags, the credential variables, the exit codes, and every command.         |
-| `typescript`          | `<output>.typescript.md` | The security schemes, and every operation with its parameters, body, response type, and a call sample. |
-| `python`, `go`, `php` | `<output>.<language>.md` | The same page for that SDK, with its own call samples.                                                 |
+| Generator                     | Page                     | Contents                                                                                               |
+| ----------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `cli`                         | `<output>.cli.md`        | The usage line, the global flags, the credential variables, the exit codes, and every command.         |
+| `typescript`                  | `<output>.typescript.md` | The security schemes, and every operation with its parameters, body, response type, and a call sample. |
+| `python`, `go`, `php`, `java` | `<output>.<language>.md` | The same page for that SDK, with its own call samples.                                                 |
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts --generator cli --generator python --docs
@@ -581,7 +614,7 @@ The server never returns a property marked `writeOnly: true`, for example a pass
 The generated success response types, zod response schemas, and mocks leave it out, and request bodies keep it.
 This applies to a response that is the schema, a list or map of it, or an inline object that holds it.
 When a named schema holds it, for example a `CustomerPage` with a `data` property, the response type keeps it.
-The Python, Go, and PHP clients share one model for requests and responses, so there the property is optional.
+The Python, Go, PHP, and Java clients share one model for requests and responses, so there the property is optional.
 The position of `writeOnly` next to a `$ref` follows the same rules as `readOnly`.
 
 ## Error handling
@@ -858,6 +891,9 @@ A `[]byte` or a `string` still follows the retry policy.
 The PHP client takes a stream resource (`fopen`, `php://temp`, a pipe) or a string as the body of the same operations.
 A resource is uploaded by curl in one attempt.
 A string still follows the retry policy.
+The Java client takes an `InputStream`, a `byte[]`, or a `String` as the body of the same operations.
+An `InputStream` is sent chunked in one attempt.
+A `byte[]` or a `String` still follows the retry policy.
 In all four clients, the `Content-Type` header you set wins over the one in the API description, and the description's type fills the gap for a body that is not multipart.
 
 ## Response decoding
@@ -915,7 +951,7 @@ const envelope = await client.listCustomers({ query: { limit: 1 } }, { envelope:
   Their options exclude it, and the wrappers strip it from the forwarded call.
   Because of this, cached data is always the plain body.
   Call the client's operation function directly when you need headers.
-- The Python, PHP, and Go SDKs expose the same information as separate variants: `<op>_with_headers()`, `<op>WithHeaders()`, and `<Op>WithHeaders`.
+- The Python, PHP, Go, and Java SDKs expose the same information as separate variants: `<op>_with_headers()`, `<op>WithHeaders()`, `<Op>WithHeaders`, and `<op>WithHeaders()`.
   The generator emits these variants only for operations that declare success-response headers.
   Those languages cannot change a return type with a flag.
 

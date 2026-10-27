@@ -6,8 +6,7 @@
 ┃ Traffic format: auto (auto-detect)
 ┃ Exchanges: total=2 documented=0 undocumented=2
 ┃ Findings: total=2 error=2 warning=0 info=0
-┃ Problems: total=2
-┗ Duration: <ms>ms
+┗ Problems: total=2
 
 Types (1)
   • undocumented-endpoint: 2 problems / 2 findings
@@ -26,5 +25,8 @@ Problems by type (showing first 2 of 2)
     http://api.example.com/unknown
 
 None of the 2 validated exchange(s) matched a documented operation. Check that the traffic host and base path match the description servers (http://api.example.com), or use --server to declare the server the traffic was captured against.
+
+openapi.yaml: drift processed in <test>ms
+
 
 Exit code: 1
