@@ -172,7 +172,7 @@ Then update the [e2e test snapshots](#e2e-tests) and the [smoke test](#smoke-tes
 
 ### Update the announcement
 
-When you add a new command or a new feature, or change something significant, consider replacing the announcement banner in [`packages/cli/src/utils/announcement.ts`](./packages/cli/src/utils/announcement.ts).
+When you add a new command or a new feature, or change something significant, consider replacing the announcement banner in [`packages/cli/src/utils/notifier.ts`](./packages/cli/src/utils/notifier.ts).
 
 ### Arguments usage
 
