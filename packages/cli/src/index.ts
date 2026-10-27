@@ -39,6 +39,7 @@ import type {
 } from './commands/scorecard-classic/types.js';
 import { handleSkills, SKILLS_AGENTS, type SkillsArgv } from './commands/skills.js';
 import { outputExtensions } from './types.js';
+import { showAnnouncement } from './utils/announcement.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
@@ -1741,5 +1742,5 @@ yargs(hideBin(process.argv))
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
-  .middleware([notifyUpdateCliVersion])
+  .middleware([notifyUpdateCliVersion, showAnnouncement])
   .strict().argv;

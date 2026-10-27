@@ -12,7 +12,7 @@ import { version, name } from './package.js';
 
 const VERSION_CACHE_FILE = 'redocly-cli-version';
 const INTERVAL_TO_CHECK = 1000 * 60 * 60 * 12;
-const SHOULD_NOT_NOTIFY =
+export const SHOULD_NOT_NOTIFY =
   process.env.NODE_ENV === 'test' ||
   process.env.CI ||
   !!process.env.LAMBDA_TASK_ROOT ||
