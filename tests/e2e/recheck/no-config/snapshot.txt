@@ -11,3 +11,5 @@ No redocly.yaml found; using recheck/markdown.
 
 ✅ No errors found!
    Completed in <time>
+
+Exit code: 0

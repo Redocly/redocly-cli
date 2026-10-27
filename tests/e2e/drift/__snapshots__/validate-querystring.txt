@@ -233,3 +233,5 @@ API coverage
 
 Parameter "filters" (querystring) of "GET /schema-only" has no content schema, so its value is not validated. Run `redocly lint` to check the description.
 Parameter "filters" (querystring) of "GET /multi" has more than one media type, so only "application/x-www-form-urlencoded" is used. Run `redocly lint` to check the description.
+
+Exit code: 1

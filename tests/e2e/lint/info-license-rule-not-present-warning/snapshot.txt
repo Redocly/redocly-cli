@@ -20,3 +20,5 @@ openapi.yaml: validated in <test>ms
 Woohoo! Your API description is valid. 🎉
 You have 1 warning.
 
+
+Exit code: 0

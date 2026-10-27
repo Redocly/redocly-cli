@@ -24,3 +24,5 @@ Problems by type (showing first 1 of 1)
 
     security: Authentication check failed. Option 1 (bearerAuth): Missing Authorization header.
 
+
+Exit code: 1

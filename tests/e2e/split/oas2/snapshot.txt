@@ -1,3 +1,5 @@
 
 OpenAPI 2 is not supported by this command.
 
+
+Exit code: 1

@@ -29,3 +29,5 @@ Problems by type (showing first 1 of 1)
     expected: required field "name"
     actual: [missing]
 
+
+Exit code: 1

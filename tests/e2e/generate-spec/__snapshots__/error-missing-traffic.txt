@@ -1,0 +1,5 @@
+
+Traffic file or folder not found: ./tests/e2e/generate-spec/fixtures/does-not-exist.ndjson
+
+
+Exit code: 1

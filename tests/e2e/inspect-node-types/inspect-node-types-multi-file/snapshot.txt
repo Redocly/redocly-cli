@@ -24,3 +24,5 @@ Schema         parameters/query.yaml#/offset/schema
 Responses      openapi.yaml#/paths/~1baz/get/responses
 Response       openapi.yaml#/paths/~1baz/get/responses/200
 
+
+Exit code: 0

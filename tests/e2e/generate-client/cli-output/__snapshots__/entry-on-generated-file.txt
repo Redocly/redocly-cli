@@ -1,0 +1,12 @@
+
+
+  Generating client for shop... 
+
+Client successfully generated: 3 files (124905 bytes) at <project>/src/shop.ts.
+
+❌  client.cliOutput resolves to a file this run generated: <project>/src/shop.cli.ts.
+   Give the composed entry its own path.
+
+
+
+Exit code: 1

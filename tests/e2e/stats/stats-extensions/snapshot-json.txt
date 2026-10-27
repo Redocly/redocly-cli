@@ -59,3 +59,5 @@ Document: openapi.yaml stats:
 
 openapi.yaml: stats processed in <test>ms
 
+
+Exit code: 0
