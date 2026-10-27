@@ -56,7 +56,9 @@ describe('config-ref', () => {
     ['orders', 'Root template'],
   ])('build-docs %s uses the htmlTemplate of its level', (api, title) => {
     run(['build-docs', api, '-o', `out/${api}.html`]);
-    expect(generated(`out/${api}.html`)).toContain(`<title>${title}</title>`);
+    const html = generated(`out/${api}.html`);
+    expect(html).toContain(`<title>${title}</title>`);
+    expect(html).not.toContain(testPath);
   });
 
   test('join reads both api roots', async () => {
