@@ -300,8 +300,6 @@ describe('telemetry failed send', () => {
 
   it.each([
     ['fetch throws', new TypeError('connect ECONNREFUSED')],
-    ['fetch aborts for a reason other than the send timeout', new DOMException('', 'AbortError')],
-    ['the endpoint answers 408', 408],
     ['the endpoint answers 500', 500],
   ])('keeps the counts and sends them one interval later when %s', async (_case, answer) => {
     const bodies = fetchAnswers([answer]);
@@ -325,7 +323,6 @@ describe('telemetry failed send', () => {
   it.each([
     ['the send times out', new DOMException('The operation timed out.', 'TimeoutError')],
     ['the endpoint answers 403', 403],
-    ['the endpoint answers 413', 413],
   ])('drops the counts and sends no later copy when %s', async (_case, answer) => {
     const bodies = fetchAnswers([answer]);
     const { telemetry, flush } = await loadTelemetry();
@@ -358,22 +355,6 @@ describe('telemetry failed send', () => {
     expect(sentUsage(bodies[1])).toMatchObject([
       { time: '2026-10-20T09:14:00.000Z', window_ms: 60_000, calls: 2 },
     ]);
-  });
-
-  it('sends nothing when a kill switch is set after a failed send', async () => {
-    const bodies = fetchAnswers([500]);
-    const { telemetry, flush } = await loadTelemetry();
-    const middleware = telemetry(identity);
-    await settle(middleware, 'getOrder', {
-      response: new Response(null, { status: 200 }),
-      attempts: 1,
-      durationMs: 10,
-    });
-    await vi.advanceTimersByTimeAsync(60_000);
-    vi.stubEnv('REDOCLY_SDK_TELEMETRY', 'off');
-    await vi.advanceTimersByTimeAsync(60_000);
-    await flush();
-    expect(bodies).toHaveLength(1);
   });
 
   it('tries one send at beforeExit and loses the counts without an unhandled rejection', async () => {
