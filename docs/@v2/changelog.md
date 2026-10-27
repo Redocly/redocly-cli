@@ -7,6 +7,20 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.71.2 (2026-10-27)
+
+### Patch Changes
+
+- Fixed an issue where the `no-unresolved-refs` rule reported discriminator mapping values that are schema names (for example, `dog: Dog`) as unresolved references.
+  The rule still reports schema names that do not match a schema in `components.schemas`.
+- Fixed an issue where the `drift` and `generate-spec` commands crashed with a stack trace when the traffic file or folder didn't exist, and the `generate-spec` command when the traffic had no matching HTTP exchanges.
+- Fixed an issue where the `bundle` command didn't resolve a `$ref` in an overlay that pointed to a local file when the API description was a URL.
+  The command tried to download the file from the server that hosts the API description instead of reading it from disk.
+- Fixed an issue where the generated TypeScript client lost usage telemetry counts when the telemetry endpoint was unreachable or returned a `408`, `429`, or `5xx` status.
+  The client adds these counts to the next send.
+- Updated @redocly/client-generator to v0.7.13.
+- Updated @redocly/openapi-core to v2.71.2.
+
 ## 2.71.1 (2026-10-26)
 
 ### Patch Changes

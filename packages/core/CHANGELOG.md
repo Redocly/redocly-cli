@@ -1,5 +1,14 @@
 # @redocly/openapi-core
 
+## 2.71.2
+
+### Patch Changes
+
+- Fixed an issue where the `no-unresolved-refs` rule reported discriminator mapping values that are schema names (for example, `dog: Dog`) as unresolved references.
+  The rule still reports schema names that do not match a schema in `components.schemas`.
+- Fixed an issue where the `bundle` command didn't resolve a `$ref` in an overlay that pointed to a local file when the API description was a URL.
+  The command tried to download the file from the server that hosts the API description instead of reading it from disk.
+
 ## 2.71.1
 
 ## 2.71.0
