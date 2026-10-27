@@ -14,6 +14,6 @@ Could not resolve $ref #/components/schemas/Missing from ./tests/e2e/recheck/api
    Annotations prepared: 1
 
 ❌ Found 1 error(s). Exiting with code 1.
-   Completed in <time>
+   Completed in <test>ms
 
 Exit code: 1

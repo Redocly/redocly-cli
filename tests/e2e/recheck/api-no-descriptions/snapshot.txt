@@ -12,6 +12,6 @@
 🔧 Running 53 rule(s)...
 
    Annotations prepared: 0
-   Completed in <time>
+   Completed in <test>ms
 
 Exit code: 0

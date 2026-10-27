@@ -56,6 +56,6 @@ components:
         - tag
 
 Inferred a baseline OpenAPI description from traffic: 2 operation(s).
-Done in <t>.
+Done in <test>ms.
 
 Exit code: 0

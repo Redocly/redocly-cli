@@ -13,6 +13,6 @@ line-length               ./tests/e2e/recheck/apis-discovery/openapi.yaml:6:85 L
    Annotations prepared: 1
 
 ❌ Found 1 error(s). Exiting with code 1.
-   Completed in <time>
+   Completed in <test>ms
 
 Exit code: 1

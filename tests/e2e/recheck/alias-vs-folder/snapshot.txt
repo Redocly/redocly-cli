@@ -17,6 +17,6 @@ single-h1                 docs/index.md:2:1                        Multiple top-
    Annotations prepared: 3
 
 ❌ Found 3 error(s). Exiting with code 1.
-   Completed in <time>
+   Completed in <test>ms
 
 Exit code: 1
