@@ -60,37 +60,30 @@ exports[`should create, read, and delete orders 1`] = `
     ✓ content-type check
     ✓ schema check
  
-  ✗ GET /orders - step get-all-orders-again 
-    ✗ success criteria check - $response.body#/page/limit == 100
-    ✓ status code check - $statusCode in [200, 400, 401, 403, 500]
-    ✓ content-type check
-    ✓ schema check
+──────────────────────────────────────────────────────────────────────────────── 
  
-
-  Failed tests info:
-
-  Workflow name: crud-orders
+  Running workflow crud-workflows.arazzo.yaml / cleanup 
  
-    stepId - get-all-orders-again 
-    ✗ success criteria check 
-      Checking simple criteria: {"condition":"$response.body#/page/limit == 100"}
-       
+  ✓ DELETE /oauth2/register/{clientId} - step delete-client 
+    ✓ success criteria check - $statusCode == 204
+    ✓ status code check - $statusCode in [204, 401, 500]
+ 
+ 
   Summary for crud-workflows.arazzo.yaml
   
-  Workflows: 2 passed, 1 failed, 3 total
-  Steps: 8 passed, 1 failed, 9 total
-  Checks: 34 passed, 1 failed, 35 total
+  Workflows: 4 passed, 4 total
+  Steps: 9 passed, 9 total
+  Checks: 33 passed, 33 total
   Time: <test>ms 
  
  
 ┌────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                           │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x crud-workflows.arazzo.yaml                                       │ 3          │ 2       │ 1       │ -        │
+│ ✓ crud-workflows.arazzo.yaml                                       │ 4          │ 4       │ -       │ -        │
 └────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
- Tests exited with error 
 
-"
+Exit code: 0"
 `;
