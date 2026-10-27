@@ -31,6 +31,11 @@
       "import": "./lib/printers/php.js",
       "default": "./lib/printers/php.js"
     },
+    "./printers/java": {
+      "types": "./lib/printers/java.d.ts",
+      "import": "./lib/printers/java.js",
+      "default": "./lib/printers/java.js"
+    },
     "./printers/typescript": {
       "types": "./lib/printers/typescript.d.ts",
       "import": "./lib/printers/typescript.js",

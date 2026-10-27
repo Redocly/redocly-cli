@@ -274,25 +274,25 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 ### Client generator tests
 
 `npm run client-generators` runs the tests in `packages/client-generator/tests/e2e`.
-Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, and `python/`.
-The tests compile the generated clients, so they need Go, PHP, and Python.
+Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, `java/`, and `python/`.
+The tests compile the generated clients, so they need Go, PHP, a JDK (17 or newer), and Python.
 A missing tool stops the run with a message that names it.
 
 ```bash
 npm run client-generators                       # everything
 npx vitest run --project client-generators      # TypeScript only, no toolchains needed
-npx vitest run --project client-generators-go   # one language (-go, -php, -python)
+npx vitest run --project client-generators-go   # one language (-go, -php, -java, -python)
 ```
 
 Install the toolchains:
 
 ```bash
 # macOS
-brew install go php phpstan
+brew install go php phpstan temurin
 pip3 install httpx pydantic mypy
 
 # Ubuntu
-sudo apt-get install golang-go php-cli php-curl python3-pip
+sudo apt-get install golang-go php-cli php-curl default-jdk python3-pip
 pip3 install httpx pydantic mypy
 ```
 

@@ -57,7 +57,7 @@ result, and maps the remaining errors to `HandledError`.
 ## `packages/client-generator` (@redocly/client-generator)
 
 Experimental package for generating clients from OpenAPI descriptions — the TypeScript client
-plus the `python`, `go`, and `php` SDKs, the generated CLI, and its Markdown reference.
+plus the `python`, `go`, `php`, and `java` SDKs, the generated CLI, and its Markdown reference.
 
 - `src/intermediate-representation/` — the language-neutral API model every generator reads.
 - `src/emitters/` — the renderers that turn that model into source text.

@@ -1,5 +1,6 @@
 import { cliDocs, cliGenerator, cliSample } from './cli/index.js';
 import { goDocs, goGenerator, goSample } from './go/index.js';
+import { javaDocs, javaGenerator, javaSample } from './java/index.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
 import { mockGenerator } from './mock/index.js';
 import { phpDocs, phpGenerator, phpSample } from './php/index.js';
@@ -37,6 +38,7 @@ const RUNS: Record<GeneratorName, Pick<GeneratorDescriptor, 'run' | 'sample' | '
   python: { run: pythonGenerator, sample: pythonSample, docs: pythonDocs },
   go: { run: goGenerator, sample: goSample, docs: goDocs },
   php: { run: phpGenerator, sample: phpSample, docs: phpDocs },
+  java: { run: javaGenerator, sample: javaSample, docs: javaDocs },
 };
 
 const GENERATORS = Object.fromEntries(
