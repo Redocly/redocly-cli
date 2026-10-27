@@ -20,3 +20,5 @@ Problems by type (showing first 1 of 1)
 
     http://api.example.com/orders
 
+
+Exit code: 1

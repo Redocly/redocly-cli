@@ -18,3 +18,5 @@ single-h1                 docs/index.md:2:1                        Multiple top-
 
 ❌ Found 3 error(s). Exiting with code 1.
    Completed in <time>
+
+Exit code: 1

@@ -1,3 +1,5 @@
 
 Info section is not found in specification.
 
+
+Exit code: 1

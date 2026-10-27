@@ -20,3 +20,5 @@ schema.graphql: validated in <test>ms
 Woohoo! Your API descriptions are valid. 🎉
 You have 1 warning.
 
+
+Exit code: 0

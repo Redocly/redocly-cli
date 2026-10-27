@@ -39,3 +39,5 @@ Options:
                             [choices: "basename", "title"] [default: "basename"]
 
 At least one inline API must be specified when using --output.
+
+Exit code: 1
