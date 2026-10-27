@@ -97,6 +97,38 @@ describe('recheck', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('format-github-actions prints one workflow command per finding and fails on errors', async () => {
+    const testPath = join(__dirname, 'format-github-actions');
+    const args = getParams(indexEntryPoint, ['recheck', 'docs', '--format=github-actions']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('summary-json writes the run summary to --summary-path', async () => {
+    const testPath = join(__dirname, 'summary-json');
+    const summaryPath = join(testPath, 'summary.json');
+    const args = getParams(indexEntryPoint, [
+      'recheck',
+      'docs',
+      '--summary=json',
+      '--summary-path=summary.json',
+    ]);
+    try {
+      const result = getCommandOutput(args, { testPath });
+      expect(readFileSync(summaryPath, 'utf8')).toContain('"totalErrors": 3');
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    } finally {
+      rmSync(summaryPath, { force: true });
+    }
+  });
+
+  test('baseline-gate passes when every finding is in the baseline file', async () => {
+    const testPath = join(__dirname, 'baseline-gate');
+    const args = getParams(indexEntryPoint, ['recheck', 'docs']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test('api-descriptions-json reports a JSON description with its pointer', async () => {
     const testPath = join(__dirname, 'api-descriptions-json');
     const args = getParams(indexEntryPoint, ['recheck', 'openapi.json', '--format=json']);
