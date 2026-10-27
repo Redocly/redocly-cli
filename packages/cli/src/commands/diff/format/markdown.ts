@@ -9,9 +9,7 @@ const IMPACT_LABELS: Record<Impact, string> = {
   patch: '⚪ patch',
 };
 
-// A cell is rendered inside a code span, so a backtick from the description would
-// close it early and let the rest of the row be read as markup. Newlines and pipes
-// would break out of the row itself.
+// Pipes and newlines would break out of the row, and a backtick would open a code span.
 function escapeCell(value: string): string {
   return value
     .replaceAll('|', '\\|')
@@ -19,6 +17,12 @@ function escapeCell(value: string): string {
     .split('\n')
     .map((line) => line.trim())
     .join(' ');
+}
+
+// A backslash does not escape inside a code span, so a value with a backtick is fenced with two.
+function codeCell(value: string): string {
+  const content = value.replaceAll('|', '\\|').replaceAll('\n', ' ');
+  return content.includes('`') ? `\`\` ${content} \`\`` : `\`${content}\``;
 }
 
 export function markdownDiff(result: DiffResult): string {
@@ -43,7 +47,7 @@ export function markdownDiff(result: DiffResult): string {
       .map((verdict) => `${escapeCell(verdict.message)} \`${verdict.ruleId}\``)
       .join('<br>');
     lines.push(
-      `| ${IMPACT_LABELS[change.impact]} | ${change.kind} | \`${escapeCell(address)}\` | ${escapeCell(`${file}:${line}:${col}`)} | ${details} |`
+      `| ${IMPACT_LABELS[change.impact]} | ${change.kind} | ${codeCell(address)} | ${escapeCell(`${file}:${line}:${col}`)} | ${details} |`
     );
   }
 

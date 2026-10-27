@@ -84,6 +84,32 @@ describe('markdownDiff', () => {
   it('should render one table row per change', () => {
     expect(markdownDiff(cafe)).toMatchSnapshot();
   });
+
+  it('should fence a pointer with a backtick in it, as a backslash does not escape in a code span', async () => {
+    const menu = (path: string, side: 'base' | 'revision') =>
+      makeDocumentFromString(
+        outdent`
+          openapi: 3.1.0
+          info: { title: Cafe, version: 1.0.0 }
+          paths:
+            ${path}: { get: { responses: { '200': { description: OK } } } }
+        `,
+        `${side}.yaml`
+      );
+
+    const result = await diffDocuments({
+      base: menu("'/menu/`special`'", 'base'),
+      revision: menu('/menu', 'revision'),
+      config,
+    });
+
+    expect(markdownDiff(result).split('\n').slice(6)).toMatchInlineSnapshot(`
+      [
+        "| 🔴 major | removed | \`\` #/paths/~1menu~1\`special\` \`\` | base.yaml:4:22 | Path \\\`/menu/\\\`special\\\`\\\` was removed. \`path-removed\` |",
+        "| 🟢 minor | added | \`#/paths/~1menu\` | revision.yaml:4:10 |  |",
+      ]
+    `);
+  });
 });
 
 describe('htmlDiff', () => {

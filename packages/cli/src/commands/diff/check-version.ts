@@ -2,8 +2,8 @@ import type { Impact } from '@redocly/openapi-core';
 import semver from 'semver';
 
 // Pre-release and build metadata are accepted and ignored: only the three numbers are compared.
-function releaseOf(version: unknown): string | undefined {
-  const parsed = typeof version === 'string' ? semver.parse(version) : null;
+function releaseOf(version: string | undefined): string | undefined {
+  const parsed = semver.parse(version);
 
   return parsed ? `${parsed.major}.${parsed.minor}.${parsed.patch}` : undefined;
 }
@@ -18,7 +18,7 @@ function bumpFor(base: string, required: Impact): Impact {
  * or unchanged when they require nothing; `undefined` when the base version is not semver.
  */
 export function nextVersion(
-  baseVersion: unknown,
+  baseVersion: string | undefined,
   required: Impact | undefined
 ): string | undefined {
   const base = releaseOf(baseVersion);
@@ -28,8 +28,8 @@ export function nextVersion(
 }
 
 export function checkVersion(opts: {
-  base: unknown;
-  revision: unknown;
+  base: string | undefined;
+  revision: string | undefined;
   required: Impact | undefined;
 }): string | undefined {
   const { required } = opts;
