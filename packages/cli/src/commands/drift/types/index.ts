@@ -177,7 +177,6 @@ export interface RunSummary {
   findingsByRule: Record<string, number>;
   problemGroupsByRule: Record<string, number>;
   totalProblemGroups: number;
-  durationMs: number;
   previewFindings: FindingPreview[];
   previewLimit: number;
   previewTruncated: boolean;

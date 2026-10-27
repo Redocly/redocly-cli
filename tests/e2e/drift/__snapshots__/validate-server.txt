@@ -6,8 +6,7 @@
 ┃ Traffic format: auto (auto-detect)
 ┃ Exchanges: total=5 documented=3 undocumented=1 skipped=1
 ┃ Findings: total=1 error=1 warning=0 info=0
-┃ Problems: total=1
-┗ Duration: <ms>ms
+┗ Problems: total=1
 
 Types (1)
   • undocumented-endpoint: 1 problems / 1 findings
@@ -19,6 +18,9 @@ Problems by type (showing first 1 of 1)
   ↳ sample exchange=2 GET /unknown-endpoint (404)
 
     http://localhost:9000/unknown-endpoint
+
+
+openapi.yaml: drift processed in <test>ms
 
 
 Exit code: 1

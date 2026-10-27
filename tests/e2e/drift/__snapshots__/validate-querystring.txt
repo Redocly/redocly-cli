@@ -6,8 +6,7 @@
 ┃ Traffic format: auto (auto-detect)
 ┃ Exchanges: total=25 documented=25 undocumented=0
 ┃ Findings: total=19 error=14 warning=5 info=0
-┃ Problems: total=18
-┗ Duration: <ms>ms
+┗ Problems: total=18
 
 Types (1)
   • schema-consistency: 18 problems / 19 findings
@@ -233,5 +232,8 @@ API coverage
 
 Parameter "filters" (querystring) of "GET /schema-only" has no content schema, so its value is not validated. Run `redocly lint` to check the description.
 Parameter "filters" (querystring) of "GET /multi" has more than one media type, so only "application/x-www-form-urlencoded" is used. Run `redocly lint` to check the description.
+
+querystring-openapi.yaml: drift processed in <test>ms
+
 
 Exit code: 1

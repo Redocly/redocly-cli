@@ -10,7 +10,7 @@ const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 const fixtures = join(__dirname, 'fixtures');
 const snapshots = join(__dirname, '__snapshots__');
 
-// The report embeds a random run id, random per-finding ids, and a wall-clock duration.
+// The report embeds a random run id and random per-finding ids.
 const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 
 describe('drift - validate mode', () => {
@@ -23,9 +23,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint,schema-consistency',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-clean.txt'));
   });
 
@@ -38,9 +39,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-undocumented.txt'));
   });
 
@@ -53,9 +55,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-schema-mismatch.txt'));
   });
 
@@ -68,9 +71,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'security-baseline',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-security.txt'));
   });
 
@@ -85,9 +89,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint,schema-consistency',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-server.txt'));
   });
 
@@ -100,9 +105,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-readonly.txt'));
   });
 
@@ -118,9 +124,10 @@ describe('drift - validate mode', () => {
       '40',
       '--coverage',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-querystring.txt'));
   });
 
@@ -133,9 +140,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-composition.txt'));
   });
 
@@ -148,9 +156,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-host-mismatch.txt'));
   });
 
@@ -163,9 +172,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-colliding-specs.txt'));
   });
 
@@ -178,9 +188,10 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-recursive.txt'));
   });
 
@@ -195,9 +206,10 @@ describe('drift - validate mode', () => {
       '--min-severity',
       'error',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-min-severity.txt'));
   });
 
@@ -242,9 +254,10 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'format-har.txt'));
   });
 
@@ -259,9 +272,10 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'format-kong.txt'));
   });
 
@@ -276,9 +290,10 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'format-nginx-json.txt'));
   });
 
@@ -293,9 +308,10 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'format-apache-json.txt'));
   });
 
@@ -310,9 +326,10 @@ describe('drift - input formats', () => {
       '--rules',
       'undocumented-endpoint',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'format-auto-ndjson.txt'));
   });
 });
@@ -329,9 +346,10 @@ describe('drift - output formats', () => {
       '--format',
       'json',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/"durationMs": \d+/, '"durationMs": <ms>');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'output-json.txt'));
   });
 
@@ -382,9 +400,10 @@ describe('drift - output formats', () => {
       '--max-findings',
       '0',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'output-max-findings-0.txt'));
   });
 });
@@ -400,9 +419,10 @@ describe('drift - coverage', () => {
       'undocumented-endpoint',
       '--coverage',
     ]);
-    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-      .replace(UUID_RE, '<uuid>')
-      .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'coverage-overview.txt'));
   });
 
@@ -441,9 +461,10 @@ describe('drift - coverage', () => {
         '--coverage-output',
         outputFile,
       ]);
-      const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }))
-        .replace(UUID_RE, '<uuid>')
-        .replace(/Duration: \d+ms/, 'Duration: <ms>ms');
+      const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+        UUID_RE,
+        '<uuid>'
+      );
       await expect(output.replaceAll(outputDir, '<output-dir>')).toMatchFileSnapshot(
         join(snapshots, 'coverage-output-file.txt')
       );
