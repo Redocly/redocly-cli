@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as url from 'node:url';
+import { fileURLToPath } from 'node:url';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 import type { ResolveConfig } from './config/types.js';
@@ -129,7 +129,7 @@ export class BaseResolver {
         const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
         return new Source(absoluteRef, body, mimeType);
       } else {
-        const filePath = isFileUrl(absoluteRef) ? url.fileURLToPath(absoluteRef) : absoluteRef;
+        const filePath = isFileUrl(absoluteRef) ? fileURLToPath(absoluteRef) : absoluteRef;
         if (fs.lstatSync(filePath).isDirectory()) {
           throw new Error(`Expected a file but received a folder at ${filePath}.`);
         }

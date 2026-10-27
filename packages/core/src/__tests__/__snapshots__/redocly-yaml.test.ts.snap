@@ -26038,6 +26038,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "enum": [
           "feedback",
           "discovery",
+          "supportConversations",
           "followUpOnPullRequest",
           "updateFromCodeChanges",
         ],
@@ -40578,6 +40579,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "enum": [
           "feedback",
           "discovery",
+          "supportConversations",
           "followUpOnPullRequest",
           "updateFromCodeChanges",
         ],
