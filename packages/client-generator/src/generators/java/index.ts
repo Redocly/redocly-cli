@@ -174,7 +174,7 @@ export const javaGenerator: Generator = ({ model, output, banner, emit, paginati
 export function javaSample(op: OperationModel, ctx: SampleContext): CodeSample {
   const dateType = ctx.emit.dateType ?? 'string';
   const stem = ctx.outputPath.replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '');
-  const className = identifierFor(stem, { style: 'pascal', reserved: JAVA }) || 'Client';
+  const className = javaClassName(stem, ctx.model);
   const ident = methodIdents(ctx.model).get(op.name) ?? identifierFor(op.name, { reserved: JAVA });
   const args = [
     ...op.pathParams.map((param) =>

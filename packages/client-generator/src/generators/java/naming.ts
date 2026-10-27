@@ -58,7 +58,7 @@ export function javaString(value: string): string {
  * with the fix rather than renamed behind the user's back.
  */
 export function javaClassName(stem: string, model: ApiModel): string {
-  const name = identifierFor(stem, { style: 'pascal', reserved: JAVA }) || 'Client';
+  const name = identifierFor(stem, { style: 'pascal', reserved: JAVA });
   // Inside a class named `Config` or `List`, those names mean the class itself.
   if (TAKEN_TYPE_NAMES.has(name)) {
     throw new NotSupportedError(

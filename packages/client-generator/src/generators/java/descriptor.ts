@@ -4,10 +4,10 @@
 import {
   type ApiModel,
   headerCoerceType,
-  identifierFor,
   type NeutralPaginationRule,
   type OperationModel,
   securityRequirements,
+  uniqueIdentifiers,
 } from '@redocly/client-generator';
 
 import { JAVA, javaString } from './naming.ts';
@@ -55,14 +55,14 @@ export function javaOperationLiteral(
 
 /** Declared response headers as runtime coerce specs: `{wire name, camelCase key, type}`. */
 export function envelopeHeaderSpecs(op: OperationModel, model: ApiModel): string {
-  const used = new Set<string>();
-  const specs = (op.successResponseHeaders ?? []).map((header) => {
-    const base = identifierFor(header.name, { style: 'camel', reserved: JAVA });
-    let key = base;
-    for (let suffix = 2; used.has(key); suffix++) key = `${base}${suffix}`;
-    used.add(key);
+  const headers = op.successResponseHeaders ?? [];
+  const keys = uniqueIdentifiers(
+    headers.map((header) => header.name),
+    { style: 'camel', reserved: JAVA }
+  );
+  const specs = headers.map((header, index) => {
     const type = headerCoerceType(header.schema, model);
-    return `{${javaString(header.name)}, ${javaString(key)}, ${javaString(type)}}`;
+    return `{${javaString(header.name)}, ${javaString(keys[index])}, ${javaString(type)}}`;
   });
   return `new String[][] {${specs.join(', ')}}`;
 }

@@ -38,7 +38,7 @@ type MethodArgs = {
 // prettier-ignore
 const METHOD_ARG_SLOTS = [
   'body', 'params', 'op', 'auth', 'query', 'url', 'spec', 'payload', 'response', 'data',
-  'headers', 'extraHeaders', 'pageParams', 'call', 'base', 'item', 'page', 'config', 'this',
+  'headers', 'extraHeaders', 'pageParams', 'call', 'base', 'item', 'page', 'config',
 ];
 
 /** Whether the body is `Object` and the runtime sorts out what it got (`multipartBody` / `binaryBody`). */
@@ -60,11 +60,11 @@ export function paramsClassName(
   model: ApiModel
 ): string | undefined {
   if (op.queryParams.length === 0) return undefined;
-  const base = `${ident.charAt(0).toUpperCase()}${ident.slice(1)}Params`;
-  const taken = new Set(model.schemas.map((schema) => typeName(schema.name)));
-  let name = base;
-  for (let suffix = 2; taken.has(name); suffix++) name = `${base}${suffix}`;
-  return name;
+  return uniqueIdentifiers([`${ident}Params`], {
+    style: 'pascal',
+    reserved: JAVA,
+    taken: model.schemas.map((schema) => typeName(schema.name)),
+  })[0];
 }
 
 export function methodArgs(
