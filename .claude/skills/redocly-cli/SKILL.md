@@ -204,6 +204,7 @@ The platform builds a preview in a few minutes; `redocly project pr status` then
 
 `respect` executes an [Arazzo](https://spec.openapis.org/arazzo/latest.html) description as a test suite against a running API, asserting real responses match the description.
 Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine the steps and success criteria by hand.
+A step that leaves out `parameters` or `requestBody` takes them from the description's examples, or generates them from the schema.
 
 ## Workflow
 
@@ -220,6 +221,7 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 - v2 is ESM-only: Node.js v22.12.0+ (or v20.19.0+).
 - `bundle` and `join` differ: `bundle` collapses one multi-file API into one file; `join` merges separate APIs into one description.
 - `respect` currently covers only synchronous HTTP flow.
+- A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
 - `generate-client` needs the `typescript` package (6.x) available at generation time; the generated client itself compiles with any TypeScript, including 7.

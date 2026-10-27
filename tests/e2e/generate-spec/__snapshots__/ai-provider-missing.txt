@@ -127,6 +127,6 @@ Refining the description with AI provider "claude"...
 Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.
 [1/5] Refining GET /users...
 AI refinement failed, falling back to the baseline description: Could not find the "claude" CLI on PATH. Is it installed?
-Done in <t>.
+Done in <test>ms.
 
 Exit code: 0

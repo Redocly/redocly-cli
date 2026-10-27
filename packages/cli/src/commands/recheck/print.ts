@@ -6,10 +6,10 @@ import {
   type LintRunResult,
   type MarkdocSchemaResult,
   type ReadabilityRunResult,
-  type Timer,
 } from '@redocly/recheck';
 import { cyan, green, red, yellow } from 'colorette';
 
+import { getExecutionTime } from '../../utils/miscellaneous.js';
 import { reportFixes } from './formatters/fixes.js';
 import { generateReport } from './formatters/index.js';
 import { outputReadabilityJson, outputReadabilityTable } from './formatters/readability.js';
@@ -46,9 +46,9 @@ export function printBaselineStart(roots: string[], apiDescriptionCount: number)
   logger.info(`${cyan(`📋 Building recheck baseline from: ${targets.join(', ')}`)}\n`);
 }
 
-function printFailure(message: string, timer: Timer): number {
+function printFailure(message: string, startedAt: number): number {
   logger.error(red(`💥 Error running recheck: ${message}`) + '\n');
-  logger.info(`   Failed after ${timer.elapsedString()}\n`);
+  logger.info(`   Failed after ${getExecutionTime(startedAt)}\n`);
   return 1;
 }
 
@@ -124,7 +124,7 @@ function printFixBlock(report: LintRunReport): void {
 export async function printLintRun(
   result: LintRunResult,
   presentation: LintPresentation,
-  timer: Timer
+  startedAt: number
 ): Promise<number> {
   if (result.status === 'unknown-rule') {
     logger.info(`${red(`❌ ${result.message}`)}\n`);
@@ -139,35 +139,35 @@ export async function printLintRun(
   }
   if (result.status === 'failed') {
     printPreamble(result.report);
-    return printFailure(result.message, timer);
+    return printFailure(result.message, startedAt);
   }
 
   // A summary that cannot be written fails the run like an engine error.
   try {
-    return await printCompletedRun(result, presentation, timer);
+    return await printCompletedRun(result, presentation, startedAt);
   } catch (error) {
-    return printFailure(error instanceof Error ? error.message : 'Unknown error', timer);
+    return printFailure(error instanceof Error ? error.message : 'Unknown error', startedAt);
   }
 }
 
 async function printEmptyRun(
   result: LintRunReport,
   presentation: LintPresentation,
-  timer: Timer
+  startedAt: number
 ): Promise<number> {
   printNoPagesFound(result);
   await printEmptyReport(presentation);
-  logger.info(`   Completed in ${timer.elapsedString()}\n`);
+  logger.info(`   Completed in ${getExecutionTime(startedAt)}\n`);
   return 0;
 }
 
 async function printCompletedRun(
   result: LintRunReport,
   presentation: LintPresentation,
-  timer: Timer
+  startedAt: number
 ): Promise<number> {
   printPreamble(result);
-  if (result.empty) return printEmptyRun(result, presentation, timer);
+  if (result.empty) return printEmptyRun(result, presentation, startedAt);
 
   if (result.baseline) {
     logger.info(
@@ -190,14 +190,14 @@ async function printCompletedRun(
   const errorCount = result.problems.filter((problem) => problem.severity === 'error').length;
   if (errorCount > 0) {
     logger.info(`${red(`\n❌ Found ${errorCount} error(s). Exiting with code 1.`)}\n`);
-    logger.info(`   Completed in ${timer.elapsedString()}\n`);
+    logger.info(`   Completed in ${getExecutionTime(startedAt)}\n`);
     return 1;
   }
   logger.info(`${green(`\n✅ No errors found!`)}\n`);
   if (result.problems.length > 0) {
     logger.info(`   Found ${result.problems.length} warning(s) and info message(s).\n`);
   }
-  logger.info(`   Completed in ${timer.elapsedString()}\n`);
+  logger.info(`   Completed in ${getExecutionTime(startedAt)}\n`);
   return 0;
 }
 

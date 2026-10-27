@@ -1,8 +1,10 @@
 import { logger, stringifyYaml, HandledError } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { performance } from 'node:perf_hooks';
 
 import { type AiProvider } from '../../utils/ai/providers.js';
+import { getExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { TrafficFormat } from '../drift/types/index.js';
 import { normalizeFsPath } from '../drift/utils/files.js';
@@ -33,19 +35,12 @@ async function writeOutput(outputPath: string, contents: string): Promise<void> 
   await writeFile(normalized, contents, 'utf8');
 }
 
-function formatElapsed(milliseconds: number): string {
-  const totalSeconds = Math.round(milliseconds / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
-}
-
 export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>) {
   if (argv.type !== 'openapi') {
     throw new HandledError(`Unsupported spec type "${argv.type}". Only "openapi" is supported.`);
   }
 
-  const startedAt = Date.now();
+  const startedAt = performance.now();
 
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
@@ -111,5 +106,5 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
     logger.output(resultYaml);
   }
 
-  logger.info(`Done in ${formatElapsed(Date.now() - startedAt)}.\n`);
+  logger.info(`Done in ${getExecutionTime(startedAt)}.\n`);
 }

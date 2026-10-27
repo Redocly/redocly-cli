@@ -1,5 +1,7 @@
 import { logger } from '@redocly/openapi-core';
+import { performance } from 'node:perf_hooks';
 
+import { getExecutionTime } from '../miscellaneous.js';
 import { finishProgress, showConcurrentProgress, Spinner } from '../spinner.js';
 import { CliNotFoundError } from './providers.js';
 
@@ -47,7 +49,7 @@ export async function runWorkerPool<ItemType, ResultType>(
       const index = nextIndex++;
       const item = items[index];
       const label = options.label(item);
-      const startedAt = Date.now();
+      const startedAt = performance.now();
       inFlight.add(label);
       updateSpinner();
       try {
@@ -56,9 +58,7 @@ export async function runWorkerPool<ItemType, ResultType>(
         inFlight.delete(label);
         finishProgress(spinner);
         logger.info(
-          `[${completed}/${items.length}] ${label} — ${options.successNote} (${Math.round(
-            (Date.now() - startedAt) / 1000
-          )}s)\n`
+          `[${completed}/${items.length}] ${label} — ${options.successNote} (${getExecutionTime(startedAt)})\n`
         );
       } catch (error) {
         completed += 1;

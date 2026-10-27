@@ -188,6 +188,9 @@ By default, the events go to the Redocly OpenTelemetry endpoint.
 Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
 Pass a `sink` function to receive the events yourself instead.
 
+If the connection fails or the endpoint answers `408`, `429`, or `5xx`, the middleware adds the counts to the next window.
+After a timeout or any other failed send, it drops the counts.
+
 Each event contains only:
 
 - The operation ID.

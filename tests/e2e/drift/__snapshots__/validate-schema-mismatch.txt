@@ -6,8 +6,7 @@
 ┃ Traffic format: auto (auto-detect)
 ┃ Exchanges: total=1 documented=1 undocumented=0
 ┃ Findings: total=1 error=1 warning=0 info=0
-┃ Problems: total=1
-┗ Duration: <ms>ms
+┗ Problems: total=1
 
 Types (1)
   • schema-consistency: 1 problems / 1 findings
@@ -28,6 +27,9 @@ Problems by type (showing first 1 of 1)
     path: /name
     expected: required field "name"
     actual: [missing]
+
+
+openapi.yaml: drift processed in <test>ms
 
 
 Exit code: 1

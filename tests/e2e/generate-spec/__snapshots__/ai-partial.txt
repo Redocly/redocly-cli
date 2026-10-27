@@ -110,7 +110,7 @@ Inferred a baseline OpenAPI description from traffic: 5 operation(s).
 Refining the description with AI provider "claude"...
 Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.
 [1/5] Refining GET /users...
-[1/5] GET /users — refined (<t>s)
+[1/5] GET /users — refined (<test>ms)
 [2/5] Refining POST /users...
 [2/5] POST /users — kept the baseline: the response does not contain the POST operation
 [3/5] Refining GET /users/{userId}...
@@ -120,6 +120,6 @@ Note: --with-ai sends samples of the recorded traffic (URLs, query strings, requ
 [5/5] Refining POST /sessions...
 [5/5] POST /sessions — kept the baseline: the response does not keep the path template "/sessions"
 AI refinement complete: 1 of 5 operation(s) refined (claude).
-Done in <t>.
+Done in <test>ms.
 
 Exit code: 0

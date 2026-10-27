@@ -10,14 +10,6 @@ const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 const fixtures = join(__dirname, 'fixtures');
 const snapshots = join(__dirname, '__snapshots__');
 
-// Per-operation progress lines and the closing summary report wall-clock
-// durations; normalize them.
-function cleanupGenerateSpec(output: string): string {
-  return cleanupOutput(output)
-    .replace(/\(\d+s\)/g, '(<t>s)')
-    .replace(/Done in (?:\d+m )?\d+s\./g, 'Done in <t>.');
-}
-
 // Prepend a stub-provider bin directory to PATH so the spawned "claude" CLI
 // resolves to the fixture stub instead of a real installation.
 function withStub(binDir: string): Record<string, string> {
@@ -27,13 +19,13 @@ function withStub(binDir: string): Record<string, string> {
 describe('generate-spec - deterministic inference', () => {
   test('infers an OpenAPI description from NDJSON traffic', async () => {
     const args = getParams(indexEntryPoint, ['generate-spec', 'traffic.ndjson']);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-ndjson.txt'));
   });
 
   test('templatizes identifier-like path segments into path parameters', async () => {
     const args = getParams(indexEntryPoint, ['generate-spec', 'traffic-ids.ndjson']);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-id-templates.txt'));
   });
 
@@ -44,13 +36,13 @@ describe('generate-spec - deterministic inference', () => {
       '--traffic-format',
       'har',
     ]);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-har.txt'));
   });
 
   test('describes alternative body shapes with oneOf and nullable type unions', async () => {
     const args = getParams(indexEntryPoint, ['generate-spec', 'traffic-polymorphic.ndjson']);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-polymorphic.txt'));
   });
 
@@ -61,7 +53,7 @@ describe('generate-spec - deterministic inference', () => {
       '--server',
       'http://api.example.com/v2',
     ]);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-server-scoped.txt'));
   });
 
@@ -72,7 +64,7 @@ describe('generate-spec - deterministic inference', () => {
       '--title',
       'Custom Users API',
     ]);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-title.txt'));
   });
 
@@ -83,13 +75,13 @@ describe('generate-spec - deterministic inference', () => {
       '--openapi-version',
       '3.1',
     ]);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-openapi-3-1.txt'));
   });
 
   test('describes the QUERY method in OpenAPI 3.2', async () => {
     const args = getParams(indexEntryPoint, ['generate-spec', 'traffic-query.ndjson']);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'infer-query-method.txt'));
   });
 
@@ -103,7 +95,7 @@ describe('generate-spec - deterministic inference', () => {
         '--output',
         outputFile,
       ]);
-      const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+      const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
       await expect(output.replaceAll(outputDir, '<output-dir>')).toMatchFileSnapshot(
         join(snapshots, 'output-file.txt')
       );
@@ -124,7 +116,7 @@ describe('generate-spec - error handling', () => {
       '--server',
       'http://unrelated.example.com',
     ]);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'error-server-mismatch.txt'));
   });
 
@@ -135,13 +127,13 @@ describe('generate-spec - error handling', () => {
       '--openapi-version',
       '3.1',
     ]);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'error-query-only.txt'));
   });
 
   test('fails when the traffic path does not exist', async () => {
     const args = getParams(indexEntryPoint, ['generate-spec', 'does-not-exist.ndjson']);
-    const output = cleanupGenerateSpec(getCommandOutput(args, { testPath: fixtures }));
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures }));
     await expect(output).toMatchFileSnapshot(join(snapshots, 'error-missing-traffic.txt'));
   });
 });
@@ -159,7 +151,7 @@ describe('generate-spec - AI refinement', () => {
       '--ai-concurrency',
       '1',
     ]);
-    const output = cleanupGenerateSpec(
+    const output = cleanupOutput(
       getCommandOutput(args, { testPath: fixtures, env: withStub('bin-ok') })
     );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined.txt'));
@@ -175,7 +167,7 @@ describe('generate-spec - AI refinement', () => {
       '--ai-concurrency',
       '1',
     ]);
-    const output = cleanupGenerateSpec(
+    const output = cleanupOutput(
       getCommandOutput(args, { testPath: fixtures, env: withStub('bin-ok-polymorphic') })
     );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined-polymorphic.txt'));
@@ -191,7 +183,7 @@ describe('generate-spec - AI refinement', () => {
       '--ai-concurrency',
       '1',
     ]);
-    const output = cleanupGenerateSpec(
+    const output = cleanupOutput(
       getCommandOutput(args, { testPath: fixtures, env: withStub('bin-ok') })
     );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-refined-cursor.txt'));
@@ -207,7 +199,7 @@ describe('generate-spec - AI refinement', () => {
       '--ai-concurrency',
       '1',
     ]);
-    const output = cleanupGenerateSpec(
+    const output = cleanupOutput(
       getCommandOutput(args, { testPath: fixtures, env: withStub('bin-partial') })
     );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-partial.txt'));
@@ -223,7 +215,7 @@ describe('generate-spec - AI refinement', () => {
       '--ai-concurrency',
       '1',
     ]);
-    const output = cleanupGenerateSpec(
+    const output = cleanupOutput(
       getCommandOutput(args, { testPath: fixtures, env: withStub('bin-bad') })
     );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-bad-answer.txt'));
@@ -239,7 +231,7 @@ describe('generate-spec - AI refinement', () => {
       '--ai-concurrency',
       '1',
     ]);
-    const output = cleanupGenerateSpec(
+    const output = cleanupOutput(
       getCommandOutput(args, { testPath: fixtures, env: withStub('bin-fail') })
     );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-provider-error.txt'));
@@ -256,7 +248,7 @@ describe('generate-spec - AI refinement', () => {
       '1',
     ]);
     // Restrict PATH to the node binary directory so "claude" cannot resolve.
-    const output = cleanupGenerateSpec(
+    const output = cleanupOutput(
       getCommandOutput(args, { testPath: fixtures, env: { PATH: dirname(process.execPath) } })
     );
     await expect(output).toMatchFileSnapshot(join(snapshots, 'ai-provider-missing.txt'));

@@ -63,6 +63,6 @@
    Annotations prepared: 3
 
 ❌ Found 3 error(s). Exiting with code 1.
-   Completed in <time>
+   Completed in <test>ms
 
 Exit code: 1
