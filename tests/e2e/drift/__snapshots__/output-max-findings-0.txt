@@ -6,8 +6,7 @@
 ┃ Traffic format: auto (auto-detect)
 ┃ Exchanges: total=2 documented=0 undocumented=2
 ┃ Findings: total=2 error=2 warning=0 info=0
-┃ Problems: total=2
-┗ Duration: <ms>ms
+┗ Problems: total=2
 
 Types (1)
   • undocumented-endpoint: 2 problems / 2 findings
@@ -17,5 +16,8 @@ Problems by type (showing first 0 of 2)
 … 2 problems omitted from terminal output. Use --format json/csv/sarif for the complete export.
 
 None of the 2 validated exchange(s) matched a documented operation. The traffic hosts are compatible with the description servers (http://api.example.com), so the endpoints are likely undocumented; if they should be documented, check that the description base paths and paths align with the traffic URLs, or use --server to declare the server the traffic was captured against.
+
+openapi.yaml: drift processed in <test>ms
+
 
 Exit code: 1

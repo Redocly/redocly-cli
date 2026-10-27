@@ -17,8 +17,7 @@
     "findingsByRule": {
       "undocumented-endpoint": 2
     },
-    "totalProblems": 2,
-    "durationMs": <ms>
+    "totalProblems": 2
   },
   "problems": [
     {
@@ -51,5 +50,8 @@
 }
 
 None of the 2 validated exchange(s) matched a documented operation. The traffic hosts are compatible with the description servers (http://api.example.com), so the endpoints are likely undocumented; if they should be documented, check that the description base paths and paths align with the traffic URLs, or use --server to declare the server the traffic was captured against.
+
+openapi.yaml: drift processed in <test>ms
+
 
 Exit code: 1
