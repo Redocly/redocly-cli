@@ -358,18 +358,7 @@ describe('prepareRequest', () => {
         },
       ],
       path: '/breeds',
-      pathParameters: [
-        {
-          description: 'limit the amount of results returned',
-          in: 'query',
-          name: 'limit',
-          required: false,
-          schema: {
-            format: 'int64',
-            type: 'integer',
-          },
-        },
-      ],
+      pathParameters: [],
       responses: {
         '200': {
           content: {

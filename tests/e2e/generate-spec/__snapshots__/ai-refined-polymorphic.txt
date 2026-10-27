@@ -103,10 +103,10 @@ Inferred a baseline OpenAPI description from traffic: 2 operation(s).
 Refining the description with AI provider "claude"...
 Note: --with-ai sends samples of the recorded traffic (URLs, query strings, request and response bodies) to the selected AI provider. Make sure the traffic contains no secrets or personal data you are not allowed to share.
 [1/2] Refining POST /payments...
-[1/2] POST /payments — refined (<t>s)
+[1/2] POST /payments — refined (<test>ms)
 [2/2] Refining GET /payments/{paymentId}...
-[2/2] GET /payments/{paymentId} — refined (<t>s)
+[2/2] GET /payments/{paymentId} — refined (<test>ms)
 AI refinement complete: 2 of 2 operation(s) refined (claude).
-Done in <t>.
+Done in <test>ms.
 
 Exit code: 0

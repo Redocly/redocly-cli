@@ -1,6 +1,6 @@
 
 Inferred a baseline OpenAPI description from traffic: 5 operation(s).
 Written to: <output-dir>/nested/openapi.yaml
-Done in <t>.
+Done in <test>ms.
 
 Exit code: 0

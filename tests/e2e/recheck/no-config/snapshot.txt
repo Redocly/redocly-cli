@@ -10,6 +10,6 @@ No redocly.yaml found; using recheck/markdown.
    Annotations prepared: 0
 
 ✅ No errors found!
-   Completed in <time>
+   Completed in <test>ms
 
 Exit code: 0
