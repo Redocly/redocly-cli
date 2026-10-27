@@ -136,6 +136,7 @@ const GENERATORS = [
   { name: 'python', run: 'pythonGenerator', sample: 'pythonSample', docs: 'pythonDocs' },
   { name: 'go', run: 'goGenerator', sample: 'goSample', docs: 'goDocs' },
   { name: 'php', run: 'phpGenerator', sample: 'phpSample', docs: 'phpDocs' },
+  { name: 'java', run: 'javaGenerator', sample: 'javaSample', docs: 'javaDocs' },
   {
     name: 'typescript',
     run: 'typescriptGenerator',

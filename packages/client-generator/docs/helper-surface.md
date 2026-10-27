@@ -42,15 +42,15 @@ Consumers of each neutral helper, counted outside `authoring/`:
 | Helper                | Consumers                                     |
 | --------------------- | --------------------------------------------- |
 | `NotSupportedError`   | 9 — package-wide error type, genuinely shared |
-| `Printer`             | go, php, python, `cli-docs` (Markdown)        |
-| `renderReferencePage` | go, php, python, **typescript**               |
-| `schemaAtPointer`     | go, php, python, `pagination`                 |
-| `headerCoerceType`    | go, php, python, `response-headers`           |
+| `Printer`             | go, php, java, python, `cli-docs` (Markdown)  |
+| `renderReferencePage` | go, php, java, python, **typescript**         |
+| `schemaAtPointer`     | go, php, java, python, `pagination`           |
+| `headerCoerceType`    | go, php, java, python, `response-headers`     |
 | `casing`              | go, `cli`, `runtime/cli`, `runtime-sources`   |
-| `identifierFor`       | go, php, python                               |
-| `uniqueIdentifiers`   | go, php, python                               |
-| `RESERVED_WORDS`      | go, php, python                               |
-| `flattenAllOf`        | go, php, python                               |
+| `identifierFor`       | go, php, java, python                         |
+| `uniqueIdentifiers`   | go, php, java, python                         |
+| `RESERVED_WORDS`      | go, php, java, python                         |
+| `flattenAllOf`        | go, php, java, python                         |
 | `discriminatorCases`  | go, php, python                               |
 | `isNullable`          | go, php, python                               |
 | `unwrapNullable`      | go, php, python                               |

@@ -317,7 +317,7 @@ describe('eject-generator from source (no bundle)', () => {
   it('ejects every generator when the CLI runs from src', async () => {
     const project = makeProject();
     try {
-      for (const generator of ['python', 'go', 'php', 'typescript', 'cli']) {
+      for (const generator of ['python', 'go', 'php', 'java', 'typescript', 'cli']) {
         const result = await runTsx(
           join(repoRoot, 'packages/cli/src/index.ts'),
           ['eject-generator', generator],
