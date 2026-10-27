@@ -1,5 +1,6 @@
 import { createConfig, HandledError, logger } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 import {
   escapeClosingScriptTag,
@@ -109,6 +110,22 @@ describe('build-docs', () => {
 
       expect(fs.readFileSync).toHaveBeenCalledWith('custom.hbs', 'utf-8');
       expect(html).toBe('<title>Redocly Cafe</title>');
+    });
+
+    it('reads the htmlTemplate option from the config folder and leaves it out of the page', async () => {
+      vi.mocked(fs.readFileSync).mockReturnValueOnce('{{{redocHTML}}}');
+
+      const html = await getPageHTML(
+        cafe,
+        { ...options, redocOptions: { htmlTemplate: 'templates/cafe.hbs' } },
+        '/project/redocly.yaml'
+      );
+
+      expect(fs.readFileSync).toHaveBeenCalledWith(
+        path.resolve('/project', 'templates/cafe.hbs'),
+        'utf-8'
+      );
+      expect(html).toContain('const __redoc_options = {"skipBundle":true}');
     });
 
     it('escapes </script in the inlined Redoc bundle', async () => {
