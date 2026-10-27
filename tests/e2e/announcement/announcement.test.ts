@@ -2,10 +2,12 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { getCommandOutput, getParams } from '../helpers.js';
+import { getCommandOutput } from '../helpers.js';
 
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 const { version } = JSON.parse(readFileSync('packages/cli/package.json', 'utf-8'));
+// The tests pipe the output, so this makes the CLI see a terminal.
+const terminalStderr = ['--import', 'data:text/javascript,process.stderr.isTTY=true'];
 
 describe('announcement', () => {
   let home: string;
@@ -23,14 +25,13 @@ describe('announcement', () => {
     rmSync(temp, { recursive: true, force: true });
   });
 
-  test('shows the announcement on the first run only', () => {
-    const runCheckConfig = () =>
-      getCommandOutput(getParams(indexEntryPoint, ['check-config']), {
+  test('shows the announcement in a terminal on the first run only', () => {
+    expect(
+      getCommandOutput([...terminalStderr, indexEntryPoint, 'check-config'], {
         testPath: home,
         env: { HOME: home, TMPDIR: temp, NODE_ENV: '', CI: '' },
-      });
-
-    expect(runCheckConfig()).toMatchInlineSnapshot(`
+      })
+    ).toMatchInlineSnapshot(`
       "
 
           ╔══════════════════════════════════════════════════════════════════╗
@@ -50,7 +51,12 @@ describe('announcement', () => {
 
       Exit code: 0"
     `);
-    expect(runCheckConfig()).toMatchInlineSnapshot(`
+    expect(
+      getCommandOutput([...terminalStderr, indexEntryPoint, 'check-config'], {
+        testPath: home,
+        env: { HOME: home, TMPDIR: temp, NODE_ENV: '', CI: '' },
+      })
+    ).toMatchInlineSnapshot(`
       "
 
       Exit code: 0"

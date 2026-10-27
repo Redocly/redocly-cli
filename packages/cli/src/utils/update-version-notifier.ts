@@ -15,6 +15,7 @@ const INTERVAL_TO_CHECK = 1000 * 60 * 60 * 12;
 export const SHOULD_NOT_NOTIFY =
   process.env.NODE_ENV === 'test' ||
   process.env.CI ||
+  !process.stderr.isTTY ||
   !!process.env.LAMBDA_TASK_ROOT ||
   process.env.REDOCLY_SUPPRESS_UPDATE_NOTICE === 'true';
 
