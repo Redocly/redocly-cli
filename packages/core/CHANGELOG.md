@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 2.72.0
+
+### Minor Changes
+
+- Added an experimental `diff` command that compares two API descriptions, reports changes, and rates every change by the semver bump it requires (`patch`, `minor`, or `major`).
+  `--fail-on` sets the impact that fails the run and `--check-version` verifies that `info.version` was bumped accordingly.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.69.0.
+
 ## 2.71.2
 
 ### Patch Changes
