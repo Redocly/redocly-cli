@@ -27,7 +27,7 @@ describe('git utils', () => {
 
       expect(getCredentialHelperConfig('https://app.cloud.redocly.com', '2.0.0')).toEqual([
         'credential.https://app.cloud.redocly.com/.helper=',
-        'credential.https://app.cloud.redocly.com/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true redocly project git-credentials',
+        'credential.https://app.cloud.redocly.com/.helper=!REDOCLY_SUPPRESS_NOTIFICATIONS=true redocly project git-credentials',
       ]);
     });
 
@@ -45,7 +45,7 @@ describe('git utils', () => {
 
         try {
           expect(getCredentialHelperConfig('https://app.cloud.redocly.com', '2.0.0')[1]).toBe(
-            'credential.https://app.cloud.redocly.com/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true npx --yes @redocly/cli@2.0.0 project git-credentials'
+            'credential.https://app.cloud.redocly.com/.helper=!REDOCLY_SUPPRESS_NOTIFICATIONS=true npx --yes @redocly/cli@2.0.0 project git-credentials'
           );
         } finally {
           process.argv = argv;
@@ -57,7 +57,7 @@ describe('git utils', () => {
       vi.mocked(existsSync).mockReturnValue(false);
 
       expect(getCredentialHelperConfig('http://localhost', '2.0.0')[1]).toBe(
-        'credential.http://localhost/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true npx --yes @redocly/cli@2.0.0 project git-credentials'
+        'credential.http://localhost/.helper=!REDOCLY_SUPPRESS_NOTIFICATIONS=true npx --yes @redocly/cli@2.0.0 project git-credentials'
       );
     });
   });

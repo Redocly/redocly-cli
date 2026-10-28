@@ -34,7 +34,8 @@ const SHOULD_NOT_NOTIFY =
   process.env.CI ||
   !process.stderr.isTTY ||
   !!process.env.LAMBDA_TASK_ROOT ||
-  process.env.REDOCLY_SUPPRESS_UPDATE_NOTICE === 'true';
+  process.env.REDOCLY_SUPPRESS_NOTIFICATIONS === 'true' ||
+  /* deprecated */ process.env.REDOCLY_SUPPRESS_UPDATE_NOTICE === 'true';
 
 // The announcement waits until the CLI is up to date.
 export const notify = () => {
