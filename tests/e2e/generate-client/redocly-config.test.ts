@@ -6,6 +6,7 @@
 import {
   copyFileSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -439,4 +440,39 @@ describe('generate-client redocly.yaml config', () => {
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
   });
+
+  it('resolves clientOutput, client.setup and client.cliOutput from a $ref-ed config relative to that file', () => {
+    mkdirSync(join(dir, 'config'));
+    writeFileSync(join(dir, 'redocly.yaml'), '$ref: ./config/redocly.yaml\n', 'utf-8');
+    copyFileSync(fixture, join(dir, 'config/openapi.yaml'));
+    writeFileSync(
+      join(dir, 'config/setup.ts'),
+      outdent`
+        import { defineClientSetup } from '@redocly/client-generator';
+        export default defineClientSetup({ config: { serverUrl: 'https://setup.example.com' } });
+      `,
+      'utf-8'
+    );
+    writeFileSync(
+      join(dir, 'config/redocly.yaml'),
+      outdent`
+        client:
+          setup: ./setup.ts
+          cliOutput: ./bin/cafe.ts
+          importExt: ts
+          generators: [typescript, zod, cli]
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./src/cafe.ts
+      `,
+      'utf-8'
+    );
+    const res = runCommandResult('node', [cliEntry, 'generate-client'], { testPath: dir });
+    expect(res.status, res.stderr).toBe(0);
+    expect(readFileSync(join(dir, 'config/src/cafe.ts'), 'utf-8')).toContain(
+      'https://setup.example.com'
+    );
+    expect(existsSync(join(dir, 'config/bin/cafe.ts'))).toBe(true);
+  }, 60_000);
 });

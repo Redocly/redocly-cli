@@ -411,7 +411,7 @@ data-styled.g658[id="sc-hHttOM"]{content:"dKSNwp,"}/*!sc*/
       import { hydrate } from "https://cdn.redocly.com/redoc/v3.0.1/bundles/redoc.standalone.js";
 
       const __redoc_definition = {"openapi":"3.1.0","servers":[{"url":"http://redocly-example.com"}],"info":{"title":"Sample API","version":"1.0.0"},"paths":{"/hello":{"get":{"operationId":"getMessage","security":[],"summary":"Get a greeting message","responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/message-schema"}}}}}}}},"components":{"schemas":{"message-schema":{"type":"object","properties":{"message":{"type":"string"}}}}}};
-      const __redoc_options = {"htmlTemplate":"../index.hbs","skipBundle":true,"disableTelemetry":true};
+      const __redoc_options = {"skipBundle":true,"disableTelemetry":true};
 
       hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'));
       </script>

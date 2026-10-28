@@ -1,0 +1,109 @@
+
+openapi: 3.1.0
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+  description: Order drinks from the Redocly Cafe.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+tags:
+  - name: Menu
+    description: Drinks on the menu.
+    x-displayName: Menu
+  - name: Internal
+    description: Operations for the cafe staff.
+    x-displayName: Internal
+  - name: Orders
+    description: Customer orders.
+    x-displayName: Orders
+paths:
+  /menu:
+    servers:
+      - url: https://cafe.example.com
+    get:
+      operationId: listMenuItems
+      summary: List menu items
+      description: Returns every drink on the menu.
+      tags:
+        - Menu
+      security: []
+      responses:
+        '200':
+          description: The menu.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+        '400':
+          description: Bad request.
+  /stats:
+    servers:
+      - url: https://cafe.example.com
+    get:
+      operationId: getStats
+      summary: Get sales stats
+      description: Returns the sales of the day. Only the staff can call it.
+      tags:
+        - Internal
+      security: []
+      responses:
+        '200':
+          description: The stats.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sold:
+                    type: integer
+        '400':
+          description: Bad request.
+  /orders:
+    servers:
+      - url: https://orders.example.com
+    post:
+      operationId: createOrder
+      summary: Create an order
+      description: Places an order for one menu item.
+      tags:
+        - Orders
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemId:
+                  type: string
+      responses:
+        '201':
+          description: The order.
+        '400':
+          description: Bad request.
+components:
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+x-tagGroups:
+  - name: Redocly Cafe
+    tags:
+      - Menu
+      - Internal
+  - name: Redocly Cafe Orders
+    tags:
+      - Orders
+
+openapi.yaml: join processed in <test>ms
+
+
+Exit code: 0

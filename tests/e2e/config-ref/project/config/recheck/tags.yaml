@@ -1,0 +1,4 @@
+cafe-menu:
+  selfClosing: true
+  attributes:
+    item: { type: string }

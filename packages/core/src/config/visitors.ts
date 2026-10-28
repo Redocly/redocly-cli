@@ -1,9 +1,12 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
+import * as path from 'node:path';
 
-import { replaceRef } from '../ref-utils.js';
+import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
+import { isNamedType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
@@ -67,6 +70,7 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
+  rootRef: string;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -82,6 +86,35 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+function resolvePath(value: unknown, sourceRef: string) {
+  if (!isString(value) || !value || isAbsoluteUrl(value) || path.isAbsolute(value)) {
+    return value;
+  }
+  return path.resolve(path.dirname(sourceRef), value);
+}
+
+// Commands resolve relative config paths from the root config folder, so a path written in a referenced file is made absolute.
+function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
+  const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const sourceRef = ctx.location.source.absoluteRef;
+  if (!isPlainObject(node) || sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
+    return;
+  }
+  for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    const value = node[field];
+    const isPath =
+      isPlainObject(schema) &&
+      !isNamedType(schema) &&
+      (schema.format ?? schema.items?.format) === 'uri-reference';
+    if (value === undefined || !isPath) {
+      continue;
+    }
+    node[field] = Array.isArray(value)
+      ? value.map((item) => resolvePath(item, sourceRef))
+      : resolvePath(value, sourceRef);
+  }
+}
+
 export const configBundlerVisitor = normalizeVisitors(
   [
     {
@@ -90,7 +123,13 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+            resolveUriReferenceProperties(node, ctx);
             replaceRef(node, resolved, ctx);
+          },
+        },
+        any: {
+          leave(node: unknown, ctx: UserContext) {
+            resolveUriReferenceProperties(node, ctx);
           },
         },
         ConfigGovernance: {

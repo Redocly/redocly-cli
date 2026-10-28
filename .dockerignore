@@ -8,3 +8,5 @@
 !packages/*
 !scripts/local-pack.sh
 !.claude/skills
+# TODO: remove with vendor/ once @redocly/config with the uri-reference format is released on npm
+!vendor/*
