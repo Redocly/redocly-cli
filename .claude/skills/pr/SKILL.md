@@ -120,6 +120,7 @@ Keep `## Screenshots (optional)` even when it stays empty.
   For a change to CLI output, tell the user that a screenshot helps the reviewer.
   Add images only when the user gives them.
 - **Check yourself** and **Security**: check a box only when it is true for this PR.
+  A box about code, such as "All new/updated code is covered by tests" or "Code follows company security practices and guidelines", stays unchecked when the PR changes no code.
   Leave the other boxes unchecked.
   Do not delete any box.
 
