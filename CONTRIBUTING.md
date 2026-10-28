@@ -170,6 +170,10 @@ curl -I https://cdn.redocly.com/redoc/v<version>/bundles/redoc.standalone.js
 
 Then update the [e2e test snapshots](#e2e-tests) and the [smoke test](#smoke-tests) page.
 
+### Update the announcement
+
+When you add a new command or a new feature, or change something significant, consider replacing the announcement banner in [`packages/cli/src/utils/notifier.ts`](./packages/cli/src/utils/notifier.ts).
+
 ### Arguments usage
 
 There are three ways of providing arguments to the CLI: environment variables, command line arguments, and a Redocly configuration file.
