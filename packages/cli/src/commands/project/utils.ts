@@ -16,7 +16,7 @@ export function getCredentialHelperConfig(reuniteUrl: string, version: string): 
       ? 'redocly'
       : `npx --yes @redocly/cli@${version}`;
 
-  return [`${key}=`, `${key}=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true ${cli} project git-credentials`];
+  return [`${key}=`, `${key}=!REDOCLY_SUPPRESS_NOTIFICATIONS=true ${cli} project git-credentials`];
 }
 
 // With `capture`, git's standard output is returned trimmed instead of printed, and its errors are
