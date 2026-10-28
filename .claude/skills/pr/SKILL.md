@@ -140,6 +140,7 @@ gh pr create --draft --base main --title "<title>" --body-file "$TMPDIR/pr-body.
 
 - Use the main commit sentence as the title.
 - Add `--label "no changeset needed"` when step 4 found that no changeset is needed.
+- When the author is a member of the Redocly organization (`gh api orgs/Redocly/members/$(gh api user --jq .login)` returns `204`), add `--assignee @me --project "Dark Side Board"`.
 - Always open a draft PR.
 - Delete the temporary body file.
 - Give the user the PR URL and the list of committed files.
