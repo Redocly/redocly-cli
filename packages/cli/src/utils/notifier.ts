@@ -81,7 +81,7 @@ const showAnnouncementBanner = () => {
 const isNewVersionAvailable = (current: string, latest: string) => compare(current, latest) < 0;
 
 const getLatestVersion = async (packageName: string): Promise<string | undefined> => {
-  const latestUrl = `http://registry.npmjs.org/${packageName}/latest`;
+  const latestUrl = `https://registry.npmjs.org/${packageName}/latest`;
 
   try {
     const { fetchWithTimeout } = await import('./fetch-with-timeout.js');
