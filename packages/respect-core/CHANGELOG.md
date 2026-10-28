@@ -1,5 +1,13 @@
 # @redocly/respect-core
 
+## 2.72.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` ignored the `dataValue` field of OpenAPI 3.2 examples when a step took its parameters or request body from the API description.
+- Fixed an issue where `respect` ignored parameters defined on a path item when a step used `operationId` and took its request data from the API description.
+- Updated @redocly/openapi-core to v2.72.0.
+
 ## 2.71.2
 
 ### Patch Changes

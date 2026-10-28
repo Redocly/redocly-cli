@@ -1,5 +1,15 @@
 # @redocly/client-generator
 
+## 0.8.0
+
+### Minor Changes
+
+- Added the `java` generator to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.0.
+
 ## 0.7.13
 
 ### Patch Changes
