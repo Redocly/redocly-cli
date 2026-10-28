@@ -41,12 +41,14 @@ export type ResolveResult<T extends NonUndefined> =
       location: Location;
       error?: ResolveError | YamlParseError;
       chain?: ResolvedRefChainHop[];
+      baseUri?: string;
     }
   | {
       node: undefined;
       location: undefined;
       error?: ResolveError | YamlParseError;
       chain?: ResolvedRefChainHop[];
+      baseUri?: string;
     };
 
 export type ResolveFn = <T extends NonUndefined>(
@@ -67,6 +69,7 @@ export type UserContext = {
   specVersion: ExtendedSpecVersion;
   config?: Config;
   getVisitorData: () => Record<string, unknown>;
+  baseUri?: string;
 };
 
 export type Loc = {
@@ -181,25 +184,18 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     location: Location,
     parent: any,
     key: string | number,
-    baseUri: string = location.source.absoluteRef,
-    baseUriIncludesNodeSchemaId: boolean = false
+    baseUri: string = location.source.absoluteRef
   ) {
     const rawLocation = location;
     let currentLocation = location;
-    const rawSchemaId =
-      !baseUriIncludesNodeSchemaId && (type.name === 'Schema' || type.name === 'Root')
-        ? getSchemaId(node)
-        : undefined;
+    const rawSchemaId = getOwn(type.properties, '$id') ? getSchemaId(node) : undefined;
     const rawBaseUri = rawSchemaId ? resolveSchemaId(baseUri, rawSchemaId) : baseUri;
     let currentBaseUri = rawBaseUri;
 
     const resolve: ResolveFn = (ref, from = currentBaseUri) => {
       if (!isRef(ref)) return { location, node: ref };
       const refId = makeRefId(from, ref.$ref);
-      const resolvedRef =
-        resolvedRefMap.get(refId) ??
-        resolvedRefMap.get(makeRefId(currentBaseUri, ref.$ref)) ??
-        resolvedRefMap.get(makeRefId(currentLocation.source.absoluteRef, ref.$ref));
+      const resolvedRef = resolvedRefMap.get(refId);
       if (!resolvedRef) {
         return {
           location: undefined,
@@ -207,28 +203,37 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         };
       }
 
-      const { resolved, node, document, nodePointer, error, chain } = resolvedRef;
+      const {
+        resolved,
+        node,
+        document,
+        nodePointer,
+        error,
+        chain,
+        baseUri: targetBaseUri,
+      } = resolvedRef;
       const newLocation = resolved
         ? new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
           ? new Location(error.source, '')
           : undefined;
 
-      return { location: newLocation, node, error, chain };
+      return {
+        location: newLocation,
+        node,
+        error,
+        chain,
+        baseUri: targetBaseUri !== document?.source.absoluteRef ? targetBaseUri : undefined,
+      };
     };
 
     const nodeIsRef = isRef(node);
-    const resolvedBaseUri = nodeIsRef
-      ? (
-          resolvedRefMap.get(makeRefId(currentBaseUri, node.$ref)) ??
-          resolvedRefMap.get(makeRefId(currentLocation.source.absoluteRef, node.$ref))
-        )?.baseUri
-      : undefined;
     const {
       node: resolvedNode,
       location: resolvedLocation,
       error,
       chain: resolvedChain,
+      baseUri: resolvedBaseUri,
     } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
@@ -260,6 +265,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             specVersion: ctx.specVersion,
             config: ctx.config,
             getVisitorData: () => getVisitorDataFn(ruleId),
+            baseUri: currentBaseUri,
           },
           { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
         );
@@ -310,13 +316,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       currentLocation = resolvedLocation;
       if (nodeIsRef) {
-        const resolvedSchemaId =
-          type.name === 'Schema' || type.name === 'Root' ? getSchemaId(resolvedNode) : undefined;
-        currentBaseUri =
-          resolvedBaseUri ??
-          (resolvedSchemaId
-            ? resolveSchemaId(resolvedLocation.source.absoluteRef, resolvedSchemaId)
-            : resolvedLocation.source.absoluteRef);
+        currentBaseUri = resolvedBaseUri ?? resolvedLocation.source.absoluteRef;
       }
       // primitives have no identity to dedupe by — use their location; objects dedupe by identity
       const seenKey =
@@ -456,8 +456,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             chainHop.location,
             undefined,
             key,
-            chainHop.baseUri ?? chainHop.location.source.absoluteRef,
-            Boolean(chainHop.baseUri)
+            chainHop.baseUri ?? chainHop.location.source.absoluteRef
           );
         }
       }
@@ -523,6 +522,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               specVersion: ctx.specVersion,
               config: ctx.config,
               getVisitorData: () => getVisitorDataFn(ruleId),
+              baseUri: currentBaseUri,
             },
             { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
           );
@@ -559,6 +559,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
           getVisitorData: () => getVisitorDataFn(ruleId),
+          baseUri: currentBaseUri,
         },
         collectParents(context),
         context

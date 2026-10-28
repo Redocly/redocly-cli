@@ -284,7 +284,11 @@ export function makeBundleVisitor({
       chain: resolved.chain,
       document: rootDocument,
       nodePointer: node.$ref,
+      baseUri: resolved.baseUri,
     };
+    if (ctx.baseUri) {
+      resolvedRefMap.set(makeRefId(ctx.baseUri, node.$ref), resolvedRef);
+    }
     resolvedRefMap.set(makeRefId(ctx.location.source.absoluteRef, node.$ref), resolvedRef);
     // saved components are walked again as part of the bundled document
     resolvedRefMap.set(makeRefId(rootDocument.source.absoluteRef, node.$ref), resolvedRef);

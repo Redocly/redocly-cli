@@ -28,7 +28,6 @@ import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { isSupportedExtension } from './utils/is-supported-extension.js';
 import { makeRefId } from './utils/make-ref-id.js';
-import { nextTick } from './utils/next-tick.js';
 import { readFileFromUrl } from './utils/read-file-from-url.js';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
@@ -248,24 +247,6 @@ type SchemaResource = {
   nodePointer: string;
 };
 
-const NON_SCHEMA_DATA_KEYS = new Set([
-  'example',
-  'examples',
-  'default',
-  'const',
-  'enum',
-  'value',
-  'dataValue',
-]);
-const SCHEMA_MAP_KEYS = new Set([
-  'properties',
-  'patternProperties',
-  'schemas',
-  '$defs',
-  'definitions',
-  'dependentSchemas',
-]);
-
 type RefFrame = {
   prev: RefFrame | null;
   node: unknown;
@@ -300,7 +281,6 @@ export async function resolveDocument(opts: {
   const resolvedRefMap: ResolvedRefMap = new Map();
   const seenNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
   const schemaResources = new Map<string, SchemaResource>();
-  const indexedDocuments = new Set<Document>();
   const nodeBaseUris = new WeakMap<object, string>();
 
   const resolvePromises: Array<Promise<void>> = [];
@@ -313,69 +293,6 @@ export async function resolveDocument(opts: {
 
   return resolvedRefMap;
 
-  function indexDocumentSchemaResources(document: Document) {
-    if (indexedDocuments.has(document)) {
-      return;
-    }
-    indexedDocuments.add(document);
-    const seenObjects = new WeakSet<object>();
-    collectResources(document.parsed, '#/', document.source.absoluteRef, false);
-
-    function collectResources(
-      node: unknown,
-      pointer: string,
-      currentBaseUri: string,
-      inSchemaMap: boolean
-    ) {
-      if (!isPlainObject(node) && !Array.isArray(node)) {
-        return;
-      }
-
-      if (seenObjects.has(node)) {
-        return;
-      }
-      seenObjects.add(node);
-
-      if (Array.isArray(node)) {
-        for (let i = 0; i < node.length; i++) {
-          collectResources(node[i], joinPointer(pointer, i), currentBaseUri, false);
-        }
-        return;
-      }
-
-      if (!inSchemaMap) {
-        const schemaId = getSchemaId(node);
-        if (schemaId) {
-          currentBaseUri = resolveSchemaId(currentBaseUri, schemaId);
-          if (!schemaResources.has(currentBaseUri)) {
-            schemaResources.set(currentBaseUri, {
-              baseUri: currentBaseUri,
-              node,
-              document,
-              nodePointer: pointer,
-            });
-          }
-        }
-
-        if (currentBaseUri !== document.source.absoluteRef) {
-          nodeBaseUris.set(node, currentBaseUri);
-        }
-      }
-
-      for (const [key, value] of Object.entries(node)) {
-        if (!inSchemaMap && NON_SCHEMA_DATA_KEYS.has(key)) {
-          continue;
-        }
-        collectResources(
-          value,
-          joinPointer(pointer, escapePointerFragment(key)),
-          currentBaseUri,
-          !inSchemaMap && SCHEMA_MAP_KEYS.has(key)
-        );
-      }
-    }
-  }
-
   function resolveRefsInParallel(
     rootNode: unknown,
     rootNodeDocument: Document,
@@ -383,7 +300,6 @@ export async function resolveDocument(opts: {
     type: NormalizedNodeType,
     initialBaseUri?: string
   ) {
-    indexDocumentSchemaResources(rootNodeDocument);
     const rootNodeDocAbsoluteRef = rootNodeDocument.source.absoluteRef;
     const anchorRefsMap: Map<string, unknown> = new Map();
     const activeNodes = new WeakSet<object>();
@@ -392,7 +308,13 @@ export async function resolveDocument(opts: {
       initialBaseUri ||
       rootNodeDocAbsoluteRef;
 
+    const pendingRefFollows: Array<() => void> = [];
+
     walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer, rootBaseUri);
+
+    for (const follow of pendingRefFollows) {
+      follow();
+    }
 
     // oxlint-disable-next-line sonarjs/cognitive-complexity
     function walk(
@@ -448,7 +370,7 @@ export async function resolveDocument(opts: {
         return;
       }
 
-      if (type.name === 'Schema' || type.name === 'Root' || type === unknownType) {
+      if (getOwn(type.properties, '$id')) {
         const indexedBaseUri = nodeBaseUris.get(node);
         if (indexedBaseUri) {
           currentBaseUri = indexedBaseUri;
@@ -456,7 +378,18 @@ export async function resolveDocument(opts: {
           const schemaId = getSchemaId(node);
           if (schemaId) {
             currentBaseUri = resolveSchemaId(currentBaseUri, schemaId);
+            if (!schemaResources.has(currentBaseUri)) {
+              schemaResources.set(currentBaseUri, {
+                baseUri: currentBaseUri,
+                node,
+                document: rootNodeDocument,
+                nodePointer: nodeAbsoluteRef.slice(rootNodeDocAbsoluteRef.length),
+              });
+            }
           }
+        }
+        if (currentBaseUri !== rootNodeDocAbsoluteRef) {
+          nodeBaseUris.set(node, currentBaseUri);
         }
       }
 
@@ -503,60 +436,68 @@ export async function resolveDocument(opts: {
       }
 
       if (isRef(node)) {
-        const promise = followRef(
-          rootNodeDocument,
-          node,
-          {
-            prev: null,
-            node,
-          },
-          currentBaseUri
-        ).then((resolvedRef) => {
-          if (resolvedRef.resolved) {
-            resolveRefsInParallel(
-              resolvedRef.node,
-              resolvedRef.document,
-              resolvedRef.nodePointer!,
-              type,
-              resolvedRef.baseUri
-            );
-            // chain hops carry sibling keys that can contain refs of their own
-            for (const chainHop of resolvedRef.chain ?? []) {
+        const refNode = node;
+        const refBaseUri = currentBaseUri;
+        pendingRefFollows.push(() => {
+          const promise = followRef(
+            rootNodeDocument,
+            refNode,
+            {
+              prev: null,
+              node: refNode,
+            },
+            refBaseUri
+          ).then((resolvedRef) => {
+            if (resolvedRef.resolved) {
               resolveRefsInParallel(
-                chainHop.node,
-                chainHop.document,
-                chainHop.location.pointer,
+                resolvedRef.node,
+                resolvedRef.document,
+                resolvedRef.nodePointer!,
                 type,
-                chainHop.baseUri
+                resolvedRef.baseUri
               );
+              // chain hops carry sibling keys that can contain refs of their own
+              for (const chainHop of resolvedRef.chain ?? []) {
+                resolveRefsInParallel(
+                  chainHop.node,
+                  chainHop.document,
+                  chainHop.location.pointer,
+                  type,
+                  chainHop.baseUri
+                );
+              }
             }
-          }
+          });
+          resolvePromises.push(promise);
         });
-        resolvePromises.push(promise);
       }
 
       // handle example.externalValue as reference
       if (isExternalValue(node)) {
-        const promise = followRef(
-          rootNodeDocument,
-          { $ref: node.externalValue },
-          {
-            prev: null,
-            node,
-          },
-          currentBaseUri
-        ).then((resolvedRef) => {
-          if (resolvedRef.resolved) {
-            resolveRefsInParallel(
-              resolvedRef.node,
-              resolvedRef.document,
-              resolvedRef.nodePointer,
-              type,
-              resolvedRef.baseUri
-            );
-          }
+        const extValNode = node;
+        const extValBaseUri = currentBaseUri;
+        pendingRefFollows.push(() => {
+          const promise = followRef(
+            rootNodeDocument,
+            { $ref: extValNode.externalValue },
+            {
+              prev: null,
+              node: extValNode,
+            },
+            extValBaseUri
+          ).then((resolvedRef) => {
+            if (resolvedRef.resolved) {
+              resolveRefsInParallel(
+                resolvedRef.node,
+                resolvedRef.document,
+                resolvedRef.nodePointer,
+                type,
+                resolvedRef.baseUri
+              );
+            }
+          });
+          resolvePromises.push(promise);
         });
-        resolvePromises.push(promise);
       }
 
       activeNodes.delete(node);
@@ -574,8 +515,6 @@ export async function resolveDocument(opts: {
       }
 
       if (isAnchor(ref.$ref)) {
-        // Wait for all anchors in the document to be collected firstly.
-        await nextTick();
         const targetNode = anchorRefsMap.get(ref.$ref);
         const resolvedRef: ResolvedRef = {
           resolved: true,
@@ -641,8 +580,6 @@ export async function resolveDocument(opts: {
           targetDoc = embeddedResource.document;
         } else if (isRemote) {
           targetDoc = (await externalRefResolver.resolveDocument(baseUri, uri!)) as Document;
-          indexDocumentSchemaResources(targetDoc);
-          embeddedResource = schemaResources.get(resolvedTargetUri);
         } else {
           targetDoc = document;
         }
@@ -670,10 +607,12 @@ export async function resolveDocument(opts: {
       let targetBaseUri = embeddedResource
         ? embeddedResource.baseUri
         : (isPlainObject(target) && nodeBaseUris.get(target)) || targetDoc.source.absoluteRef;
+      let targetEnclosingBaseUri = targetBaseUri;
 
       const segments = pointer;
       for (const segment of segments) {
         if (isPlainObject(target) && target[segment] !== undefined) {
+          targetEnclosingBaseUri = targetBaseUri;
           target = target[segment];
           resolvedRef.nodePointer = joinPointer(
             resolvedRef.nodePointer!,
@@ -683,6 +622,7 @@ export async function resolveDocument(opts: {
             targetBaseUri = nodeBaseUris.get(target) || targetBaseUri;
           }
         } else if (Array.isArray(target) && target[+segment] !== undefined) {
+          targetEnclosingBaseUri = targetBaseUri;
           target = target[+segment];
           resolvedRef.nodePointer = joinPointer(
             resolvedRef.nodePointer!,
@@ -702,6 +642,7 @@ export async function resolveDocument(opts: {
           resolvedRef.chain = undefined;
           targetDoc = resolvedRef.document || targetDoc;
           targetBaseUri = resolvedRef.baseUri || targetDoc.source.absoluteRef;
+          targetEnclosingBaseUri = targetBaseUri;
 
           if (isPlainObject(resolvedRef.node)) {
             target = resolvedRef.node[segment];
@@ -742,7 +683,7 @@ export async function resolveDocument(opts: {
               node: target,
               document: resolvedRef.document,
               location: new Location(resolvedRef.document.source, resolvedRef.nodePointer!),
-              baseUri: targetBaseUri,
+              baseUri: targetEnclosingBaseUri,
             }
           : undefined;
         resolvedRef = await followRef(
