@@ -3,4 +3,4 @@
 '@redocly/reunite-integration': patch
 ---
 
-Updated @redocly/config to v0.68.0.
+Updated @redocly/config to v0.69.0.
