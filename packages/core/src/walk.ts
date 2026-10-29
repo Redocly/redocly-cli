@@ -9,7 +9,12 @@ import type {
   ResolvedRefChainHop,
   Document,
 } from './resolve.js';
-import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
+import {
+  isNamedType,
+  SpecExtension,
+  type NormalizedNodeType,
+  type NormalizedScalarSchema,
+} from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
@@ -157,10 +162,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
   // Pre-compute combined enter/leave arrays per type to avoid per-node array allocations
   const anyEnter = normalizedVisitors.any.enter as VisitorNode<any>[];
   const anyLeave = normalizedVisitors.any.leave as VisitorNode<any>[];
+  const scalarEnter = normalizedVisitors.scalar.enter;
   const combinedEnter: Record<string, Array<VisitorNode<any>>> = {};
   const combinedLeave: Record<string, Array<VisitorNode<any>>> = {};
   for (const typeName of Object.keys(normalizedVisitors)) {
-    if (typeName === 'any' || typeName === 'ref') continue;
+    if (typeName === 'any' || typeName === 'ref' || typeName === 'scalar') continue;
     combinedEnter[typeName] = anyEnter.concat(normalizedVisitors[typeName]?.enter || []);
     combinedLeave[typeName] = (normalizedVisitors[typeName]?.leave || []).concat(anyLeave);
   }
@@ -264,6 +270,12 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         if (!isNamedType(propType) && propType?.directResolveAs) {
           propType = propType.directResolveAs;
           value = { $ref: value };
+        }
+
+        // a value with no node type is a leaf: the scalar visitors see it at its own location
+        if (scalarEnter.length && propType && !isNamedType(propType) && !isRef(value)) {
+          visitScalar(value, propType, loc.child([propName]), valueParent, propName);
+          return;
         }
 
         if (propType && propType.name === undefined && propType.resolvable !== false) {
@@ -478,6 +490,32 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
           );
         }
+      }
+    }
+
+    function visitScalar(
+      value: unknown,
+      schema: NormalizedScalarSchema,
+      location: Location,
+      parent: unknown,
+      key: string | number
+    ) {
+      const type: NormalizedNodeType = { name: 'scalar', properties: {}, scalar: schema };
+      for (const { visit, ruleId, severity, message } of scalarEnter) {
+        visit(value, {
+          report: (opts: Problem) => reportFn(ruleId, severity, message, opts),
+          resolve,
+          rawNode: value,
+          rawLocation: location,
+          location,
+          type,
+          parent,
+          key,
+          parentLocations: {},
+          specVersion: ctx.specVersion,
+          config: ctx.config,
+          getVisitorData: () => getVisitorDataFn(ruleId),
+        });
       }
     }
 

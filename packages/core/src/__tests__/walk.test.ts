@@ -1534,6 +1534,71 @@ describe('walk order', () => {
       ]
     `);
   });
+  it('should give scalar visitors every value without a node type, where it is written', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: vi.fn(() => {
+        return {
+          scalar(value: unknown, { type, location }: any) {
+            calls.push(
+              `${location.source.absoluteRef}${
+                location.pointer
+              } ${JSON.stringify(value)} ${type.scalar.type}`
+            );
+          },
+        };
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: '1.0'
+        paths:
+          /pet:
+            parameters:
+              - $ref: '#/components/parameters/shared'
+                description: written next to the $ref
+        components:
+          parameters:
+            shared:
+              name: shared
+              in: query
+      `,
+      'root.yaml'
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        plugins: [
+          {
+            id: 'test',
+            rules: {
+              oas3: testRuleSet,
+            },
+          },
+        ],
+        rules: {
+          'test/test': 'error',
+        },
+      }),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      [
+        "root.yaml#/info/title "Test" string",
+        "root.yaml#/info/version "1.0" string",
+        "root.yaml#/components/parameters/shared/name "shared" string",
+        "root.yaml#/components/parameters/shared/in "query" undefined",
+        "root.yaml#/paths/~1pet/parameters/0/description "written next to the $ref" string",
+      ]
+    `);
+  });
 });
 
 describe('context.report', () => {

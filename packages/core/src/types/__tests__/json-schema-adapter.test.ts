@@ -27,38 +27,4 @@ describe('getNodeTypesFromJSONSchema', () => {
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
   });
-
-  it('turns a named list of strings into one scalar node', () => {
-    const { ctx: types } = getNodeTypesFromJSONSchema('Root', {
-      type: 'object',
-      properties: {
-        overlays: {
-          type: 'array',
-          nodeTypeName: 'Overlays',
-          items: { type: 'string', format: 'uri-reference' },
-        } as never,
-      },
-    });
-
-    expect(types['Root'].properties.overlays).toBe('Overlays');
-    expect(types['Overlays']).toEqual({
-      properties: {},
-      scalar: { type: 'array', items: { type: 'string', format: 'uri-reference' } },
-    });
-  });
-
-  it('turns a scalar with a nodeTypeName into a scalar node', () => {
-    const { ctx: types } = getNodeTypesFromJSONSchema('Root', {
-      type: 'object',
-      properties: {
-        template: { type: 'string', format: 'uri-reference', nodeTypeName: 'Template' } as never,
-      },
-    });
-
-    expect(types['Root'].properties.template).toBe('Template');
-    expect(types['Template']).toEqual({
-      properties: {},
-      scalar: { type: 'string', format: 'uri-reference' },
-    });
-  });
 });

@@ -374,7 +374,7 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
     ]),
     // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
     client: 'Client',
-    clientOutput: 'FilePath',
+    clientOutput: { type: 'string', format: 'uri-reference' },
   },
 });
 
@@ -389,8 +389,6 @@ const ConfigHTTP: NodeType = {
   },
 };
 
-const FilePath: NodeType = { properties: {}, scalar: { type: 'string', format: 'uri-reference' } };
-
 const Client: NodeType = {
   properties: {
     generators: { type: 'array', items: { type: 'string' } },
@@ -400,7 +398,7 @@ const Client: NodeType = {
     runtime: { enum: ['inline', 'module'] },
     importExt: { enum: ['js', 'ts'] },
     goPackage: { type: 'string' },
-    cliOutput: 'FilePath',
+    cliOutput: { type: 'string', format: 'uri-reference' },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },
@@ -410,7 +408,7 @@ const Client: NodeType = {
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
-    setup: 'FilePath',
+    setup: { type: 'string', format: 'uri-reference' },
     options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',
   },
@@ -841,7 +839,6 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigGovernance,
   ConfigHTTP,
   Client,
-  FilePath,
   ClientGeneratorOptions,
   ClientPagination,
   ClientPaginationRule,

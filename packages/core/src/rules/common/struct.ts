@@ -33,10 +33,6 @@ export const Struct:
       const nodeType = oasTypeOf(node);
       const refLocation = rawLocation !== location ? rawLocation : undefined;
 
-      if (type.scalar) {
-        return; // the parent checks a scalar node, so the problem keeps the parent's `$ref` location
-      }
-
       if (type.items) {
         if (nodeType !== 'array') {
           report({
@@ -115,10 +111,11 @@ export const Struct:
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
 
-        const propSchema = isNamedType(propType) ? propType.scalar : propType;
-        if (isNamedType(propType) && !propSchema) {
+        if (isNamedType(propType)) {
           continue; // do nothing for named schema, it is executed with the next any call
         }
+
+        const propSchema = propType;
         const propValueType = oasTypeOf(propValue);
 
         if (propSchema === undefined) {

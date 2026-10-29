@@ -5,10 +5,9 @@ import type { JSONSchema } from 'json-schema-to-ts';
 
 import type { Oas3Schema } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import type { NodeType, PropType, ResolveTypeFn, ScalarSchema } from './index.js';
+import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
 type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
-type SchemaObject = Exclude<ExtendedJSONSchema, boolean>;
 
 let ajv: Ajv2020 | undefined;
 
@@ -45,29 +44,6 @@ function findOneOf(
   };
 }
 
-const SCALAR_TYPES = new Set(['string', 'number', 'integer', 'boolean']);
-type ScalarSchemaObject = SchemaObject & { type: 'string' | 'number' | 'integer' | 'boolean' };
-
-function isScalarSchema(schema: unknown): schema is ScalarSchemaObject {
-  return isPlainObject(schema) && typeof schema.type === 'string' && SCALAR_TYPES.has(schema.type);
-}
-
-// A scalar or a list of scalars: the whole value is one node.
-function isScalarValueSchema(
-  schema: unknown
-): schema is ScalarSchemaObject | (SchemaObject & { type: 'array'; items: ScalarSchemaObject }) {
-  return (
-    isScalarSchema(schema) ||
-    (isPlainObject(schema) && schema.type === 'array' && isScalarSchema(schema.items))
-  );
-}
-
-function scalarNodeType(schema: SchemaObject): NodeType {
-  const { default: _, nodeTypeName: __, ...scalar } = schema;
-  // the scalar keywords of a JSON Schema are the ones ScalarSchema lists, as in the scalar branch below
-  return { properties: {}, scalar: scalar as ScalarSchema };
-}
-
 function transformJSONSchemaToNodeType(
   propertyName: string,
   schema: ExtendedJSONSchema,
@@ -91,11 +67,12 @@ function transformJSONSchemaToNodeType(
     );
   }
 
-  if (schema.nodeTypeName) {
-    return extractNodeToContext(propertyName, schema, ctx);
-  }
-
-  if (isScalarSchema(schema)) {
+  if (
+    schema.type === 'string' ||
+    schema.type === 'number' ||
+    schema.type === 'integer' ||
+    schema.type === 'boolean'
+  ) {
     const { default: _, ...rest } = schema;
     return rest as PropType;
   }
@@ -211,11 +188,6 @@ function extractNodeToContext(
 
   // Use nodeTypeName from schema if provided, otherwise use propertyName
   const nodeTypeName = schema.nodeTypeName ?? propertyName;
-
-  if (isScalarValueSchema(schema)) {
-    ctx[nodeTypeName] = scalarNodeType(schema);
-    return nodeTypeName;
-  }
 
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {

@@ -120,6 +120,10 @@ export type VisitFunction<T> = (
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
 
+// Called for a value that has no node type (a scalar, a list of scalars, a free-form object);
+// `ctx.type.scalar` is the schema of that value.
+type VisitScalarFunction = (value: unknown, ctx: UserContext) => void;
+
 type SkipFunction<T> = (node: T, key: string | number, ctx: SkipFunctionContext) => boolean;
 
 type VisitObject<T> = {
@@ -149,6 +153,15 @@ type VisitorRefNode = {
   context: VisitorLevelContext;
   depth: number;
   visit: VisitRefFunction;
+};
+
+type VisitorScalarNode = {
+  ruleId: string;
+  severity: ProblemSeverity;
+  message?: string;
+  context: VisitorLevelContext;
+  depth: number;
+  visit: VisitScalarFunction;
 };
 
 export type VisitorLevelContext = {
@@ -187,6 +200,8 @@ export type BaseVisitor = {
         leave?: VisitRefFunction;
       }
     | VisitRefFunction;
+
+  scalar?: VisitScalarFunction;
 };
 
 type Oas3FlatVisitor = {
@@ -446,7 +461,7 @@ export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<an
 export type ConfigVisitor = BaseVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, BaseVisitor>>;
 
-export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
+export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'scalar' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
   [V in keyof T]-?: {
@@ -457,6 +472,10 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
   ref: {
     enter: Array<VisitorRefNode>;
     leave: Array<VisitorRefNode>;
+  };
+  scalar: {
+    enter: Array<VisitorScalarNode>;
+    leave: Array<VisitorScalarNode>;
   };
   [k: string]: {
     // any internal types
@@ -522,6 +541,11 @@ export function normalizeVisitors<T extends BaseVisitor>(
   }
 
   normalizedVisitors.ref = {
+    enter: [],
+    leave: [],
+  };
+
+  normalizedVisitors.scalar = {
     enter: [],
     leave: [],
   };
@@ -621,17 +645,21 @@ export function normalizeVisitors<T extends BaseVisitor>(
     parentContext: VisitorLevelContext | null,
     depth = 0
   ) {
-    const visitorKeys = Object.keys(types) as Array<keyof T | 'any'>;
+    const visitorKeys = Object.keys(types) as Array<keyof T | 'any' | 'ref' | 'scalar'>;
 
     if (depth === 0) {
       visitorKeys.push('any');
       visitorKeys.push('ref');
+      visitorKeys.push('scalar');
     } else {
       if (visitor.any) {
         throw new Error('any() is allowed only on top level');
       }
       if (visitor.ref) {
         throw new Error('ref() is allowed only on top level');
+      }
+      if (visitor.scalar) {
+        throw new Error('scalar() is allowed only on top level');
       }
     }
 

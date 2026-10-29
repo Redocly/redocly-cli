@@ -27,8 +27,6 @@ export type NormalizedScalarSchema = {
 
 export type NodeType = {
   properties: Record<string, PropType | ResolveTypeFn>;
-  // set when the node is a scalar value: the schema of that value
-  scalar?: ScalarSchema;
   additionalProperties?: PropType | ResolveTypeFn;
   items?: PropType | ResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
@@ -44,7 +42,8 @@ export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
-  scalar?: ScalarSchema;
+  // set on the `scalar` type the walker gives scalar visitors: the schema of the visited value
+  scalar?: NormalizedScalarSchema;
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);

@@ -93,9 +93,9 @@ function resolvePath(value: unknown, sourceRef: string) {
 }
 
 // Commands resolve relative config paths from the root config folder, so a path written in a referenced file is made absolute.
-function resolveUriReference(node: unknown, ctx: UserContext) {
-  const { scalar } = ctx.type;
-  if ((scalar?.format ?? scalar?.items?.format) !== 'uri-reference') {
+function resolveUriReference(value: unknown, ctx: UserContext) {
+  const schema = ctx.type.scalar;
+  if ((schema?.format ?? schema?.items?.format) !== 'uri-reference') {
     return;
   }
   const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
@@ -103,9 +103,9 @@ function resolveUriReference(node: unknown, ctx: UserContext) {
   if (sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
     return;
   }
-  ctx.parent[ctx.key] = Array.isArray(node)
-    ? node.map((item) => resolvePath(item, sourceRef))
-    : resolvePath(node, sourceRef);
+  ctx.parent[ctx.key] = Array.isArray(value)
+    ? value.map((item) => resolvePath(item, sourceRef))
+    : resolvePath(value, sourceRef);
 }
 
 export const configBundlerVisitor = normalizeVisitors(
@@ -119,11 +119,7 @@ export const configBundlerVisitor = normalizeVisitors(
             replaceRef(node, resolved, ctx);
           },
         },
-        any: {
-          leave(node: unknown, ctx: UserContext) {
-            resolveUriReference(node, ctx);
-          },
-        },
+        scalar: resolveUriReference,
         ConfigGovernance: {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
