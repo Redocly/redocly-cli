@@ -284,28 +284,19 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           return;
         }
 
-        // a leaf value: the scalar visitors see it where it is written
-        const ignoreKey = `${scalarLocation.absolutePointer}${scalarLocation.pointer}`;
-        for (const { visit, ruleId, severity, message } of scalarEnter) {
-          if (ignoredNodes.has(ignoreKey)) break;
-          visit(value, {
-            report: (opts: Problem) => reportFn(ruleId, severity, message, opts),
-            resolve,
-            rawNode: value,
-            rawLocation: scalarLocation,
-            location: scalarLocation,
-            type: scalarType,
-            parent: valueParent,
-            key: propName,
-            parentLocations: {},
-            specVersion: ctx.specVersion,
-            config: ctx.config,
-            ignoreNextVisitorsOnNode: () => {
-              ignoredNodes.add(ignoreKey);
-            },
-            getVisitorData: () => getVisitorDataFn(ruleId),
-          });
+        // a leaf: the scalar visitors see it where it is written, a list of leaves item by item
+        if (Array.isArray(value) && propType.items) {
+          const itemType: NormalizedNodeType = {
+            name: 'scalar',
+            properties: {},
+            scalar: propType.items,
+          };
+          for (let i = 0; i < value.length; i++) {
+            visitScalar(value[i], itemType, scalarLocation.child([i]), value, i);
+          }
+          return;
         }
+        visitScalar(value, scalarType, scalarLocation, valueParent, propName);
       };
 
       currentLocation = resolvedLocation;
@@ -509,6 +500,36 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
           );
         }
+      }
+    }
+
+    function visitScalar(
+      value: unknown,
+      type: NormalizedNodeType,
+      location: Location,
+      parent: unknown,
+      key: string | number
+    ) {
+      const ignoreKey = `${location.absolutePointer}${location.pointer}`;
+      for (const { visit, ruleId, severity, message } of scalarEnter) {
+        if (ignoredNodes.has(ignoreKey)) break;
+        visit(value, {
+          report: (opts: Problem) => reportFn(ruleId, severity, message, opts),
+          resolve,
+          rawNode: value,
+          rawLocation: location,
+          location,
+          type,
+          parent,
+          key,
+          parentLocations: {},
+          specVersion: ctx.specVersion,
+          config: ctx.config,
+          ignoreNextVisitorsOnNode: () => {
+            ignoredNodes.add(ignoreKey);
+          },
+          getVisitorData: () => getVisitorDataFn(ruleId),
+        });
       }
     }
 

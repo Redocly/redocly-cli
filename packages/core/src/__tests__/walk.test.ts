@@ -1562,6 +1562,8 @@ describe('walk order', () => {
             parameters:
               - $ref: '#/components/parameters/shared'
                 description: written next to the $ref
+            get:
+              tags: [pets, store]
         components:
           parameters:
             shared:
@@ -1596,9 +1598,12 @@ describe('walk order', () => {
         "root.yaml#/components/parameters/shared/name "shared"",
         "root.yaml#/components/parameters/shared/in "query"",
         "root.yaml#/paths/~1pet/parameters/0/description "written next to the $ref"",
+        "root.yaml#/paths/~1pet/get/tags/0 "pets"",
+        "root.yaml#/paths/~1pet/get/tags/1 "store"",
       ]
     `);
     expect(schemas['#/info/title']).toMatchObject({ type: 'string' });
+    expect(schemas['#/paths/~1pet/get/tags/1']).toMatchObject({ type: 'string' });
   });
 });
 
