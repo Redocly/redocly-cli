@@ -103,6 +103,48 @@ export function isAbsoluteUrl(ref: string) {
   );
 }
 
+export function getSchemaId(node: unknown): string | undefined {
+  if (
+    isPlainObject(node) &&
+    typeof node.$id === 'string' &&
+    node.$id.length > 0 &&
+    !node.$id.startsWith('#')
+  ) {
+    return node.$id;
+  }
+  return undefined;
+}
+
+export function isSchemeUri(uri: string): boolean {
+  // Matches RFC 3986 scheme (e.g. urn:, tag:, http:, https:) while excluding Windows drive letters (C:\ or C:/)
+  return /^[a-zA-Z][a-zA-Z0-9+.-]+:/.test(uri);
+}
+
+export function resolveSchemaId(baseUri: string, schemaId: string): string {
+  const [normalizedId] = schemaId.split('#');
+  if (!normalizedId) {
+    return baseUri;
+  }
+
+  if (isAbsoluteUrl(normalizedId)) {
+    return normalizedId;
+  }
+
+  if (isSchemeUri(normalizedId)) {
+    return normalizedId;
+  }
+
+  if (baseUri && (isAbsoluteUrl(baseUri) || isSchemeUri(baseUri))) {
+    try {
+      return new URL(normalizedId, baseUri).href.split('#')[0];
+    } catch {
+      return normalizedId;
+    }
+  }
+
+  return path.resolve(baseUri ? path.dirname(baseUri) : process.cwd(), normalizedId);
+}
+
 export function getDir(filePath: string): string {
   if (!path.extname(filePath)) {
     return filePath;

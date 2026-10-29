@@ -165,6 +165,7 @@ export function makeBundleVisitor({
           // operation messages must point to channel messages, not to components.
           if (parseRef(node.$ref).uri !== null && node.$ref !== target.location.pointer) {
             node.$ref = target.location.pointer;
+            resolveBundledComponent(node, resolved, ctx);
           }
 
           return;
@@ -283,7 +284,11 @@ export function makeBundleVisitor({
       chain: resolved.chain,
       document: rootDocument,
       nodePointer: node.$ref,
+      baseUri: resolved.baseUri,
     };
+    if (ctx.baseUri) {
+      resolvedRefMap.set(makeRefId(ctx.baseUri, node.$ref), resolvedRef);
+    }
     resolvedRefMap.set(makeRefId(ctx.location.source.absoluteRef, node.$ref), resolvedRef);
     // saved components are walked again as part of the bundled document
     resolvedRefMap.set(makeRefId(rootDocument.source.absoluteRef, node.$ref), resolvedRef);

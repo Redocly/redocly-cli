@@ -10,7 +10,7 @@ import {
 import { bundleDocument } from '../bundle/bundle-document.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { createConfig, loadConfig } from '../config/index.js';
-import { AsyncApi2Types, AsyncApi3Types, Oas3Types } from '../index.js';
+import { AsyncApi2Types, AsyncApi3Types, Oas3Types, Oas3_1Types } from '../index.js';
 import { BaseResolver } from '../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1129,6 +1129,200 @@ describe('sibling $ref resolution by spec', () => {
         title: { type: 'string' },
       },
     });
+  });
+
+  it('should bundle OAS 3.1 schema with $id and local $defs references', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Classroom API
+          version: 1.0.0
+        paths:
+          /user-data:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/userData'
+        components:
+          schemas:
+            userData:
+              $id: 'https://example.com/classroom/userData'
+              type: object
+              properties:
+                challenges:
+                  type: array
+                  items:
+                    $ref: '#/$defs/Challenge'
+              $defs:
+                Challenge:
+                  type: object
+                  properties:
+                    files:
+                      type: array
+                      items:
+                        $ref: '#/$defs/File'
+                File:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3_1Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as {
+      components: {
+        schemas: {
+          userData: {
+            properties: { challenges: { items: { $ref: string } } };
+            $defs: { Challenge: { properties: { files: { items: { $ref: string } } } } };
+          };
+        };
+      };
+    };
+    const userData = parsed.components.schemas.userData;
+    expect(userData.properties.challenges.items.$ref).toBe('#/$defs/Challenge');
+    expect(userData.$defs.Challenge.properties.files.items.$ref).toBe('#/$defs/File');
+  });
+
+  it('should bundle and dereference relative $ref resolved against schema $id to in-document schema', async () => {
+    const makeDoc = () =>
+      parseYamlToDocument(
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Pet API
+            version: 1.0.0
+          paths:
+            /pets:
+              get:
+                responses:
+                  '200':
+                    description: OK
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '#/components/schemas/Pet'
+          components:
+            schemas:
+              Pet:
+                $id: 'https://example.com/schemas/pet'
+                type: object
+                properties:
+                  tag:
+                    $ref: 'tag'
+              Tag:
+                $id: 'https://example.com/schemas/tag'
+                type: object
+                required:
+                  - label
+                properties:
+                  label:
+                    type: string
+        `,
+        path.join(__dirname, 'fixtures/refs/openapi.yaml')
+      );
+
+    const { bundle: bundled, problems: bundleProblems } = await bundleDocument({
+      document: makeDoc(),
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3_1Types,
+    });
+
+    expect(bundleProblems).toHaveLength(0);
+    const bundledSchemas = (
+      bundled.parsed as {
+        components: { schemas: { Pet: { properties: { tag: unknown } } } };
+      }
+    ).components.schemas;
+    expect(bundledSchemas.Pet.properties.tag).toEqual({
+      $ref: '#/components/schemas/Tag',
+    });
+
+    const { bundle: dereferenced, problems: derefProblems } = await bundleDocument({
+      document: makeDoc(),
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3_1Types,
+      dereference: true,
+    });
+
+    expect(derefProblems).toHaveLength(0);
+    const dereferencedSchemas = (
+      dereferenced.parsed as {
+        components: { schemas: { Pet: { properties: { tag: unknown } } } };
+      }
+    ).components.schemas;
+    expect(dereferencedSchemas.Pet.properties.tag).toEqual({
+      $id: 'https://example.com/schemas/tag',
+      type: 'object',
+      required: ['label'],
+      properties: {
+        label: { type: 'string' },
+      },
+    });
+  });
+
+  it('should bundle composed $ref chain hops with relative $id and dereference recursive $id schemas with removeUnusedComponents', async () => {
+    const doc = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Chain Hop $id Test
+          version: 1.0.0
+        paths:
+          /items:
+            get:
+              responses:
+                '200':
+                  description: ok
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Parent/$defs/Hop'
+        components:
+          schemas:
+            Parent:
+              $id: 'https://example.com/schemas/parent.json'
+              type: object
+              $defs:
+                Hop:
+                  $id: 'sub/hop.json'
+                  $ref: 'leaf.json'
+            Leaf:
+              $id: 'https://example.com/schemas/sub/leaf.json'
+              type: object
+              properties:
+                next:
+                  $ref: 'leaf.json'
+      `,
+      path.join(__dirname, 'fixtures/refs/openapi.yaml')
+    );
+
+    const { problems } = await bundleDocument({
+      document: doc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3_1Types,
+      dereference: true,
+      removeUnusedComponents: true,
+    });
+
+    expect(problems).toHaveLength(0);
   });
 });
 
