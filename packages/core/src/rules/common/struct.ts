@@ -1,10 +1,5 @@
 import { isRef } from '../../ref-utils.js';
-import {
-  isNamedType,
-  SpecExtension,
-  type NormalizedNodeType,
-  type NormalizedScalarSchema,
-} from '../../types/index.js';
+import { isNamedType, SpecExtension } from '../../types/index.js';
 import { getOwn } from '../../utils/get-own.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type {
@@ -38,7 +33,7 @@ export const Struct:
       const nodeType = oasTypeOf(node);
       const refLocation = rawLocation !== location ? rawLocation : undefined;
 
-      if (scalarSchemaOf(type)) {
+      if (type.scalar) {
         return; // the parent checks a scalar node, so the problem keeps the parent's `$ref` location
       }
 
@@ -120,7 +115,7 @@ export const Struct:
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
 
-        const propSchema = isNamedType(propType) ? scalarSchemaOf(propType) : propType;
+        const propSchema = isNamedType(propType) ? propType.scalar : propType;
         if (isNamedType(propType) && !propSchema) {
           continue; // do nothing for named schema, it is executed with the next any call
         }
@@ -207,14 +202,3 @@ export const Struct:
     },
   };
 };
-
-// The scalar schema of a node for a scalar or for a list of scalars; undefined for any other node.
-function scalarSchemaOf(type: NormalizedNodeType): NormalizedScalarSchema | undefined {
-  if (type.scalar) {
-    return type.scalar;
-  }
-  if (typeof type.items !== 'function' && isNamedType(type.items) && type.items.scalar) {
-    return { type: 'array', items: type.items.scalar, resolvable: true };
-  }
-  return undefined;
-}

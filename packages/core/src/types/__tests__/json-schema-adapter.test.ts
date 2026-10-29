@@ -28,7 +28,7 @@ describe('getNodeTypesFromJSONSchema', () => {
     warn.mockRestore();
   });
 
-  it('turns a named list of strings into a node whose items are scalar nodes', () => {
+  it('turns a named list of strings into one scalar node', () => {
     const { ctx: types } = getNodeTypesFromJSONSchema('Root', {
       type: 'object',
       properties: {
@@ -41,10 +41,9 @@ describe('getNodeTypesFromJSONSchema', () => {
     });
 
     expect(types['Root'].properties.overlays).toBe('Overlays');
-    expect(types['Overlays'].items).toBe('Overlays_items');
-    expect(types['Overlays_items']).toEqual({
+    expect(types['Overlays']).toEqual({
       properties: {},
-      scalar: { type: 'string', format: 'uri-reference' },
+      scalar: { type: 'array', items: { type: 'string', format: 'uri-reference' } },
     });
   });
 

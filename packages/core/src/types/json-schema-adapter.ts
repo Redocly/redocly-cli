@@ -52,7 +52,17 @@ function isScalarSchema(schema: unknown): schema is ScalarSchemaObject {
   return isPlainObject(schema) && typeof schema.type === 'string' && SCALAR_TYPES.has(schema.type);
 }
 
-function scalarNodeType(schema: ScalarSchemaObject): NodeType {
+// A scalar or a list of scalars: the whole value is one node.
+function isScalarValueSchema(
+  schema: unknown
+): schema is ScalarSchemaObject | (SchemaObject & { type: 'array'; items: ScalarSchemaObject }) {
+  return (
+    isScalarSchema(schema) ||
+    (isPlainObject(schema) && schema.type === 'array' && isScalarSchema(schema.items))
+  );
+}
+
+function scalarNodeType(schema: SchemaObject): NodeType {
   const { default: _, nodeTypeName: __, ...scalar } = schema;
   // the scalar keywords of a JSON Schema are the ones ScalarSchema lists, as in the scalar branch below
   return { properties: {}, scalar: scalar as ScalarSchema };
@@ -202,7 +212,7 @@ function extractNodeToContext(
   // Use nodeTypeName from schema if provided, otherwise use propertyName
   const nodeTypeName = schema.nodeTypeName ?? propertyName;
 
-  if (isScalarSchema(schema)) {
+  if (isScalarValueSchema(schema)) {
     ctx[nodeTypeName] = scalarNodeType(schema);
     return nodeTypeName;
   }
@@ -232,9 +242,6 @@ function extractNodeToContext(
       schema.items.oneOf) // exclude scalar array types
   ) {
     items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
-  } else if (isScalarSchema(schema.items)) {
-    ctx[nodeTypeName + '_items'] = scalarNodeType(schema.items);
-    items = nodeTypeName + '_items';
   }
 
   let required = schema.required as NodeType['required'];

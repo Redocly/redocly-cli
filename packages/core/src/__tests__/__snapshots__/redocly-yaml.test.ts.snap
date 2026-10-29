@@ -236,7 +236,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "grouped",
         ],
       },
-      "cliOutput": "ClientCliOutput",
+      "cliOutput": "FilePath",
       "codeSamples": {
         "type": "boolean",
       },
@@ -306,7 +306,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "serverUrl": {
         "type": "string",
       },
-      "setup": "ClientSetup",
+      "setup": "FilePath",
       "telemetry": {
         "enum": [
           "on",
@@ -315,23 +315,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
   },
-  "ClientCliOutput": {
-    "properties": {},
-    "scalar": {
-      "format": "uri-reference",
-      "type": "string",
-    },
-  },
   "ClientGeneratorOptions": {
     "additionalProperties": {},
     "properties": {},
-  },
-  "ClientOutput": {
-    "properties": {},
-    "scalar": {
-      "format": "uri-reference",
-      "type": "string",
-    },
   },
   "ClientPagination": {
     "properties": {
@@ -412,13 +398,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
   },
-  "ClientSetup": {
-    "properties": {},
-    "scalar": {
-      "format": "uri-reference",
-      "type": "string",
-    },
-  },
   "ConfigApis": {
     "additionalProperties": "ConfigApisProperties",
     "description": "The \`apis\` configuration section is used when a project contains multiple API descriptions to set up different rules and settings for individual APIs. It allows defining specific configurations for each API, which must be identified by a unique name.",
@@ -445,7 +424,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Rules": "Rules",
       "asyncapi": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi",
       "client": "Client",
-      "clientOutput": "ClientOutput",
+      "clientOutput": "FilePath",
       "decorators": "Decorators",
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
@@ -858,6 +837,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "url",
     ],
   },
+  "FilePath": {
+    "properties": {},
+    "scalar": {
+      "format": "uri-reference",
+      "type": "string",
+    },
+  },
   "GRAVITEE": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -1070,18 +1056,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": undefined,
   },
   "Overlays": {
-    "additionalProperties": undefined,
-    "description": "List of overlay files",
-    "documentationLink": undefined,
-    "items": "Overlays_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "Overlays_items": {
     "properties": {},
     "scalar": {
-      "format": "uri-reference",
-      "type": "string",
+      "description": "List of overlay files",
+      "items": {
+        "format": "uri-reference",
+        "type": "string",
+      },
+      "type": "array",
     },
   },
   "PatternProperties": {

@@ -94,15 +94,18 @@ function resolvePath(value: unknown, sourceRef: string) {
 
 // Commands resolve relative config paths from the root config folder, so a path written in a referenced file is made absolute.
 function resolveUriReference(node: unknown, ctx: UserContext) {
+  const { scalar } = ctx.type;
+  if ((scalar?.format ?? scalar?.items?.format) !== 'uri-reference') {
+    return;
+  }
   const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
-  if (
-    sourceRef !== rootRef &&
-    !isAbsoluteUrl(sourceRef) &&
-    ctx.type.scalar?.format === 'uri-reference'
-  ) {
-    ctx.parent[ctx.key] = resolvePath(node, sourceRef);
+  if (sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
+    return;
   }
+  ctx.parent[ctx.key] = Array.isArray(node)
+    ? node.map((item) => resolvePath(item, sourceRef))
+    : resolvePath(node, sourceRef);
 }
 
 export const configBundlerVisitor = normalizeVisitors(
