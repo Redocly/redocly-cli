@@ -1536,16 +1536,16 @@ describe('walk order', () => {
   });
   it('should give scalar visitors every value without a node type, where it is written', async () => {
     const calls: string[] = [];
+    const schemas: Record<string, unknown> = {};
 
     const testRuleSet: Oas3RuleSet = {
       test: vi.fn(() => {
         return {
           scalar(value: unknown, { type, location }: any) {
             calls.push(
-              `${location.source.absoluteRef}${
-                location.pointer
-              } ${JSON.stringify(value)} ${type.scalar.type}`
+              `${location.source.absoluteRef}${location.pointer} ${JSON.stringify(value)}`
             );
+            schemas[location.pointer] = type.scalar;
           },
         };
       }),
@@ -1591,13 +1591,14 @@ describe('walk order', () => {
 
     expect(calls).toMatchInlineSnapshot(`
       [
-        "root.yaml#/info/title "Test" string",
-        "root.yaml#/info/version "1.0" string",
-        "root.yaml#/components/parameters/shared/name "shared" string",
-        "root.yaml#/components/parameters/shared/in "query" undefined",
-        "root.yaml#/paths/~1pet/parameters/0/description "written next to the $ref" string",
+        "root.yaml#/info/title "Test"",
+        "root.yaml#/info/version "1.0"",
+        "root.yaml#/components/parameters/shared/name "shared"",
+        "root.yaml#/components/parameters/shared/in "query"",
+        "root.yaml#/paths/~1pet/parameters/0/description "written next to the $ref"",
       ]
     `);
+    expect(schemas['#/info/title']).toMatchObject({ type: 'string' });
   });
 });
 

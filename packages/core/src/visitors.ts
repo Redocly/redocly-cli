@@ -188,8 +188,7 @@ export type BaseVisitor = {
       }
     | VisitRefFunction;
 
-  // called for a value that has no node type (a scalar, a list of scalars, a free-form object)
-  // at the location where it is written; `ctx.type.scalar` is the schema of that value
+  // a value with no node type, where it is written; `ctx.type.scalar` is its schema
   scalar?: VisitFunction<unknown>;
 };
 
