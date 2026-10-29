@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Open a draft pull request in the Redocly CLI repository from a branch without a PR, or a new branch from main — commit only the staged files, check the changeset, and fill the PR template without removing any of its sections. Use whenever the user asks to open, create, or prepare a PR or draft PR, push work for review, or ship a change, even if they do not say "draft".
+description: Open a draft pull request in the Redocly CLI repository from a branch without a PR, or a new branch from main — commit the staged files, or the files of the change when nothing is staged, check the changeset, and fill the PR template without removing any of its sections. Use whenever the user asks to open, create, or prepare a PR or draft PR, push work for review, or ship a change, even if they do not say "draft".
 ---
 
 # Open a draft pull request
@@ -13,13 +13,15 @@ It does not change code: the only file it may create is a changeset.
 
 ## 1. Understand the change
 
-1. Run `git fetch origin main`, then read `git status --short` and `git diff --cached`.
-   The change is the staged files, plus the commits of the current branch when step 2 uses that branch.
-2. Find the why in the conversation, the commits, or the linked issue.
+1. Run `git fetch origin main`, then read `git status --short`, `git diff --cached`, and `git diff`.
+   The change is the uncommitted files, plus the commits of the current branch when step 2 uses that branch.
+2. When the user staged files, they chose the files of the change, so the change is the staged files.
+   When an unstaged or untracked file seems to belong to it, ask the user to stage it before you go on.
+3. When nothing is staged, list the files that belong to the change, and step 5 stages them.
+   Leave out everything else: untracked drafts, local notes and plans, and a `package-lock.json` that only a local `npm install` changed.
+   When you are not sure that a file belongs, ask.
+4. Find the why in the conversation, the commits, or the linked issue.
    If no source says why, ask the user before you write the PR body.
-3. Check the unstaged and untracked files.
-   When one of them seems to belong to the change, ask the user to stage it before you go on.
-   Untracked drafts, local notes and plans, and a `package-lock.json` that only a local `npm install` changed stay out.
 
 ## 2. Choose the branch
 
@@ -32,11 +34,11 @@ Otherwise, create the PR branch from `origin/main`, unless the user asks for ano
 git switch -c <type>/<short-topic> origin/main
 ```
 
-The staged files come with the switch, and the commits of the current branch stay out of the PR.
+The uncommitted files come with the switch, and the commits of the current branch stay out of the PR.
 Name the branch after the commit type and the topic, for example `fix/bundle-ref-paths`.
 Never push `main`.
 
-- If git refuses the switch because a staged file conflicts with `origin/main`, stop and ask.
+- If git refuses the switch because an uncommitted file conflicts with `origin/main`, stop and ask.
 - Do not rebase, merge, reset, or stash without asking.
 
 ## 3. Check the change
@@ -52,6 +54,7 @@ npm test
 
 - For a change to docs only, `npm run lint` and `npx redocly recheck <changed files> --config docs/redocly.yaml` are enough.
 - If the diff came from an AI assistant, run `/deslop` before you commit.
+  When the user staged the files, ask them to review its edits and stage the edited files.
 - If a check fails because of the change, stop and report the failure.
   If it fails for an unrelated reason, such as a flaky test or a missing local tool, report it to the user with its output.
   Never hide a failure, but keep it out of the PR body: the pipelines show it, and every check must pass before the merge.
@@ -60,7 +63,8 @@ npm test
 
 Every feat or fix that changes a published package needs a changeset (see `CONTRIBUTING.md` and `.claude/rules/workflow.md`).
 
-When the change needs a changeset and none is staged, write one and ask the user to stage it.
+When the change needs a changeset and none exists, write one.
+It is a file of the change: when the user staged the files, ask them to stage it too, and otherwise step 5 stages it.
 
 1. Read the package names in `.changeset/config.json`, and read the top of the package `CHANGELOG.md` to match its wording.
 2. Write `.changeset/<three-random-words>.md`:
@@ -82,15 +86,17 @@ When the change needs a changeset and none is staged, write one and ask the user
 
 ## 5. Commit
 
-- Commit only the staged files, and do not stage files yourself.
-  A file committed by mistake stays in the public history even after you remove it.
-- Before you commit, compare `git diff --cached --name-only` with the staged files from step 1.
+- When the user staged the files, commit them and stage nothing else.
+- Otherwise, stage each file of the change by its path: `git add <path> <path>`.
+  Do not use `git add .`, `git add -A`, or a folder path.
+  They also stage untracked drafts, and a draft stays in the public history even after you remove it.
+- Before you commit, compare `git diff --cached --name-only` with the files of the change from step 1.
 - Write one Conventional Commits sentence, such as `feat: add the skills command` or `fix(respect): keep cookies between steps`.
   The types in use are `feat`, `fix`, `docs`, `chore`, and `test`.
   The scope is optional.
 - Do not add AI co-author or "Generated with" lines.
 - The pre-commit hook lints and formats the staged files.
-  If it fails, fix the cause.
+  If it fails, fix the cause, then stage the fixed file again when you staged it, and otherwise ask the user to review and stage it.
   Do not use `--no-verify`.
 
 ## 6. Write the PR body
