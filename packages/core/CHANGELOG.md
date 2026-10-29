@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.72.1
+
+### Patch Changes
+
+- Fixed an issue where bundling `@redocly/openapi-core` for the browser failed with `"fileURLToPath" is not exported` and `"pathToFileURL" is not exported` errors.
+
 ## 2.72.0
 
 ### Minor Changes
