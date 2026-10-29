@@ -1,5 +1,31 @@
 # @redocly/cli
 
+## 2.72.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 2.72.0
+
+### Minor Changes
+
+- Added a one-time announcement about the agent skills and the `skills` command, shown the first time you run Redocly CLI.
+  To turn off announcements, set the `REDOCLY_SUPPRESS_NOTIFICATIONS` environment variable to `true`.
+- Added the `java` generator to the `generate-client` command.
+- Added an experimental `diff` command that compares two API descriptions, reports changes, and rates every change by the semver bump it requires (`patch`, `minor`, or `major`).
+  `--fail-on` sets the impact that fails the run and `--check-version` verifies that `info.version` was bumped accordingly.
+
+### Patch Changes
+
+- Fixed an issue where `respect` ignored the `dataValue` field of OpenAPI 3.2 examples when a step took its parameters or request body from the API description.
+- Fixed an issue where `respect` ignored parameters defined on a path item when a step used `operationId` and took its request data from the API description.
+- Updated the `generate-spec`, `generate-arazzo`, and `recheck` commands to print their execution time in milliseconds, the same as the `lint` and `bundle` commands.
+- Updated @redocly/client-generator to v0.8.0.
+- Updated @redocly/openapi-core to v2.72.0.
+- Updated @redocly/respect-core to v2.72.0.
+- Updated @redocly/reunite-integration to v2.72.0.
+
 ## 2.71.2
 
 ### Patch Changes

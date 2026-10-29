@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "@redocly/cli": "latest",
-    "@redocly/client-generator": "^0.7.0"
+    "@redocly/client-generator": "^0.8.0"
   }
 }

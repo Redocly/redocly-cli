@@ -15,3 +15,4 @@ RUN apk add --no-cache jq git && \
 WORKDIR /spec
 ENTRYPOINT ["redocly"]
 ENV REDOCLY_ENVIRONMENT=docker
+ENV REDOCLY_SUPPRESS_NOTIFICATIONS=true

@@ -2045,6 +2045,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Decorators": {
         "type": "object",
       },
+      "async3Diff": "rootRedoclyConfigSchema.async3Diff",
       "async3Preprocessors": {
         "type": "object",
       },
@@ -2066,6 +2067,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "developerOnboarding": "rootRedoclyConfigSchema.developerOnboarding",
+      "diff": "rootRedoclyConfigSchema.diff",
       "entitiesCatalog": "rootRedoclyConfigSchema.entitiesCatalog",
       "env": "rootRedoclyConfigSchema.env",
       "extends": {
@@ -2124,6 +2126,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "oas3_0Decorators": {
         "type": "object",
       },
+      "oas3_0Diff": "rootRedoclyConfigSchema.oas3_0Diff",
       "oas3_0Preprocessors": {
         "type": "object",
       },
@@ -2131,6 +2134,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "oas3_1Decorators": {
         "type": "object",
       },
+      "oas3_1Diff": "rootRedoclyConfigSchema.oas3_1Diff",
       "oas3_1Preprocessors": {
         "type": "object",
       },
@@ -2138,6 +2142,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "oas3_2Decorators": {
         "type": "object",
       },
+      "oas3_2Diff": "rootRedoclyConfigSchema.oas3_2Diff",
       "oas3_2Preprocessors": {
         "type": "object",
       },
@@ -9461,6 +9466,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.async3Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.async3Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -10099,6 +10120,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "description": undefined,
     "documentationLink": undefined,
     "items": [Function],
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
     "properties": {},
     "required": undefined,
   },
@@ -11511,6 +11548,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Decorators": {
         "type": "object",
       },
+      "async3Diff": "rootRedoclyConfigSchema.env_additionalProperties.async3Diff",
       "async3Preprocessors": {
         "type": "object",
       },
@@ -11532,6 +11570,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "developerOnboarding": "rootRedoclyConfigSchema.env_additionalProperties.developerOnboarding",
+      "diff": "rootRedoclyConfigSchema.env_additionalProperties.diff",
       "entitiesCatalog": "rootRedoclyConfigSchema.env_additionalProperties.entitiesCatalog",
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
@@ -11589,6 +11628,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "oas3_0Decorators": {
         "type": "object",
       },
+      "oas3_0Diff": "rootRedoclyConfigSchema.env_additionalProperties.oas3_0Diff",
       "oas3_0Preprocessors": {
         "type": "object",
       },
@@ -11596,6 +11636,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "oas3_1Decorators": {
         "type": "object",
       },
+      "oas3_1Diff": "rootRedoclyConfigSchema.env_additionalProperties.oas3_1Diff",
       "oas3_1Preprocessors": {
         "type": "object",
       },
@@ -11603,6 +11644,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "oas3_2Decorators": {
         "type": "object",
       },
+      "oas3_2Diff": "rootRedoclyConfigSchema.env_additionalProperties.oas3_2Diff",
       "oas3_2Preprocessors": {
         "type": "object",
       },
@@ -18921,6 +18963,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.async3Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.async3Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -19559,6 +19617,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "description": undefined,
     "documentationLink": undefined,
     "items": [Function],
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
     "properties": {},
     "required": undefined,
   },
@@ -22906,6 +22980,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.oas3_0Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.oas3_0Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -22914,10 +23004,42 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.oas3_1Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.oas3_1Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.oas3_2Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
     "items": undefined,
     "properties": {},
     "required": undefined,
@@ -26019,16 +26141,91 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name": {
         "enum": [
           "feedback",
-          "discovery",
-          "supportConversations",
-          "followUpOnPullRequest",
-          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": [Function],
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_0.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_0.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_0.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_0.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "feedback",
         ],
         "type": "string",
       },
     },
     "required": [
-      "name",
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_0.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
     ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1": {
@@ -26042,7 +26239,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "enum": [
-          "review",
+          "discovery",
         ],
         "type": "string",
       },
@@ -26050,7 +26247,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "sourceRepositories": [Function],
-      "specialists": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists",
+      "trigger": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.trigger",
     },
     "required": [
       "name",
@@ -26091,15 +26288,119 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "repository",
     ],
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists": {
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.trigger": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists_items",
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_2": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "supportConversations",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists_items": {
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists_items": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
@@ -37447,6 +37748,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.oas3_0Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.oas3_0Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -37455,10 +37772,42 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.oas3_1Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.oas3_1Rules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.oas3_2Diff": {
+    "additionalProperties": {
+      "enum": [
+        "off",
+        "patch",
+        "minor",
+        "major",
+      ],
+      "type": "string",
+    },
+    "description": "The diff configuration blocks set the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
+    "documentationLink": "https://redocly.com/docs/cli/configuration/reference/diff",
     "items": undefined,
     "properties": {},
     "required": undefined,
@@ -40560,16 +40909,91 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name": {
         "enum": [
           "feedback",
-          "discovery",
-          "supportConversations",
-          "followUpOnPullRequest",
-          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": [Function],
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_0.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_0.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_0.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_0.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "feedback",
         ],
         "type": "string",
       },
     },
     "required": [
-      "name",
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_0.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
     ],
   },
   "rootRedoclyConfigSchema.reunite.agent.duties_items_1": {
@@ -40583,7 +41007,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "enum": [
-          "review",
+          "discovery",
         ],
         "type": "string",
       },
@@ -40591,7 +41015,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "sourceRepositories": [Function],
-      "specialists": "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists",
+      "trigger": "rootRedoclyConfigSchema.reunite.agent.duties_items_1.trigger",
     },
     "required": [
       "name",
@@ -40632,15 +41056,119 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "repository",
     ],
   },
-  "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists": {
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_1.trigger": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists_items",
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_2": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "supportConversations",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_3": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_3.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists_items": {
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists_items": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,

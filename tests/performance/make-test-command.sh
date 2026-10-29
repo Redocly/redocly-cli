@@ -9,7 +9,7 @@ make_hyperfine_command() {
   for dep in $deps; do
     commands+="'node node_modules/$dep/bin/cli.js $cli_command' "
   done
-  echo "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 2 ${commands% } --export-markdown $filename.md --export-json $filename.json"
+  echo "REDOCLY_SUPPRESS_NOTIFICATIONS=true REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 2 ${commands% } --export-markdown $filename.md --export-json $filename.json"
 }
 
 # Clone the repo with test openapi files:
