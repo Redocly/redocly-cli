@@ -16,7 +16,7 @@ The package derives from the API title (`redoclycafe` here).
 
 ```sh
 npm run generate
-javac -d out src/api/Client.java Main.java
+javac -d out src/api/Client.java src/Main.java
 java -cp out Main
 ```
 
