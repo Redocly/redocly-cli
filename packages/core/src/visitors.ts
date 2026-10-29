@@ -120,10 +120,6 @@ export type VisitFunction<T> = (
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
 
-// Called for a value that has no node type (a scalar, a list of scalars, a free-form object);
-// `ctx.type.scalar` is the schema of that value.
-type VisitScalarFunction = (value: unknown, ctx: UserContext) => void;
-
 type SkipFunction<T> = (node: T, key: string | number, ctx: SkipFunctionContext) => boolean;
 
 type VisitObject<T> = {
@@ -153,15 +149,6 @@ type VisitorRefNode = {
   context: VisitorLevelContext;
   depth: number;
   visit: VisitRefFunction;
-};
-
-type VisitorScalarNode = {
-  ruleId: string;
-  severity: ProblemSeverity;
-  message?: string;
-  context: VisitorLevelContext;
-  depth: number;
-  visit: VisitScalarFunction;
 };
 
 export type VisitorLevelContext = {
@@ -201,7 +188,9 @@ export type BaseVisitor = {
       }
     | VisitRefFunction;
 
-  scalar?: VisitScalarFunction;
+  // called for a value that has no node type (a scalar, a list of scalars, a free-form object)
+  // at the location where it is written; `ctx.type.scalar` is the schema of that value
+  scalar?: VisitFunction<unknown>;
 };
 
 type Oas3FlatVisitor = {
@@ -472,10 +461,6 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
   ref: {
     enter: Array<VisitorRefNode>;
     leave: Array<VisitorRefNode>;
-  };
-  scalar: {
-    enter: Array<VisitorScalarNode>;
-    leave: Array<VisitorScalarNode>;
   };
   [k: string]: {
     // any internal types
