@@ -84,6 +84,7 @@ The rules list is split into sections.
 ### Requests, Responses, and Schemas
 
 - [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unique naming of parameters, schemas, request bodies and responses
+- [no-ambiguous-component-names](./oas/no-ambiguous-component-names.md): Component names in the same section cannot differ only in letter case or separators
 - [no-duplicated-enum-values](./common/no-duplicated-enum-values.md): All values in an `enum` must be unique
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both

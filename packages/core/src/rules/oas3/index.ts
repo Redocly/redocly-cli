@@ -47,6 +47,7 @@ import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ArrayParameterSerialization } from './array-parameter-serialization.js';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes.js';
 import { ComponentNameUnique } from './component-name-unique.js';
+import { NoAmbiguousComponentNames } from './no-ambiguous-component-names.js';
 import { NoEmptyServers } from './no-empty-servers.js';
 import { NoExampleValueAndExternalValue } from './no-example-value-and-externalValue.js';
 import { NoIllogicalCompositionKeywords } from './no-illogical-composition-keywords.js';
@@ -111,6 +112,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'no-invalid-media-type-examples': ValidContentExamples,
   'no-identical-paths': NoIdenticalPaths as Oas3Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas3Rule,
+  'no-ambiguous-component-names': NoAmbiguousComponentNames,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-server-variables-empty-enum': NoServerVariablesEmptyEnum,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths as Oas3Rule,
