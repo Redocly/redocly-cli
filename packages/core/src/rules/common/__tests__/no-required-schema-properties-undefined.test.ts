@@ -552,6 +552,177 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
+  it('should not report when not.required names an undeclared property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          components:
+            schemas:
+              Contact:
+                type: object
+                properties:
+                  email:
+                    type: string
+                not:
+                  required:
+                    - missing
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report when not.required names a declared property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          components:
+            schemas:
+              Contact:
+                type: object
+                properties:
+                  email:
+                    type: string
+                not:
+                  required:
+                    - email
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report when not.required is a sibling of a $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          components:
+            schemas:
+              Contact:
+                type: object
+                properties:
+                  email:
+                    type: string
+              Restricted:
+                not:
+                  $ref: '#/components/schemas/Contact'
+                  required:
+                    - missing
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report when not.required is a sibling of a $ref nested in a composition', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          components:
+            schemas:
+              Contact:
+                type: object
+                properties:
+                  email:
+                    type: string
+              Restricted:
+                not:
+                  allOf:
+                    - $ref: '#/components/schemas/Contact'
+                      required:
+                        - missing
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should still report a named schema whose only reference is under not', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          paths:
+            /a:
+              get:
+                responses:
+                  '200':
+                    description: ok
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '#/components/schemas/Excluded'
+          components:
+            schemas:
+              Contact:
+                type: object
+                properties:
+                  email:
+                    type: string
+              WithBadRequired:
+                $ref: '#/components/schemas/Contact'
+                required:
+                  - missing
+              Excluded:
+                not:
+                  $ref: '#/components/schemas/WithBadRequired'
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/WithBadRequired/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'missing' is not defined.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should NOT report if one or more of the required properties are defined when used in schema with anyOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
