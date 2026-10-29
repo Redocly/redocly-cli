@@ -39,24 +39,24 @@ The TypeScript family has a complete shadow implementation in `emitters/`.
 
 Consumers of each neutral helper, counted outside `authoring/`:
 
-| Helper                | Consumers                                     |
-| --------------------- | --------------------------------------------- |
-| `NotSupportedError`   | 9 — package-wide error type, genuinely shared |
-| `Printer`             | go, php, java, python, `cli-docs` (Markdown)  |
-| `renderReferencePage` | go, php, java, python, **typescript**         |
-| `schemaAtPointer`     | go, php, java, python, `pagination`           |
-| `headerCoerceType`    | go, php, java, python, `response-headers`     |
-| `casing`              | go, `cli`, `runtime/cli`, `runtime-sources`   |
-| `identifierFor`       | go, php, java, python                         |
-| `uniqueIdentifiers`   | go, php, java, python                         |
-| `RESERVED_WORDS`      | go, php, java, python                         |
-| `flattenAllOf`        | go, php, java, python                         |
-| `discriminatorCases`  | go, php, java, python                         |
-| `isNullable`          | go, php, java, python                         |
-| `unwrapNullable`      | go, php, java, python                         |
-| `enumValues`          | go, php, java, python                         |
-| `docText`             | go, php, java, python                         |
-| `paginationRuleFor`   | go, php, python                               |
+| Helper                | Consumers                                         |
+| --------------------- | ------------------------------------------------- |
+| `NotSupportedError`   | 9 — package-wide error type, genuinely shared     |
+| `Printer`             | go, php, java, python, `cli-docs` (Markdown)      |
+| `renderReferencePage` | go, php, java, python, **typescript**             |
+| `schemaAtPointer`     | go, php, python, `pagination`                     |
+| `headerCoerceType`    | go, php, java, python, `response-headers`         |
+| `casing`              | go, java, `cli`, `runtime/cli`, `runtime-sources` |
+| `identifierFor`       | go, php, java, python                             |
+| `uniqueIdentifiers`   | go, php, java, python                             |
+| `RESERVED_WORDS`      | go, php, java, python                             |
+| `flattenAllOf`        | go, php, java, python                             |
+| `discriminatorCases`  | go, php, java, python                             |
+| `isNullable`          | go, php, python                                   |
+| `unwrapNullable`      | go, php, java, python                             |
+| `enumValues`          | go, php, java, python                             |
+| `docText`             | go, php, java, python                             |
+| `paginationRuleFor`   | go, php, python                                   |
 
 **Ten of sixteen neutral helpers have exactly three consumers, and they are always the same three.**
 No TypeScript-family generator uses `Printer`, `docText`, `identifierFor`, or any of the schema-shape
