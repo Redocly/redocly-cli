@@ -9,7 +9,12 @@ import type {
   ResolvedRefChainHop,
   Document,
 } from './resolve.js';
-import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
+import {
+  isNamedType,
+  SpecExtension,
+  type NormalizedNodeType,
+  type NormalizedScalarSchema,
+} from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
@@ -271,32 +276,24 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           walkNode(value, propType, loc.child([propName]), valueParent, propName);
           return;
         }
-        if (!propType || (!isRef(value) && !scalarEnter.length)) {
+        if (!propType) {
           return;
         }
-
-        const scalarType: NormalizedNodeType = { name: 'scalar', properties: {}, scalar: propType };
-        const scalarLocation = loc.child([propName]);
         if (isRef(value)) {
           if (propType.resolvable !== false) {
-            walkNode(value, scalarType, scalarLocation, valueParent, propName);
+            const scalarType: NormalizedNodeType = {
+              name: 'scalar',
+              properties: {},
+              scalar: propType,
+            };
+            walkNode(value, scalarType, loc.child([propName]), valueParent, propName);
           }
           return;
         }
-
-        // a list of leaves is visited item by item
-        if (Array.isArray(value) && propType.items) {
-          const itemType: NormalizedNodeType = {
-            name: 'scalar',
-            properties: {},
-            scalar: propType.items,
-          };
-          for (let i = 0; i < value.length; i++) {
-            visitScalar(value[i], itemType, scalarLocation.child([i]), value, i);
-          }
+        if (!scalarEnter.length) {
           return;
         }
-        visitScalar(value, scalarType, scalarLocation, valueParent, propName);
+        visitScalar(value, propType, loc.child([propName]), valueParent, propName);
       };
 
       currentLocation = resolvedLocation;
@@ -505,27 +502,24 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     // a `$ref` to a leaf, after `ref.leave` has resolved it
     if (nodeIsRef && type.scalar && resolvedNode !== undefined && resolvedLocation) {
-      if (Array.isArray(resolvedNode) && type.scalar.items) {
-        const itemType: NormalizedNodeType = {
-          name: 'scalar',
-          properties: {},
-          scalar: type.scalar.items,
-        };
-        for (let i = 0; i < resolvedNode.length; i++) {
-          visitScalar(resolvedNode[i], itemType, resolvedLocation.child([i]), resolvedNode, i);
-        }
-      } else {
-        visitScalar(resolvedNode, type, resolvedLocation, parent, key);
-      }
+      visitScalar(resolvedNode, type.scalar, resolvedLocation, parent, key);
     }
 
+    // a list of leaves is visited item by item
     function visitScalar(
       value: unknown,
-      type: NormalizedNodeType,
+      schema: NormalizedScalarSchema,
       location: Location,
       parent: unknown,
       key: string | number
     ) {
+      if (Array.isArray(value) && schema.items) {
+        for (let i = 0; i < value.length; i++) {
+          visitScalar(value[i], schema.items, location.child([i]), value, i);
+        }
+        return;
+      }
+      const type: NormalizedNodeType = { name: 'scalar', properties: {}, scalar: schema };
       const ignoreKey = `${location.absolutePointer}${location.pointer}`;
       for (const { visit, ruleId, severity, message } of scalarEnter) {
         if (ignoredNodes.has(ignoreKey)) break;

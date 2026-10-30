@@ -642,9 +642,6 @@ export function normalizeVisitors<T extends BaseVisitor>(
       if (visitor.ref) {
         throw new Error('ref() is allowed only on top level');
       }
-      if (visitor.scalar) {
-        throw new Error('scalar() is allowed only on top level');
-      }
     }
 
     for (const typeName of visitorKeys as Array<keyof T>) {
