@@ -13,11 +13,11 @@ import {
   isBinaryContentType,
   type ModelPagination,
   type OperationModel,
+  type GeneratorInput,
   type ParamModel,
   type SchemaModel,
 } from '@redocly/client-generator';
 import { flatInputShape } from '@redocly/client-generator/contracts/typescript';
-import { logger } from '@redocly/openapi-core';
 
 import { embedCliRuntime } from './engine-source.ts';
 
@@ -165,6 +165,7 @@ function codeJson(value: unknown, indent?: number): string {
 }
 
 export type CliModuleOptions = {
+  reportFinding: GeneratorInput['reportFinding'];
   stem: string;
   importExt: string;
   zodSelected: boolean;
@@ -201,15 +202,29 @@ function shadowedAddress(command: CliCommand): string {
  * unreachable either way, but only the description's author can rename a side of the
  * collision, so say it once at generation time.
  */
-function warnShadowedCommands(commands: CliCommand[]): void {
+function warnShadowedCommands(
+  model: ApiModel,
+  commands: CliCommand[],
+  reportFinding: GeneratorInput['reportFinding']
+): void {
   const slugs = new Set(commands.filter((c) => c.group).map((c) => groupSlug(c.group as string)));
   const shadowed = commands.filter((command) => slugs.has(command.name));
   if (shadowed.length === 0) return;
-  logger.warn(
-    `generate-client: cli reads a leading group name as the group, so ${shadowed.length} operation(s) named after a tag resolve unusually — rename the operation or the tag: ${shadowed
+  // A command is named after its operation's generated name, which is unique in the model.
+  const shadowedNames = new Set(shadowed.map((command) => command.name));
+  const operationIds: string[] = [];
+  for (const service of model.services) {
+    for (const op of service.operations) {
+      if (shadowedNames.has(op.name)) operationIds.push(op.specName ?? op.name);
+    }
+  }
+  reportFinding({
+    kind: 'command-shadowed',
+    message: `cli reads a leading group name as the group, so ${shadowed.length} operation(s) named after a tag resolve unusually — rename the operation or the tag: ${shadowed
       .map(shadowedAddress)
-      .join(', ')}.\n`
-  );
+      .join(', ')}.`,
+    operations: operationIds,
+  });
 }
 
 /** The whole `<stem>.cli.ts` file. */
@@ -218,7 +233,7 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
     pagination: options.pagination,
     argsStyle: options.argsStyle,
   });
-  warnShadowedCommands(commands);
+  warnShadowedCommands(model, commands, options.reportFinding);
   const schemes = cliAuthSchemes(model);
   const clientModule = `./${options.stem}.${options.importExt}`;
   const clientImports = ['client', 'configure', ...(options.zodSelected ? ['use'] : [])];

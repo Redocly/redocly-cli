@@ -1,5 +1,6 @@
 import { parse } from 'node:path';
 
+import { reportFinding } from '../../../findings.js';
 import { resolveModelPagination } from '../../../pagination.js';
 import type { GeneratorInput } from '../../types.js';
 
@@ -15,7 +16,9 @@ export const BANNER = [
  * they mirror those steps here.
  */
 export function generatorInput(
-  overrides: Omit<GeneratorInput, 'output' | 'banner' | 'pagination'> & { outputPath: string }
+  overrides: Omit<GeneratorInput, 'output' | 'banner' | 'pagination' | 'reportFinding'> & {
+    outputPath: string;
+  }
 ): GeneratorInput {
   const { outputPath, ...rest } = overrides;
   const { dir, name: stem, ext } = parse(outputPath);
@@ -23,6 +26,7 @@ export function generatorInput(
     ...rest,
     output: { path: outputPath, dir, stem, ext },
     banner: BANNER,
+    reportFinding,
     pagination: resolveModelPagination(overrides.model, undefined),
   };
 }

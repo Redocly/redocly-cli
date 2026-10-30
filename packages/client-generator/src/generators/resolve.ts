@@ -5,11 +5,12 @@
 // default (or `generator`) export validated, and registered under its declared name. Built-ins are
 // seeded fresh per call (see `builtinGenerators`), so registration never mutates the built-in table.
 
-import { isAbsoluteUrl, isPlainObject, logger } from '@redocly/openapi-core';
+import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
 import { isAbsolute, resolve as resolvePath } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { NotSupportedError } from '../errors.js';
+import { reportFinding } from '../findings.js';
 import { GENERATOR_VERSION, satisfiesGeneratorRange } from './compatibility.js';
 import { BUILTIN_META, type BuiltinMeta } from './meta.js';
 import type { CustomGenerator, GeneratorDescriptor } from './types.js';
@@ -135,9 +136,11 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
   // A custom generator MAY take over a built-in name — that's how an ejected
   // generator replaces its origin without a config rename. Announce the takeover.
   if (custom.name in BUILTIN_META) {
-    logger.warn(
-      `generate-client: custom generator "${custom.name}" takes over the built-in generator of the same name.\n`
-    );
+    reportFinding({
+      kind: 'generator-replaced',
+      message: `custom generator "${custom.name}" takes over the built-in generator of the same name.`,
+      operations: [],
+    });
   }
   registry.set(custom.name, {
     run: custom.run,

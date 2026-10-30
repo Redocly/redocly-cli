@@ -171,6 +171,21 @@ The CLI rejects unknown keys unless the schema sets `additionalProperties: true`
 If you set `options` for a selected generator that declares no schema, the CLI displays a warning.
 Without the warning, the CLI would ignore the entry with no message.
 
+To warn about something that your generator cannot do, call the `reportFinding` function that `run` receives:
+
+```js
+run({ model, output, reportFinding }) {
+  reportFinding({
+    kind: 'operation-skipped',
+    message: 'permissions-matrix skipped 2 operations with no security requirement.',
+    operations: ['listMenuItems', 'getMenuItem'],
+  });
+  // ...
+}
+```
+
+The CLI displays the message as a warning and adds the finding to the [`--report`](../commands/generate-client.md#write-a-report) file.
+
 ### Language-neutral helpers
 
 The package root exports pure helpers over the API model.

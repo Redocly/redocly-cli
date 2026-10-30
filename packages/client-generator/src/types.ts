@@ -135,6 +135,29 @@ export type GenerateClientOptions = {
    * fails generation.
    */
   pagination?: PaginationConfig;
+  /** Receives each warning of the run when it is logged. */
+  onFinding?: (finding: GenerateClientFinding) => void;
+};
+
+/**
+ * What a warning is about. A tool can act on the kind, which stays stable across releases,
+ * instead of on the message.
+ */
+export type GenerateClientFindingKind =
+  | 'operation-skipped'
+  | 'name-changed'
+  | 'option-ignored'
+  | 'generator-replaced'
+  | 'description-ignored'
+  | 'undocumented-header'
+  | 'browser-unsupported'
+  | 'command-shadowed';
+
+/** A warning of a `generateClient` run. `operations` holds the ids of the operations it names. */
+export type GenerateClientFinding = {
+  kind: GenerateClientFindingKind;
+  message: string;
+  operations: string[];
 };
 
 /**
@@ -151,6 +174,12 @@ export type GenerateClientResult = {
   bytes: number;
   /** Every file written to disk (single-element in `single` mode). */
   files: Array<{ path: string; bytes: number }>;
+  /**
+   * Every operation of the API. `id` is the operationId, or the generated name when the
+   * description has none; findings and telemetry events name an operation by it. `name` is the
+   * generated identifier.
+   */
+  operations: Array<{ id: string; name: string }>;
 };
 
 export type LoadResult = {

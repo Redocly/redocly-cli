@@ -19,8 +19,9 @@ import { renderTanstackModule } from './render.ts';
  * no operations.
  */
 export function tanstackQueryGenerator(framework: 'react' | 'vue' | 'svelte' | 'solid'): Generator {
-  return ({ model, output, banner, emit, pagination }) => {
+  return ({ model, output, banner, emit, pagination, reportFinding }) => {
     const content = renderTanstackModule(model, {
+      reportFinding,
       argsStyle: emit.argsStyle ?? 'grouped',
       sdkModule: `./${output.stem}.${emit.importExt ?? 'js'}`,
       framework,
