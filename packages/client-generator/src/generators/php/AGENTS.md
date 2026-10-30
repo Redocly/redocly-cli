@@ -90,7 +90,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   runtime sorts it out (`multipartBody` / `binaryBody`): a stream `resource` is uploaded
   by curl in chunks (`CURLOPT_UPLOAD` + `CURLOPT_INFILE`, the method kept by
   `CURLOPT_CUSTOMREQUEST`), never read into a string, in exactly one attempt, whatever
-  the retry policy says (the default is three attempts for any method), because a
+  the retry policy says (the default retries only safe methods), because a
   consumed stream cannot be replayed. `CURLOPT_INFILESIZE` is set only when the stream is
   seekable AND `fstat` returns an array (the bytes left from the current position);
   `php://input`, pipes, and wrappers without `stream_stat` go chunked. A `string` body of
@@ -107,6 +107,19 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
   Under `--runtime module` it is written as a `runtime.php` the client `require_once`s,
   with its namespace rewritten to the client's so one namespace spans both files.
+- **`onSettled` sees every sent call once.** `send()` calls each `Config->onSettled` callable
+  after the retry loop with `operationId`, `status` (0 without a response), `timedOut`,
+  `attempts`, and `durationMs`, before it throws or returns. Every hook runs. The first hook
+  error is thrown for a successful call; on a failed call, the original error wins and the
+  hook error goes to `error_log`. SSE streams open outside `send()`, so they reach no hook.
+- **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
+  writes `telemetry.php` (from `telemetry/telemetry.php` in this folder, embedded at prepare
+  time) beside the client, in both runtime modes, with the client's namespace and the
+  generator version baked in. The client file does not change. The application requires it
+  and passes `new UsageTelemetry(...)` in `Config->onSettled`. PHP has no timers: a call that
+  finds its window elapsed sends it first, and a shutdown function sends the open window.
+  Constants live on the class, because OPcache preloading drops file-level constants. The
+  class name is reserved for every SDK, because the file shares the namespace with the models.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 ## Migrating from a service-based SDK

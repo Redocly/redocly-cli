@@ -1,5 +1,6 @@
 import { GO_CAFE } from '../../__tests__/fixtures/cafe-models.js';
 import { generatorInput } from '../../__tests__/fixtures/generator-input.js';
+import { GENERATOR_VERSION } from '../../compatibility.js';
 import { goGenerator as goGeneratorEntry, goSample } from '../index.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
@@ -109,5 +110,22 @@ describe('goGenerator parity features', () => {
     expect(out).toContain('return "https://api.cafe.example/organizations/" + organizationId');
     // Go has no default arguments; the spec default lives in the doc comment.
     expect(out).toContain('organizationId default: "unknown"');
+  });
+});
+
+describe('goGenerator: telemetry option', () => {
+  it('writes telemetry.go in the client package beside an unchanged client', () => {
+    const input = { model: GO_CAFE, outputPath: '/out/client.ts', outputMode: 'single' as const };
+    const withTelemetry = goGenerator({
+      ...input,
+      emit: { telemetry: 'on', goPackage: 'billing' },
+    });
+    const withoutTelemetry = goGenerator({ ...input, emit: { goPackage: 'billing' } });
+
+    expect(withTelemetry.map((file) => file.path)).toEqual(['/out/client.go', '/out/telemetry.go']);
+    expect(withTelemetry[0].content).toBe(withoutTelemetry[0].content);
+    const module = withTelemetry[1].content;
+    expect(module).toContain('\npackage billing\n');
+    expect(module).toContain(`usageTelemetryGeneratorVersion = "${GENERATOR_VERSION}"`);
   });
 });

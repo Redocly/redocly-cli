@@ -89,6 +89,20 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   and embedded at prepare time.
   Under `--runtime module` it is written as a same-package `runtime.go` beside the client,
   whose import block then lists only the packages its own body uses.
+- **`OnSettled` sees every sent call once.** `send()` calls each `Middleware.OnSettled` after
+  the last attempt with a `SettledCall`: the operation id, the final response (body unread)
+  or the error, the attempt count, and the duration from the first attempt to the end of the
+  `OnResponse` hooks on the final response. A timeout is a `*TimeoutError`; a cancelled or
+  expired caller context is an error that wraps `context.Canceled` or
+  `context.DeadlineExceeded`. A call that fails before its first attempt does not reach it.
+- **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
+  writes `telemetry.go` (from `telemetry/telemetry.go` in this folder, embedded at prepare
+  time) beside the client, in both runtime modes, with the client's package clause and the
+  generator version baked in. The client file does not change. The application registers
+  `NewUsageTelemetry(UsageTelemetryOptions{...}).Middleware()` and calls `Flush(ctx)` before
+  it exits, because Go has no exit hook. Its exported names are reserved for every SDK, and
+  every unexported name starts with `usageTelemetry`, because the file shares the package
+  with the model types and the runtime.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 - **It documents itself.** With `client.docs` (or `--docs`), the `docs` hook writes

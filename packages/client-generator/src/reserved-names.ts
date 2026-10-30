@@ -54,6 +54,16 @@ const SATELLITE_NAMES = [
   '__Writable',
 ];
 
+// The exported declarations of the Go and PHP telemetry modules, which share the package
+// or namespace with the model types. Reserved whether or not telemetry is on, so turning
+// it on never renames a type.
+const TELEMETRY_NAMES = [
+  'UsageTelemetry',
+  'UsageTelemetryOptions',
+  'UsageTelemetryEvent',
+  'NewUsageTelemetry',
+];
+
 // Platform globals and TS utility/lib types the emitted code references by bare name —
 // `Date` fields under `--date-type Date`, `Blob` for binary, `Record`/`Omit`/`Partial`
 // in emitted types, `Object.assign` in the sugar, and every free identifier of the
@@ -128,6 +138,7 @@ export function reservedModuleNames(): Set<string> {
     cached = new Set([
       ...WIRING_NAMES,
       ...SATELLITE_NAMES,
+      ...TELEMETRY_NAMES,
       ...GLOBAL_NAMES,
       ...RUNTIME_DECLARED_NAMES,
     ]);

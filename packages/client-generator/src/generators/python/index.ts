@@ -6,6 +6,8 @@
 
 import {
   type CodeSample,
+  GENERATOR_VERSION,
+  type GeneratedFile,
   type Generator,
   type GeneratorOptionsSchema,
   identifierFor,
@@ -15,7 +17,10 @@ import {
   securityRequirements,
 } from '@redocly/client-generator';
 import { PythonPrinter } from '@redocly/client-generator/printers/python';
-import { PYTHON_RUNTIME_SOURCES } from '@redocly/client-generator/runtime-sources';
+import {
+  PYTHON_RUNTIME_SOURCES,
+  PYTHON_TELEMETRY_SOURCE,
+} from '@redocly/client-generator/runtime-sources';
 
 import { writeClientClass, writePythonServers } from './client.ts';
 import { paginationSpec, pythonLiteral } from './descriptor.ts';
@@ -161,20 +166,34 @@ export const pythonGenerator: Generator = ({
   writeClientClass(printer, model, errorMode, true, paginationSpecs, serverUrl, dateType);
 
   const entry = { path: pythonModulePath(output.path), content: printer.toString() };
-  if (emit.runtime !== 'module') return [entry];
-  // The runtime modules, verbatim except the package-relative imports: the flat
-  // sibling layout has no package, so `from ._x` becomes the sibling `from _x`.
+  const files: GeneratedFile[] = [entry];
   const header = banner.map((line) => `# ${line}`).join('\n');
-  const dir = pythonModulePath(output.path).replace(/[^\\/]+$/, '');
-  const runtimeFiles = Object.entries(PYTHON_RUNTIME_SOURCES).map(([name, source]) => ({
-    path: `${dir}${name}`,
-    content: `${header}\n\n${source
-      .split('\n')
-      .map((line) => (line.startsWith('from ._') ? line.replace('from ._', 'from _') : line))
-      .join('\n')
-      .trim()}\n`,
-  }));
-  return [entry, ...runtimeFiles];
+  if (emit.runtime === 'module') {
+    // The runtime modules, verbatim except the package-relative imports: the flat
+    // sibling layout has no package, so `from ._x` becomes the sibling `from _x`.
+    const dir = entry.path.replace(/[^\\/]+$/, '');
+    for (const [name, source] of Object.entries(PYTHON_RUNTIME_SOURCES)) {
+      files.push({
+        path: `${dir}${name}`,
+        content: `${header}\n\n${source
+          .split('\n')
+          .map((line) => (line.startsWith('from ._') ? line.replace('from ._', 'from _') : line))
+          .join('\n')
+          .trim()}\n`,
+      });
+    }
+  }
+  if (emit.telemetry === 'on') {
+    const telemetrySource = PYTHON_TELEMETRY_SOURCE.replace(
+      'GENERATOR_VERSION = "dev"',
+      () => `GENERATOR_VERSION = ${JSON.stringify(GENERATOR_VERSION)}`
+    );
+    files.push({
+      path: entry.path.replace(/\.py$/, '_telemetry.py'),
+      content: `${header}\n\n${telemetrySource.trim()}\n`,
+    });
+  }
+  return files;
 };
 
 /** One idiomatic Python call per operation — feeds `x-codeSamples` for docs. */
