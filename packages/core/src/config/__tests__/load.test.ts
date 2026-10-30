@@ -2734,9 +2734,9 @@ describe('loadConfig', () => {
         output: absolute('nested/dist/out.yaml'),
       },
       sibling: { root: absolute('nested/openapi.yaml'), output: './dist/sibling.yaml' },
-      // the same referenced object is reached under a second node type and must not change again
+      // a reused object is resolved once
       'shared-openapi': { openapi: { htmlTemplate: absolute('nested/template.html') } },
-      // a `$ref` on the path field itself, and on the list of paths
+      // a `$ref` on the field itself
       'direct-ref': { root: absolute('nested/openapi.yaml') },
       'list-ref': {
         root: './openapi.yaml',

@@ -92,7 +92,7 @@ function resolvePath(value: unknown, sourceRef: string) {
   return path.resolve(path.dirname(sourceRef), value);
 }
 
-// Commands resolve relative config paths from the root config folder, so a path written in a referenced file is made absolute.
+// commands resolve paths from the root config folder, so a path from a referenced file is made absolute
 function resolveUriReference(value: unknown, ctx: UserContext) {
   if (ctx.type.scalar?.format !== 'uri-reference') {
     return;

@@ -42,7 +42,7 @@ export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
-  // set on the `scalar` type the walker gives scalar visitors: the schema of the visited value
+  // the schema of the value given to a `scalar` visitor
   scalar?: NormalizedScalarSchema;
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;

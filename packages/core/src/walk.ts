@@ -284,7 +284,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           return;
         }
 
-        // a leaf: the scalar visitors see it where it is written, a list of leaves item by item
+        // a list of leaves is visited item by item
         if (Array.isArray(value) && propType.items) {
           const itemType: NormalizedNodeType = {
             name: 'scalar',
@@ -503,8 +503,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       }
     }
 
-    // a `$ref` to a leaf: `ref.leave` has put the resolved value into the parent, and the scalar
-    // visitors see it at the location where it is written
+    // a `$ref` to a leaf, after `ref.leave` has resolved it
     if (nodeIsRef && type.scalar && resolvedNode !== undefined && resolvedLocation) {
       if (Array.isArray(resolvedNode) && type.scalar.items) {
         const itemType: NormalizedNodeType = {
