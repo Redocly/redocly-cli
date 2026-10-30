@@ -9,10 +9,8 @@ access:
     reunite:
       Admins: admin
     platform:
-      Writers: write
+      $ref: ./teams.yaml
 metadata:
   reunite: Docs team # Not reported: not a config option here
 env:
-  production:
-    reunite:
-      ignoreMarkdocErrors: true
+  $ref: ./env.yaml

@@ -1,4 +1,3 @@
-import { parsePointer } from '../../ref-utils.js';
 import { getOwn } from '../../utils/get-own.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { ConfigRule } from '../../visitors.js';
@@ -13,19 +12,19 @@ const DEPRECATED_PROPERTIES: Record<string, DeprecatedProperty> = {
   reunite: { replacement: 'platform', parents: ['', 'rbac', 'access.rbac'] },
 };
 
-function rootPathOf(pointer: string): string {
-  const segments = parsePointer(pointer.slice(2));
-  const isInEnvEntry = segments[0] === 'env' && segments.length > 1;
+// Config node types are named after their schema path, and an `env` entry has the root properties.
+function rootPathOf(typeName: string): string {
+  if (typeName === 'ConfigRoot') return '';
 
-  return (isInEnvEntry ? segments.slice(2) : segments).join('.');
+  return typeName.replace(/^rootRedoclyConfigSchema\.(env_additionalProperties\.?)?/, '');
 }
 
 export const DeprecatedConfigProperties: ConfigRule = () => {
   return {
-    any(node: unknown, { report, location }: UserContext) {
+    any(node: unknown, { report, location, type }: UserContext) {
       if (!isPlainObject(node)) return;
 
-      const parentPath = rootPathOf(location.pointer);
+      const parentPath = rootPathOf(type.name);
       for (const key of Object.keys(node)) {
         const deprecated: DeprecatedProperty | undefined = getOwn(DEPRECATED_PROPERTIES, key);
         if (deprecated?.parents.includes(parentPath)) {
