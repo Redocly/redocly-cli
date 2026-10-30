@@ -37,7 +37,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
           'Response',
           'Example',
           'RequestBody',
-          'MediaTypesMap',
+          'MediaType',
         ].includes(type.name)
       ) {
         const resolvedRef = resolve(ref);
@@ -105,7 +105,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
       },
     },
     NamedMediaTypes: {
-      MediaTypesMap(_mediaTypesMap, { location, key }) {
+      MediaType(_mediaType, { location, key }) {
         registerComponent(location, key.toString());
       },
     },
