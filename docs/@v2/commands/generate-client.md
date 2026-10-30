@@ -257,7 +257,9 @@ Each event contains only:
 - The calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`) and the calls per duration bucket.
   An outcome or a bucket with no calls is not sent.
 - The window start and length.
-- The SDK name and version, the generator version, the language, and the runtime name and version (Node.js, Bun, or Deno for TypeScript; Go; the Python implementation, such as CPython; PHP).
+- The SDK name and version, the generator version, the language, and the runtime name and version.
+  The runtime is Node.js, Bun, or Deno for TypeScript, and the Python implementation, such as CPython, for Python.
+  For Go and PHP, the runtime is the language.
 - The client name that you pass.
 
 The module never sends URLs, path or query parameters, headers, request or response bodies, or any other value from a request.
