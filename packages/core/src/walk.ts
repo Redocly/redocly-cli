@@ -503,6 +503,23 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       }
     }
 
+    // a `$ref` to a leaf: `ref.leave` has put the resolved value into the parent, and the scalar
+    // visitors see it at the location where it is written
+    if (nodeIsRef && type.scalar && resolvedNode !== undefined && resolvedLocation) {
+      if (Array.isArray(resolvedNode) && type.scalar.items) {
+        const itemType: NormalizedNodeType = {
+          name: 'scalar',
+          properties: {},
+          scalar: type.scalar.items,
+        };
+        for (let i = 0; i < resolvedNode.length; i++) {
+          visitScalar(resolvedNode[i], itemType, resolvedLocation.child([i]), resolvedNode, i);
+        }
+      } else {
+        visitScalar(resolvedNode, type, resolvedLocation, parent, key);
+      }
+    }
+
     function visitScalar(
       value: unknown,
       type: NormalizedNodeType,

@@ -1557,6 +1557,8 @@ describe('walk order', () => {
         info:
           title: Test
           version: '1.0'
+          description:
+            $ref: '#/components/x-texts/intro'
         paths:
           /pet:
             parameters:
@@ -1569,6 +1571,8 @@ describe('walk order', () => {
             shared:
               name: shared
               in: query
+          x-texts:
+            intro: referenced text
       `,
       'root.yaml'
     );
@@ -1595,11 +1599,13 @@ describe('walk order', () => {
       [
         "root.yaml#/info/title "Test"",
         "root.yaml#/info/version "1.0"",
+        "root.yaml#/components/x-texts/intro "referenced text"",
         "root.yaml#/components/parameters/shared/name "shared"",
         "root.yaml#/components/parameters/shared/in "query"",
         "root.yaml#/paths/~1pet/parameters/0/description "written next to the $ref"",
         "root.yaml#/paths/~1pet/get/tags/0 "pets"",
         "root.yaml#/paths/~1pet/get/tags/1 "store"",
+        "root.yaml#/components/x-texts/intro "referenced text"",
       ]
     `);
     expect(schemas['#/info/title']).toMatchObject({ type: 'string' });

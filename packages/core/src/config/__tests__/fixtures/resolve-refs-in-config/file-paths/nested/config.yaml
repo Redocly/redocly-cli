@@ -13,6 +13,10 @@ api:
     setup: ./setup.mjs
 chain:
   $ref: ./deep/config.yaml#/api
+paths:
+  root: ./openapi.yaml
+  overlays:
+    - ./overlays/add-servers.yaml
 untouched:
   root: https://example.com/openapi.yaml
   output: /absolute/dist/openapi.yaml

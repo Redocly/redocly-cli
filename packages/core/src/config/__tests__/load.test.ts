@@ -2736,6 +2736,12 @@ describe('loadConfig', () => {
       sibling: { root: absolute('nested/openapi.yaml'), output: './dist/sibling.yaml' },
       // the same referenced object is reached under a second node type and must not change again
       'shared-openapi': { openapi: { htmlTemplate: absolute('nested/template.html') } },
+      // a `$ref` on the path field itself, and on the list of paths
+      'direct-ref': { root: absolute('nested/openapi.yaml') },
+      'list-ref': {
+        root: './openapi.yaml',
+        overlays: [absolute('nested/overlays/add-servers.yaml')],
+      },
     });
     expect(resolvedConfig.client).toEqual({
       setup: absolute('nested/setup.mjs'),

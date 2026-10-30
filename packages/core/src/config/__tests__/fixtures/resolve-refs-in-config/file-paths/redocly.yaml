@@ -19,6 +19,13 @@ apis:
     root: ./openapi.yaml
     openapi:
       $ref: nested/config.yaml#/openapi
+  direct-ref:
+    root:
+      $ref: nested/config.yaml#/paths/root
+  list-ref:
+    root: ./openapi.yaml
+    overlays:
+      $ref: nested/config.yaml#/paths/overlays
 client:
   $ref: nested/config.yaml#/client
 openapi:
