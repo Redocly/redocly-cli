@@ -21,7 +21,7 @@ final class ApiError extends \RuntimeException
     }
 }
 
-/** Every attempt timed out or failed to connect. */
+/** The last attempt timed out. */
 final class TimeoutError extends \RuntimeException
 {
     public function __construct(
@@ -158,14 +158,11 @@ function buildUrl(string $serverUrl, string $path, array $pathParams): string
     return rtrim($serverUrl, '/') . $path;
 }
 
-/** The default retry predicate: 5xx, 429, and transport timeouts/connect failures. */
+/** The default retry predicate: 5xx, 429, and transport failures (no response, `status` 0). */
 function defaultRetryOn(array $context): bool
 {
-    if (($context['timedOut'] ?? false) === true) {
-        return true;
-    }
     $status = $context['status'] ?? 0;
-    return $status >= 500 || $status === 429;
+    return $status === 0 || $status >= 500 || $status === 429;
 }
 
 /** Delay before the next attempt: `Retry-After` wins; otherwise jittered (fixed|exponential) backoff. */
@@ -238,14 +235,13 @@ function rawSend(Config $config, array $request): array
     $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
     $effectiveUrl = (string) curl_getinfo($handle, CURLINFO_EFFECTIVE_URL);
     if ($errno !== 0) {
-        $timedOut = $errno === CURLE_OPERATION_TIMEDOUT || $errno === CURLE_COULDNT_CONNECT;
         return [
             'status' => 0,
             'reason' => curl_strerror($errno) ?? 'transport error',
             'headers' => [],
             'body' => '',
             'url' => $effectiveUrl,
-            'timedOut' => $timedOut,
+            'timedOut' => $errno === CURLE_OPERATION_TIMEDOUT,
         ];
     }
     return [

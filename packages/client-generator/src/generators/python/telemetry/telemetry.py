@@ -13,7 +13,7 @@ import secrets
 import threading
 import time
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Set
 
 import httpx
 
@@ -94,6 +94,8 @@ class UsageTelemetry:
         self._timer = threading.Timer(self._interval_s, self._flush_window)
         self._timer.daemon = True
         self._timer.start()
+        with _open_windows_lock:
+            _open_windows.add(self)
 
     def _flush_window(self, keep_on_failure: bool = True) -> None:
         with self._lock:
@@ -104,27 +106,37 @@ class UsageTelemetry:
             sent_counts = self._counts
             sent_start = self._window_start
             self._counts = {}
-        if _disabled():
-            return
         try:
-            self._sink(_to_events(sent_counts, sent_start, time.time() - sent_start, self._sdk))
+            if not _disabled():
+                self._sink(_to_events(sent_counts, sent_start, time.time() - sent_start, self._sdk))
         except Exception as error:
-            if not keep_on_failure or not _keep_after(error):
-                return
-            with self._lock:
-                if not self._counts:
-                    self._open_window()
-                self._window_start = min(self._window_start, sent_start)
-                for operation_id, sent in sent_counts.items():
-                    operation = self._counts.setdefault(operation_id, _empty_counts())
-                    for key in ("calls", "attempts", "duration_sum_ms"):
-                        operation[key] += sent[key]
-                    for group in ("status", "latency"):
-                        for key, count in sent[group].items():
-                            operation[group][key] = operation[group].get(key, 0) + count
+            if keep_on_failure and _keep_after(error):
+                with self._lock:
+                    if not self._counts:
+                        self._open_window()
+                    self._window_start = min(self._window_start, sent_start)
+                    for operation_id, sent in sent_counts.items():
+                        operation = self._counts.setdefault(operation_id, _empty_counts())
+                        for key in ("calls", "attempts", "duration_sum_ms"):
+                            operation[key] += sent[key]
+                        for group in ("status", "latency"):
+                            for key, count in sent[group].items():
+                                operation[group][key] = operation[group].get(key, 0) + count
+        with self._lock:
+            # A call during the send can open the next window.
+            if not self._counts:
+                with _open_windows_lock:
+                    _open_windows.discard(self)
 
 
-_instances: List[UsageTelemetry] = []
+# The instances with an open window or a send in progress.
+_open_windows: Set[UsageTelemetry] = set()
+_open_windows_lock = threading.Lock()
+
+
+def _open_windows_now() -> List[UsageTelemetry]:
+    with _open_windows_lock:
+        return list(_open_windows)
 
 
 def telemetry(
@@ -148,22 +160,19 @@ def telemetry(
         "client": client,
     }
     enabled = not _disabled()
-    instance = UsageTelemetry(sdk, sink or (lambda events: _send_otlp(target, events)), flush_interval_ms, enabled)
-    if enabled:
-        _instances.append(instance)
-    return instance
+    return UsageTelemetry(sdk, sink or (lambda events: _send_otlp(target, events)), flush_interval_ms, enabled)
 
 
 def flush() -> None:
     """Send every open window now and wait for the sends, for example before os._exit()."""
-    for instance in _instances:
+    for instance in _open_windows_now():
         instance.flush()
 
 
 @atexit.register
 def _flush_at_exit() -> None:
     # There is no later window at exit, so a failed send drops its counts.
-    for instance in _instances:
+    for instance in _open_windows_now():
         instance.flush(keep_on_failure=False)
 
 

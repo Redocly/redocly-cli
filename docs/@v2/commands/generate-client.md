@@ -173,7 +173,7 @@ Each language generator then also writes a telemetry module next to the client:
 | `python`     | `<module>_telemetry.py` |
 | `php`        | `telemetry.php`         |
 
-The module counts the calls of your SDK per operation and sends the counts once a minute.
+The module counts the calls of your SDK per operation in windows of 60 seconds, and sends the counts at the end of each window.
 Use it to learn which operations your SDK users call, how often, with which outcome, and how fast.
 Without `telemetry: on`, the generated code contains no telemetry, and the client file is the same in both cases.
 This option is available only in the configuration file and has no flag.
@@ -234,20 +234,17 @@ $telemetry = new UsageTelemetry(sdkName: 'acme/billing-sdk', sdkVersion: '3.2.0'
 $api = new Client(new Config(onSettled: [$telemetry]));
 ```
 
-PHP has no timers.
-A call that finds its window elapsed sends that window first, in the same request.
-At shutdown, the module sends the open window, which can add up to 3 seconds to the end of a request.
-Call `$telemetry->flush()` to send it earlier.
+PHP has no timers, so the first call after a window ends sends that window, in the same request.
+At shutdown, the module sends the open window, which can add up to 3 seconds to the request.
 
 {% /tab %}
 {% /tabs %}
 
-The window is 60 seconds by default.
 By default, the events go to the Redocly OpenTelemetry endpoint.
 Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
 Pass a `sink` function to receive the events yourself instead.
 
-If the connection fails or the endpoint answers `408`, `429`, or `5xx`, the middleware adds the counts to the next window.
+If the connection fails or the endpoint answers `408`, `429`, or `5xx`, the module adds the counts to the next window.
 After a timeout or any other failed send, it drops the counts.
 
 Each event contains only:
@@ -257,15 +254,13 @@ Each event contains only:
 - The calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`) and the calls per duration bucket.
   An outcome or a bucket with no calls is not sent.
 - The window start and length.
-- The SDK name and version, the generator version, the language, and the runtime name and version.
-  The runtime is Node.js, Bun, or Deno for TypeScript, and the Python implementation, such as CPython, for Python.
-  For Go and PHP, the runtime is the language.
+- The SDK name and version, the generator version, the language, and the runtime name and version, for example Node.js or CPython.
 - The client name that you pass.
 
 The module never sends URLs, path or query parameters, headers, request or response bodies, or any other value from a request.
 
 To turn off sending at run time, set `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1`.
-In a browser, the middleware does nothing.
+In a browser, the TypeScript module does nothing.
 
 ## Resources
 

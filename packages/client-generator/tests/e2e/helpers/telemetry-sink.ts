@@ -1,6 +1,7 @@
 // An OTLP/HTTP traces endpoint for the usage telemetry tests. It answers the n-th request
-// with the n-th status of its list (the last one repeats), and decodes every request back
-// into the events the TypeScript telemetry module would hand a sink.
+// with the n-th status of its list (the last one repeats), and keeps every request body.
+// The test decodes each body back into the events the TypeScript telemetry module would
+// hand a sink.
 import { GENERATOR_VERSION } from '@redocly/client-generator';
 import * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -55,8 +56,8 @@ const SDK_KEYS = [
 ];
 
 class TelemetrySink {
-  /** The decoded events of each request, in arrival order. */
-  readonly requests: UsageEvent[][] = [];
+  /** The body of each request, in arrival order. */
+  readonly requests: string[] = [];
 
   private constructor(
     private readonly server: http.Server,
@@ -66,7 +67,7 @@ class TelemetrySink {
       const chunks: Buffer[] = [];
       request.on('data', (chunk: Buffer) => chunks.push(chunk));
       request.on('end', () => {
-        this.requests.push(decode(JSON.parse(Buffer.concat(chunks).toString('utf-8'))));
+        this.requests.push(Buffer.concat(chunks).toString('utf-8'));
         const status = statuses[Math.min(this.requests.length, statuses.length) - 1];
         response.writeHead(status).end();
       });
@@ -180,7 +181,11 @@ export async function runTelemetryConsumer(
     });
     expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
     expect(server.handlerErrors).toEqual([]);
-    return sink.requests;
+    const requests: UsageEvent[][] = [];
+    for (const body of sink.requests) {
+      requests.push(decode(JSON.parse(body)));
+    }
+    return requests;
   } finally {
     await server.close();
     await sink.close();
