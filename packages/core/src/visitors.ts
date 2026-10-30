@@ -187,6 +187,8 @@ export type BaseVisitor = {
         leave?: VisitRefFunction;
       }
     | VisitRefFunction;
+
+  scalar?: VisitFunction<unknown>;
 };
 
 type Oas3FlatVisitor = {
@@ -446,7 +448,7 @@ export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<an
 export type ConfigVisitor = BaseVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, BaseVisitor>>;
 
-export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
+export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'scalar' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
   [V in keyof T]-?: {
@@ -509,22 +511,9 @@ export function normalizeVisitors<T extends BaseVisitor>(
 ): NormalizedOasVisitors<T> {
   const normalizedVisitors: NormalizedOasVisitors<T> = {} as any;
 
-  normalizedVisitors.any = {
-    enter: [],
-    leave: [],
-  };
-
-  for (const typeName of Object.keys(types) as Array<keyof T>) {
-    normalizedVisitors[typeName] = {
-      enter: [],
-      leave: [],
-    } as any;
+  for (const typeName of [...Object.keys(types), 'any', 'ref', 'scalar'] as Array<keyof T>) {
+    normalizedVisitors[typeName] = { enter: [], leave: [] } as any;
   }
-
-  normalizedVisitors.ref = {
-    enter: [],
-    leave: [],
-  };
 
   for (const { ruleId, severity, message, visitor } of visitorsConfig) {
     normalizeVisitorLevel({ ruleId, severity, message }, visitor, null);
@@ -621,11 +610,12 @@ export function normalizeVisitors<T extends BaseVisitor>(
     parentContext: VisitorLevelContext | null,
     depth = 0
   ) {
-    const visitorKeys = Object.keys(types) as Array<keyof T | 'any'>;
+    const visitorKeys = Object.keys(types) as Array<keyof T | 'any' | 'ref' | 'scalar'>;
 
     if (depth === 0) {
       visitorKeys.push('any');
       visitorKeys.push('ref');
+      visitorKeys.push('scalar');
     } else {
       if (visitor.any) {
         throw new Error('any() is allowed only on top level');

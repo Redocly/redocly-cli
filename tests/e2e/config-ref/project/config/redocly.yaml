@@ -1,0 +1,44 @@
+# Every path in this file is relative to this file, not to the root redocly.yaml: `../` leaves
+# the config folder for the project root. Some sections are written here, others are pulled in
+# with `$ref` from deeper folders or from the project root, where the paths are relative to the
+# file that holds them.
+extends:
+  - recommended
+  - ./rules.yaml
+  - recheck/markdoc
+openapi:
+  htmlTemplate: ../templates/root.hbs
+client:
+  setup: ./client/setup.ts
+  cliOutput: ./generated/bin/cafe.ts
+  importExt: ts
+  generators: [typescript, zod, cli]
+recheck:
+  # one level up: `tagsFile` in that file is relative to the project root
+  $ref: ../recheck/recheck.yaml
+apis:
+  cafe:
+    root: ./apis/cafe.yaml
+    output: ./generated/cafe.yaml
+    overlays:
+      - ../overlays/public.yaml
+    clientOutput: ./generated/client/cafe.ts
+    openapi:
+      htmlTemplate: ./templates/cafe.hbs
+  orders:
+    $ref: ./apis/orders/config.yaml
+  menu:
+    # a `$ref` with a sibling: `output` is relative to this file, `root` to the referenced one
+    $ref: ./apis/menu.yaml
+    output: ./generated/menu.yaml
+  archive:
+    # a `$ref` chain: the referenced file only references another one
+    $ref: ./apis/chain.yaml
+  cafe-nested:
+    # two levels down: the referenced file points its `root`, `overlays` and `openapi` one folder deeper,
+    # and the paths there climb two and three levels up
+    $ref: ./apis/cafe-nested/config.yaml
+  remote:
+    # a `$ref` over https, pinned to a commit, into an api of another config whose `root` is a URL: nothing there is rebased
+    $ref: https://raw.githubusercontent.com/Redocly/redocly-cli/d39585ed77f0e45c745662cfee076fe6e00f8dbe/tests/e2e/miscellaneous/apply-per-api-decorators/nested/redocly.yaml#/apis/test@external-url
+    output: ./generated/remote.yaml

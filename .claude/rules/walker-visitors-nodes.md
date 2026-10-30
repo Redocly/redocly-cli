@@ -19,6 +19,7 @@ Write new traversal as a visitor instead of parsing or drilling into documents b
 
 There is no `Reference` node: a `$ref` and its target share the target's type.
 The `ref` visitor key visits the references themselves.
+The `scalar` visitor key visits the values that have no node type (a string, a list of strings, a free-form object) where they are written; `ctx.type.scalar` is the schema of the value.
 
 When you write a rule or a decorator (or any visitor), run `redocly inspect-node-types <api>` to see the node type tree of the specification you work with.
 The names it prints are the visitor keys, and `--type=<Type> --parents` shows where a type can sit.

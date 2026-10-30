@@ -9,7 +9,12 @@ import type {
   ResolvedRefChainHop,
   Document,
 } from './resolve.js';
-import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
+import {
+  isNamedType,
+  SpecExtension,
+  type NormalizedNodeType,
+  type NormalizedScalarSchema,
+} from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
@@ -157,10 +162,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
   // Pre-compute combined enter/leave arrays per type to avoid per-node array allocations
   const anyEnter = normalizedVisitors.any.enter as VisitorNode<any>[];
   const anyLeave = normalizedVisitors.any.leave as VisitorNode<any>[];
+  const scalarEnter = normalizedVisitors.scalar.enter;
   const combinedEnter: Record<string, Array<VisitorNode<any>>> = {};
   const combinedLeave: Record<string, Array<VisitorNode<any>>> = {};
   for (const typeName of Object.keys(normalizedVisitors)) {
-    if (typeName === 'any' || typeName === 'ref') continue;
+    if (typeName === 'any' || typeName === 'ref' || typeName === 'scalar') continue;
     combinedEnter[typeName] = anyEnter.concat(normalizedVisitors[typeName]?.enter || []);
     combinedLeave[typeName] = (normalizedVisitors[typeName]?.leave || []).concat(anyLeave);
   }
@@ -266,15 +272,28 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           value = { $ref: value };
         }
 
-        if (propType && propType.name === undefined && propType.resolvable !== false) {
-          propType = { name: 'scalar', properties: {} };
-        }
-
-        if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
+        if (isNamedType(propType)) {
+          walkNode(value, propType, loc.child([propName]), valueParent, propName);
           return;
         }
-
-        walkNode(value, propType, loc.child([propName]), valueParent, propName);
+        if (!propType) {
+          return;
+        }
+        if (isRef(value)) {
+          if (propType.resolvable !== false) {
+            const scalarType: NormalizedNodeType = {
+              name: 'scalar',
+              properties: {},
+              scalar: propType,
+            };
+            walkNode(value, scalarType, loc.child([propName]), valueParent, propName);
+          }
+          return;
+        }
+        if (!scalarEnter.length) {
+          return;
+        }
+        visitScalar(value, propType, loc.child([propName]), valueParent, propName);
       };
 
       currentLocation = resolvedLocation;
@@ -478,6 +497,49 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
           );
         }
+      }
+    }
+
+    // after `ref.leave`: only then is the resolved leaf in the parent, so the scalar visitors see it
+    // and can replace it
+    if (nodeIsRef && type.scalar && resolvedNode !== undefined && resolvedLocation) {
+      visitScalar(resolvedNode, type.scalar, resolvedLocation, parent, key);
+    }
+
+    function visitScalar(
+      value: unknown,
+      schema: NormalizedScalarSchema,
+      location: Location,
+      parent: unknown,
+      key: string | number
+    ) {
+      if (Array.isArray(value) && schema.items) {
+        for (let i = 0; i < value.length; i++) {
+          visitScalar(value[i], schema.items, location.child([i]), value, i);
+        }
+        return;
+      }
+      const type: NormalizedNodeType = { name: 'scalar', properties: {}, scalar: schema };
+      const ignoreKey = `${location.absolutePointer}${location.pointer}`;
+      for (const { visit, ruleId, severity, message } of scalarEnter) {
+        if (ignoredNodes.has(ignoreKey)) break;
+        visit(value, {
+          report: (opts: Problem) => reportFn(ruleId, severity, message, opts),
+          resolve,
+          rawNode: value,
+          rawLocation: location,
+          location,
+          type,
+          parent,
+          key,
+          parentLocations: {},
+          specVersion: ctx.specVersion,
+          config: ctx.config,
+          ignoreNextVisitorsOnNode: () => {
+            ignoredNodes.add(ignoreKey);
+          },
+          getVisitorData: () => getVisitorDataFn(ruleId),
+        });
       }
     }
 

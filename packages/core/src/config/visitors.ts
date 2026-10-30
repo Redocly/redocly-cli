@@ -1,9 +1,11 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
+import * as path from 'node:path';
 
-import { replaceRef } from '../ref-utils.js';
+import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
@@ -67,6 +69,7 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
+  rootRef: string;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -82,6 +85,26 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+function resolvePath(value: unknown, sourceRef: string) {
+  if (!isString(value) || !value || isAbsoluteUrl(value) || path.isAbsolute(value)) {
+    return value;
+  }
+  return path.resolve(path.dirname(sourceRef), value);
+}
+
+// commands resolve paths from the root config folder, so a path from a referenced file is made absolute
+function resolveUriReference(value: unknown, ctx: UserContext) {
+  if (ctx.type.scalar?.format !== 'uri-reference') {
+    return;
+  }
+  const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const sourceRef = ctx.location.source.absoluteRef;
+  if (sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
+    return;
+  }
+  ctx.parent[ctx.key] = resolvePath(value, sourceRef);
+}
+
 export const configBundlerVisitor = normalizeVisitors(
   [
     {
@@ -93,6 +116,7 @@ export const configBundlerVisitor = normalizeVisitors(
             replaceRef(node, resolved, ctx);
           },
         },
+        scalar: resolveUriReference,
         ConfigGovernance: {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);

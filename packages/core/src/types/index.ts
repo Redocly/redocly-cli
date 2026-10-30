@@ -7,6 +7,7 @@ export type ScalarSchema = {
   resolvable?: boolean;
   directResolveAs?: string;
   minimum?: number;
+  format?: string;
   description?: string;
   documentationLink?: string;
 };
@@ -19,6 +20,7 @@ export type NormalizedScalarSchema = {
   directResolveAs?: NormalizedNodeType;
   resolvable: boolean;
   minimum?: number;
+  format?: string;
   description?: string;
   documentationLink?: string;
 };
@@ -40,6 +42,8 @@ export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
+  // the schema of the value given to a `scalar` visitor
+  scalar?: NormalizedScalarSchema;
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
