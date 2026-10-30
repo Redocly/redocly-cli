@@ -236,6 +236,7 @@ $api = new Client(new Config(onSettled: [$telemetry]));
 
 PHP has no timers, so the first call after a window ends sends that window, in the same request.
 At shutdown, the module sends the open window, which can add up to 3 seconds to the request.
+Under PHP-FPM, each request that calls the SDK sends its own events at shutdown.
 
 {% /tab %}
 {% /tabs %}
