@@ -5,17 +5,10 @@ import type { GenerateClientFinding, GenerateClientOptions } from './types.js';
 
 // The listener of the `generateClient` call that is running. The warnings come from deep in the
 // pipeline, so the listener travels with the async context instead of through every call.
-const findingListener = new AsyncLocalStorage<GenerateClientOptions['onFinding']>();
+export const findingListener = new AsyncLocalStorage<GenerateClientOptions['onFinding']>();
 
 /** Logs the finding as a warning and passes it to the `onFinding` listener of the run. */
 export function reportFinding(finding: GenerateClientFinding): void {
   logger.warn(`generate-client: ${finding.message}\n`);
   findingListener.getStore()?.(finding);
-}
-
-export function runWithFindingListener<T>(
-  listener: GenerateClientOptions['onFinding'],
-  run: () => Promise<T>
-): Promise<T> {
-  return findingListener.run(listener, run);
 }

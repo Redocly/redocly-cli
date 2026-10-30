@@ -16,7 +16,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, parse, resolve, sep } from 'node:path';
 
 import { NotSupportedError } from './errors.js';
-import { reportFinding, runWithFindingListener } from './findings.js';
+import { findingListener, reportFinding } from './findings.js';
 import { validateSelection } from './generators/meta.js';
 import { resolveGeneratorOptions } from './generators/options.js';
 import { resolveGenerators } from './generators/resolve.js';
@@ -221,7 +221,7 @@ function operationTarget(document: Oas3Definition, path: string, method: string)
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
-  return runWithFindingListener(options.onFinding, () => generate(options));
+  return findingListener.run(options.onFinding, () => generate(options));
 }
 
 async function generate(options: GenerateClientOptions): Promise<GenerateClientResult> {

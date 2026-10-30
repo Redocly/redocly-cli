@@ -62,6 +62,16 @@ type GenerationReport = {
   }>;
 };
 
+/** An error in the `client` config of an API. The report holds `reason`, without the printed icon. */
+class ClientConfigError extends HandledError {
+  reason: string;
+
+  constructor(reason: string) {
+    super(`\n❌  ${reason}\n`);
+    this.reason = reason;
+  }
+}
+
 // Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
 const URL_SCHEME = /^[a-z][a-z0-9+.-]+:/i;
 
@@ -69,8 +79,8 @@ function resolveSetup(client: GenerateClientConfig, configDir: string): Generate
   const { setup } = client;
   if (typeof setup !== 'string') return client;
   if (URL_SCHEME.test(setup)) {
-    throw new HandledError(
-      `\n❌  \`client.setup\` must be a local file path — remote setup modules are not supported.\n   Got: ${setup}\n`
+    throw new ClientConfigError(
+      `\`client.setup\` must be a local file path — remote setup modules are not supported.\n   Got: ${setup}`
     );
   }
   if (!isAbsolute(setup)) {
@@ -221,42 +231,42 @@ async function generateApiClient(
 ): Promise<void> {
   const { path, alias } = entry;
   const name = alias ?? basename(path, extname(path));
-  const aliasConfig = config.forAlias(alias);
-  const { client, clientOutput } = aliasConfig.resolvedConfig;
-  const clientBlock = resolveSetup(
-    (isPlainObject(client) ? client : {}) as GenerateClientConfig,
-    configDir
-  );
-  const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
-  collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
-
-  const outputPath =
-    outputFlag !== undefined
-      ? resolvePath(outputFlag)
-      : clientOutput !== undefined
-        ? resolvePath(configDir, clientOutput)
-        : resolvePath(configDir, fileNameFor(name));
-
-  if (!outputPath.endsWith('.ts')) {
-    throw new HandledError(
-      `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
-    );
-  }
-  if (seenOutputs.has(outputPath)) {
-    throw new HandledError(
-      `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
-    );
-  }
-  seenOutputs.add(outputPath);
-  if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
-    throw new HandledError(
-      `\n❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}\n`
-    );
-  }
-
   const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
   report.apis.push(reportedApi);
   try {
+    const aliasConfig = config.forAlias(alias);
+    const { client, clientOutput } = aliasConfig.resolvedConfig;
+    const clientBlock = resolveSetup(
+      (isPlainObject(client) ? client : {}) as GenerateClientConfig,
+      configDir
+    );
+    const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
+    collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
+
+    const outputPath =
+      outputFlag !== undefined
+        ? resolvePath(outputFlag)
+        : clientOutput !== undefined
+          ? resolvePath(configDir, clientOutput)
+          : resolvePath(configDir, fileNameFor(name));
+
+    if (!outputPath.endsWith('.ts')) {
+      throw new ClientConfigError(
+        `output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}`
+      );
+    }
+    if (seenOutputs.has(outputPath)) {
+      throw new ClientConfigError(
+        `Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.`
+      );
+    }
+    seenOutputs.add(outputPath);
+    if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
+      throw new ClientConfigError(
+        `serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}`
+      );
+    }
+
     logger.info(gray(`\n  Generating client for ${name}... \n`));
     const result = await toolkit.generateClient({
       ...clientConfig,
@@ -289,6 +299,14 @@ async function generateApiClient(
     } bytes) at ${yellow(result.outputPath)}.`;
     logger.info('\n' + blue(summary) + '\n');
   } catch (error) {
+    if (error instanceof ClientConfigError) {
+      reportedApi.findings.push({
+        kind: 'generation-failed',
+        message: error.reason,
+        operations: [],
+      });
+      throw error;
+    }
     const message = error instanceof Error ? error.message : String(error);
     generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
     reportedApi.findings.push({

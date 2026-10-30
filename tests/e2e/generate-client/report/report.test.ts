@@ -114,20 +114,65 @@ describe('generate-client --report', () => {
     await expect(
       generate(['--generator', join(__dirname, 'finding-generator.mjs')])
     ).toMatchFileSnapshot(join(snapshots, 'custom-generator-findings.txt'));
-    expect(readReport().apis[0].findings).toContainEqual({
-      kind: 'operation-skipped',
-      message: 'finding-generator skipped listMenuItems.',
-      operations: ['listMenuItems'],
-    });
+    expect(readReport().apis[0].findings).toMatchInlineSnapshot(`
+      [
+        {
+          "kind": "name-changed",
+          "message": "schema "Error" is a name a generated client already declares, so it is emitted as "Error_2" — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate.",
+          "operations": [],
+        },
+        {
+          "kind": "operation-skipped",
+          "message": "finding-generator skipped listMenuItems.",
+          "operations": [
+            "listMenuItems",
+          ],
+        },
+      ]
+    `);
   });
 
   it('writes the error of a failed generation', async () => {
     await expect(generate(['--generator', 'sdk'])).toMatchFileSnapshot(
       join(snapshots, 'generation-failed.txt')
     );
-    expect(readReport().apis[0].findings.at(-1)).toMatchObject({
-      kind: 'generation-failed',
-      message: expect.stringContaining('The "sdk" generator is now named "typescript"'),
-    });
+    expect(readReport().apis[0].findings).toMatchInlineSnapshot(`
+      [
+        {
+          "kind": "name-changed",
+          "message": "schema "Error" is a name a generated client already declares, so it is emitted as "Error_2" — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate.",
+          "operations": [],
+        },
+        {
+          "kind": "generation-failed",
+          "message": "The "sdk" generator is now named "typescript". Update the \`generators\` list or the --generator flag.",
+          "operations": [],
+        },
+      ]
+    `);
+  });
+
+  it('writes the error of an invalid client config', async () => {
+    await expect(generate(['--server-url', 'api.example.com'])).toMatchFileSnapshot(
+      join(snapshots, 'invalid-client-config.txt')
+    );
+    expect(readReport()).toMatchInlineSnapshot(`
+      {
+        "apis": [
+          {
+            "findings": [
+              {
+                "kind": "generation-failed",
+                "message": "serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.
+         Got: api.example.com",
+                "operations": [],
+              },
+            ],
+            "name": "cafe",
+            "operations": [],
+          },
+        ],
+      }
+    `);
   });
 });
