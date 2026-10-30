@@ -1,5 +1,4 @@
-import { logger } from '@redocly/openapi-core';
-
+import { reportFinding } from '../findings.js';
 import { isSafeIdentifier, pascalCase, sanitizeIdentifier } from '../printers/typescript.js';
 import { reservedModuleNames } from '../reserved-names.js';
 import type { ApiModel, OperationModel, SchemaModel } from './model.js';
@@ -174,7 +173,11 @@ function warnRename(what: string, from: string, to: string, cause: RenameCause):
         : cause.kind === 'reserved'
           ? `${what} ${name} is a name a generated client already declares, so it is emitted as ${renamed} — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate`
           : `${what} ${name} is not a usable identifier, so it is emitted as ${renamed}`;
-  logger.warn(`generate-client: ${explanation}.\n`);
+  let operations: string[] = [];
+  if (what === 'operation') {
+    operations = [from];
+  }
+  reportFinding({ kind: 'name-changed', message: `${explanation}.`, operations });
 }
 
 /** Whether a name changed only because something else already claimed it. */

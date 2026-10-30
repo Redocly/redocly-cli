@@ -82,6 +82,7 @@ redocly generate-client [--help]
 | `--setup`        | string   | The path to a publisher setup module that the command includes in the client. Use it to pre-configure defaults, for example the server URL, retries, headers, and middleware. A published SDK then contains these defaults. See [Publisher defaults](../guides/customize-client-generation.md#publisher-defaults).                                                                                                                                                 |
 | `--docs`         | boolean  | Also write the reference documentation for what this run generates: one Markdown page for each selected generator that documents itself (the CLI, and each SDK). Default value is `false`.                                                                                                                                                                                                                                                                         |
 | `--go-package`   | string   | The package clause in the output of the `go` generator. It must be a valid Go package name (lowercase letters, digits, and `_`; it must not start with a digit or be a keyword). Default value is `client`.                                                                                                                                                                                                                                                        |
+| `--report`       | string   | The path of a JSON file to write with the warnings of the run and the operations of each API. See [Write a report](#write-a-report).                                                                                                                                                                                                                                                                                                                               |
 | `--config`       | string   | Specify the path to the [configuration file](#generate-from-the-configuration-file).                                                                                                                                                                                                                                                                                                                                                                               |
 | `--help`         | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
@@ -266,6 +267,57 @@ The module never sends URLs, path or query parameters, headers, request or respo
 
 To turn off sending at run time, set `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1`.
 In a browser, the middleware does nothing.
+
+### Write a report
+
+Use `--report` to write a JSON file that a script or a build tool can read:
+
+```bash
+redocly generate-client openapi.yaml -o src/api/client.ts --report generate-client-report.json
+```
+
+The file has one entry for each API that the command started to generate:
+
+```json
+{
+  "apis": [
+    {
+      "name": "cafe",
+      "operations": [{ "id": "listMenuItems", "name": "listMenuItems" }],
+      "findings": [
+        {
+          "kind": "name-changed",
+          "severity": "warning",
+          "message": "schema \"Error\" is a name a generated client already declares, so it is emitted as \"Error_2\" — ...",
+          "operations": []
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `operations` lists every operation of the API.
+  `id` is the `operationId`, or the generated name when the operation has none.
+  `name` is the name in the generated code.
+- `findings` lists the warnings of the run.
+  A tool can act on `kind`, which does not change between releases.
+  The `message` text can change.
+  The `operations` of a finding are the IDs of the operations it is about.
+- When the generation of an API fails, the command still writes the report.
+  The last finding of that API then has the kind `generation-failed` and the severity `error`.
+
+| Kind                  | Meaning                                                                    |
+| --------------------- | -------------------------------------------------------------------------- |
+| `operation-skipped`   | A generator writes no code for some operations.                            |
+| `name-changed`        | The generated code uses another name than the description.                 |
+| `option-ignored`      | An option has no effect with the selected generators.                      |
+| `generator-replaced`  | A custom generator replaces the built-in generator with the same name.     |
+| `description-ignored` | The generated code ignores a keyword of the description.                   |
+| `undocumented-header` | Pagination reads a response header that the description does not document. |
+| `browser-unsupported` | A feature of the client does not work in a browser.                        |
+| `command-shadowed`    | A command of the generated CLI has the name of a command group.            |
+| `generation-failed`   | The generation of the API failed.                                          |
 
 ## Resources
 

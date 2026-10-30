@@ -1,5 +1,7 @@
 import type {
   GenerateClientConfig,
+  GenerateClientFindingKind,
+  GenerateClientResult,
   generateClient as generateClientFunction,
   mergeConfig as mergeConfigFunction,
 } from '@redocly/client-generator';
@@ -43,6 +45,21 @@ export type GenerateClientCommandArgv = {
   docs?: boolean;
   generator?: string[];
   setup?: string;
+  report?: string;
+};
+
+/** The `--report` file: what each API of the run produced, for tools that act on a generation. */
+type GenerationReport = {
+  apis: Array<{
+    name: string;
+    operations: GenerateClientResult['operations'];
+    findings: Array<{
+      kind: GenerateClientFindingKind | 'generation-failed';
+      severity: 'warning' | 'error';
+      message: string;
+      operations: string[];
+    }>;
+  }>;
 };
 
 // Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
@@ -94,6 +111,7 @@ type GenerationRun = {
   seenOutputs: Set<string>;
   /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
   composable: Array<{ alias: string; cliPath: string }>;
+  report: GenerationReport;
 };
 
 export async function handleGenerateClient({
@@ -157,10 +175,20 @@ export async function handleGenerateClient({
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
     composable: [],
+    report: { apis: [] },
   };
 
-  for (const entry of entrypoints) {
-    await generateApiClient(entry, run);
+  try {
+    for (const entry of entrypoints) {
+      await generateApiClient(entry, run);
+    }
+  } finally {
+    // Written on a failure too: the failed api carries the error as a finding.
+    if (argv.report !== undefined) {
+      const reportPath = resolvePath(argv.report);
+      await mkdir(dirname(reportPath), { recursive: true });
+      await writeFile(reportPath, JSON.stringify(run.report, null, 2) + '\n', 'utf-8');
+    }
   }
 
   // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
@@ -188,6 +216,7 @@ async function generateApiClient(
     toolkit,
     seenOutputs,
     composable,
+    report,
   }: GenerationRun
 ): Promise<void> {
   const { path, alias } = entry;
@@ -225,6 +254,8 @@ async function generateApiClient(
     );
   }
 
+  const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
+  report.apis.push(reportedApi);
   try {
     logger.info(gray(`\n  Generating client for ${name}... \n`));
     const result = await toolkit.generateClient({
@@ -234,7 +265,9 @@ async function generateApiClient(
       config: aliasConfig,
       configDir,
       collectSpecData,
+      onFinding: (finding) => reportedApi.findings.push({ ...finding, severity: 'warning' }),
     });
+    reportedApi.operations = result.operations;
     // The emitted module decides what composes: `cli` reaches a run as a built-in
     // name, a path to an ejected copy, or another generator's prerequisite.
     const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
@@ -258,6 +291,12 @@ async function generateApiClient(
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
+    reportedApi.findings.push({
+      kind: 'generation-failed',
+      severity: 'error',
+      message,
+      operations: [],
+    });
     throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
   }
 }

@@ -14,10 +14,10 @@ import {
   type ModelPagination,
   type OperationModel,
   type ParamModel,
+  reportFinding,
   type SchemaModel,
 } from '@redocly/client-generator';
 import { flatInputShape } from '@redocly/client-generator/contracts/typescript';
-import { logger } from '@redocly/openapi-core';
 
 import { embedCliRuntime } from './engine-source.ts';
 
@@ -205,11 +205,13 @@ function warnShadowedCommands(commands: CliCommand[]): void {
   const slugs = new Set(commands.filter((c) => c.group).map((c) => groupSlug(c.group as string)));
   const shadowed = commands.filter((command) => slugs.has(command.name));
   if (shadowed.length === 0) return;
-  logger.warn(
-    `generate-client: cli reads a leading group name as the group, so ${shadowed.length} operation(s) named after a tag resolve unusually — rename the operation or the tag: ${shadowed
+  reportFinding({
+    kind: 'command-shadowed',
+    message: `cli reads a leading group name as the group, so ${shadowed.length} operation(s) named after a tag resolve unusually — rename the operation or the tag: ${shadowed
       .map(shadowedAddress)
-      .join(', ')}.\n`
-  );
+      .join(', ')}.`,
+    operations: [],
+  });
 }
 
 /** The whole `<stem>.cli.ts` file. */

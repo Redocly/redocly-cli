@@ -8,7 +8,6 @@
 
 import {
   isRef,
-  logger,
   stringifyYaml,
   unescapePointerFragment,
   type Oas3Definition,
@@ -17,6 +16,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, parse, resolve, sep } from 'node:path';
 
 import { NotSupportedError } from './errors.js';
+import { reportFinding, runWithFindingListener } from './findings.js';
 import { validateSelection } from './generators/meta.js';
 import { resolveGeneratorOptions } from './generators/options.js';
 import { resolveGenerators } from './generators/resolve.js';
@@ -125,9 +125,11 @@ export function runGenerators(
   // Asking for documentation and getting none is worth saying: `zod` and the framework
   // wrappers document nothing, so a selection of only those writes no page.
   if (options.emit.docs === true && !documented) {
-    logger.warn(
-      `generate-client: docs is on, but no selected generator writes documentation (${options.generators.join(', ')}).\n`
-    );
+    reportFinding({
+      kind: 'option-ignored',
+      message: `docs is on, but no selected generator writes documentation (${options.generators.join(', ')}).`,
+      operations: [],
+    });
   }
   return files;
 }
@@ -153,13 +155,15 @@ function warnRepeatedParamNames(model: ApiModel): void {
         seen.add(param.name);
       }
       if (repeated.size === 0) continue;
-      logger.warn(
-        `generate-client: operation "${op.specName ?? op.name}" uses ${[...repeated]
+      reportFinding({
+        kind: 'name-changed',
+        message: `operation "${op.specName ?? op.name}" uses ${[...repeated]
           .map((name) => `"${name}"`)
           .join(
             ', '
-          )} in more than one parameter location. Every SDK sends both, and the SDKs whose methods take one argument per parameter give the later one a suffixed name — rename it in the description to choose the name yourself.\n`
-      );
+          )} in more than one parameter location. Every SDK sends both, and the SDKs whose methods take one argument per parameter give the later one a suffixed name — rename it in the description to choose the name yourself.`,
+        operations: [op.specName ?? op.name],
+      });
     }
   }
 }
@@ -216,6 +220,10 @@ function operationTarget(document: Oas3Definition, path: string, method: string)
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
+  return runWithFindingListener(options.onFinding, () => generate(options));
+}
+
+async function generate(options: GenerateClientOptions): Promise<GenerateClientResult> {
   // A path segment that is literally "undefined"/"null" is the telltale of an
   // interpolation bug in the caller (`\`${dir}/client.ts\`` with `dir` unset) — reject
   // it instead of silently creating an `undefined/` directory.
@@ -329,9 +337,15 @@ export async function generateClient(
     written.push({ path: file.path, bytes: Buffer.byteLength(file.content, 'utf-8') });
   }
 
+  const operations: GenerateClientResult['operations'] = [];
+  for (const op of allOperations(model.services)) {
+    operations.push({ id: op.specName ?? op.name, name: op.name });
+  }
+
   return {
     outputPath,
     bytes: written.reduce((sum, file) => sum + file.bytes, 0),
     files: written,
+    operations,
   };
 }

@@ -1,7 +1,6 @@
 import {
   isPlainObject,
   isRef,
-  logger,
   type Oas3Definition,
   type Oas3MediaType,
   type Oas3Operation,
@@ -19,6 +18,7 @@ type Oas3ResponseShape = {
 };
 
 import { NotSupportedError } from '../errors.js';
+import { reportFinding } from '../findings.js';
 import type {
   ApiModel,
   DiscriminatorModel,
@@ -377,10 +377,13 @@ function buildSecuritySchemes(doc: Oas3Definition): SecuritySchemeModel[] {
     } else if (type === 'apiKey' && scheme.in === 'cookie' && typeof scheme.name === 'string') {
       // Injected via the Cookie request header, which browsers refuse to set —
       // the credential silently goes missing there, so tell the user up front.
-      logger.warn(
-        `generate-client: security scheme "${key}" sends its credential in the Cookie header, ` +
-          `which browsers ignore — cookie auth works only in server-side clients.\n`
-      );
+      reportFinding({
+        kind: 'browser-unsupported',
+        message:
+          `security scheme "${key}" sends its credential in the Cookie header, ` +
+          `which browsers ignore — cookie auth works only in server-side clients.`,
+        operations: [],
+      });
       result.push({ kind: 'apiKeyCookie', key, cookieName: scheme.name });
     }
     // Everything else (http schemes other than bearer/basic, mutualTLS) is not
@@ -1064,14 +1067,18 @@ function buildProperties(
     // from — so it is reported rather than dropped in silence.
     const ignored = isRef(sub) && !siblingsApply;
     if (ignored && flags.readOnly === true) {
-      logger.warn(
-        `generate-client: "${name}" declares readOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in request bodies. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.\n`
-      );
+      reportFinding({
+        kind: 'description-ignored',
+        message: `"${name}" declares readOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in request bodies. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.`,
+        operations: [],
+      });
     }
     if (ignored && flags.writeOnly === true) {
-      logger.warn(
-        `generate-client: "${name}" declares writeOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in responses. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.\n`
-      );
+      reportFinding({
+        kind: 'description-ignored',
+        message: `"${name}" declares writeOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in responses. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.`,
+        operations: [],
+      });
     }
     return {
       name,

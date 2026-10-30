@@ -7,6 +7,7 @@
 // The language-neutral generator-authoring toolkit — pure functions over the IR.
 export * from './authoring/index.js';
 export { NotSupportedError } from './errors.js';
+export { reportFinding } from './findings.js';
 export { defineClientSetup } from './runtime-contract.js';
 export type {
   ClientSetup,
@@ -45,6 +46,8 @@ export type {
 export type { PaginationConfig, PaginationRule, PaginationStyle } from './pagination.js';
 export type {
   GenerateClientConfig,
+  GenerateClientFinding,
+  GenerateClientFindingKind,
   GenerateClientOptions,
   GenerateClientResult,
   LoadResult,
