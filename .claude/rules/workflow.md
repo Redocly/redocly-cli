@@ -5,11 +5,11 @@ These are procedures — follow them in order.
 
 ## Changesets
 
-- Every feature or fix needs a changeset.
+- Every feature or fix needs a changeset of its own, also when one pull request holds several.
   Run `npx changeset` (or `npx changeset --empty` to fill it in by hand) and describe the change in sentence case.
 - Bumping one package bumps the others too, so list inside the changeset only the packages whose behavior changed for the end user.
   Follow semver.
-- Write a precise, user-friendly message.
+- Write a precise, user-friendly message: the part that was fixed or added, and what the user has to change, without the internals.
   If a change can break a user's existing flow, add a short **Note**.
 - Before writing the message, read the appropriate package `CHANGELOG.md` to match the existing entry structure.
 - Skip the changeset only for changes that don't affect the published packages — for example, edits to these AI-instruction files or repository tooling.
