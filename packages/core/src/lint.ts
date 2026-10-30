@@ -6,6 +6,7 @@ import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { isGraphqlRef } from './graphql/detect-graphql.js';
 import { getTypes } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
+import { DeprecatedConfigProperties } from './rules/common/deprecated-config-properties.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
 import { normalizeTypes, type NodeType } from './types/index.js';
@@ -180,6 +181,11 @@ export async function lintConfig(opts: {
       severity: severity || 'error',
       ruleId: 'configuration no-unresolved-refs',
       visitor: NoUnresolvedRefs({ severity: 'error' }),
+    },
+    {
+      severity: 'warn',
+      ruleId: 'configuration deprecated-properties',
+      visitor: DeprecatedConfigProperties({}),
     },
   ];
   const normalizedVisitors = normalizeVisitors(rules, types);
