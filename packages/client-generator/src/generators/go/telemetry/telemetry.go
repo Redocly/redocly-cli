@@ -29,8 +29,6 @@ const (
 	usageTelemetrySendTimeout      = 3 * time.Second
 )
 
-var usageTelemetryStatusClasses = []string{"2xx", "3xx", "4xx", "5xx", "network_error", "timeout", "aborted"}
-
 var usageTelemetryLatencyBuckets = []struct {
 	name    string
 	belowMs int64

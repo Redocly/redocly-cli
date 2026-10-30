@@ -164,7 +164,7 @@ client:
   telemetry: on
 ```
 
-Each language generator then also writes a telemetry module next to the client:
+The `typescript`, `go`, `python`, and `php` generators then also write a telemetry module next to the client:
 
 | Generator    | File                    |
 | ------------ | ----------------------- |
