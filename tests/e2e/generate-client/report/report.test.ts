@@ -163,8 +163,7 @@ describe('generate-client --report', () => {
             "findings": [
               {
                 "kind": "generation-failed",
-                "message": "serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.
-         Got: api.example.com",
+                "message": "serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml. Got: api.example.com",
                 "operations": [],
               },
             ],

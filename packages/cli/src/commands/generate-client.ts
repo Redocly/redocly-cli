@@ -62,13 +62,16 @@ type GenerationReport = {
   }>;
 };
 
-/** An error in the `client` config of an API. The report holds `reason`, without the printed icon. */
+/**
+ * An error in the `client` config of an API. The CLI prints `detail` on a line of its own,
+ * and the report holds `reason` with both parts on one line and no icon.
+ */
 class ClientConfigError extends HandledError {
   reason: string;
 
-  constructor(reason: string) {
-    super(`\n❌  ${reason}\n`);
-    this.reason = reason;
+  constructor(problem: string, detail: string) {
+    super(`\n❌  ${problem}\n   ${detail}\n`);
+    this.reason = `${problem} ${detail}`;
   }
 }
 
@@ -80,7 +83,8 @@ function resolveSetup(client: GenerateClientConfig, configDir: string): Generate
   if (typeof setup !== 'string') return client;
   if (URL_SCHEME.test(setup)) {
     throw new ClientConfigError(
-      `\`client.setup\` must be a local file path — remote setup modules are not supported.\n   Got: ${setup}`
+      '`client.setup` must be a local file path — remote setup modules are not supported.',
+      `Got: ${setup}`
     );
   }
   if (!isAbsolute(setup)) {
@@ -252,18 +256,21 @@ async function generateApiClient(
 
     if (!outputPath.endsWith('.ts')) {
       throw new ClientConfigError(
-        `output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}`
+        'output must point at a TypeScript file (ending in .ts).',
+        `Got: ${outputPath}`
       );
     }
     if (seenOutputs.has(outputPath)) {
       throw new ClientConfigError(
-        `Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.`
+        `Two APIs write to the same path: ${outputPath}.`,
+        'Give each api a distinct `clientOutput`.'
       );
     }
     seenOutputs.add(outputPath);
     if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
       throw new ClientConfigError(
-        `serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}`
+        'serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the `client` block in redocly.yaml.',
+        `Got: ${clientConfig.serverUrl}`
       );
     }
 
