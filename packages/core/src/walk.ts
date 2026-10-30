@@ -500,12 +500,12 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       }
     }
 
-    // a `$ref` to a leaf, after `ref.leave` has resolved it
+    // after `ref.leave`: only then is the resolved leaf in the parent, so the scalar visitors see it
+    // and can replace it
     if (nodeIsRef && type.scalar && resolvedNode !== undefined && resolvedLocation) {
       visitScalar(resolvedNode, type.scalar, resolvedLocation, parent, key);
     }
 
-    // a list of leaves is visited item by item
     function visitScalar(
       value: unknown,
       schema: NormalizedScalarSchema,
