@@ -42,7 +42,7 @@ describe('config-ref', () => {
 
   test('bundle writes each output and applies the overlays', async () => {
     await expect(run(['bundle'])).toMatchFileSnapshot(snapshot('bundle'));
-    for (const api of ['cafe', 'kiosk']) {
+    for (const api of ['cafe', 'cafe-nested']) {
       expect(generated(`config/generated/${api}.yaml`), api).not.toContain('/stats');
     }
     for (const api of ['orders', 'menu', 'archive']) {
@@ -53,7 +53,7 @@ describe('config-ref', () => {
   test.each([
     ['cafe', 'Cafe API template'],
     ['orders', 'Root template'],
-    ['kiosk', 'Kiosk template'],
+    ['cafe-nested', 'Nested cafe template'],
   ])('build-docs %s uses the htmlTemplate of its level', (api, title) => {
     run(['build-docs', api, '-o', `out/${api}.html`]);
     expect(generated(`out/${api}.html`)).toContain(`<title>${title}</title>`);

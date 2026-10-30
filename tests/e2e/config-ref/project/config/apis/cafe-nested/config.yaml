@@ -1,7 +1,7 @@
 # `root` and `overlays` are themselves a `$ref` into a file one more level down
 root:
   $ref: ./shared/paths.yaml#/root
-output: ../../generated/kiosk.yaml
+output: ../../generated/cafe-nested.yaml
 overlays:
   $ref: ./shared/paths.yaml#/overlays
 openapi:
