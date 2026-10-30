@@ -183,7 +183,7 @@ Because of this, a generator in any output language does not implement schema se
 | `discriminatorCases(schema, model)`             | Gives a `{ property, cases }` dispatch table for discriminated unions. Each language renders its own form: a sealed hierarchy, a type switch, or a `Union`. |
 | `isNullable(schema)` / `unwrapNullable(schema)` | Finds and removes `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                                              |
 | `enumValues(schema)`                            | Gives the values plus SCREAMING_SNAKE member-name suggestions.                                                                                              |
-| `casing` / `identifierFor(name, opts)`          | Gives camel/pascal/snake/screaming casing and keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` are included, or pass your own set).          |
+| `casing` / `identifierFor(name, opts)`          | Gives camel/pascal/snake/screaming casing and keyword-safe identifiers (`RESERVED_WORDS.python/go/php/java/typescript` are included, or pass your own set). |
 | `Printer`                                       | A text builder that manages indentation. You do not manage whitespace manually.                                                                             |
 | `docText(description)`                          | Gives the description text as trimmed lines for any comment syntax.                                                                                         |
 | `schemaAtPointer(schema, pointer, model)`       | Resolves an RFC 6901 JSON pointer over a schema, through refs and `allOf`. Example: a pagination `items` pointer to its element type.                       |

@@ -17,7 +17,7 @@ Three further problems follow from the split:
 
 1. **The import rewrite is a string swap.** The eject build does `.replaceAll("'../../authoring/index.js'", "'@redocly/client-generator'")`. Nothing stops a generator from deep-importing `../../authoring/schema.js` or any private emitter, which would silently ship a broken eject.
 2. **The two shapes hide that the generators are the same pipeline.** `pythonGenerator` emits header → models → servers → embedded runtime → descriptor table → client class. `emitClient` emits header → schema statements → servers → embedded runtime → ops wiring → descriptor table → client section. Eleven stages line up 1:1. The difference is organizational drift, not architecture.
-3. **`emitters/` mixes three unrelated things** — one generator's body, genuinely shared syntax helpers, and IR analysis that contains no TypeScript at all (see [`../helper-surface.md`](../helper-surface.md)).
+3. **`emitters/` mixes three unrelated things** — one generator's body, genuinely shared syntax helpers, and IR analysis that contains no TypeScript at all (inventoried in `docs/helper-surface.md`, a pre-rewrite snapshot removed once the rewrite landed).
 
 Measured at symbol level, the seven TypeScript generators share **four functions totalling 27 lines** (`safeIdent`, `pascalCase`, `codeLiteral`, `codeString`).
 The rest of `emitters/` is single-owner.

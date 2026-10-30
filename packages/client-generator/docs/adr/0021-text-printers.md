@@ -10,7 +10,7 @@
 That migration happened because the generator gained non-TypeScript output languages, and an AST for TypeScript does nothing for Python, Go, or PHP.
 This ADR records the shape the code actually has, and settles what belongs in a shared printer.
 
-The text layer today is inconsistent in ways that are more than cosmetic — the full inventory is in [`../helper-surface.md`](../helper-surface.md), and the load-bearing findings are:
+The text layer today is inconsistent in ways that are more than cosmetic — the full inventory was in `docs/helper-surface.md`, a pre-rewrite snapshot removed once the rewrite landed, and the load-bearing findings are:
 
 - **Two identifier systems.** `authoring/naming.ts` states it in its own header: _"TypeScript keeps its specialized sanitizer in emitters/identifier.ts; this is for the other output languages."_ The TypeScript reserved-word list exists twice, and the two systems disagree on convention — `sanitizeIdentifier` prefixes (`_class`), `identifierFor` suffixes (`class_`).
 - **Two TypeScript string escapers with different security policies.** `codeString` escapes U+2028/U+2029; `sanitizeCodeString` also escapes `<`/`>` to prevent a `</script>` breakout. Which protection applies depends on which one the caller imported.
