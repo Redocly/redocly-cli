@@ -158,11 +158,19 @@ function buildUrl(string $serverUrl, string $path, array $pathParams): string
     return rtrim($serverUrl, '/') . $path;
 }
 
-/** The default retry predicate: 5xx, 429, and transport failures (no response, `status` 0). */
+/**
+ * The default retry predicate, as in the other languages: only a safe method or a request with
+ * `Idempotency-Key`, and only after a transport failure (`status` 0) or a 408, 429, 500, 502, 503, or 504.
+ */
 function defaultRetryOn(array $context): bool
 {
+    $safe = in_array(strtoupper($context['method'] ?? ''), ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'], true)
+        || isset($context['headers']['Idempotency-Key']);
+    if (!$safe) {
+        return false;
+    }
     $status = $context['status'] ?? 0;
-    return $status === 0 || $status >= 500 || $status === 429;
+    return in_array($status, [0, 408, 429, 500, 502, 503, 504], true);
 }
 
 /** Delay before the next attempt: `Retry-After` wins; otherwise jittered (fixed|exponential) backoff. */
@@ -290,6 +298,8 @@ function send(Config $config, array $request): array
             'timedOut' => $response['timedOut'],
             'attempt' => $attempt,
             'operationId' => $request['operationId'] ?? '',
+            'method' => $request['method'],
+            'headers' => $request['headers'],
         ];
         if ($attempt === $attempts || !$retryOn($context)) {
             break;

@@ -15,7 +15,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -337,11 +336,11 @@ func usageTelemetryOtlpRequest(events []UsageTelemetryEvent) map[string]any {
 			usageTelemetryAttribute("cloudevents.event_category", "product"),
 			usageTelemetryAttribute("cloudevents.event_signal", "metric"),
 		}
-		for _, key := range usageTelemetrySortedKeys(event.Usage) {
-			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.usage."+key, event.Usage[key]))
+		for key, value := range event.Usage {
+			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.usage."+key, value))
 		}
-		for _, key := range usageTelemetrySortedKeys(event.SDK) {
-			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.sdk."+key, event.SDK[key]))
+		for key, value := range event.SDK {
+			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.sdk."+key, value))
 		}
 		spans = append(spans, map[string]any{
 			"traceId":           usageTelemetryRandomHex(16),
@@ -378,15 +377,6 @@ func usageTelemetryAttribute(key string, value any) map[string]any {
 		return map[string]any{"key": key, "value": map[string]any{"stringValue": typed}}
 	}
 	return map[string]any{"key": key, "value": map[string]any{"stringValue": fmt.Sprint(value)}}
-}
-
-func usageTelemetrySortedKeys[Value any](values map[string]Value) []string {
-	keys := []string{}
-	for key := range values {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	return keys
 }
 
 func usageTelemetryRandomHex(byteCount int) string {

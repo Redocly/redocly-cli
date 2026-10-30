@@ -163,7 +163,7 @@ export function validateSelection(
   const telemetryWriters = ['typescript', 'go', 'python', 'php'];
   if (emit.telemetry === 'on' && !telemetryWriters.some((name) => selected.has(name))) {
     logger.warn(
-      'generate-client: telemetry is ignored — only the typescript, go, python, and php generators write a telemetry module, and none of them is selected.\n'
+      'generate-client: telemetry is ignored — no selected generator writes a telemetry module (add --generator typescript, go, python, or php).\n'
     );
   }
   const errorMode = emit.errorMode ?? 'throw';

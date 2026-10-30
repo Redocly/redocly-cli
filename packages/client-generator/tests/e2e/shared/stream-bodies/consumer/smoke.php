@@ -61,7 +61,9 @@ function expectUnavailable(callable $call): void
 
 $multipart = "--redocly\r\nContent-Disposition: form-data; name=\"note\"\r\n\r\nhello stream\r\n--redocly--\r\n";
 $binary = implode('', array_map('chr', range(0, 255)));
-$client = new Client(new Config(serverUrl: $argv[1], retry: ['attempts' => 3, 'delay' => 0]));
+// Retry the 503 of every method: the default skips a POST.
+$retryOn = fn (array $context): bool => $context['status'] === 503;
+$client = new Client(new Config(serverUrl: $argv[1], retry: ['attempts' => 3, 'delay' => 0, 'retryOn' => $retryOn]));
 
 // Streams: the body passes through untouched and is sent once, even under /fail/.
 $client->upload(memoryStream($multipart));
