@@ -1,5 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 
+import { reportFinding } from '../../../findings.js';
 import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { resolveModelPagination } from '../../../pagination.js';
 import { commandData, renderCliModule, renderComposedCliEntry } from '../render.js';
@@ -222,6 +223,7 @@ describe('commandData', () => {
 
 describe('renderCliModule', () => {
   const options = {
+    reportFinding,
     stem: 'client',
     importExt: 'js',
     zodSelected: false,
@@ -289,6 +291,19 @@ describe('renderCliModule', () => {
     renderCliModule(MODEL, options);
     expect(warn).toHaveBeenCalledTimes(2);
     warn.mockRestore();
+  });
+
+  it('lists the operation IDs of the commands named after a tag', () => {
+    const findings: Parameters<typeof reportFinding>[0][] = [];
+
+    renderCliModule(modelWithOperationNamedOrders([]), {
+      ...options,
+      reportFinding: (finding) => findings.push(finding),
+    });
+
+    expect(findings).toEqual([
+      expect.objectContaining({ kind: 'command-shadowed', operations: ['getOrder'] }),
+    ]);
   });
 });
 

@@ -44,7 +44,6 @@ describe('generate-client --report', () => {
                 "kind": "name-changed",
                 "message": "schema "Error" is a name a generated client already declares, so it is emitted as "Error_2" — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate.",
                 "operations": [],
-                "severity": "warning",
               },
             ],
             "name": "cafe",
@@ -104,6 +103,32 @@ describe('generate-client --report', () => {
     `);
   });
 
+  it('writes the findings of a custom generator', () => {
+    const result = runCommandResult(
+      'node',
+      [
+        cliEntry,
+        'generate-client',
+        fixture,
+        '--output',
+        join(outputDir, 'client.ts'),
+        '--generator',
+        join(__dirname, 'finding-generator.mjs'),
+        '--report',
+        join(outputDir, 'report.json'),
+      ],
+      { testPath: __dirname }
+    );
+
+    expect(result.status, result.stderr).toBe(0);
+    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf-8'));
+    expect(report.apis[0].findings).toContainEqual({
+      kind: 'operation-skipped',
+      message: 'finding-generator skipped listMenuItems.',
+      operations: ['listMenuItems'],
+    });
+  });
+
   it('writes the error of a failed generation', () => {
     const result = runCommandResult(
       'node',
@@ -125,7 +150,6 @@ describe('generate-client --report', () => {
     const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf-8'));
     expect(report.apis[0].findings.at(-1)).toMatchObject({
       kind: 'generation-failed',
-      severity: 'error',
       message: expect.stringContaining('missing-generator-package'),
     });
   });

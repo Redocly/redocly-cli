@@ -17,7 +17,15 @@ import { cliAuthSchemes, commandData, renderCliModule } from './render.ts';
  * bodies, env auth, `--page-all`, SSE/blob output, a documented exit-code
  * contract). Requires `typescript` (throw mode); wires zod validation when co-selected.
  */
-export const cliGenerator: Generator = ({ model, output, banner, emit, selected, pagination }) => {
+export const cliGenerator: Generator = ({
+  model,
+  output,
+  banner,
+  emit,
+  selected,
+  pagination,
+  reportFinding,
+}) => {
   const content = renderCliModule(model, {
     stem: output.stem,
     importExt: emit.importExt ?? 'js',
@@ -25,6 +33,7 @@ export const cliGenerator: Generator = ({ model, output, banner, emit, selected,
     pagination,
     argsStyle: emit.argsStyle ?? 'grouped',
     runtime: emit.runtime ?? 'inline',
+    reportFinding,
   });
   const entry = { path: join(output.dir, `${output.stem}.cli.ts`), content };
   if (emit.runtime !== 'module') return [entry];

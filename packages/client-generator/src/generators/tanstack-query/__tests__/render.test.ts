@@ -1,6 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
 import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
+import { reportFinding } from '../../../findings.js';
 import { resolveModelPagination, type PaginationConfig } from '../../../pagination.js';
 import { renderTanstackModule } from '../render.js';
 
@@ -19,6 +20,7 @@ function render(
     services: [{ name: 'Default', operations: ops.map(operation) }],
   });
   return renderTanstackModule(model, {
+    reportFinding,
     sdkModule: SDK,
     framework: extra.framework ?? 'react',
     pagination: resolveModelPagination(model, extra.pagination),
@@ -31,7 +33,9 @@ describe('renderTanstackModule', () => {
   });
 
   it('returns empty string when the model has no operations', () => {
-    expect(renderTanstackModule(apiModel(), { sdkModule: SDK, framework: 'react' })).toBe('');
+    expect(
+      renderTanstackModule(apiModel(), { reportFinding, sdkModule: SDK, framework: 'react' })
+    ).toBe('');
   });
 
   it('skips SSE operations (not request/response functions) and wraps only the regular ones', () => {
@@ -149,7 +153,7 @@ describe('renderTanstackModule', () => {
             },
           ],
         }),
-        { sdkModule: SDK, framework: 'react', queryKeyPrefix: 'main' }
+        { reportFinding, sdkModule: SDK, framework: 'react', queryKeyPrefix: 'main' }
       );
       expect(out).toContain('export const listPetsQueryKey = () => ["main", "listPets"] as const;');
       expect(out).toContain('mutationKey: ["main", "ping"] as const');
@@ -165,7 +169,7 @@ describe('renderTanstackModule', () => {
             },
           ],
         }),
-        { sdkModule: SDK, framework: 'react', queryKeyPrefix: 'a\u2028b' }
+        { reportFinding, sdkModule: SDK, framework: 'react', queryKeyPrefix: 'a\u2028b' }
       );
       expect(out).toContain('mutationKey: ["a\\u2028b", "ping"] as const');
     });
@@ -475,6 +479,7 @@ describe('a pagination parameter whose name is not an identifier', () => {
     const model = apiModel({ services: [{ name: 'Default', operations: [operation(spec)] }] });
     const resolved = resolveModelPagination(model, pagination);
     const grouped = renderTanstackModule(model, {
+      reportFinding,
       sdkModule: SDK,
       framework: 'react',
       pagination: resolved,
@@ -482,6 +487,7 @@ describe('a pagination parameter whose name is not an identifier', () => {
     expect(grouped).toContain('initialPageParam: vars.query?.["after-cursor"]');
 
     const flat = renderTanstackModule(model, {
+      reportFinding,
       sdkModule: SDK,
       framework: 'react',
       pagination: resolved,

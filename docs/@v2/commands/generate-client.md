@@ -287,7 +287,6 @@ The file has one entry for each API that the command started to generate:
       "findings": [
         {
           "kind": "name-changed",
-          "severity": "warning",
           "message": "schema \"Error\" is a name a generated client already declares, so it is emitted as \"Error_2\" — ...",
           "operations": []
         }
@@ -305,7 +304,7 @@ The file has one entry for each API that the command started to generate:
   The `message` text can change.
   The `operations` of a finding are the IDs of the operations it is about.
 - When the generation of an API fails, the command still writes the report.
-  The last finding of that API then has the kind `generation-failed` and the severity `error`.
+  The last finding of that API then has the kind `generation-failed`.
 
 | Kind                  | Meaning                                                                    |
 | --------------------- | -------------------------------------------------------------------------- |

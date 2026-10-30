@@ -75,6 +75,7 @@ export function runGenerators(
       model,
       output,
       banner,
+      reportFinding,
       outputMode: options.outputMode,
       emit: options.emit,
       pagination: options.pagination,

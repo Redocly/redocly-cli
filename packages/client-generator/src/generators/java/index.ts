@@ -13,7 +13,6 @@ import {
   type NeutralPaginationRule,
   type OperationModel,
   renderReferencePage,
-  reportFinding,
   type SampleContext,
   sseResponse,
 } from '@redocly/client-generator';
@@ -56,7 +55,14 @@ function runtimeBody(): string[] {
 }
 
 /** The whole generated file: package, imports, and the class nesting models, runtime, and methods. */
-export const javaGenerator: Generator = ({ model, output, banner, emit, pagination }) => {
+export const javaGenerator: Generator = ({
+  model,
+  output,
+  banner,
+  emit,
+  pagination,
+  reportFinding,
+}) => {
   const printer = new JavaPrinter();
   const dateType = emit.dateType ?? 'string';
   const className = javaClassName(output.stem, model);

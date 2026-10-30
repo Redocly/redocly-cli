@@ -4,7 +4,7 @@
 // answers in each wrapper would put the SDK's calling convention in several places,
 // which is exactly the drift this module exists to prevent.
 
-import { reportFinding } from '../findings.js';
+import type { GeneratorInput } from '../generators/types.js';
 import { operationSignature } from '../generators/typescript/operation-signature.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 
@@ -19,7 +19,11 @@ import type { ApiModel, OperationModel } from '../intermediate-representation/mo
  *   so the import would resolve to the schema (a wrong/broken type). The sdk function still
  *   works; renaming the schema or the operation restores the wrapper.
  */
-export function wrappableOperations(model: ApiModel, label: string): OperationModel[] {
+export function wrappableOperations(
+  model: ApiModel,
+  label: string,
+  reportFinding: GeneratorInput['reportFinding']
+): OperationModel[] {
   const all = model.services.flatMap((s) => s.operations);
   const sse = all.filter((op) => op.sse !== undefined);
   if (sse.length > 0) {

@@ -55,7 +55,6 @@ type GenerationReport = {
     operations: GenerateClientResult['operations'];
     findings: Array<{
       kind: GenerateClientFindingKind | 'generation-failed';
-      severity: 'warning' | 'error';
       message: string;
       operations: string[];
     }>;
@@ -265,7 +264,7 @@ async function generateApiClient(
       config: aliasConfig,
       configDir,
       collectSpecData,
-      onFinding: (finding) => reportedApi.findings.push({ ...finding, severity: 'warning' }),
+      onFinding: (finding) => reportedApi.findings.push(finding),
     });
     reportedApi.operations = result.operations;
     // The emitted module decides what composes: `cli` reaches a run as a built-in
@@ -293,7 +292,6 @@ async function generateApiClient(
     generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
     reportedApi.findings.push({
       kind: 'generation-failed',
-      severity: 'error',
       message,
       operations: [],
     });
