@@ -248,18 +248,18 @@ describe('bundle', () => {
                 '200':
                   description: OK
                   content:
-                    $ref: '#/components/mediaTypes/Test'
+                    application/json:
+                      $ref: '#/components/mediaTypes/Test'
         components:
           mediaTypes:
             Test:
-              'application/json':
-                schema:
-                  $ref: '#/components/schemas/User'
-                examples:
-                  example1:
-                    value:
-                      id: 1
-                      name: John
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: John
           schemas:
             User:
               type: object
@@ -289,18 +289,18 @@ describe('bundle', () => {
               '200':
                 description: OK
                 content:
-                  $ref: '#/components/mediaTypes/Test'
+                  application/json:
+                    $ref: '#/components/mediaTypes/Test'
       components:
         mediaTypes:
           Test:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                example1:
-                  value:
-                    id: 1
-                    name: John
+            schema:
+              $ref: '#/components/schemas/User'
+            examples:
+              example1:
+                value:
+                  id: 1
+                  name: John
         schemas:
           User:
             type: object
@@ -328,20 +328,20 @@ describe('bundle', () => {
               '200':
                 description: OK
                 content:
-                  $ref: '#/components/mediaTypes/testMediaType'
+                  application/json:
+                    $ref: '#/components/mediaTypes/testMediaType'
       components:
         mediaTypes:
           testMediaType:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-              examples:
-                Test:
-                  value:
-                    id: 1
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+            examples:
+              Test:
+                value:
+                  id: 1
     `);
   });
 
