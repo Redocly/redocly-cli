@@ -3,10 +3,11 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { runCommandResult } from '../helpers.js';
-import { cliEntry, repoRoot } from './helpers.js';
+import { cleanupOutput, getCommandOutput } from '../../helpers.js';
+import { cliEntry, repoRoot } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const snapshots = join(__dirname, '__snapshots__');
 const fixture = join(repoRoot, 'resources/cafe.yaml');
 
 describe('generate-client --report', () => {
@@ -18,9 +19,8 @@ describe('generate-client --report', () => {
     rmSync(outputDir, { recursive: true, force: true });
   });
 
-  it('writes the operations and the warnings of the API', () => {
-    const result = runCommandResult(
-      'node',
+  function generate(args: string[]): string {
+    const output = getCommandOutput(
       [
         cliEntry,
         'generate-client',
@@ -29,13 +29,20 @@ describe('generate-client --report', () => {
         join(outputDir, 'client.ts'),
         '--report',
         join(outputDir, 'report.json'),
+        ...args,
       ],
       { testPath: __dirname }
     );
+    return cleanupOutput(output).replaceAll(outputDir, '<output>');
+  }
 
-    expect(result.status, result.stderr).toBe(0);
-    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf-8'));
-    expect(report).toMatchInlineSnapshot(`
+  function readReport() {
+    return JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf-8'));
+  }
+
+  it('writes the operations and the warnings of the API', async () => {
+    await expect(generate([])).toMatchFileSnapshot(join(snapshots, 'operations-and-warnings.txt'));
+    expect(readReport()).toMatchInlineSnapshot(`
       {
         "apis": [
           {
@@ -103,54 +110,24 @@ describe('generate-client --report', () => {
     `);
   });
 
-  it('writes the findings of a custom generator', () => {
-    const result = runCommandResult(
-      'node',
-      [
-        cliEntry,
-        'generate-client',
-        fixture,
-        '--output',
-        join(outputDir, 'client.ts'),
-        '--generator',
-        join(__dirname, 'finding-generator.mjs'),
-        '--report',
-        join(outputDir, 'report.json'),
-      ],
-      { testPath: __dirname }
-    );
-
-    expect(result.status, result.stderr).toBe(0);
-    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf-8'));
-    expect(report.apis[0].findings).toContainEqual({
+  it('writes the findings of a custom generator', async () => {
+    await expect(
+      generate(['--generator', join(__dirname, 'finding-generator.mjs')])
+    ).toMatchFileSnapshot(join(snapshots, 'custom-generator-findings.txt'));
+    expect(readReport().apis[0].findings).toContainEqual({
       kind: 'operation-skipped',
       message: 'finding-generator skipped listMenuItems.',
       operations: ['listMenuItems'],
     });
   });
 
-  it('writes the error of a failed generation', () => {
-    const result = runCommandResult(
-      'node',
-      [
-        cliEntry,
-        'generate-client',
-        fixture,
-        '--output',
-        join(outputDir, 'client.ts'),
-        '--generator',
-        'missing-generator-package',
-        '--report',
-        join(outputDir, 'report.json'),
-      ],
-      { testPath: __dirname }
+  it('writes the error of a failed generation', async () => {
+    await expect(generate(['--generator', 'sdk'])).toMatchFileSnapshot(
+      join(snapshots, 'generation-failed.txt')
     );
-
-    expect(result.status).toBe(1);
-    const report = JSON.parse(readFileSync(join(outputDir, 'report.json'), 'utf-8'));
-    expect(report.apis[0].findings.at(-1)).toMatchObject({
+    expect(readReport().apis[0].findings.at(-1)).toMatchObject({
       kind: 'generation-failed',
-      message: expect.stringContaining('missing-generator-package'),
+      message: expect.stringContaining('The "sdk" generator is now named "typescript"'),
     });
   });
 });

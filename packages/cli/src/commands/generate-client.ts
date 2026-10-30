@@ -1,5 +1,6 @@
 import type {
   GenerateClientConfig,
+  GenerateClientFinding,
   GenerateClientFindingKind,
   GenerateClientResult,
   generateClient as generateClientFunction,
@@ -53,11 +54,11 @@ type GenerationReport = {
   apis: Array<{
     name: string;
     operations: GenerateClientResult['operations'];
-    findings: Array<{
-      kind: GenerateClientFindingKind | 'generation-failed';
-      message: string;
-      operations: string[];
-    }>;
+    findings: Array<
+      Omit<GenerateClientFinding, 'kind'> & {
+        kind: GenerateClientFindingKind | 'generation-failed';
+      }
+    >;
   }>;
 };
 

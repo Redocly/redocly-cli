@@ -185,8 +185,6 @@ run({ model, output, reportFinding }) {
 ```
 
 The CLI displays the message as a warning and adds the finding to the [`--report`](../commands/generate-client.md#write-a-report) file.
-Use the function that `run` receives, not an import.
-A custom generator imports its own copy of `@redocly/client-generator`, and the CLI does not see the findings of that copy.
 
 ### Language-neutral helpers
 

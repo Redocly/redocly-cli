@@ -1,0 +1,11 @@
+
+
+  Generating client for cafe... 
+generate-client: schema "Error" is a name a generated client already declares, so it is emitted as "Error_2" — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate.
+
+❌  Failed to generate client for cafe.
+   The "sdk" generator is now named "typescript". Update the `generators` list or the --generator flag.
+
+
+
+Exit code: 1
