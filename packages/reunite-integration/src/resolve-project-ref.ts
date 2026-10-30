@@ -49,7 +49,7 @@ async function lookUp(
 
     if (!found) {
       throw new ReuniteApiError(
-        `Project "${project}" was not found in organization "${organization}". Use the IDs from the organization and project settings in Reunite.`,
+        `Project "${project}" was not found in organization "${organization}". Use the IDs from the organization and project settings in the Redocly platform.`,
         404
       );
     }

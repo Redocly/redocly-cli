@@ -59,7 +59,7 @@ function withHttpsValidation<Fn extends (...args: any[]) => string>(fn: Fn) {
 
 export class InvalidReuniteUrlError extends Error {
   constructor() {
-    super('Invalid Reunite URL');
+    super('Invalid Redocly platform URL');
   }
 }
 

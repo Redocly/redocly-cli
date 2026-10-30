@@ -662,6 +662,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
         "type": "string",
       },
+      "platform": "rootRedoclyConfigSchema.platform",
       "plugins": {
         "items": {
           "type": "string",
@@ -2143,6 +2144,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
         "type": "string",
       },
+      "platform": "rootRedoclyConfigSchema.platform",
       "plugins": {
         "items": {
           "type": "string",
@@ -2217,6 +2219,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "content": "rootRedoclyConfigSchema.access.rbac.content",
       "entitiesCatalog": "rootRedoclyConfigSchema.access.rbac.entitiesCatalog",
       "features": "rootRedoclyConfigSchema.access.rbac.features",
+      "platform": "rootRedoclyConfigSchema.access.rbac.platform",
       "reunite": "rootRedoclyConfigSchema.access.rbac.reunite",
       "teamFolders": {
         "items": {
@@ -2576,6 +2579,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": undefined,
   },
   "rootRedoclyConfigSchema.access.rbac.features.mcp": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.access.rbac.platform": {
     "additionalProperties": {
       "type": "string",
     },
@@ -3230,7 +3243,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -3616,7 +3628,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -4613,7 +4624,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -6615,7 +6625,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -7572,7 +7581,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -9557,7 +9565,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -11648,6 +11655,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
         "type": "string",
       },
+      "platform": "rootRedoclyConfigSchema.env_additionalProperties.platform",
       "preprocessors": {
         "type": "object",
       },
@@ -11717,6 +11725,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "content": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.content",
       "entitiesCatalog": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.entitiesCatalog",
       "features": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.features",
+      "platform": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.platform",
       "reunite": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.reunite",
       "teamFolders": {
         "items": {
@@ -12076,6 +12085,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.features.mcp": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.platform": {
     "additionalProperties": {
       "type": "string",
     },
@@ -12730,7 +12749,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -13116,7 +13134,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -14113,7 +14130,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -16115,7 +16131,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -17072,7 +17087,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -19057,7 +19071,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -20990,7 +21003,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -21640,7 +21652,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -23438,7 +23449,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -25296,6 +25306,842 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "agent": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent",
+      "ignoreLinkChecker": {
+        "type": "boolean",
+      },
+      "ignoreLint": [Function],
+      "ignoreMarkdocErrors": {
+        "type": "boolean",
+      },
+      "ignoreRespectMonitoring": {
+        "type": "boolean",
+      },
+      "jobs": "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "customDuties": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties",
+      "defaultReviewers": {
+        "items": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "duties": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties",
+      "enabled": {
+        "type": "boolean",
+      },
+      "mcpServers": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.mcpServers",
+      "rules": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.rules",
+      "supportDesks": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.supportDesks",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "enabled": {
+        "type": "boolean",
+      },
+      "icon": {
+        "enum": [
+          "sparkle",
+          "code",
+          "book",
+          "search",
+          "link",
+          "picture",
+          "global",
+          "check",
+          "warning",
+        ],
+        "type": "string",
+      },
+      "mcpServers": [Function],
+      "prompt": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "sources": [Function],
+      "title": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "trigger": [Function],
+    },
+    "required": [
+      "title",
+      "prompt",
+      "trigger",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties_items.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties_items.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties_items.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties_items.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.customDuties_items.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": [Function],
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "feedback",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": [Function],
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_0.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_0.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_0.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_0.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "feedback",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_0.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "discovery",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_1.trigger",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_1.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_1.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_1.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_1.trigger": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_2": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "seo",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": [Function],
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_2.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_2.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_2.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_2.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_2.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_3": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "supportConversations",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.duties_items_4.specialists_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "config",
+          "apiDescription",
+          "owasp",
+          "docs",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+      "enabled",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.mcpServers": {
+    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.mcpServers_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.mcpServers_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "headers": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.mcpServers_additionalProperties.headers",
+      "type": {
+        "enum": [
+          "http",
+        ],
+        "type": "string",
+      },
+      "url": {
+        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.mcpServers_additionalProperties.headers": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.rules": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "custom": {
+        "type": "string",
+      },
+      "style": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.supportDesks": {
+    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.supportDesks_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.agent.supportDesks_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiToken": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "disabled": {
+        "type": "boolean",
+      },
+      "provider": {
+        "enum": [
+          "front",
+        ],
+        "type": "string",
+      },
+      "signingSecret": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "apiToken",
+      "signingSecret",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.ignoreLint_1": {
+    "additionalProperties": {
+      "type": "boolean",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "agent": {
+        "enum": [
+          "respect",
+        ],
+        "type": "string",
+      },
+      "inputs": "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.inputs",
+      "path": {
+        "pattern": "^(?!\\/|\\.\\./)",
+        "type": "string",
+      },
+      "servers": {
+        "properties": {},
+        "type": "object",
+      },
+      "severity": "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.severity",
+      "slo": "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.slo",
+      "trigger": [Function],
+    },
+    "required": [
+      "path",
+      "trigger",
+      "agent",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.inputs": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.severity": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "contentTypeCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+      "schemaCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+      "statusCodeCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+      "successCriteriaCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.slo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "error": {
+        "type": "number",
+      },
+      "warn": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+      "interval": {
+        "enum": [
+          "1m",
+          "2m",
+          "5m",
+          "10m",
+          "15m",
+          "30m",
+          "1h",
+          "3h",
+          "6h",
+          "12h",
+          "1d",
+          "7d",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.platform.jobs_items.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "build",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.products": {
     "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.products_additionalProperties",
     "description": undefined,
@@ -25335,6 +26181,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "content": "rootRedoclyConfigSchema.env_additionalProperties.rbac.content",
       "entitiesCatalog": "rootRedoclyConfigSchema.env_additionalProperties.rbac.entitiesCatalog",
       "features": "rootRedoclyConfigSchema.env_additionalProperties.rbac.features",
+      "platform": "rootRedoclyConfigSchema.env_additionalProperties.rbac.platform",
       "reunite": "rootRedoclyConfigSchema.env_additionalProperties.rbac.reunite",
       "teamFolders": {
         "items": {
@@ -25694,6 +26541,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.rbac.features.mcp": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.rbac.platform": {
     "additionalProperties": {
       "type": "string",
     },
@@ -26078,6 +26935,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "customDuties": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties",
       "defaultReviewers": {
         "items": {
           "minLength": 1,
@@ -26091,8 +26949,136 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "mcpServers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.mcpServers",
       "rules": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.rules",
+      "supportDesks": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.supportDesks",
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "enabled": {
+        "type": "boolean",
+      },
+      "icon": {
+        "enum": [
+          "sparkle",
+          "code",
+          "book",
+          "search",
+          "link",
+          "picture",
+          "global",
+          "check",
+          "warning",
+        ],
+        "type": "string",
+      },
+      "mcpServers": [Function],
+      "prompt": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "sources": [Function],
+      "title": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "trigger": [Function],
+    },
+    "required": [
+      "title",
+      "prompt",
+      "trigger",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties_items.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties_items.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties_items.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties_items.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.customDuties_items.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties": {
     "additionalProperties": undefined,
@@ -26294,29 +27280,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "enum": [
-          "supportConversations",
-          "followUpOnPullRequest",
-          "updateFromCodeChanges",
-        ],
-        "type": "string",
-      },
-    },
-    "required": [
-      "name",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "enabled": {
-        "type": "boolean",
-      },
-      "name": {
-        "enum": [
-          "review",
+          "seo",
         ],
         "type": "string",
       },
@@ -26324,21 +27288,21 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "sourceRepositories": [Function],
-      "specialists": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists",
+      "trigger": [Function],
     },
     "required": [
       "name",
     ],
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.sourceRepositories_1": {
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_2.sourceRepositories_1": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.sourceRepositories_1_items",
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_2.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.sourceRepositories_1_items": {
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_2.sourceRepositories_1_items": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
@@ -26365,15 +27329,136 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "repository",
     ],
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists": {
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_2.trigger_0": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists_items",
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_2.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "supportConversations",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_3.specialists_items": {
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_4.specialists_items": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
@@ -26454,6 +27539,44 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.supportDesks": {
+    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.supportDesks_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.supportDesks_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiToken": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "disabled": {
+        "type": "boolean",
+      },
+      "provider": {
+        "enum": [
+          "front",
+        ],
+        "type": "string",
+      },
+      "signingSecret": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "apiToken",
+      "signingSecret",
+    ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.reunite.ignoreLint_1": {
     "additionalProperties": {
@@ -28557,7 +29680,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -30381,7 +31503,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -31031,7 +32152,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -32489,7 +33609,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -35755,7 +36874,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -36405,7 +37523,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -38203,7 +39320,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "rating",
           "sentiment",
           "comment",
-          "reasons",
           "mood",
           "scale",
         ],
@@ -40061,6 +41177,842 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.platform": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "agent": "rootRedoclyConfigSchema.platform.agent",
+      "ignoreLinkChecker": {
+        "type": "boolean",
+      },
+      "ignoreLint": [Function],
+      "ignoreMarkdocErrors": {
+        "type": "boolean",
+      },
+      "ignoreRespectMonitoring": {
+        "type": "boolean",
+      },
+      "jobs": "rootRedoclyConfigSchema.platform.jobs",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "customDuties": "rootRedoclyConfigSchema.platform.agent.customDuties",
+      "defaultReviewers": {
+        "items": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "duties": "rootRedoclyConfigSchema.platform.agent.duties",
+      "enabled": {
+        "type": "boolean",
+      },
+      "mcpServers": "rootRedoclyConfigSchema.platform.agent.mcpServers",
+      "rules": "rootRedoclyConfigSchema.platform.agent.rules",
+      "supportDesks": "rootRedoclyConfigSchema.platform.agent.supportDesks",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.customDuties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.agent.customDuties_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.customDuties_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "enabled": {
+        "type": "boolean",
+      },
+      "icon": {
+        "enum": [
+          "sparkle",
+          "code",
+          "book",
+          "search",
+          "link",
+          "picture",
+          "global",
+          "check",
+          "warning",
+        ],
+        "type": "string",
+      },
+      "mcpServers": [Function],
+      "prompt": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "sources": [Function],
+      "title": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "trigger": [Function],
+    },
+    "required": [
+      "title",
+      "prompt",
+      "trigger",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.customDuties_items.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.agent.customDuties_items.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.customDuties_items.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.customDuties_items.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.customDuties_items.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": [Function],
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "feedback",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": [Function],
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_0.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.agent.duties_items_0.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_0.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_0.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "feedback",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_0.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "discovery",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": "rootRedoclyConfigSchema.platform.agent.duties_items_1.trigger",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_1.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.agent.duties_items_1.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_1.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_1.trigger": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_2": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "seo",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "trigger": [Function],
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_2.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.agent.duties_items_2.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_2.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_2.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_2.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_3": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "supportConversations",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_4": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.platform.agent.duties_items_4.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_4.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.agent.duties_items_4.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_4.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_4.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.agent.duties_items_4.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.duties_items_4.specialists_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "config",
+          "apiDescription",
+          "owasp",
+          "docs",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+      "enabled",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.mcpServers": {
+    "additionalProperties": "rootRedoclyConfigSchema.platform.agent.mcpServers_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.mcpServers_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "headers": "rootRedoclyConfigSchema.platform.agent.mcpServers_additionalProperties.headers",
+      "type": {
+        "enum": [
+          "http",
+        ],
+        "type": "string",
+      },
+      "url": {
+        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.agent.mcpServers_additionalProperties.headers": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.rules": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "custom": {
+        "type": "string",
+      },
+      "style": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.supportDesks": {
+    "additionalProperties": "rootRedoclyConfigSchema.platform.agent.supportDesks_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.agent.supportDesks_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiToken": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "disabled": {
+        "type": "boolean",
+      },
+      "provider": {
+        "enum": [
+          "front",
+        ],
+        "type": "string",
+      },
+      "signingSecret": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "apiToken",
+      "signingSecret",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.ignoreLint_1": {
+    "additionalProperties": {
+      "type": "boolean",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.jobs": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.platform.jobs_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.jobs_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "agent": {
+        "enum": [
+          "respect",
+        ],
+        "type": "string",
+      },
+      "inputs": "rootRedoclyConfigSchema.platform.jobs_items.inputs",
+      "path": {
+        "pattern": "^(?!\\/|\\.\\./)",
+        "type": "string",
+      },
+      "servers": {
+        "properties": {},
+        "type": "object",
+      },
+      "severity": "rootRedoclyConfigSchema.platform.jobs_items.severity",
+      "slo": "rootRedoclyConfigSchema.platform.jobs_items.slo",
+      "trigger": [Function],
+    },
+    "required": [
+      "path",
+      "trigger",
+      "agent",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.jobs_items.inputs": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.jobs_items.severity": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "contentTypeCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+      "schemaCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+      "statusCodeCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+      "successCriteriaCheck": {
+        "enum": [
+          "error",
+          "warn",
+          "off",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.jobs_items.slo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "error": {
+        "type": "number",
+      },
+      "warn": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.platform.jobs_items.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+      "interval": {
+        "enum": [
+          "1m",
+          "2m",
+          "5m",
+          "10m",
+          "15m",
+          "30m",
+          "1h",
+          "3h",
+          "6h",
+          "12h",
+          "1d",
+          "7d",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.platform.jobs_items.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "build",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
   "rootRedoclyConfigSchema.products": {
     "additionalProperties": "rootRedoclyConfigSchema.products_additionalProperties",
     "description": undefined,
@@ -40100,6 +42052,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "content": "rootRedoclyConfigSchema.rbac.content",
       "entitiesCatalog": "rootRedoclyConfigSchema.rbac.entitiesCatalog",
       "features": "rootRedoclyConfigSchema.rbac.features",
+      "platform": "rootRedoclyConfigSchema.rbac.platform",
       "reunite": "rootRedoclyConfigSchema.rbac.reunite",
       "teamFolders": {
         "items": {
@@ -40459,6 +42412,16 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": undefined,
   },
   "rootRedoclyConfigSchema.rbac.features.mcp": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.rbac.platform": {
     "additionalProperties": {
       "type": "string",
     },
@@ -40843,6 +42806,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "customDuties": "rootRedoclyConfigSchema.reunite.agent.customDuties",
       "defaultReviewers": {
         "items": {
           "minLength": 1,
@@ -40856,8 +42820,136 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "mcpServers": "rootRedoclyConfigSchema.reunite.agent.mcpServers",
       "rules": "rootRedoclyConfigSchema.reunite.agent.rules",
+      "supportDesks": "rootRedoclyConfigSchema.reunite.agent.supportDesks",
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.customDuties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.customDuties_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.customDuties_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "enabled": {
+        "type": "boolean",
+      },
+      "icon": {
+        "enum": [
+          "sparkle",
+          "code",
+          "book",
+          "search",
+          "link",
+          "picture",
+          "global",
+          "check",
+          "warning",
+        ],
+        "type": "string",
+      },
+      "mcpServers": [Function],
+      "prompt": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "sources": [Function],
+      "title": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "trigger": [Function],
+    },
+    "required": [
+      "title",
+      "prompt",
+      "trigger",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.customDuties_items.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.customDuties_items.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.customDuties_items.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.customDuties_items.trigger_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.customDuties_items.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
   },
   "rootRedoclyConfigSchema.reunite.agent.duties": {
     "additionalProperties": undefined,
@@ -41059,29 +43151,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "enum": [
-          "supportConversations",
-          "followUpOnPullRequest",
-          "updateFromCodeChanges",
-        ],
-        "type": "string",
-      },
-    },
-    "required": [
-      "name",
-    ],
-  },
-  "rootRedoclyConfigSchema.reunite.agent.duties_items_3": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "enabled": {
-        "type": "boolean",
-      },
-      "name": {
-        "enum": [
-          "review",
+          "seo",
         ],
         "type": "string",
       },
@@ -41089,21 +43159,21 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "sourceRepositories": [Function],
-      "specialists": "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists",
+      "trigger": [Function],
     },
     "required": [
       "name",
     ],
   },
-  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.sourceRepositories_1": {
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_2.sourceRepositories_1": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_3.sourceRepositories_1_items",
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_2.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.sourceRepositories_1_items": {
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_2.sourceRepositories_1_items": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
@@ -41130,15 +43200,136 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "repository",
     ],
   },
-  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists": {
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_2.trigger_0": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists_items",
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "contentChange",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_2.trigger_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_3": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "supportConversations",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_4": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.reunite.agent.duties_items_4.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_4.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_4.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.reunite.agent.duties_items_3.specialists_items": {
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_4.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_4.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_4.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_4.specialists_items": {
     "additionalProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
@@ -41219,6 +43410,44 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.supportDesks": {
+    "additionalProperties": "rootRedoclyConfigSchema.reunite.agent.supportDesks_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.supportDesks_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiToken": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "disabled": {
+        "type": "boolean",
+      },
+      "provider": {
+        "enum": [
+          "front",
+        ],
+        "type": "string",
+      },
+      "signingSecret": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "apiToken",
+      "signingSecret",
+    ],
   },
   "rootRedoclyConfigSchema.reunite.ignoreLint_1": {
     "additionalProperties": {

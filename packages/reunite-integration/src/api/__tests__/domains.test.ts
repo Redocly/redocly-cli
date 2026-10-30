@@ -88,15 +88,17 @@ describe('domains', () => {
 
     it('should throw error for invalid residency or malformed URL', async () => {
       const config = await createConfig({ residency: 'invalid-region' });
-      expect(() => getReuniteUrl(config)).toThrow('Invalid Reunite URL');
-      expect(() => getReuniteUrl(testConfig, 'not-a-valid-url')).toThrow('Invalid Reunite URL');
+      expect(() => getReuniteUrl(config)).toThrow('Invalid Redocly platform URL');
+      expect(() => getReuniteUrl(testConfig, 'not-a-valid-url')).toThrow(
+        'Invalid Redocly platform URL'
+      );
     });
 
     it('should throw error for invalid fromProjectUrl', async () => {
       const config = await createConfig({
         scorecard: { fromProjectUrl: 'not-a-valid-url' },
       });
-      expect(() => getReuniteUrl(config)).toThrow('Invalid Reunite URL');
+      expect(() => getReuniteUrl(config)).toThrow('Invalid Redocly platform URL');
     });
   });
 

@@ -1,0 +1,16 @@
+extends:
+  - recommended
+reunite:
+  ignoreLint: true
+platform:
+  ignoreLinkChecker: true
+access:
+  rbac:
+    reunite:
+      Admins: admin
+    platform:
+      $ref: ./teams.yaml
+metadata:
+  reunite: Docs team # Not reported: not a config option here
+env:
+  $ref: ./env.yaml
