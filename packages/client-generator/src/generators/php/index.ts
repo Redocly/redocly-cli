@@ -7,6 +7,8 @@
 
 import {
   type CodeSample,
+  GENERATOR_VERSION,
+  type GeneratedFile,
   type Generator,
   identifierFor,
   jsonSuccessSchema,
@@ -18,7 +20,10 @@ import {
   sseResponse,
 } from '@redocly/client-generator';
 import { PhpPrinter } from '@redocly/client-generator/printers/php';
-import { PHP_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
+import {
+  PHP_RUNTIME_SOURCE,
+  PHP_TELEMETRY_SOURCE,
+} from '@redocly/client-generator/runtime-sources';
 
 import { writeServers } from './client.ts';
 import { phpPaginationLiteral, phpSecurityLiteral } from './descriptor.ts';
@@ -163,17 +168,28 @@ export const phpGenerator: Generator = ({ model, output, banner, emit, paginatio
   );
 
   const entry = { path: output.path.replace(/\.[^.\\/]+$/, '.php'), content: printer.toString() };
-  if (emit.runtime !== 'module') return [entry];
-  // The runtime, verbatim except its namespace: rewritten to the client's, so one
-  // namespace spans both files and every bare reference resolves unchanged.
+  // The runtime and the telemetry module, verbatim except their namespace: rewritten to
+  // the client's, so one namespace spans every file and every bare reference resolves.
   const header = banner.map((line) => `// ${line}`).join('\n');
-  const runtimeSource = PHP_RUNTIME_SOURCE.replace(/^namespace .*$/m, `namespace ${namespace};`)
-    .replace(/^<\?php\n/, `<?php\n\n${header}\n`)
-    .trimEnd();
-  return [
-    entry,
-    { path: entry.path.replace(/[^\\/]+$/, 'runtime.php'), content: `${runtimeSource}\n` },
-  ];
+  const sibling = (name: string, source: string): GeneratedFile => ({
+    path: entry.path.replace(/[^\\/]+$/, name),
+    content: `${source
+      .replace(/^namespace .*$/m, `namespace ${namespace};`)
+      .replace(/^<\?php\n/, `<?php\n\n${header}\n`)
+      .trimEnd()}\n`,
+  });
+  const files: GeneratedFile[] = [entry];
+  if (emit.runtime === 'module') {
+    files.push(sibling('runtime.php', PHP_RUNTIME_SOURCE));
+  }
+  if (emit.telemetry === 'on') {
+    const telemetrySource = PHP_TELEMETRY_SOURCE.replace(
+      "private const GENERATOR_VERSION = 'dev';",
+      () => `private const GENERATOR_VERSION = ${phpString(GENERATOR_VERSION)};`
+    );
+    files.push(sibling('telemetry.php', telemetrySource));
+  }
+  return files;
 };
 
 /** One idiomatic PHP call per operation — feeds `x-codeSamples` for docs. */

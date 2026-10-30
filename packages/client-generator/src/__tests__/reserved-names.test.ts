@@ -1,6 +1,8 @@
 import ts from 'typescript';
 
 import { reservedModuleNames } from '../reserved-names.js';
+import { GO_TELEMETRY_SOURCE } from '../runtime-sources/go-telemetry.js';
+import { PHP_TELEMETRY_SOURCE } from '../runtime-sources/php-telemetry.js';
 import { RUNTIME_SOURCES } from '../runtime-sources/typescript.js';
 
 /**
@@ -150,6 +152,16 @@ describe('reservedModuleNames', () => {
       }
     }
     expect([...missing].sort()).toEqual([]);
+  });
+
+  it('covers every exported declaration of the Go and PHP telemetry modules', () => {
+    const declared = [
+      ...GO_TELEMETRY_SOURCE.matchAll(/^(?:type|func) ([A-Z]\w*)/gm),
+      ...PHP_TELEMETRY_SOURCE.matchAll(/^(?:final )?(?:class|function) (\w+)/gm),
+    ].map((match) => match[1]);
+    expect(declared).toContain('UsageTelemetry');
+    const reserved = reservedModuleNames();
+    expect(declared.filter((name) => !reserved.has(name))).toEqual([]);
   });
 
   it('reserves the wiring, satellite, and platform names alongside the runtime declarations', () => {

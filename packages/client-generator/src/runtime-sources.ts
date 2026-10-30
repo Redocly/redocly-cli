@@ -4,9 +4,12 @@
 // `npm update` and the ejected file stays small and readable. Pure strings — this
 // entry's import graph must stay dependency-free (guarded like the root entry).
 
+export { GO_TELEMETRY_SOURCE } from './runtime-sources/go-telemetry.js';
 export { GO_RUNTIME_SOURCE } from './runtime-sources/go.js';
 export { JAVA_RUNTIME_SOURCE } from './runtime-sources/java.js';
+export { PHP_TELEMETRY_SOURCE } from './runtime-sources/php-telemetry.js';
 export { PHP_RUNTIME_SOURCE } from './runtime-sources/php.js';
+export { PYTHON_TELEMETRY_SOURCE } from './runtime-sources/python-telemetry.js';
 export { PYTHON_RUNTIME_SOURCES, type PythonRuntimeModuleName } from './runtime-sources/python.js';
 export { TELEMETRY_RUNTIME_SOURCE } from './runtime-sources/telemetry.js';
 export {

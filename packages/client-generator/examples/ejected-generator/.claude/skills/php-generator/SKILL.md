@@ -108,6 +108,18 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
   Under `--runtime module` it is written as a `runtime.php` the client `require_once`s,
   with its namespace rewritten to the client's so one namespace spans both files.
+- **`onSettled` sees every sent call once.** `send()` calls each `Config->onSettled` callable
+  after the retry loop with `operationId`, `status` (0 without a response), `timedOut`,
+  `attempts`, and `durationMs`, before it throws or returns. SSE streams open outside
+  `send()`, so they reach no hook.
+- **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
+  writes `telemetry.php` (from `telemetry/telemetry.php` in this folder, embedded at prepare
+  time) beside the client, in both runtime modes, with the client's namespace and the
+  generator version baked in. The client file does not change. The application requires it
+  and passes `new UsageTelemetry(...)` in `Config->onSettled`. PHP has no timers: a call that
+  finds its window elapsed sends it first, and a shutdown function sends the open window.
+  Constants live on the class, because OPcache preloading drops file-level constants. The
+  class name is reserved for every SDK, because the file shares the namespace with the models.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 ## Migrating from a service-based SDK

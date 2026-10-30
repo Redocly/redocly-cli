@@ -108,6 +108,19 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   time — generator code never builds runtime logic from templates.
   Under `--runtime module` the same sources are written as sibling `_*.py` files instead
   (package-relative imports become sibling imports; the client star-imports each module).
+- **`on_settled` sees every sent call once.** Both `send()` and `send_async()` call each
+  middleware's `on_settled(context, call)` after the last attempt, where `call` holds the final
+  `response` or the `error`, `attempts`, and `duration_ms` (from the first attempt to the end
+  of the `on_response` hooks). A timeout is `ApiTimeoutError`; a cancelled async call is
+  `asyncio.CancelledError`. A call that fails in `on_request` does not reach it. Every hook
+  runs; on a successful call the first hook exception fails the call, and on a failed call
+  the original error wins. SSE streams open outside `send()`, so they reach no middleware.
+- **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
+  writes `<module>_telemetry.py` (from `telemetry/telemetry.py` in this folder, embedded at
+  prepare time) beside the client, in both runtime modes, with the generator version baked
+  in. The client file does not change. The module imports nothing from the client; the
+  application passes `telemetry(sdk_name=..., sdk_version=..., client=...)` in the client's
+  `middleware`, and the open window is sent at interpreter exit.
 - Authored ONLY with the neutral toolkit (`Printer`, naming, schema, pagination helpers) —
   the dogfooding guard fails otherwise.
 

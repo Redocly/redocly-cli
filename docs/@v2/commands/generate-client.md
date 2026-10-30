@@ -164,13 +164,25 @@ client:
   telemetry: on
 ```
 
-The `typescript` generator then also writes `<output>.telemetry.ts` next to the client.
+Each language generator then also writes a telemetry module next to the client:
+
+| Generator    | File                    |
+| ------------ | ----------------------- |
+| `typescript` | `<output>.telemetry.ts` |
+| `go`         | `telemetry.go`          |
+| `python`     | `<module>_telemetry.py` |
+| `php`        | `telemetry.php`         |
+
 The module counts the calls of your SDK per operation and sends the counts once a minute.
 Use it to learn which operations your SDK users call, how often, with which outcome, and how fast.
 Without `telemetry: on`, the generated code contains no telemetry, and the client file is the same in both cases.
 This option is available only in the configuration file and has no flag.
 
-Register the middleware once, where your SDK creates its client:
+Register the module once, where your SDK creates its client.
+The module counts each call once, after the last retry.
+
+{% tabs %}
+{% tab label="TypeScript" %}
 
 ```ts
 import { telemetry } from './client.telemetry.ts';
@@ -181,9 +193,56 @@ use(
 );
 ```
 
-The middleware counts each call once, after the last retry.
-It sends one event per operation and window (60 seconds by default), and the open window when Node.js emits `beforeExit`.
+The middleware sends the open window when Node.js emits `beforeExit`.
 Before `process.exit()` or on a signal, call `await flush()`.
+
+{% /tab %}
+{% tab label="Go" %}
+
+```go
+telemetry := client.NewUsageTelemetry(client.UsageTelemetryOptions{
+    SDKName:    "github.com/acme/billing-sdk",
+    SDKVersion: "3.2.0",
+    Client:     "invoice-worker/1.8.4",
+})
+defer telemetry.Flush(context.Background())
+api := client.New(client.Config{Middleware: []client.Middleware{telemetry.Middleware()}})
+```
+
+Go has no exit hook, so call `Flush(ctx)` before your program ends.
+
+{% /tab %}
+{% tab label="Python" %}
+
+```python
+from billing_client import Client
+from billing_client_telemetry import telemetry
+
+api = Client(middleware=[telemetry(sdk_name="acme-billing", sdk_version="3.2.0", client="invoice-worker/1.8.4")])
+```
+
+The module sends the open window when the interpreter exits.
+Before `os._exit()` or on a signal, call `flush()`.
+
+{% /tab %}
+{% tab label="PHP" %}
+
+```php
+require __DIR__ . '/telemetry.php';
+
+$telemetry = new UsageTelemetry(sdkName: 'acme/billing-sdk', sdkVersion: '3.2.0', client: 'invoice-worker/1.8.4');
+$api = new Client(new Config(onSettled: [$telemetry]));
+```
+
+PHP has no timers.
+A call that finds its window elapsed sends that window first, in the same request.
+At shutdown, the module sends the open window, which can add up to 3 seconds to the end of a request.
+Call `$telemetry->flush()` to send it earlier.
+
+{% /tab %}
+{% /tabs %}
+
+The window is 60 seconds by default.
 By default, the events go to the Redocly OpenTelemetry endpoint.
 Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
 Pass a `sink` function to receive the events yourself instead.
@@ -198,7 +257,7 @@ Each event contains only:
 - The calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`) and the calls per duration bucket.
   An outcome or a bucket with no calls is not sent.
 - The window start and length.
-- The SDK name and version, the generator version, the language, and the runtime name and version (Node.js, Bun, or Deno).
+- The SDK name and version, the generator version, the language, and the runtime name and version (Node.js, Bun, or Deno for TypeScript; Go; the Python implementation, such as CPython; PHP).
 - The client name that you pass.
 
 The module never sends URLs, path or query parameters, headers, request or response bodies, or any other value from a request.

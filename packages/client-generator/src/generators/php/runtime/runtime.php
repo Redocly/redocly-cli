@@ -87,6 +87,8 @@ final class ServerSentEvent
  * `auth`: `['bearer' => string|callable, 'basic' => ['username' => ..., 'password' => ...], 'apiKey' => [scheme => string|callable]]`.
  * `retry`: `['attempts' => int, 'delay' => float, 'strategy' => 'exponential'|'fixed', 'retryOn' => callable]`.
  * `middleware`: callables `fn(array $request, callable $next): array` around each attempt.
+ * `onSettled`: callables `fn(array $call): void`, run once per call after the last attempt, with
+ * `['operationId' => string, 'status' => int (0 without a response), 'timedOut' => bool, 'attempts' => int, 'durationMs' => int]`.
  */
 final class Config
 {
@@ -97,6 +99,7 @@ final class Config
         public array $retry = [],
         public array $middleware = [],
         public string $clientHeader = 'redocly-client-generator',
+        public array $onSettled = [],
     ) {
     }
 }
@@ -283,6 +286,7 @@ function send(Config $config, array $request): array
     $attempts = is_resource($request['body'] ?? null) ? 1 : max(1, (int) ($config->retry['attempts'] ?? 3));
     $retryOn = $config->retry['retryOn'] ?? __NAMESPACE__ . '\\defaultRetryOn';
     $response = null;
+    $started = hrtime(true);
     for ($attempt = 1; $attempt <= $attempts; $attempt++) {
         $response = $handler($request);
         $context = [
@@ -296,6 +300,16 @@ function send(Config $config, array $request): array
         }
         $seconds = retryDelay($attempt, $config->retry, $response['headers']['retry-after'] ?? null);
         usleep((int) round($seconds * 1_000_000));
+    }
+    $call = [
+        'operationId' => $request['operationId'] ?? '',
+        'status' => $response['status'],
+        'timedOut' => $response['timedOut'],
+        'attempts' => $attempt,
+        'durationMs' => intdiv(hrtime(true) - $started, 1_000_000),
+    ];
+    foreach ($config->onSettled as $onSettled) {
+        $onSettled($call);
     }
     if ($response['timedOut']) {
         throw new TimeoutError($response['url'], $config->timeout, $attempts);

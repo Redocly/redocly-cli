@@ -1,6 +1,7 @@
 import type { ApiModel } from '../../../intermediate-representation/model.js';
 import { PHP_CAFE } from '../../__tests__/fixtures/cafe-models.js';
 import { generatorInput } from '../../__tests__/fixtures/generator-input.js';
+import { GENERATOR_VERSION } from '../../compatibility.js';
 import { phpGenerator as phpGeneratorEntry, phpSample } from '../index.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
@@ -217,5 +218,22 @@ describe('phpGenerator (full client assembly)', () => {
       "public static function sandboxServer(string $organizationId = 'unknown'): string"
     );
     expect(out).toContain("return 'https://api.cafe.example/organizations/' . $organizationId;");
+  });
+});
+
+describe('phpGenerator: telemetry option', () => {
+  it('writes telemetry.php in the client namespace beside an unchanged client', () => {
+    const input = { model: PHP_CAFE, outputPath: '/out/client.ts', outputMode: 'single' as const };
+    const withTelemetry = phpGenerator({ ...input, emit: { telemetry: 'on' } });
+    const withoutTelemetry = phpGenerator({ ...input, emit: {} });
+
+    expect(withTelemetry.map((file) => file.path)).toEqual([
+      '/out/client.php',
+      '/out/telemetry.php',
+    ]);
+    expect(withTelemetry[0].content).toBe(withoutTelemetry[0].content);
+    const module = withTelemetry[1].content;
+    expect(module).toContain('namespace CafeOrdersApi;');
+    expect(module).toContain(`private const GENERATOR_VERSION = '${GENERATOR_VERSION}';`);
   });
 });
