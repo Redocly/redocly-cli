@@ -38,3 +38,7 @@ apis:
     # two levels down: the referenced file points its `root`, `overlays` and `openapi` one folder deeper,
     # and the paths there climb two and three levels up
     $ref: ./apis/cafe-nested/config.yaml
+  remote:
+    # a `$ref` over https into an api of another config, whose `root` is a URL: nothing there is rebased
+    $ref: https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/tests/e2e/miscellaneous/apply-per-api-decorators/nested/redocly.yaml#/apis/test@external-url
+    output: ./generated/remote.yaml

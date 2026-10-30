@@ -1,8 +1,9 @@
 // The project's root redocly.yaml only references config/redocly.yaml. That file writes some
 // sections and apis inline, pulls others in with `$ref` from deeper folders and from the project
 // root above it, and mixes a `$ref` with a sibling option, a `$ref` chain, a `$ref` on a path
-// field itself two levels down, and `../` paths that climb one to four levels back up. Every
-// command below must find the files that these paths point to.
+// field itself two levels down, `../` paths that climb one to four levels back up, and a `$ref`
+// over https into a config whose `root` is a URL. Every command below must find the files
+// that these paths point to.
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,7 +46,7 @@ describe('config-ref', () => {
     for (const api of ['cafe', 'cafe-nested']) {
       expect(generated(`config/generated/${api}.yaml`), api).not.toContain('/stats');
     }
-    for (const api of ['orders', 'menu', 'archive']) {
+    for (const api of ['orders', 'menu', 'archive', 'remote']) {
       expect(existsSync(join(testPath, `config/generated/${api}.yaml`)), api).toBe(true);
     }
   });
