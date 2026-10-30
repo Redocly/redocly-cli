@@ -167,7 +167,7 @@ export function validateSelection(
     reportFinding({
       kind: 'option-ignored',
       message:
-        'telemetry is ignored — only the typescript, go, python, and php generators write a telemetry module, and none of them is selected.',
+        'telemetry is ignored — no selected generator writes a telemetry module (add --generator typescript, go, python, or php).',
       operations: [],
     });
   }

@@ -15,7 +15,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -29,8 +28,6 @@ const (
 	usageTelemetryServiceName      = "redocly-sdk"
 	usageTelemetrySendTimeout      = 3 * time.Second
 )
-
-var usageTelemetryStatusClasses = []string{"2xx", "3xx", "4xx", "5xx", "network_error", "timeout", "aborted"}
 
 var usageTelemetryLatencyBuckets = []struct {
 	name    string
@@ -83,7 +80,7 @@ type UsageTelemetry struct {
 	counts      map[string]*usageTelemetryCounts
 	windowStart time.Time
 	timer       *time.Timer
-	pending     sync.WaitGroup
+	sending     sync.Mutex
 }
 
 // NewUsageTelemetry returns the counter. REDOCLY_SDK_TELEMETRY=off or
@@ -118,13 +115,12 @@ func (t *UsageTelemetry) Middleware() Middleware {
 	return Middleware{OnSettled: t.record}
 }
 
-// Flush sends the open window and waits for every pending send, or for ctx.
+// Flush sends the open window and waits for the send, or for ctx.
 // Go has no exit hook, so call it before the program ends.
 func (t *UsageTelemetry) Flush(ctx context.Context) error {
-	t.flushWindow()
 	done := make(chan struct{})
 	go func() {
-		t.pending.Wait()
+		t.flushWindow()
 		close(done)
 	}()
 	select {
@@ -172,6 +168,9 @@ func (t *UsageTelemetry) openWindow() {
 }
 
 func (t *UsageTelemetry) flushWindow() {
+	// One send at a time, so Flush also waits for a send that the timer started.
+	t.sending.Lock()
+	defer t.sending.Unlock()
 	t.mu.Lock()
 	if len(t.counts) == 0 {
 		t.mu.Unlock()
@@ -181,53 +180,50 @@ func (t *UsageTelemetry) flushWindow() {
 	sentCounts := t.counts
 	sentStart := t.windowStart
 	t.counts = map[string]*usageTelemetryCounts{}
-	t.pending.Add(1)
 	t.mu.Unlock()
 
-	go func() {
-		defer t.pending.Done()
-		if usageTelemetryDisabled() {
-			return
+	if usageTelemetryDisabled() {
+		return
+	}
+	events := t.toEvents(sentCounts, sentStart, time.Since(sentStart))
+	err := t.send(events)
+	if err == nil || !usageTelemetryKeepAfter(err) {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if len(t.counts) == 0 {
+		t.openWindow()
+	}
+	if sentStart.Before(t.windowStart) {
+		t.windowStart = sentStart
+	}
+	for operationID, sent := range sentCounts {
+		operation := t.counts[operationID]
+		if operation == nil {
+			t.counts[operationID] = sent
+			continue
 		}
-		events := t.toEvents(sentCounts, sentStart, time.Since(sentStart))
-		err := t.send(events)
-		if err == nil || !usageTelemetryKeepAfter(err) {
-			return
+		operation.calls += sent.calls
+		operation.attempts += sent.attempts
+		operation.durationSumMs += sent.durationSumMs
+		for key, count := range sent.status {
+			operation.status[key] += count
 		}
-		t.mu.Lock()
-		defer t.mu.Unlock()
-		if len(t.counts) == 0 {
-			t.openWindow()
+		for key, count := range sent.latency {
+			operation.latency[key] += count
 		}
-		if sentStart.Before(t.windowStart) {
-			t.windowStart = sentStart
-		}
-		for operationID, sent := range sentCounts {
-			operation := t.counts[operationID]
-			if operation == nil {
-				t.counts[operationID] = sent
-				continue
-			}
-			operation.calls += sent.calls
-			operation.attempts += sent.attempts
-			operation.durationSumMs += sent.durationSumMs
-			for key, count := range sent.status {
-				operation.status[key] += count
-			}
-			for key, count := range sent.latency {
-				operation.latency[key] += count
-			}
-		}
-	}()
+	}
 }
 
 func usageTelemetryStatusClass(call SettledCall) string {
 	if call.Response == nil {
 		var timeout *TimeoutError
-		if errors.As(call.Err, &timeout) {
+		// The caller's own deadline is a timeout too, as a caller's AbortSignal.timeout() is in TypeScript.
+		if errors.As(call.Err, &timeout) || errors.Is(call.Err, context.DeadlineExceeded) {
 			return "timeout"
 		}
-		if errors.Is(call.Err, context.Canceled) || errors.Is(call.Err, context.DeadlineExceeded) {
+		if errors.Is(call.Err, context.Canceled) {
 			return "aborted"
 		}
 		return "network_error"
@@ -338,11 +334,11 @@ func usageTelemetryOtlpRequest(events []UsageTelemetryEvent) map[string]any {
 			usageTelemetryAttribute("cloudevents.event_category", "product"),
 			usageTelemetryAttribute("cloudevents.event_signal", "metric"),
 		}
-		for _, key := range usageTelemetrySortedKeys(event.Usage) {
-			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.usage."+key, event.Usage[key]))
+		for key, value := range event.Usage {
+			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.usage."+key, value))
 		}
-		for _, key := range usageTelemetrySortedKeys(event.SDK) {
-			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.sdk."+key, event.SDK[key]))
+		for key, value := range event.SDK {
+			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.sdk."+key, value))
 		}
 		spans = append(spans, map[string]any{
 			"traceId":           usageTelemetryRandomHex(16),
@@ -379,15 +375,6 @@ func usageTelemetryAttribute(key string, value any) map[string]any {
 		return map[string]any{"key": key, "value": map[string]any{"stringValue": typed}}
 	}
 	return map[string]any{"key": key, "value": map[string]any{"stringValue": fmt.Sprint(value)}}
-}
-
-func usageTelemetrySortedKeys[Value any](values map[string]Value) []string {
-	keys := []string{}
-	for key := range values {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	return keys
 }
 
 func usageTelemetryRandomHex(byteCount int) string {

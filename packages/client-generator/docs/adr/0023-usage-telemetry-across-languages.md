@@ -28,4 +28,5 @@ Every SDK sends to one pipeline, so a second event shape per language would spli
 - Telemetry for a new language is a hook in its runtime plus one source file; the event contract does not change.
 - The three modules must change together with the TypeScript one. The shared test helper catches a drift in the event shape, not in the window or retry behavior.
 - Exit behavior follows each language: Go has no exit hook, so the application calls `Flush`; Python flushes at `atexit`; PHP flushes in a shutdown function, synchronously, which can add up to 3 seconds to the end of a request.
+- Under PHP-FPM, the counts live for one request only. So each request that calls the SDK sends its own events at shutdown, and the client of that request waits for the send. The window collects counts across calls only in a long-running PHP process, such as a CLI worker.
 - Python and PHP open server-sent event streams outside the request core, so those requests reach no middleware and are not counted.

@@ -165,6 +165,8 @@ def send(
 
     started = time.monotonic()
     attempt = 0
+    # The response that a failed call settles with: set only when the last attempt got one.
+    last_response: Optional[httpx.Response] = None
     try:
         while True:
             attempt += 1
@@ -190,6 +192,7 @@ def send(
                     time.sleep(_retry_delay(merged_retry, attempt, None))
                     continue
                 raise
+            last_response = response
 
             for mw in reversed(middleware):
                 on_response = getattr(mw, "on_response", None) or (mw.get("on_response") if isinstance(mw, dict) else None)
@@ -197,17 +200,19 @@ def send(
                     replaced = on_response(response, context)
                     if replaced is not None:
                         response = replaced
+                        last_response = replaced
 
             if (
                 not response.is_success
                 and attempt < max_attempts
                 and retry_on({"attempt": attempt, "response": response})
             ):
+                last_response = None
                 time.sleep(_retry_delay(merged_retry, attempt, response.headers.get("retry-after")))
                 continue
             break
-    except (Exception, asyncio.CancelledError) as error:
-        _settle(middleware, context, _settled_call(None, error, attempt, started))
+    except Exception as error:
+        _settle(middleware, context, _settled_call(last_response, error, attempt, started))
         raise
     _settle(middleware, context, _settled_call(response, None, attempt, started))
     return response
@@ -266,6 +271,8 @@ async def send_async(
     )
     started = time.monotonic()
     attempt = 0
+    # The response that a failed call settles with: set only when the last attempt got one.
+    last_response: Optional[httpx.Response] = None
     try:
         while True:
             attempt += 1
@@ -291,22 +298,25 @@ async def send_async(
                     await asyncio.sleep(_retry_delay(merged_retry, attempt, None))
                     continue
                 raise
+            last_response = response
             for mw in reversed(middleware):
                 on_response = getattr(mw, "on_response", None) or (mw.get("on_response") if isinstance(mw, dict) else None)
                 if on_response:
                     replaced = on_response(response, context)
                     if replaced is not None:
                         response = replaced
+                        last_response = replaced
             if (
                 not response.is_success
                 and attempt < max_attempts
                 and retry_on({"attempt": attempt, "response": response})
             ):
+                last_response = None
                 await asyncio.sleep(_retry_delay(merged_retry, attempt, response.headers.get("retry-after")))
                 continue
             break
     except (Exception, asyncio.CancelledError) as error:
-        _settle(middleware, context, _settled_call(None, error, attempt, started))
+        _settle(middleware, context, _settled_call(last_response, error, attempt, started))
         raise
     _settle(middleware, context, _settled_call(response, None, attempt, started))
     return response

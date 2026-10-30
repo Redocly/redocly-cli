@@ -12,7 +12,7 @@ namespace RedoclyClientRuntime;
 /**
  * Register with `new Config(onSettled: [new UsageTelemetry(...)])`. PHP has no timers:
  * a call that finds its window elapsed sends that window first, in the calling request,
- * and a shutdown function sends the open window. `sink`, when set, receives the events
+ * and a shutdown function sends the open windows. `sink`, when set, receives the events
  * instead of a send; an exception it throws keeps the counts.
  */
 final class UsageTelemetry
@@ -36,8 +36,13 @@ final class UsageTelemetry
     private array $sdk;
     private string $endpoint;
     private ?\Closure $sink;
+    /** @var array<int, self> The instances with an open window, by object id. */
+    private static array $openWindows = [];
+    private static bool $shutdownRegistered = false;
+
     private array $counts = [];
     private float $windowStart = 0.0;
+    private float $nextSendAt = 0.0;
 
     public function __construct(
         string $sdkName,
@@ -59,9 +64,14 @@ final class UsageTelemetry
         ];
         $this->endpoint = $endpoint ?? self::DEFAULT_ENDPOINT;
         $this->sink = $sink === null ? null : \Closure::fromCallable($sink);
-        if ($this->enabled) {
+        if ($this->enabled && !self::$shutdownRegistered) {
+            self::$shutdownRegistered = true;
             // There is no later window at shutdown, so a failed send drops its counts.
-            register_shutdown_function(fn () => $this->flushWindow(false));
+            register_shutdown_function(static function (): void {
+                foreach (self::$openWindows as $telemetry) {
+                    $telemetry->flushWindow(false);
+                }
+            });
         }
     }
 
@@ -71,11 +81,13 @@ final class UsageTelemetry
             return;
         }
         $now = microtime(true);
-        if ($this->counts !== [] && ($now - $this->windowStart) * 1000 >= $this->flushIntervalMs) {
+        if ($this->counts !== [] && $now >= $this->nextSendAt) {
             $this->flushWindow(true);
         }
         if ($this->counts === []) {
             $this->windowStart = $now;
+            $this->nextSendAt = $now + $this->flushIntervalMs / 1000;
+            self::$openWindows[spl_object_id($this)] = $this;
         }
         $operationId = $call['operationId'];
         $operation = $this->counts[$operationId] ?? self::emptyCounts();
@@ -138,6 +150,7 @@ final class UsageTelemetry
         $sentCounts = $this->counts;
         $sentStart = $this->windowStart;
         $this->counts = [];
+        unset(self::$openWindows[spl_object_id($this)]);
         if (self::disabled()) {
             return;
         }
@@ -148,6 +161,8 @@ final class UsageTelemetry
         // PHP is single-threaded, so no call was recorded during the send.
         $this->counts = $sentCounts;
         $this->windowStart = $sentStart;
+        $this->nextSendAt = microtime(true) + $this->flushIntervalMs / 1000;
+        self::$openWindows[spl_object_id($this)] = $this;
     }
 
     /** `sent`, or what to do with the counts after a failed send: `keep` or `drop`. */
