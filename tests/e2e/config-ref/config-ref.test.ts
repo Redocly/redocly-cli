@@ -1,8 +1,8 @@
 // The project's root redocly.yaml only references config/redocly.yaml. That file writes some
-// sections and apis inline, pulls others in with `$ref` from deeper folders, and mixes a `$ref`
-// with a sibling option, a `$ref` chain, a `$ref` on a path field itself two levels down with
-// `../../` paths climbing back, and `../` paths. Every command below must find the files that
-// these paths point to.
+// sections and apis inline, pulls others in with `$ref` from deeper folders and from the project
+// root above it, and mixes a `$ref` with a sibling option, a `$ref` chain, a `$ref` on a path
+// field itself two levels down, and `../` paths that climb one to four levels back up. Every
+// command below must find the files that these paths point to.
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

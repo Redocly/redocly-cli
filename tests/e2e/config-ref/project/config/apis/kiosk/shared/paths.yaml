@@ -1,4 +1,4 @@
-# two levels below config/redocly.yaml: every path climbs back up from here
+# two levels below config/redocly.yaml: every path climbs back up, the overlay to the project root
 root: ../../cafe.yaml
 overlays:
-  - ../../../overlays/public.yaml
+  - ../../../../overlays/public.yaml
