@@ -32,3 +32,7 @@ apis:
   archive:
     # a `$ref` chain: the referenced file only references another one
     $ref: ./apis/chain.yaml
+  kiosk:
+    # two levels down: the referenced file points its `root`, `overlays` and `openapi` one folder deeper,
+    # and the paths there climb two and three levels up
+    $ref: ./apis/kiosk/config.yaml
