@@ -330,7 +330,7 @@ function send(Config $config, array $request): array
         throw $hookErrors[0];
     }
     if ($response['timedOut']) {
-        throw new TimeoutError($response['url'], $config->timeout, $attempts);
+        throw new TimeoutError($response['url'], $config->timeout, $attempt);
     }
     if ($response['status'] === 0) {
         throw new \RuntimeException("Request to {$response['url']} failed: {$response['reason']}");
