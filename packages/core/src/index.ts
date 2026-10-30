@@ -129,7 +129,7 @@ export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js'
 export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
-export { logger, type LoggerInterface } from './logger.js';
+export { logger, colorOptions, type LoggerInterface } from './logger.js';
 export { diffDocuments } from './diff/index.js';
 export {
   type Change,
