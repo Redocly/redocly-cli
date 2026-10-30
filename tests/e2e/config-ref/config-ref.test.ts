@@ -28,8 +28,8 @@ function snapshot(name: string) {
 
 describe('config-ref', () => {
   afterEach(() => {
-    for (const dir of ['config/generated', 'out']) {
-      rmSync(join(testPath, dir), { recursive: true, force: true });
+    for (const written of ['config/generated', 'out', 'openapi.yaml']) {
+      rmSync(join(testPath, written), { recursive: true, force: true });
     }
   });
 
