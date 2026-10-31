@@ -1,20 +1,26 @@
 import * as colorette from 'colorette';
 
 import { isBrowser } from './env.js';
-import { identity } from './utils/identity.js';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore this works but some types are not working
-export const colorOptions = colorette.options;
+let useColor = !isBrowser && colorette.isColorSupported;
+// `colorette` has no global switch, so forcing colors on takes a palette of its own.
+let palette: colorette.Colorette = colorette;
 
-export const colorize = new Proxy(colorette, {
-  get(target: typeof colorette, prop: string): typeof identity {
-    if (isBrowser) {
-      return identity;
+export const colorOptions = {
+  get enabled() {
+    return useColor;
+  },
+  set enabled(value: boolean) {
+    useColor = value && !isBrowser;
+    if (useColor) {
+      palette = colorette.createColors({ useColor });
     }
+  },
+};
 
-    // oxlint-disable-next-line typescript/no-explicit-any
-    return (target as any)[prop];
+export const colorize = new Proxy({} as colorette.Colorette, {
+  get(_target, color: keyof colorette.Colorette) {
+    return (text: string | number) => (useColor ? palette[color](text) : String(text));
   },
 });
 
