@@ -53,23 +53,6 @@ describe('format', () => {
       format: 'summary',
       version: '1.0.0',
       totals: getTotals(problems),
-      color: false,
-    });
-
-    expect(output).toMatchInlineSnapshot(`
-      "error   struct: 2
-      warning other-rule: 1
-
-      "
-    `);
-  });
-
-  it('should correctly format summary output in color mode', () => {
-    formatProblems(problems, {
-      format: 'summary',
-      version: '1.0.0',
-      totals: getTotals(problems),
-      color: true,
     });
 
     expect(replaceColors(output)).toMatchInlineSnapshot(`

@@ -1,6 +1,6 @@
+import { type Colorette, createColors } from 'colorette';
 import * as yamlAst from 'yaml-ast-parser';
 
-import { colorize, colorOptions } from '../logger.js';
 import { parsePointer } from '../ref-utils.js';
 import type { Source } from '../resolve.js';
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
@@ -16,7 +16,7 @@ const MAX_LINE_LENGTH = 150;
 const MAX_CODEFRAME_LINES = 3;
 
 export function getCodeframe(location: LineColLocationObject, color: boolean) {
-  colorOptions.enabled = color;
+  const colors = createColors({ useColor: color });
   const { start, end = { line: start.line, col: start.col + 1 }, source } = location;
   const lines = source.getLines();
   const startLineNum = start.line;
@@ -36,25 +36,25 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     const startIdx = i === startLineNum ? start.col - 1 : currentPad;
     const endIdx = i === endLineNum ? end.col - 1 : line.length;
 
-    prefixedLines.push([`${i}`, markLine(line, startIdx, endIdx, colorize.red)]);
+    prefixedLines.push([`${i}`, markLine(line, startIdx, endIdx, colors.red)]);
     if (!color) prefixedLines.push(['', underlineLine(line, startIdx, endIdx)]);
   }
 
   if (skipLines > 0) {
     prefixedLines.push([
       `…`,
-      `${whitespace(currentPad)}${colorize.gray(`< ${skipLines} more lines >`)}`,
+      `${whitespace(currentPad)}${colors.gray(`< ${skipLines} more lines >`)}`,
     ]);
     // print last line
     prefixedLines.push([
       `${endLineNum}`,
-      markLine(lines[endLineNum - 1], -1, end.col - 1, colorize.red),
+      markLine(lines[endLineNum - 1], -1, end.col - 1, colors.red),
     ]);
 
     if (!color) prefixedLines.push(['', underlineLine(lines[endLineNum - 1], -1, end.col - 1)]);
   }
 
-  return printPrefixedLines([
+  return printPrefixedLines(colors, [
     [`${startLineNum - 2}`, markLine(lines[startLineNum - 1 - 2])],
     [`${startLineNum - 1}`, markLine(lines[startLineNum - 1 - 1])],
     ...prefixedLines,
@@ -66,7 +66,7 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     line: string,
     startIdx: number = -1,
     endIdx: number = +Infinity,
-    variant = colorize.gray
+    variant = colors.gray
   ) {
     if (!color) return line;
     if (!line) return line;
@@ -82,7 +82,7 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
   }
 }
 
-function printPrefixedLines(lines: [string, string][]): string {
+function printPrefixedLines(colors: Colorette, lines: [string, string][]): string {
   const existingLines = lines.filter(([_, line]) => line !== undefined);
 
   const padLen = Math.max(...existingLines.map(([prefix]) => prefix.length));
@@ -93,16 +93,16 @@ function printPrefixedLines(lines: [string, string][]): string {
   return existingLines
     .map(
       ([prefix, line]) =>
-        colorize.gray(leftPad(padLen, prefix) + ' |') +
-        (line ? ' ' + limitLineLength(line.substring(dedentLen)) : '')
+        colors.gray(leftPad(padLen, prefix) + ' |') +
+        (line ? ' ' + limitLineLength(colors, line.substring(dedentLen)) : '')
     )
     .join('\n');
 }
 
-function limitLineLength(line: string, maxLen: number = MAX_LINE_LENGTH) {
+function limitLineLength(colors: Colorette, line: string, maxLen: number = MAX_LINE_LENGTH) {
   const overflowLen = line.length - maxLen;
   if (overflowLen > 0) {
-    const charsMoreText = colorize.gray(`...<${overflowLen} chars>`);
+    const charsMoreText = colors.gray(`...<${overflowLen} chars>`);
     return line.substring(0, maxLen - charsMoreText.length) + charsMoreText;
   } else {
     return line;
