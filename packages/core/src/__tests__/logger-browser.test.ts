@@ -6,13 +6,7 @@ import * as colorette from 'colorette';
 
 import { logger, colorize } from '../logger.js';
 
-vi.mock('colorette', async () => {
-  const actual = await vi.importActual('colorette');
-  return {
-    ...actual,
-    cyan: vi.fn(),
-  };
-});
+vi.mock('colorette');
 
 describe('Logger in Browser', () => {
   it('should call "console.error"', () => {
