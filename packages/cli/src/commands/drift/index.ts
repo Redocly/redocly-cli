@@ -1,4 +1,5 @@
-import { logger, HandledError, AbortFlowError, colorOptions } from '@redocly/openapi-core';
+import { logger, HandledError, AbortFlowError } from '@redocly/openapi-core';
+import { isColorSupported } from 'colorette';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -139,7 +140,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     },
     {
       format: argv['report-format'],
-      color: colorOptions.enabled && argv['report-format'] === 'pretty' && !argv.output,
+      color: isColorSupported && argv['report-format'] === 'pretty' && !argv.output,
       maxFindings: argv['max-findings'],
     }
   );
@@ -155,10 +156,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   // a machine-readable report.
   const stdoutIsMachineReadable = argv['report-format'] !== 'pretty' && !argv.output;
   if (argv.coverage && coverage) {
-    const overview = renderCoverageOverview(
-      coverage,
-      colorOptions.enabled && !stdoutIsMachineReadable
-    );
+    const overview = renderCoverageOverview(coverage, isColorSupported && !stdoutIsMachineReadable);
     if (stdoutIsMachineReadable) {
       logger.info(`\n${overview}`);
     } else {
