@@ -118,5 +118,6 @@ exports[`should not follow the default behavior to break and return if onFailure
 └──────────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

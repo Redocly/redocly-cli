@@ -26,10 +26,11 @@ import {
 import type { ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
-  sendTelemetry,
-  collectXSecurityAuthTypes,
-  collectSourceDescriptionTypes,
   collectCriterionObjectTypes,
+  collectSourceDescriptionTypes,
+  collectXSecurityAuthTypes,
+  isTelemetryEnabled,
+  sendTelemetry,
 } from './utils/telemetry.js';
 
 export type CollectResults = (results: NormalizedProblem[]) => void;
@@ -49,7 +50,6 @@ export function commandWrapper<T extends CommandArgv>(
   return async (argv: Arguments<T>) => {
     const startedAt = performance.now();
     let code: ExitCode = 2;
-    let telemetry;
     let specVersion: string = 'unknown';
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
@@ -115,7 +115,6 @@ export function commandWrapper<T extends CommandArgv>(
         throw new HandledError('Please provide a valid path to the configuration file.');
       }
       config = await loadAndCheckConfig(argv as Exact<T>, version, options.plugins);
-      telemetry = config.resolvedConfig.telemetry;
       code = 1;
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData, collectResults });
@@ -134,7 +133,7 @@ export function commandWrapper<T extends CommandArgv>(
         logger.error('\n');
       }
     } finally {
-      if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
+      if (isTelemetryEnabled(config)) {
         const executionTime = Math.round(performance.now() - startedAt);
         await sendTelemetry({
           config,

@@ -160,13 +160,19 @@ Regenerate it there with `scripts/generate-markdoc-schema.mjs` pointed at this c
 
 ### Update Redoc
 
-When updating Redoc, recompute the subresource integrity [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (`redocStandaloneSri` in [package.ts](./packages/cli/src/utils/package.ts)):
+The `build-docs` command loads Redoc from the Redocly CDN at the exact `redoc` version in [`packages/cli/package.json`](./packages/cli/package.json).
+When updating Redoc, pin an exact version and check that the CDN serves it:
 
 ```bash
-openssl dgst -sha384 -binary node_modules/redoc/bundles/redoc.standalone.js | openssl base64 -A
+npm install -w packages/cli --save-dev --save-exact redoc@<version>
+curl -I https://cdn.redocly.com/redoc/v<version>/bundles/redoc.standalone.js
 ```
 
-The SRI value also appears in [e2e test snapshots](#e2e-tests) — update those too.
+Then update the [e2e test snapshots](#e2e-tests) and the [smoke test](#smoke-tests) page.
+
+### Update the announcement
+
+When you add a new command or a new feature, or change something significant, consider replacing the announcement banner in [`packages/cli/src/utils/notifier.ts`](./packages/cli/src/utils/notifier.ts).
 
 ### Arguments usage
 
@@ -272,27 +278,29 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 ### Client generator tests
 
 `npm run client-generators` runs the tests in `packages/client-generator/tests/e2e`.
-Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, and `python/`.
-The tests compile the generated clients, so they need Go, PHP, and Python.
+Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, `java/`, and `python/`.
+The tests compile the generated clients, so they need Go, PHP, a JDK (17 or newer), and Python.
 A missing tool stops the run with a message that names it.
 
 ```bash
 npm run client-generators                       # everything
 npx vitest run --project client-generators      # TypeScript only, no toolchains needed
-npx vitest run --project client-generators-go   # one language (-go, -php, -python)
+npx vitest run --project client-generators-go   # one language (-go, -php, -java, -python)
 ```
 
 Install the toolchains:
 
 ```bash
 # macOS
-brew install go php
-pip3 install httpx pydantic
+brew install go php phpstan temurin
+pip3 install httpx pydantic mypy
 
 # Ubuntu
-sudo apt-get install golang-go php-cli php-curl python3-pip
-pip3 install httpx pydantic
+sudo apt-get install golang-go php-cli php-curl default-jdk python3-pip
+pip3 install httpx pydantic mypy
 ```
+
+On Ubuntu, PHPStan ships as a phar: download `phpstan.phar` from [its releases](https://github.com/phpstan/phpstan/releases) and put it on the path as `phpstan`.
 
 The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
 

@@ -1,5 +1,73 @@
 # @redocly/cli
 
+## 2.72.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 2.72.0
+
+### Minor Changes
+
+- Added a one-time announcement about the agent skills and the `skills` command, shown the first time you run Redocly CLI.
+  To turn off announcements, set the `REDOCLY_SUPPRESS_NOTIFICATIONS` environment variable to `true`.
+- Added the `java` generator to the `generate-client` command.
+- Added an experimental `diff` command that compares two API descriptions, reports changes, and rates every change by the semver bump it requires (`patch`, `minor`, or `major`).
+  `--fail-on` sets the impact that fails the run and `--check-version` verifies that `info.version` was bumped accordingly.
+
+### Patch Changes
+
+- Fixed an issue where `respect` ignored the `dataValue` field of OpenAPI 3.2 examples when a step took its parameters or request body from the API description.
+- Fixed an issue where `respect` ignored parameters defined on a path item when a step used `operationId` and took its request data from the API description.
+- Updated the `generate-spec`, `generate-arazzo`, and `recheck` commands to print their execution time in milliseconds, the same as the `lint` and `bundle` commands.
+- Updated @redocly/client-generator to v0.8.0.
+- Updated @redocly/openapi-core to v2.72.0.
+- Updated @redocly/respect-core to v2.72.0.
+- Updated @redocly/reunite-integration to v2.72.0.
+
+## 2.71.2
+
+### Patch Changes
+
+- Fixed an issue where the `no-unresolved-refs` rule reported discriminator mapping values that are schema names (for example, `dog: Dog`) as unresolved references.
+  The rule still reports schema names that do not match a schema in `components.schemas`.
+- Fixed an issue where the `drift` and `generate-spec` commands crashed with a stack trace when the traffic file or folder didn't exist, and the `generate-spec` command when the traffic had no matching HTTP exchanges.
+- Fixed an issue where the `bundle` command didn't resolve a `$ref` in an overlay that pointed to a local file when the API description was a URL.
+  The command tried to download the file from the server that hosts the API description instead of reading it from disk.
+- Fixed an issue where the generated TypeScript client lost usage telemetry counts when the telemetry endpoint was unreachable or returned a `408`, `429`, or `5xx` status.
+  The client adds these counts to the next send.
+- Updated @redocly/client-generator to v0.7.13.
+- Updated @redocly/openapi-core to v2.71.2.
+
+## 2.71.1
+
+### Patch Changes
+
+- Fixed `writeOnly` properties in response types, mock data that broke the API description, and generated code that failed strict type checks.
+- Updated @redocly/client-generator to v0.7.12.
+
+## 2.71.0
+
+### Minor Changes
+
+- Added the early access `project pr create` and `project pr status` commands to open a pull request in Redocly platform for the current branch of a cloned project and to show its status.
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.71.0.
+
+## 2.70.0
+
+### Minor Changes
+
+- **Breaking**: Updated the `build-docs` command to Redoc 3 and added support for AsyncAPI descriptions and GraphQL schemas.
+  Added the `--openapi`, `--asyncapi`, `--graphql`, and `--inlineBundle` options.
+  Removed `--theme.openapi` and `--disableGoogleFont`, pass Redoc options with `--openapi` instead.
+  Some Redoc 2 options were renamed or removed, see the [`build-docs` documentation](https://redocly.com/docs/cli/commands/build-docs).
+  The command now applies the [decorators](https://redocly.com/docs/cli/decorators) and [preprocessors](https://redocly.com/docs/cli/configuration/reference/preprocessors) from the configuration file.
+  Pages built with the `build-docs` command now send [Redoc telemetry](https://redocly.com/docs/redoc/telemetry) from readers' browsers by default.
+
 ## 2.69.0
 
 ### Minor Changes

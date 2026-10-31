@@ -7,3 +7,5 @@ paths: {}
 bundling nested/openapi/main.yaml using configuration for api 'test@fs'...
 📦 Created a bundle for nested/openapi/main.yaml at stdout <test>ms.
 🧹 Removed 1 unused components.
+
+Exit code: 0

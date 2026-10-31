@@ -228,5 +228,6 @@ Workflow "final-workflow" has a non-object input schema. Named inputs are preser
 Workflow "final-workflow" has a non-object input schema. Named inputs are preserved without validation. Use an object schema to validate named inputs.
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

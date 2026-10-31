@@ -5,6 +5,7 @@
 // entry's import graph must stay dependency-free (guarded like the root entry).
 
 export { GO_RUNTIME_SOURCE } from './runtime-sources/go.js';
+export { JAVA_RUNTIME_SOURCE } from './runtime-sources/java.js';
 export { PHP_RUNTIME_SOURCE } from './runtime-sources/php.js';
 export { PYTHON_RUNTIME_SOURCES, type PythonRuntimeModuleName } from './runtime-sources/python.js';
 export { TELEMETRY_RUNTIME_SOURCE } from './runtime-sources/telemetry.js';

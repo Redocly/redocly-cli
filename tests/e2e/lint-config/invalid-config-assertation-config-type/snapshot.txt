@@ -19,3 +19,5 @@ validating ../__fixtures__/valid-openapi.yaml...
 
 Woohoo! Your API description is valid. 🎉
 
+
+Exit code: 0

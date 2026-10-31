@@ -190,7 +190,7 @@ You can opt out by setting the `REDOCLY_TELEMETRY` environment variable to `off`
 ## Update notifications
 
 Redocly CLI checks for updates on startup.
-You can disable this by setting the `REDOCLY_SUPPRESS_UPDATE_NOTICE` environment variable to `true`.
+You can disable notifications by setting the `REDOCLY_SUPPRESS_NOTIFICATIONS` environment variable to `true`.
 
 ## More resources
 

@@ -7,7 +7,12 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { runCommandResult, type CommandResult } from '../../helpers.js';
+import {
+  cleanupOutput,
+  getCommandOutput,
+  runCommandResult,
+  type CommandResult,
+} from '../../helpers.js';
 import { cliEntry, copyConsumer, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -94,22 +99,22 @@ describe('client.cliOutput validation', () => {
       `,
       'utf-8'
     );
-    return runCommandResult(
-      'node',
+    const output = getCommandOutput(
       [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
       { testPath: project }
     );
+    return cleanupOutput(output).replaceAll(project, '<project>');
   }
 
-  it('rejects a non-.ts entry instead of writing TypeScript into it', () => {
-    const result = generateWith('./bin/cafe.js');
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain('client.cliOutput must point at a TypeScript file');
+  it('rejects a non-.ts entry instead of writing TypeScript into it', async () => {
+    await expect(generateWith('./bin/cafe.js')).toMatchFileSnapshot(
+      join(__dirname, '__snapshots__/non-ts-entry.txt')
+    );
   });
 
-  it('rejects an entry that lands on a file the run generated', () => {
-    const result = generateWith('./src/shop.cli.ts');
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain('client.cliOutput resolves to a file this run generated');
+  it('rejects an entry that lands on a file the run generated', async () => {
+    await expect(generateWith('./src/shop.cli.ts')).toMatchFileSnapshot(
+      join(__dirname, '__snapshots__/entry-on-generated-file.txt')
+    );
   });
 });

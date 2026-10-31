@@ -99,5 +99,6 @@ exports[`should implicitly add content type header based on requestBody.content 
 └──────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

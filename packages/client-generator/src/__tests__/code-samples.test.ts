@@ -62,7 +62,7 @@ describe('codeSamples', () => {
       await generateClient({
         api: join(dir, 'openapi.yaml'),
         output: join(dir, 'openapi.client.ts'),
-        generators: ['typescript', 'python', 'go', 'php'],
+        generators: ['typescript', 'python', 'go', 'php', 'java'],
         goPackage: 'cafe',
         codeSamples: true,
       });
@@ -77,6 +77,7 @@ describe('codeSamples', () => {
       expect(sourceOf('python')).toContain('from openapi_client import Client');
       expect(sourceOf('php')).toContain("require 'openapi.client.php'");
       expect(sourceOf('go')).toContain('cafe.New(cafe.Config{})');
+      expect(sourceOf('java')).toContain('new OpenapiClient(new OpenapiClient.Config())');
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

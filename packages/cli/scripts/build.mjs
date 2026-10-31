@@ -112,6 +112,11 @@ cpSync(
   { recursive: true }
 );
 
+cpSync(
+  fileURLToPath(import.meta.resolve('redoc/bundles/redoc.standalone.js')),
+  path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js')
+);
+
 for (const skill of ['redocly-cli', 'redocly-lint-rules', 'recheck-lint', 'recheck-config']) {
   cpSync(
     path.join(packageDir, '..', '..', '.claude', 'skills', skill, 'SKILL.md'),

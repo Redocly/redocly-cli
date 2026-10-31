@@ -65,5 +65,6 @@ exports[`should execute successActions for each workflow step if it does not hav
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

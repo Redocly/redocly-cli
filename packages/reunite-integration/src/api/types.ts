@@ -88,3 +88,34 @@ export type ScorecardItem = {
 export type PushStatusBase = 'pending' | 'success' | 'running' | 'failed';
 
 export type DeploymentStatus = 'skipped' | PushStatusBase;
+
+export type CreatePullRequestPayload = {
+  branchName: string;
+  title: string;
+  description?: string;
+  // Defaults to the default branch of the project.
+  targetBranchName?: string;
+  isDraft?: boolean;
+};
+
+export type PullRequestResponse = {
+  id: string;
+  number: number;
+  title: string;
+  status: 'OPEN' | 'CLOSED' | 'MERGED';
+  isDraft?: boolean;
+  reviewDecision?: 'APPROVED' | 'REQUESTED_CHANGES' | 'REVIEW_REQUIRED';
+  headCommitHash?: string;
+};
+
+export type PullRequestCheck = {
+  context: string;
+  state: 'PENDING' | 'IN_PROGRESS' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
+  description?: string;
+  targetUrl?: string;
+};
+
+export type ProjectBuildResponse = {
+  url: string;
+  deploymentStatus: 'NOT_STARTED' | 'SKIPPED' | 'IN_PROGRESS' | 'SUCCESS' | 'FAILED';
+};

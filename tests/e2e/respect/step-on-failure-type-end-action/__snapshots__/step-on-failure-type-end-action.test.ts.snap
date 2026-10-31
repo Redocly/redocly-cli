@@ -47,5 +47,6 @@ exports[`should end workflow execution, context returns to the caller with appli
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

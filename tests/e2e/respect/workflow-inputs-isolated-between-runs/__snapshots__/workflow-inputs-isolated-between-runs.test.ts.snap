@@ -142,5 +142,6 @@ exports[`should not leak inputs passed to a local workflow into its later runs 1
 └───────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

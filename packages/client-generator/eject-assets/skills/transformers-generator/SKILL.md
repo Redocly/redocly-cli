@@ -22,6 +22,10 @@ values and back — the bridge for `dateType: Date` clients.
 - **Imports the sdk's schema TYPES** (so `typescript` is required) and nothing else.
 - Converters are pure and total: every named schema gets a pair, nested structures
   recurse, and a missing optional stays missing.
+- **A transform takes response data.** A response never carries `writeOnly`
+  properties, so the sdk types it `Omit<Name, …>`. The transform of a schema with
+  `writeOnly` properties takes that shape and returns the type it was given:
+  `<T extends Omit<Name, …>>(input: T): T`. Other transforms keep `(data: Name): Name`.
 
 ## The stage files
 

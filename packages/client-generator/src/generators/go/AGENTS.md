@@ -18,6 +18,9 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 
 - **Models are structs**: required fields by value, optionals as pointers with
   `,omitempty`; the `json` tag always carries the exact wire name.
+- **A `writeOnly` property is optional** even when required: requests and responses share
+  one struct, and a response never carries it. A pointer with `,omitempty` still sends it
+  in a request, and leaves it `nil` in a response instead of claiming a zero value.
 - **Package clause:** `package client` by default, `goPackage` to override — a generated
   file usually lands in a package the consumer already owns. The value is checked against
   Go's own rule (lowercase letters, digits, `_`, no leading digit, not a keyword) and an

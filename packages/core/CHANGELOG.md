@@ -1,5 +1,37 @@
 # @redocly/openapi-core
 
+## 2.72.1
+
+### Patch Changes
+
+- Fixed an issue where bundling `@redocly/openapi-core` for the browser failed with `"fileURLToPath" is not exported` and `"pathToFileURL" is not exported` errors.
+
+## 2.72.0
+
+### Minor Changes
+
+- Added an experimental `diff` command that compares two API descriptions, reports changes, and rates every change by the semver bump it requires (`patch`, `minor`, or `major`).
+  `--fail-on` sets the impact that fails the run and `--check-version` verifies that `info.version` was bumped accordingly.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.69.0.
+
+## 2.71.2
+
+### Patch Changes
+
+- Fixed an issue where the `no-unresolved-refs` rule reported discriminator mapping values that are schema names (for example, `dog: Dog`) as unresolved references.
+  The rule still reports schema names that do not match a schema in `components.schemas`.
+- Fixed an issue where the `bundle` command didn't resolve a `$ref` in an overlay that pointed to a local file when the API description was a URL.
+  The command tried to download the file from the server that hosts the API description instead of reading it from disk.
+
+## 2.71.1
+
+## 2.71.0
+
+## 2.70.0
+
 ## 2.69.0
 
 ## 2.68.0

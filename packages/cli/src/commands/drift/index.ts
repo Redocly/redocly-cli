@@ -1,7 +1,9 @@
 import { logger, HandledError, AbortFlowError } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { performance } from 'node:perf_hooks';
 
+import { printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { renderCoverageJson, renderCoverageOverview } from './engine/coverage-reporter.js';
 import { renderReport, type ReportFormat } from './engine/reporter.js';
@@ -87,6 +89,7 @@ async function writeOutput(outputPath: string, content: string): Promise<void> {
 }
 
 export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
+  const startedAt = performance.now();
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
   const activeRules = argv.rules ? parseCsv(argv.rules) : undefined;
@@ -169,6 +172,8 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     );
     logger.info(`Coverage report written to: ${normalizeFsPath(coverageOutput)}\n`);
   }
+
+  printExecutionTime('drift', startedAt, argv.api);
 
   // Signal a non-zero exit when error-level drift is found, without printing an
   // extra error line (AbortFlowError is swallowed by the command wrapper).

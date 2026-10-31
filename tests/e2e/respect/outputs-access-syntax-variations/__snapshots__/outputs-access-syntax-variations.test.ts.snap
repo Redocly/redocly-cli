@@ -66,5 +66,6 @@ exports[`should resolve outputs access syntax variations 1`] = `
 Failed to resolve output "itemsCount" in workflow "get-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.itemsCount'. 
 This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
 
-"
+
+Exit code: 1"
 `;

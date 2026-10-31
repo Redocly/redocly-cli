@@ -9,6 +9,7 @@ import {
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
+import { phpSecurityArg } from './descriptor.ts';
 import { phpString } from './naming.ts';
 import { methodArgs } from './operations.ts';
 import { phpType } from './types.ts';
@@ -47,7 +48,7 @@ export function writePhpPaginationWrappers(
       '$call = function (array $params) use ($op, $headers): array {',
       () => {
         printer.line(
-          "[$authHeaders, $authQuery, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
+          `[$authHeaders, $authQuery, $cookies] = resolveAuth(${phpSecurityArg(op, model)}, $this->config->auth);`
         );
         printer.line(`$url = buildUrl($this->config->serverUrl, $op['path'], [${pathDict}]);`);
         printer.line('$requestHeaders = array_merge($authHeaders, $headers ?? []);');

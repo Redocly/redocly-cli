@@ -3,10 +3,10 @@ import { RedoclyOAuthClient, getReuniteUrl } from '@redocly/reunite-integration'
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import { it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 
 import { respondWithinMs } from '../network-check.js';
-import { sendTelemetry } from '../telemetry.js';
+import { isTelemetryEnabled, sendTelemetry } from '../telemetry.js';
 
 const mockMapToCloudEvent = vi.hoisted(() => vi.fn());
 const mockOtelSend = vi.hoisted(() => vi.fn());
@@ -141,4 +141,20 @@ it('sendTelemetry includes the number of overlays a bundle run applied', async (
   expect(mockMapToCloudEvent).toHaveBeenCalledWith(
     expect.objectContaining({ data: [expect.objectContaining({ bundle_overlays_count: 2 })] })
   );
+});
+
+describe('isTelemetryEnabled', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('is on unless the environment or the configuration turns it off', async () => {
+    vi.stubEnv('REDOCLY_TELEMETRY', 'on');
+    expect(isTelemetryEnabled(await createConfig({}))).toBe(true);
+    expect(isTelemetryEnabled(undefined)).toBe(true);
+    expect(isTelemetryEnabled(await createConfig({ telemetry: 'off' }))).toBe(false);
+
+    vi.stubEnv('REDOCLY_TELEMETRY', 'off');
+    expect(isTelemetryEnabled(await createConfig({}))).toBe(false);
+  });
 });

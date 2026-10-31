@@ -1,0 +1,18 @@
+"""
+Root query type.
+"""
+type Query {
+  """
+  Fetch a user by id.
+  """
+  user(id: ID!): User
+}
+
+"""
+A registered user.
+"""
+type User {
+  id: ID!
+  name: String!
+  email: String
+}

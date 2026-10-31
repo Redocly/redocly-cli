@@ -155,5 +155,6 @@ exports[`should use inputs from CLI and env 1`] = `
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

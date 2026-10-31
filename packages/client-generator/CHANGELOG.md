@@ -1,5 +1,48 @@
 # @redocly/client-generator
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 0.8.0
+
+### Minor Changes
+
+- Added the `java` generator to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.0.
+
+## 0.7.13
+
+### Patch Changes
+
+- Fixed an issue where the generated TypeScript client lost usage telemetry counts when the telemetry endpoint was unreachable or returned a `408`, `429`, or `5xx` status.
+  The client adds these counts to the next send.
+- Updated @redocly/openapi-core to v2.71.2.
+
+## 0.7.12
+
+### Patch Changes
+
+- Fixed `writeOnly` properties in response types, mock data that broke the API description, and generated code that failed strict type checks.
+- Updated @redocly/openapi-core to v2.71.1.
+
+## 0.7.11
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.0.
+
+## 0.7.10
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.70.0.
+
 ## 0.7.9
 
 ### Patch Changes

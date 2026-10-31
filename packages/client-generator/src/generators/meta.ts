@@ -122,6 +122,18 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
         docs: m.phpDocs,
       })),
   },
+  // java emits a standalone full Java SDK (java.net.http, JDK only) — no TypeScript involved.
+  // Exceptions ARE its error mode, so `result` has no Java rendering.
+  java: {
+    errorModes: ['throw'],
+    notApplicable: LANGUAGE_SDK_NOT_APPLICABLE,
+    load: () =>
+      import('./java/index.js').then((m) => ({
+        run: m.javaGenerator,
+        sample: m.javaSample,
+        docs: m.javaDocs,
+      })),
+  },
 };
 
 /**

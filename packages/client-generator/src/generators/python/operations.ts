@@ -68,7 +68,7 @@ export function writeMethod(
     : sse !== undefined
       ? `${isAsync ? 'AsyncIterator' : 'Iterator'}[ServerSentEvent]`
       : errorMode === 'result'
-        ? 'Result'
+        ? `Result[${success === undefined ? 'None' : pythonType(success, dateType)}, Any]`
         : success === undefined
           ? 'None'
           : pythonType(success, dateType);
@@ -99,7 +99,7 @@ export function writeMethod(
     printer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
     if (sse !== undefined) {
       const dataKind = sse.schema !== undefined && sse.schema.kind !== 'unknown' ? 'json' : 'text';
-      printer.block('def _open(extra_headers: Dict[str, str]):', () => {
+      printer.block('def _open(extra_headers: Dict[str, str]) -> Any:', () => {
         printer.line(
           'return self._http.stream(op["method"], url, ' +
             'headers={**auth_headers, **(headers or {}), **extra_headers}, params=params, timeout=timeout)'
@@ -125,10 +125,11 @@ export function writeMethod(
         `headers={**auth_headers, **(headers or {})}, params=params${bodyKw}, ` +
         'timeout=timeout, retry=retry, idempotency_key=idempotency_key)'
     );
+    const successType = success === undefined ? undefined : pythonType(success, dateType);
     const decoded =
-      success === undefined
+      successType === undefined
         ? 'None'
-        : `decode(${pythonType(success, dateType)}, _safe_json(response))`;
+        : `cast(${successType}, decode(${successType}, _safe_json(response)))`;
     if (envelope) {
       printer.block('if not response.is_success:', () => {
         printer.line(

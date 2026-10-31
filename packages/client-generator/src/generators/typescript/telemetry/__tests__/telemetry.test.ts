@@ -209,23 +209,229 @@ describe('telemetry', () => {
     await flushing;
     expect(flushed).toBe(true);
   });
+});
 
-  it('drops a window whose send fails, and flush() still resolves', async () => {
+describe('telemetry failed send', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-20T09:14:00.000Z'));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  // Each entry is the status of one send, or the error that fetch throws.
+  // After the list ends, each send gets status 200.
+  function fetchAnswers(answers: Array<number | Error>) {
+    const bodies: OtlpRequest[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init: RequestInit) => {
+        bodies.push(JSON.parse(init.body as string));
+        const answer = answers[bodies.length - 1] ?? 200;
+        if (answer instanceof Error) throw answer;
+        return new Response(null, { status: answer });
+      })
+    );
+    return bodies;
+  }
+
+  const USAGE_PREFIX = 'cloudevents.event_data.usage.';
+
+  function sentUsage(body: OtlpRequest): Array<Record<string, unknown>> {
+    const usages: Array<Record<string, unknown>> = [];
+    for (const span of body.resourceSpans[0].scopeSpans[0].spans) {
+      const usage: Record<string, unknown> = {};
+      for (const attribute of span.attributes) {
+        if (attribute.key === 'cloudevents.event_time') {
+          usage.time = attribute.value.stringValue;
+        } else if (attribute.key.startsWith(USAGE_PREFIX)) {
+          const name = attribute.key.slice(USAGE_PREFIX.length);
+          usage[name] = attribute.value.intValue ?? attribute.value.stringValue;
+        }
+      }
+      usages.push(usage);
+    }
+    return usages;
+  }
+
+  it('adds the counts of a window that gets 429 into the next window', async () => {
+    const bodies = fetchAnswers([429]);
+    const { telemetry } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    for (let index = 0; index < 2; index++) {
+      await settle(middleware, 'getInvoice', {
+        response: new Response(null, { status: 200 }),
+        attempts: 1,
+        durationMs: 10,
+      });
+    }
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(bodies).toHaveLength(1);
+
+    await settle(middleware, 'getInvoice', {
+      response: new Response(null, { status: 500 }),
+      attempts: 2,
+      durationMs: 500,
+    });
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(bodies).toHaveLength(2);
+    expect(sentUsage(bodies[1])).toEqual([
+      {
+        time: '2026-10-20T09:14:00.000Z',
+        operation_id: 'getInvoice',
+        window_ms: 120_000,
+        calls: 3,
+        attempts: 4,
+        duration_sum_ms: 520,
+        status_2xx: 2,
+        status_5xx: 1,
+        latency_lt_100ms: 2,
+        latency_lt_1s: 1,
+      },
+    ]);
+  });
+
+  it.each([
+    ['fetch throws', new TypeError('connect ECONNREFUSED')],
+    ['the endpoint answers 500', 500],
+  ])('keeps the counts and sends them one interval later when %s', async (_case, answer) => {
+    const bodies = fetchAnswers([answer]);
+    const { telemetry } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(bodies).toHaveLength(1);
+
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(bodies).toHaveLength(2);
+    expect(sentUsage(bodies[1])).toMatchObject([
+      { time: '2026-10-20T09:14:00.000Z', window_ms: 120_000, calls: 1 },
+    ]);
+  });
+
+  it.each([
+    ['the send times out', new DOMException('The operation timed out.', 'TimeoutError')],
+    ['the endpoint answers 403', 403],
+  ])('drops the counts and sends no later copy when %s', async (_case, answer) => {
+    const bodies = fetchAnswers([answer]);
     const { telemetry, flush } = await loadTelemetry();
-    const failingSink = vi.fn().mockRejectedValue(new Error('collector down'));
-    const middleware = telemetry({ ...identity, sink: failingSink });
+    const middleware = telemetry(identity);
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(120_000);
+    await flush();
+    expect(bodies).toHaveLength(1);
+  });
+
+  it('a failed application flush() keeps its counts for the next send', async () => {
+    const bodies = fetchAnswers([429]);
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry(identity);
     const ok = { response: new Response(null, { status: 200 }), attempts: 1, durationMs: 10 };
     await settle(middleware, 'getOrder', ok);
     await expect(flush()).resolves.toBeUndefined();
-    await flush();
-    expect(failingSink).toHaveBeenCalledTimes(1);
+    expect(bodies).toHaveLength(1);
 
-    const refusingFetch = vi.fn().mockRejectedValue(new TypeError('connect ECONNREFUSED'));
-    vi.stubGlobal('fetch', refusingFetch);
-    const withDefaultSink = (await loadTelemetry()).telemetry(identity);
-    await settle(withDefaultSink, 'getOrder', ok);
+    await vi.advanceTimersByTimeAsync(30_000);
+    await settle(middleware, 'getOrder', ok);
+    await vi.advanceTimersByTimeAsync(30_000);
+
+    expect(bodies).toHaveLength(2);
+    expect(sentUsage(bodies[1])).toMatchObject([
+      { time: '2026-10-20T09:14:00.000Z', window_ms: 60_000, calls: 2 },
+    ]);
+  });
+
+  it('keeps the earliest window start when two failed sends overlap', async () => {
+    const bodies: OtlpRequest[] = [];
+    const answers: Array<(response: Response) => void> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((_url: string, init: RequestInit) => {
+        bodies.push(JSON.parse(init.body as string));
+        return new Promise<Response>((resolve) => answers.push(resolve));
+      })
+    );
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    const ok = { response: new Response(null, { status: 200 }), attempts: 1, durationMs: 10 };
+    await settle(middleware, 'getOrder', ok);
     await vi.advanceTimersByTimeAsync(60_000);
-    expect(refusingFetch).toHaveBeenCalledTimes(1);
+    await settle(middleware, 'getOrder', ok);
+    const flushing = flush();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(bodies).toHaveLength(2);
+
+    answers[0](new Response(null, { status: 429 }));
+    await vi.advanceTimersByTimeAsync(0);
+    answers[1](new Response(null, { status: 429 }));
+    await flushing;
+    await vi.advanceTimersByTimeAsync(60_000);
+    answers[2](new Response(null, { status: 200 }));
+
+    expect(bodies).toHaveLength(3);
+    expect(sentUsage(bodies[2])).toMatchObject([
+      { time: '2026-10-20T09:14:00.000Z', window_ms: 120_000, calls: 2 },
+    ]);
+  });
+
+  it('tries one send at beforeExit and drops the counts when it fails', async () => {
+    const bodies = fetchAnswers([429, 429]);
+    let beforeExit = () => {};
+    vi.spyOn(process, 'on').mockImplementation((event: string | symbol, listener: () => void) => {
+      if (event === 'beforeExit') beforeExit = listener;
+      return process;
+    });
+    const { telemetry, flush } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    await settle(middleware, 'getOrder', {
+      response: new Response(null, { status: 200 }),
+      attempts: 1,
+      durationMs: 10,
+    });
+
+    beforeExit();
+    await flush();
+    // Node emits `beforeExit` again when the failed send ends.
+    beforeExit();
+    await flush();
+
+    expect(bodies).toHaveLength(1);
+  });
+
+  it('keeps one counter set per operation in use after ten failed windows', async () => {
+    const bodies = fetchAnswers([503, 503, 503, 503, 503, 503, 503, 503, 503, 503]);
+    const { telemetry } = await loadTelemetry();
+    const middleware = telemetry(identity);
+    const ok = { response: new Response(null, { status: 200 }), attempts: 1, durationMs: 10 };
+    for (let window = 0; window < 10; window++) {
+      await settle(middleware, 'getOrder', ok);
+      await settle(middleware, 'listOrders', ok);
+      await vi.advanceTimersByTimeAsync(60_000);
+    }
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(bodies).toHaveLength(11);
+    for (const body of bodies) {
+      expect(body.resourceSpans[0].scopeSpans[0].spans).toHaveLength(2);
+    }
+    expect(sentUsage(bodies[10])).toMatchObject([
+      { operation_id: 'getOrder', calls: 10, window_ms: 660_000 },
+      { operation_id: 'listOrders', calls: 10, window_ms: 660_000 },
+    ]);
   });
 });
 

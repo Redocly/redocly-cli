@@ -634,7 +634,7 @@ export type UpdateOrderVariables = {
     body?: UpdateOrderBody;
 };
 
-export type ListOrderItemsResult = OrderItem[];
+export type ListOrderItemsResult = Omit<OrderItem, "menuItemId">[];
 
 export type ListOrderItemsQuery = {
     /**
@@ -981,7 +981,8 @@ export type ApiErrorLike = globalThis.Error & {
 };
 
 export type SettledCall = {
-  response?: Response;
+  // `| undefined`, so the runtime can pass an unset response under `exactOptionalPropertyTypes`.
+  response?: Response | undefined;
   error?: unknown;
   attempts: number;
   durationMs: number;
@@ -1569,7 +1570,13 @@ function toHeaderRecord(headers: HeadersInit | undefined): Record<string, string
 function middlewareChain(config: ClientConfig): Middleware[] {
   const single =
     config.onRequest || config.onResponse || config.onError
-      ? [{ onRequest: config.onRequest, onResponse: config.onResponse, onError: config.onError }]
+      ? [
+          {
+            ...(config.onRequest ? { onRequest: config.onRequest } : {}),
+            ...(config.onResponse ? { onResponse: config.onResponse } : {}),
+            ...(config.onError ? { onError: config.onError } : {}),
+          },
+        ]
       : [];
   return [...single, ...(config.middleware ?? [])];
 }
@@ -1743,10 +1750,10 @@ async function send(
           ...fetchInit,
           // `fetch` requires it for a stream body.
           ...(isStream ? { duplex: 'half' } : {}),
-          signal: attemptSignal,
+          signal: attemptSignal ?? null,
           method: context.method,
           headers: context.headers,
-          body: payload,
+          body: payload ?? null,
         });
       } catch (error) {
         // Decided before any await, when no timer can have fired since `fetch` rejected: an
@@ -1769,7 +1776,7 @@ async function send(
       lastResponse = response;
       // Reverse order: the last-registered middleware wraps closest to the network (onion).
       for (let i = middleware.length - 1; i >= 0; i--) {
-        const onResponse = middleware[i].onResponse;
+        const onResponse = middleware[i]?.onResponse;
         if (onResponse) {
           const replaced = await onResponse(response, context);
           if (replaced && replaced !== response) {
@@ -2028,7 +2035,7 @@ function queryStyles(op: OperationDescriptor): Record<string, QueryStyle> | unde
     styles[param.name] = {
       style: param.style ?? 'form',
       explode: param.explode ?? true,
-      allowReserved: param.allowReserved,
+      ...(param.allowReserved === undefined ? {} : { allowReserved: param.allowReserved }),
     };
   }
   return styles;

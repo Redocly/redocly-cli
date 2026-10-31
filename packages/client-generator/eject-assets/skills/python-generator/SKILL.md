@@ -26,6 +26,12 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Models are dataclasses by default**, required fields first (a dataclass constraint),
   optionals `Optional[T] = None`. Wire names live in a `_field_map: ClassVar[Dict[str, str]]`;
   decode/encode is reflective (`_decode.py`, `get_type_hints`) — no per-model codecs.
+- **The file passes `mypy --strict`.** It lands in the user's own package, so their
+  strictest checker reads it: every function is annotated, the operation table is typed,
+  and a decoded body is `cast` to the declared return type (`decode` returns `Any`).
+- **A `writeOnly` property is optional** even when required: requests and responses share
+  one model, and a response never carries it. It is `Optional[T] = None`, so a response
+  decodes without it and a request still sends it.
 - **`models: pydantic` emits `BaseModel` classes instead**, for the FastAPI-shaped half of
   the ecosystem that expects them. A wire name becomes `Field(alias=…)` with
   `populate_by_name=True`, so `_field_map` is not emitted in this mode — the alias is the

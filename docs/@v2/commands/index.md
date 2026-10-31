@@ -14,8 +14,8 @@ Docs rendering commands:
 
 - [`build-docs`](build-docs.md) Build an API description into an HTML file.
 - [`preview`](preview.md) Start a local preview of a Redocly project with one of the product NPM packages.
-- [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
-- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
+- [`translate`](translate.md) Generate translation keys for a Redocly project.
+- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly project.
 
 Docs linting commands:
 
@@ -24,6 +24,7 @@ Docs linting commands:
 CI and delivery commands:
 
 - [`bundle`](bundle.md) Bundle an API description.
+- [`diff`](diff.md) Compare two API descriptions and rate each change by the semver bump it requires [experimental feature].
 - [`join`](join.md) Join API descriptions [experimental feature].
 
 API testing and drift commands:
@@ -52,7 +53,7 @@ Redocly configuration commands:
 
 Platform commands:
 
-- [`login`](login.md) Log in to the Redocly platform.
+- [`login`](login.md) Log in to Redocly.
 - [`logout`](logout.md) Clear your stored credentials.
 - [`push`](push.md) Push an API description to the Redocly platform.
 - [`push-status`](push-status.md) Track an in-progress push operation to the Redocly platform.

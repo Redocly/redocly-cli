@@ -134,7 +134,7 @@ export const pythonGenerator: Generator = ({
   for (const { op, ident } of operationIdents(model)) {
     paginationSpecs.set(ident, paginationSpec(pagination?.get(op.name)?.spec));
   }
-  printer.line('_OPERATIONS = {');
+  printer.line('_OPERATIONS: Dict[str, Dict[str, Any]] = {');
   printer.indent(() => {
     for (const { op, ident } of operationIdents(model)) {
       const descriptor = {

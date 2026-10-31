@@ -60,5 +60,6 @@ exports[`should use server override from CLI and env 1`] = `
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

@@ -174,7 +174,7 @@ Run all commands from the repo root:
 ```sh
 npm run compile                 # build this package
 npm run unit                    # unit tests
-npm run client-generators       # behavioral e2e (needs Go, PHP, and Python)
+npm run client-generators       # behavioral e2e (needs Go, PHP, a JDK, and Python)
 ```
 
 Each generator that embeds a runtime keeps its sources in its own folder (`src/generators/<name>/runtime/` — real, unit-testable modules that generation embeds), the IR lives in `src/intermediate-representation/`, and the generators in `src/generators/`.

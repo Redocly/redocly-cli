@@ -1,0 +1,8 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe
+  description: |
+    Uppercase and spaced end tags: </SCRIPT> </script >
+    A comment that hides the real end tag: <!--<script>
+  version: 1.0.0
+paths: {}

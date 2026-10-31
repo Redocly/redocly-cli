@@ -133,7 +133,6 @@ function formatJson(result: DriftRunResult): string {
       findingsBySeverity: result.summary.findingsBySeverity,
       findingsByRule: result.summary.findingsByRule,
       totalProblems: result.summary.totalProblemGroups,
-      durationMs: result.summary.durationMs,
     },
     problems,
   };
@@ -297,8 +296,7 @@ function formatPretty(result: DriftRunResult, color: boolean, maxFindings: numbe
       yellow
     )} ${colorize(`info=${summary.findingsBySeverity.info}`, blue)}`
   );
-  lines.push(`┃ Problems: total=${summary.totalProblemGroups}`);
-  lines.push(`┗ Duration: ${summary.durationMs}ms`);
+  lines.push(`┗ Problems: total=${summary.totalProblemGroups}`);
 
   if (findingsCount === 0) {
     lines.push('');
