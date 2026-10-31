@@ -1,4 +1,5 @@
-import { logger, HandledError, AbortFlowError, colorOptions } from '@redocly/openapi-core';
+import { logger, HandledError, AbortFlowError } from '@redocly/openapi-core';
+import { isColorSupported } from 'colorette';
 
 import type { CommandArgs } from '../../wrapper.js';
 import { renderReport, type ReportFormat } from '../drift/engine/reporter.js';
@@ -153,7 +154,7 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
 
   const report = renderReport(result, {
     format: argv['report-format'],
-    color: colorOptions.enabled && argv['report-format'] === 'pretty',
+    color: isColorSupported && argv['report-format'] === 'pretty',
     maxFindings: argv['max-findings'],
   });
 

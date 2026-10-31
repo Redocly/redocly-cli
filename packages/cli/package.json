@@ -58,7 +58,7 @@
     "@types/semver": "^7.5.0",
     "@types/set-cookie-parser": "2.4.10",
     "@types/yargs": "17.0.32",
-    "colorette": "^1.2.0",
+    "colorette": "^2.0.20",
     "cookie": "^0.7.2",
     "dotenv": "16.4.7",
     "esbuild": "^0.28.0",
