@@ -1,9 +1,10 @@
-import { createColors, isColorSupported, type Colorette } from 'colorette';
+import * as colorette from 'colorette';
 
 import { isBrowser } from './env.js';
 
-let useColor = isColorSupported && !isBrowser;
-let palette = createColors({ useColor });
+// `colorette` has no global switch, so a forced setting gets a palette of its own.
+let useColor = colorette.isColorSupported && !isBrowser;
+let palette: colorette.Colorette = useColor ? colorette : colorette.createColors({ useColor });
 
 export const colorOptions = {
   get enabled() {
@@ -11,13 +12,13 @@ export const colorOptions = {
   },
   set enabled(value: boolean) {
     useColor = value;
-    palette = createColors({ useColor });
+    palette = colorette.createColors({ useColor });
   },
 };
 
-export const colorize = new Proxy({} as Colorette, {
-  get(_target, prop: keyof Colorette) {
-    return palette[prop];
+export const colorize = new Proxy({} as colorette.Colorette, {
+  get(_target, color: keyof colorette.Colorette) {
+    return (text: string | number) => palette[color](text);
   },
 });
 
