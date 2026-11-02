@@ -92,6 +92,12 @@ final class ServerSentEvent
  */
 final class Config
 {
+    /**
+     * Callables that run after `onSettled` on every client of the namespace. The usage telemetry
+     * module adds to it, so one registration counts the calls of every client.
+     */
+    public static array $registeredOnSettled = [];
+
     public function __construct(
         public string $serverUrl = '',
         public array $auth = [],
@@ -319,7 +325,7 @@ function send(Config $config, array $request): array
         'durationMs' => intdiv(hrtime(true) - $started, 1_000_000),
     ];
     $hookErrors = [];
-    foreach ($config->onSettled as $onSettled) {
+    foreach ([...$config->onSettled, ...Config::$registeredOnSettled] as $onSettled) {
         try {
             $onSettled($call);
         } catch (\Throwable $hookError) {

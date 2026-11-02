@@ -1,5 +1,6 @@
 // Usage telemetry consumer for the generated Go SDK. Built and run by
-// go/telemetry.test.ts with the API base URL and the telemetry sink URL.
+// go/telemetry.test.ts with the API base URL, the telemetry sink URL, and an optional
+// `registered`, which registers the telemetry for every client instead of passing it.
 package main
 
 import (
@@ -18,11 +19,17 @@ func main() {
 		Client:     "pets-worker/2.0.0",
 		Endpoint:   os.Args[2],
 	})
-	api := client.New(client.Config{
-		ServerURL:  os.Args[1],
-		Retry:      client.RetryConfig{Retries: 1, RetryDelay: time.Millisecond},
-		Middleware: []client.Middleware{telemetry.Middleware()},
-	})
+	registered := len(os.Args) > 3 && os.Args[3] == "registered"
+	config := client.Config{
+		ServerURL: os.Args[1],
+		Retry:     client.RetryConfig{Retries: 1, RetryDelay: time.Millisecond},
+	}
+	if registered {
+		telemetry.Register()
+	} else {
+		config.Middleware = []client.Middleware{telemetry.Middleware()}
+	}
+	api := client.New(config)
 	for i := 0; i < 2; i++ {
 		if _, err := api.ListPets(ctx, nil); err != nil {
 			panic(err)
@@ -30,7 +37,11 @@ func main() {
 	}
 	// A failed first send keeps its counts, and the second flush sends them.
 	for i := 0; i < 2; i++ {
-		if err := telemetry.Flush(ctx); err != nil {
+		flush := telemetry.Flush
+		if registered {
+			flush = client.FlushUsageTelemetry
+		}
+		if err := flush(ctx); err != nil {
 			panic(err)
 		}
 	}

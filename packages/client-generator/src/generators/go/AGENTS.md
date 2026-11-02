@@ -100,7 +100,11 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   time) beside the client, in both runtime modes, with the client's package clause and the
   generator version baked in. The client file does not change. The application registers
   `NewUsageTelemetry(UsageTelemetryOptions{...}).Middleware()` and calls `Flush(ctx)` before
-  it exits, because Go has no exit hook. Its exported names are reserved for every SDK, and
+  it exits, because Go has no exit hook. An SDK owner calls `Register()` instead, in an `init`
+  function, which adds the middleware to `registeredMiddleware` of the runtime, so `send` runs
+  it for every client; `FlushUsageTelemetry(ctx)` then flushes each registered instance. The
+  runtime declares `registeredMiddleware` in both modes, so the client file stays the same.
+  Its exported names are reserved for every SDK, and
   every unexported name starts with `usageTelemetry`, because the file shares the package
   with the model types and the runtime.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.

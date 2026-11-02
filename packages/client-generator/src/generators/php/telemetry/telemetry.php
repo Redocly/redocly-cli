@@ -39,6 +39,8 @@ final class UsageTelemetry
     /** @var array<int, self> The instances with an open window, by object id. */
     private static array $openWindows = [];
     private static bool $shutdownRegistered = false;
+    /** @var array<int, self> The instances that `register` added. */
+    private static array $registered = [];
 
     private array $counts = [];
     private float $windowStart = 0.0;
@@ -111,6 +113,21 @@ final class UsageTelemetry
     public function flush(): void
     {
         $this->flushWindow(true);
+    }
+
+    /** Count the calls of every client of the namespace, also of a client created before. */
+    public function register(): void
+    {
+        Config::$registeredOnSettled[] = $this;
+        self::$registered[] = $this;
+    }
+
+    /** Flush every instance that `register` added, as `flush` does. */
+    public static function flushRegistered(): void
+    {
+        foreach (self::$registered as $telemetry) {
+            $telemetry->flush();
+        }
     }
 
     private static function disabled(): bool

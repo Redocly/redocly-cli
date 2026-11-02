@@ -86,6 +86,10 @@ type Middleware struct {
 	OnSettled  func(call SettledCall)
 }
 
+// registeredMiddleware runs after Config.Middleware on every client of the package. The usage
+// telemetry module adds to it, so one registration counts the calls of every client.
+var registeredMiddleware []Middleware
+
 // SettledCall is the outcome of one call: the final response, or the error.
 // The response body is still unread, so a hook must not read or close it.
 // Duration spans from the first attempt to the end of the OnResponse hooks.
@@ -332,6 +336,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		// The first attempt consumes the reader, so there is nothing to replay.
 		maxAttempts = 1
 	}
+	middleware := append(append([]Middleware{}, config.Middleware...), registeredMiddleware...)
 	started := time.Now()
 	settle := func(resp *http.Response, err error, attempts int) {
 		call := SettledCall{
@@ -341,7 +346,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			Attempts:    attempts,
 			Duration:    time.Since(started),
 		}
-		for _, mw := range config.Middleware {
+		for _, mw := range middleware {
 			if mw.OnSettled != nil {
 				mw.OnSettled(call)
 			}
@@ -374,7 +379,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		if spec.ContentType != "" && bodyReader != nil && req.Header.Get("Content-Type") == "" {
 			req.Header.Set("Content-Type", spec.ContentType)
 		}
-		for _, mw := range config.Middleware {
+		for _, mw := range middleware {
 			if mw.OnRequest != nil {
 				mw.OnRequest(req)
 			}
@@ -402,9 +407,9 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			settle(nil, err, attempt)
 			return nil, err
 		}
-		for i := len(config.Middleware) - 1; i >= 0; i-- {
-			if config.Middleware[i].OnResponse != nil {
-				config.Middleware[i].OnResponse(resp)
+		for i := len(middleware) - 1; i >= 0; i-- {
+			if middleware[i].OnResponse != nil {
+				middleware[i].OnResponse(resp)
 			}
 		}
 		if resp.StatusCode >= 400 && attempt < maxAttempts && retryable {

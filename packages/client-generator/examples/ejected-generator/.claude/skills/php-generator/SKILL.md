@@ -108,8 +108,8 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
   Under `--runtime module` it is written as a `runtime.php` the client `require_once`s,
   with its namespace rewritten to the client's so one namespace spans both files.
-- **`onSettled` sees every sent call once.** `send()` calls each `Config->onSettled` callable
-  after the retry loop with `operationId`, `status` (0 without a response), `timedOut`,
+- **`onSettled` sees every sent call once.** `send()` calls each `Config->onSettled` callable,
+  then each `Config::$registeredOnSettled` callable, after the retry loop with `operationId`, `status` (0 without a response), `timedOut`,
   `attempts`, and `durationMs`, before it throws or returns. Every hook runs. The first hook
   error is thrown for a successful call; on a failed call, the original error wins and the
   hook error goes to `error_log`. SSE streams open outside `send()`, so they reach no hook.
@@ -117,7 +117,9 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   writes `<client>.telemetry.php` (from `telemetry/telemetry.php` in this folder, embedded at prepare
   time) beside the client, in both runtime modes, with the client's namespace and the
   generator version baked in. The client file does not change. The application requires it
-  and passes `new UsageTelemetry(...)` in `Config->onSettled`. PHP has no timers: a call that
+  and passes `new UsageTelemetry(...)` in `Config->onSettled`. An SDK owner calls `register()`
+  instead, which adds the instance to `Config::$registeredOnSettled`, so every client counts its
+  calls; `UsageTelemetry::flushRegistered()` flushes each registered instance. PHP has no timers: a call that
   finds its window elapsed sends it first, and a shutdown function sends the open window.
   Constants live on the class, because OPcache preloading drops file-level constants. The
   class name is reserved for every SDK, because the file shares the namespace with the models.

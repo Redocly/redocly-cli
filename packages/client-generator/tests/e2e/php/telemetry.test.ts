@@ -25,16 +25,33 @@ describe("generate-client php generator, telemetry: 'on' against a local OTLP si
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  it('client.telemetry.php passes php -l and PHPStan level 5', () => {
+  it('client.telemetry.php passes php -l, and PHPStan level 5 with the client it extends', () => {
     const telemetryFile = join(workDir, 'client/client.telemetry.php');
     const lint = spawnSync('php', ['-l', telemetryFile], { encoding: 'utf-8' });
     expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
     const analyse = spawnSync(
       'phpstan',
-      ['analyse', '--no-progress', '--level=5', '--memory-limit=1G', telemetryFile],
+      [
+        'analyse',
+        '--no-progress',
+        '--level=5',
+        '--memory-limit=1G',
+        telemetryFile,
+        join(workDir, 'client/client.php'),
+      ],
       { encoding: 'utf-8' }
     );
     expect(analyse.status, `${analyse.stdout}\n${analyse.stderr}`).toBe(0);
+  });
+
+  it('counts the calls of a client without the middleware after register', async () => {
+    const requests = await runTelemetryConsumer(
+      'php',
+      (serverUrl, sinkUrl) => [join(workDir, 'telemetry.php'), serverUrl, sinkUrl, 'registered'],
+      [503, 200]
+    );
+    expect(requests).toHaveLength(2);
+    expect(requests[1][0].usage).toMatchObject({ operation_id: 'listPets', calls: 2, attempts: 3 });
   });
 
   describeTelemetryRuns(
