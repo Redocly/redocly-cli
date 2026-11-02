@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 200" width="960" height="200" role="img" aria-label="Redocly Platform: write, review, publish. Start a 30-day free trial.">
+          <defs>
+            <linearGradient id="adlight" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f2a44"/><stop offset="1" stop-color="#2f4a86"/></linearGradient>
+            <pattern id="adDotslight" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#ffffff" opacity=".12"/></pattern>
+          </defs>
+          <rect width="960" height="200" rx="12" fill="url(#adlight)"/>
+          <rect width="960" height="200" rx="12" fill="url(#adDotslight)"/>
+          
+          <g font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+            <text x="40" y="58" font-size="13" fill="#aebfe6" letter-spacing="1.5">REDOCLY PLATFORM</text>
+            <text x="40" y="94" font-size="26" font-weight="600" fill="#ffffff">Publish what you lint.</text>
+            <text x="40" y="122" font-size="14" fill="#d5def2">Interactive API docs, a mock server, and an API catalog,</text>
+            <text x="40" y="141" font-size="14" fill="#d5def2">published from your Git repository.</text>
+            <rect x="40" y="154" width="196" height="32" rx="6" fill="#ffffff"/>
+            <text x="138" y="175" text-anchor="middle" font-size="14" font-weight="600" fill="#1f2a44">Start a free trial  →</text>
+            <g transform="translate(580,44)">
+              <rect y="0" width="340" height="40" rx="8" fill="#ffffff" fill-opacity=".08" stroke="#ffffff" stroke-opacity=".18"/>
+              <text x="16" y="25" font-size="14" font-weight="600" fill="#ffffff">Platform</text>
+              <text x="168" y="25" font-size="13" fill="#d5def2">write, review, publish</text>
+              <rect y="48" width="340" height="40" rx="8" fill="#ffffff" fill-opacity=".08" stroke="#ffffff" stroke-opacity=".18"/>
+              <text x="16" y="73" font-size="14" font-weight="600" fill="#ffffff">Framework</text>
+              <text x="168" y="73" font-size="13" fill="#d5def2">docs as code</text>
+              <rect y="96" width="340" height="40" rx="8" fill="#ffffff" fill-opacity=".08" stroke="#ffffff" stroke-opacity=".18"/>
+              <text x="16" y="121" font-size="14" font-weight="600" fill="#ffffff">Respect Monitoring</text>
+              <text x="168" y="121" font-size="13" fill="#d5def2">checks of live APIs</text>
+            </g>
+          </g>
+        </svg>
