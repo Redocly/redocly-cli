@@ -30,6 +30,9 @@ const (
 	usageTelemetrySendTimeout      = 3 * time.Second
 )
 
+// usageTelemetryRegistered holds each UsageTelemetry that Register added.
+var usageTelemetryRegistered []*UsageTelemetry
+
 var usageTelemetryLatencyBuckets = []struct {
 	name    string
 	belowMs int64
@@ -115,6 +118,24 @@ func (t *UsageTelemetry) Middleware() Middleware {
 		return Middleware{}
 	}
 	return Middleware{OnSettled: t.record}
+}
+
+// Register adds the middleware to every client of the package, also to a client created
+// before. Call it once, before the first call, for example in an init function.
+func (t *UsageTelemetry) Register() {
+	registeredMiddleware = append(registeredMiddleware, t.Middleware())
+	usageTelemetryRegistered = append(usageTelemetryRegistered, t)
+}
+
+// FlushUsageTelemetry flushes every UsageTelemetry that Register added, as Flush does.
+// Go has no exit hook, so call it before the program ends.
+func FlushUsageTelemetry(ctx context.Context) error {
+	for _, telemetry := range usageTelemetryRegistered {
+		if err := telemetry.Flush(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Flush sends the open window and waits for the send, or for ctx.

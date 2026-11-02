@@ -211,6 +211,9 @@ api := client.New(client.Config{Middleware: []client.Middleware{telemetry.Middle
 
 Go has no exit hook, so call `Flush(ctx)` before your program ends.
 
+To count the calls of every client of the package, for example in a published SDK, call `telemetry.Register()` in an `init` function instead of passing the middleware.
+Then call `client.FlushUsageTelemetry(ctx)` before your program ends.
+
 {% /tab %}
 {% tab label="Python" %}
 
@@ -238,6 +241,9 @@ $api = new Client(new Config(onSettled: [$telemetry]));
 PHP has no timers, so the first call after a window ends sends that window, in the same request.
 At shutdown, the module sends the open window, which can add up to 3 seconds to the request.
 Under PHP-FPM, each request that calls the SDK sends its own events at shutdown.
+
+To count the calls of every client of the namespace, for example in a published SDK, call `$telemetry->register()` instead of passing it in `onSettled`.
+Then `UsageTelemetry::flushRegistered()` sends the open windows, for example before `exit` in a long-running worker.
 
 {% /tab %}
 {% /tabs %}

@@ -39,6 +39,16 @@ describe("generate-client go generator, telemetry: 'on' against a local OTLP sin
     expect(vet.status, vet.stderr).toBe(0);
   });
 
+  it('counts the calls of a client without the middleware after Register', async () => {
+    const requests = await runTelemetryConsumer(
+      join(workDir, 'telemetry'),
+      (serverUrl, sinkUrl) => [serverUrl, sinkUrl, 'registered'],
+      [503, 200]
+    );
+    expect(requests).toHaveLength(2);
+    expect(requests[1][0].usage).toMatchObject({ operation_id: 'listPets', calls: 2, attempts: 3 });
+  });
+
   describeTelemetryRuns(
     (statuses, env) =>
       runTelemetryConsumer(
