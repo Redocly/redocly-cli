@@ -54,7 +54,7 @@ recheck:
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `schema`          | **Required.** `realm` validates tags against the built-in Redocly schema. `false` parses and pairs tags without a schema check. |
 | `extend.tags`     | Your own tags, merged over the schema.                                                                                          |
-| `extend.tagsFile` | A YAML file of tags, relative to the config file it is written in. Inline `tags` win over it. Set `tags`, `tagsFile`, or both.  |
+| `extend.tagsFile` | A YAML file of tags, relative to `redocly.yaml` or to the file that `redocly.yaml` references. Inline `tags` win over it.       |
 
 With `schema: false`, tag pairing and the `markdoc.tag` scope still work, and `markdoc-syntax` and `markdoc-pairing` still report.
 Only `markdoc-unknown-tag` and `markdoc-attributes` go quiet, because there is no schema to check against.
