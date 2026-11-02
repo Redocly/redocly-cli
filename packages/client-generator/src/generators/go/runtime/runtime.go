@@ -336,7 +336,8 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		// The first attempt consumes the reader, so there is nothing to replay.
 		maxAttempts = 1
 	}
-	middleware := append(append([]Middleware{}, config.Middleware...), registeredMiddleware...)
+	// Config.Middleware, then the registered middleware, without a combined slice for each call.
+	middlewareLists := [2][]Middleware{config.Middleware, registeredMiddleware}
 	started := time.Now()
 	settle := func(resp *http.Response, err error, attempts int) {
 		call := SettledCall{
@@ -346,9 +347,11 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			Attempts:    attempts,
 			Duration:    time.Since(started),
 		}
-		for _, mw := range middleware {
-			if mw.OnSettled != nil {
-				mw.OnSettled(call)
+		for _, middleware := range middlewareLists {
+			for _, mw := range middleware {
+				if mw.OnSettled != nil {
+					mw.OnSettled(call)
+				}
 			}
 		}
 	}
@@ -379,9 +382,11 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		if spec.ContentType != "" && bodyReader != nil && req.Header.Get("Content-Type") == "" {
 			req.Header.Set("Content-Type", spec.ContentType)
 		}
-		for _, mw := range middleware {
-			if mw.OnRequest != nil {
-				mw.OnRequest(req)
+		for _, middleware := range middlewareLists {
+			for _, mw := range middleware {
+				if mw.OnRequest != nil {
+					mw.OnRequest(req)
+				}
 			}
 		}
 		resp, err := httpClient.Do(req)
@@ -407,9 +412,12 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			settle(nil, err, attempt)
 			return nil, err
 		}
-		for i := len(middleware) - 1; i >= 0; i-- {
-			if middleware[i].OnResponse != nil {
-				middleware[i].OnResponse(resp)
+		for list := len(middlewareLists) - 1; list >= 0; list-- {
+			middleware := middlewareLists[list]
+			for i := len(middleware) - 1; i >= 0; i-- {
+				if middleware[i].OnResponse != nil {
+					middleware[i].OnResponse(resp)
+				}
 			}
 		}
 		if resp.StatusCode >= 400 && attempt < maxAttempts && retryable {

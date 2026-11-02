@@ -160,14 +160,8 @@ export function validateSelection(
       'generate-client: goPackage is ignored — it declares the Go package clause, and no selected generator uses it (add --generator go).\n'
     );
   }
-  let telemetryWriterSelected = false;
-  for (const name of ['typescript', 'go', 'python', 'php']) {
-    if (selected.has(name)) {
-      telemetryWriterSelected = true;
-      break;
-    }
-  }
-  if (emit.telemetry === 'on' && !telemetryWriterSelected) {
+  const writers = ['typescript', 'go', 'python', 'php'];
+  if (emit.telemetry === 'on' && !writers.some((name) => selected.has(name))) {
     logger.warn(
       'generate-client: telemetry is ignored — no selected generator writes a telemetry module (add --generator typescript, go, python, or php).\n'
     );

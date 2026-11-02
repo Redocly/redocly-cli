@@ -94,7 +94,8 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   or the error, the attempt count, and the duration from the first attempt to the end of the
   `OnResponse` hooks on the final response. A timeout is a `*TimeoutError`; a cancelled or
   expired caller context is an error that wraps `context.Canceled` or
-  `context.DeadlineExceeded`. A call that fails before its first attempt does not reach it.
+  `context.DeadlineExceeded`. A call whose body cannot be encoded or read does not reach it,
+  and a request that `http.NewRequestWithContext` cannot build settles with 1 attempt.
 - **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
   writes `telemetry.go` (from `telemetry/telemetry.go` in this folder, embedded at prepare
   time) beside the client, in both runtime modes, with the client's package clause and the

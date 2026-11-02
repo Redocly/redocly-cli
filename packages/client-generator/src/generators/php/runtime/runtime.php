@@ -311,11 +311,13 @@ function send(Config $config, array $request): array
         'durationMs' => intdiv(hrtime(true) - $started, 1_000_000),
     ];
     $hookErrors = [];
-    foreach ([...$config->onSettled, ...Config::$registeredOnSettled] as $onSettled) {
-        try {
-            $onSettled($call);
-        } catch (\Throwable $hookError) {
-            $hookErrors[] = $hookError;
+    foreach ([$config->onSettled, Config::$registeredOnSettled] as $hooks) {
+        foreach ($hooks as $onSettled) {
+            try {
+                $onSettled($call);
+            } catch (\Throwable $hookError) {
+                $hookErrors[] = $hookError;
+            }
         }
     }
     // On a failed call, the call's own error wins over a hook error.
