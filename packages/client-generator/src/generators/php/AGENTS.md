@@ -90,7 +90,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   runtime sorts it out (`multipartBody` / `binaryBody`): a stream `resource` is uploaded
   by curl in chunks (`CURLOPT_UPLOAD` + `CURLOPT_INFILE`, the method kept by
   `CURLOPT_CUSTOMREQUEST`), never read into a string, in exactly one attempt, whatever
-  the retry policy says (the default is three attempts for any method), because a
+  the retry policy says (the default retries only safe methods), because a
   consumed stream cannot be replayed. `CURLOPT_INFILESIZE` is set only when the stream is
   seekable AND `fstat` returns an array (the bytes left from the current position);
   `php://input`, pipes, and wrappers without `stream_stat` go chunked. A `string` body of

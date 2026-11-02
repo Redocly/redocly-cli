@@ -67,4 +67,16 @@ try {
     }
 }
 
+// The default retry skips a POST without an Idempotency-Key, as in the other languages.
+try {
+    $refused->createPet(new Pet(name: 'Smokey'));
+    fwrite(STDERR, "expected a transport error\n");
+    exit(1);
+} catch (\RuntimeException $error) {
+    if ($settled[1]['attempts'] !== 1) {
+        fwrite(STDERR, "a POST should not retry, got {$settled[1]['attempts']} attempts\n");
+        exit(1);
+    }
+}
+
 echo "PHP_SMOKE_OK\n";
