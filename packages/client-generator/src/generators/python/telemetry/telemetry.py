@@ -86,7 +86,7 @@ class UsageTelemetry:
         timer = self._timer
         self._flush_window(keep_on_failure)
         # A timer that already fired may still be sending its window.
-        if timer is not None and timer is not threading.current_thread():
+        if timer is not None:
             timer.join(_SEND_TIMEOUT_S + 1)
 
     def _open_window(self) -> None:

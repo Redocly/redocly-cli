@@ -164,6 +164,7 @@ export function validateSelection(
   for (const name of ['typescript', 'go', 'python', 'php']) {
     if (selected.has(name)) {
       telemetryWriterSelected = true;
+      break;
     }
   }
   if (emit.telemetry === 'on' && !telemetryWriterSelected) {
