@@ -1,0 +1,11 @@
+
+
+  Generating client for cafe... 
+generate-client: schema "Error" is a name a generated client already declares, so it is emitted as "Error_2" — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate.
+
+❌  Failed to generate client for cafe.
+   Generator "invalid-finding-generator" failed: invalid finding "oops": a finding is { kind, message, operations }, with a known kind and the operation IDs as strings.
+
+
+
+Exit code: 1

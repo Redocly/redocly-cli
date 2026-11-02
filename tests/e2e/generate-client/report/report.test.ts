@@ -177,37 +177,54 @@ describe('generate-client --report', () => {
     `);
   });
 
-  it('fails the run on a custom generator finding without the documented shape', () => {
-    const output = generate(['--generator', join(__dirname, 'invalid-finding-generator.mjs')]);
-    expect(output).toContain('invalid finding "oops"');
-    const failure = readReport().apis[0].findings.at(-1);
-    expect(failure.kind).toBe('generation-failed');
-    expect(failure.message).toContain(
-      'Generator "invalid-finding-generator" failed: invalid finding'
-    );
+  it('fails the run on a custom generator finding without the documented shape', async () => {
+    await expect(
+      generate(['--generator', join(__dirname, 'invalid-finding-generator.mjs')])
+    ).toMatchFileSnapshot(join(snapshots, 'invalid-finding.txt'));
+    expect(readReport().apis[0].findings.at(-1)).toMatchInlineSnapshot(`
+      {
+        "kind": "generation-failed",
+        "message": "Generator "invalid-finding-generator" failed: invalid finding "oops": a finding is { kind, message, operations }, with a known kind and the operation IDs as strings.",
+        "operations": [],
+      }
+    `);
   });
 
-  it('replaces an old report when the run fails before any API', () => {
+  it('replaces an old report when the run fails before any API', async () => {
     writeFileSync(join(outputDir, 'report.json'), '{ "old": true }\n');
-    generate([], join(outputDir, 'missing.yaml'));
-    expect(readReport()).toEqual({
-      apis: [],
-      findings: [
-        { kind: 'generation-failed', message: 'Please provide a valid path.', operations: [] },
-      ],
-    });
+    await expect(generate([], join(__dirname, 'missing.yaml'))).toMatchFileSnapshot(
+      join(snapshots, 'failed-before-any-api.txt')
+    );
+    expect(readReport()).toMatchInlineSnapshot(`
+      {
+        "apis": [],
+        "findings": [
+          {
+            "kind": "generation-failed",
+            "message": "Please provide a valid path.",
+            "operations": [],
+          },
+        ],
+      }
+    `);
   });
 
-  it('does not write the report over a generated file', () => {
-    const output = generate([], fixture, join(outputDir, 'client.ts'));
-    expect(output).toContain('--report points at a file that this run generated');
+  it('does not write the report over a generated file', async () => {
+    await expect(generate([], fixture, join(outputDir, 'client.ts'))).toMatchFileSnapshot(
+      join(snapshots, 'report-over-generated-file.txt')
+    );
     expect(readFileSync(join(outputDir, 'client.ts'), 'utf-8')).not.toMatch(/^\{/);
   });
 
-  it('names the report path when the report cannot be written', () => {
+  it('names the report path when the report cannot be written', async () => {
     mkdirSync(join(outputDir, 'report.json'));
-    const output = generate([]);
-    expect(output).toContain('Could not write the report to <output>/report.json.');
-    expect(output).not.toContain('This is likely a bug');
+    await expect(generate([])).toMatchFileSnapshot(join(snapshots, 'report-not-written.txt'));
+  });
+
+  it('keeps the generation error when the report cannot be written either', async () => {
+    mkdirSync(join(outputDir, 'report.json'));
+    await expect(generate(['--server-url', 'api.example.com'])).toMatchFileSnapshot(
+      join(snapshots, 'report-not-written-after-failure.txt')
+    );
   });
 });

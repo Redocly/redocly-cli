@@ -158,6 +158,7 @@ export async function handleGenerateClient({
     report: { apis: [], findings: [] },
   };
 
+  let generationError: HandledError | undefined;
   try {
     const apis = config.resolvedConfig.apis ?? {};
     const optedIn = Object.keys(apis).filter(
@@ -165,13 +166,13 @@ export async function handleGenerateClient({
     );
     if (argv.api === undefined) {
       if (argv.output) {
-        throw new HandledError(
-          `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
+        throw new Error(
+          `--output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.`
         );
       }
       if (optedIn.length === 0) {
-        throw new HandledError(
-          `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
+        throw new Error(
+          `No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).`
         );
       }
     }
@@ -197,22 +198,30 @@ export async function handleGenerateClient({
       await writeComposedCliEntry(topLevelClient.cliOutput, run);
     }
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     // The API that failed already holds its error as its last finding. Any other error
     // belongs to the whole run.
     const lastApiFindings = run.report.apis.at(-1)?.findings ?? [];
     if (lastApiFindings.at(-1)?.kind !== 'generation-failed') {
-      const message = error instanceof Error ? error.message : String(error);
-      run.report.findings.push({
-        kind: 'generation-failed',
-        message: message.replace('❌', '').replace(/\s+/g, ' ').trim(),
-        operations: [],
-      });
+      run.report.findings.push({ kind: 'generation-failed', message, operations: [] });
     }
-    throw error;
-  } finally {
-    if (argv.report !== undefined) {
+    generationError =
+      error instanceof HandledError ? error : new HandledError(`\n❌  ${message}\n`);
+  }
+
+  if (argv.report !== undefined) {
+    try {
       await writeReport(resolvePath(argv.report), run);
+    } catch (reportError) {
+      if (generationError === undefined) {
+        throw reportError;
+      }
+      // The run exits with the generation error, so the report error is only printed.
+      logger.error(reportError instanceof Error ? reportError.message : String(reportError));
     }
+  }
+  if (generationError !== undefined) {
+    throw generationError;
   }
 }
 
@@ -334,13 +343,13 @@ async function writeComposedCliEntry(
   const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
   const entryPath = resolvePath(configDir, cliOutput);
   if (!entryPath.endsWith('.ts')) {
-    throw new HandledError(
-      `\n❌  client.cliOutput must point at a TypeScript file (ending in .ts).\n   Got: ${entryPath}\n`
+    throw new Error(
+      `client.cliOutput must point at a TypeScript file (ending in .ts). Got: ${entryPath}`
     );
   }
   if (seenOutputs.has(entryPath)) {
-    throw new HandledError(
-      `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
+    throw new Error(
+      `client.cliOutput resolves to a file this run generated: ${entryPath}. Give the composed entry its own path.`
     );
   }
   seenOutputs.add(entryPath);
