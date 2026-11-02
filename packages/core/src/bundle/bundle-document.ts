@@ -110,7 +110,7 @@ export async function bundleDocument(opts: {
     severity: 'error' as const,
     ruleId: 'bundler',
     visitor: makeBundleVisitor({
-      version: specMajorVersion,
+      specVersion,
       dereference: dereferenceRefs,
       rootDocument: document,
       resolvedRefMap: refMap,

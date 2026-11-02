@@ -1,5 +1,6 @@
 import { type RuleSeverity } from '../config/types.js';
-import { type SpecMajorVersion } from '../oas-types.js';
+import { getMajorSpecVersion } from '../detect-spec.js';
+import { type SpecVersion } from '../oas-types.js';
 import {
   isAbsoluteUrl,
   isFileUrl,
@@ -26,8 +27,8 @@ import { type ComponentNamesStrategy } from './bundle-document.js';
 type ComponentTarget = { node: unknown; location: Location };
 type ComponentsGroup = Record<string, unknown>;
 
-export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
-  switch (version) {
+export function mapTypeToComponent(typeName: string, version: SpecVersion) {
+  switch (getMajorSpecVersion(version)) {
     case 'oas3':
       switch (typeName) {
         case 'Schema':
@@ -49,7 +50,8 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         case 'Callback':
           return 'callbacks';
         case 'MediaType':
-          return 'mediaTypes';
+          // Only OAS 3.2 has `components.mediaTypes`.
+          return version === 'oas3_2' ? 'mediaTypes' : null;
         default:
           return null;
       }
@@ -121,7 +123,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
 }
 
 export function makeBundleVisitor({
-  version,
+  specVersion,
   dereference,
   rootDocument,
   resolvedRefMap,
@@ -129,7 +131,7 @@ export function makeBundleVisitor({
   componentRenamingConflicts = 'warn',
   componentNamesStrategy = 'basename',
 }: {
-  version: SpecMajorVersion;
+  specVersion: SpecVersion;
   dereference: boolean;
   rootDocument: Document;
   resolvedRefMap: ResolvedRefMap;
@@ -142,7 +144,8 @@ export function makeBundleVisitor({
 
   const firstSchemaLocationByName = new Map<string, Location>();
 
-  const schemaComponentType = mapTypeToComponent('Schema', version)!;
+  const version = getMajorSpecVersion(specVersion);
+  const schemaComponentType = mapTypeToComponent('Schema', specVersion)!;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
@@ -175,11 +178,7 @@ export function makeBundleVisitor({
           return;
         }
 
-        // Only OAS 3.2 has `components.mediaTypes`.
-        const componentType =
-          ctx.type.name === 'MediaType' && ctx.specVersion !== 'oas3_2'
-            ? null
-            : mapTypeToComponent(ctx.type.name, version);
+        const componentType = mapTypeToComponent(ctx.type.name, specVersion);
         if (!componentType) {
           replaceRef(node, target, ctx);
         } else {
