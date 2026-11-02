@@ -244,7 +244,10 @@ for (const [language, file, constPrefix, declarationPattern] of languageTelemetr
     `export const ${constPrefix}_SOURCE =\n  ${toStringLiteral(source)};`,
   ];
   if (declarationPattern !== null) {
-    const names = [...source.matchAll(declarationPattern)].map((match) => `'${match[1]}'`);
+    const names = [];
+    for (const match of source.matchAll(declarationPattern)) {
+      names.push(`'${match[1]}'`);
+    }
     const line = `export const ${constPrefix}_DECLARED_NAMES = [${names.join(', ')}] as const;`;
     // oxfmt (printWidth 100) puts each element of an over-width array on its own line.
     if (line.length <= 100) {
@@ -258,7 +261,10 @@ for (const [language, file, constPrefix, declarationPattern] of languageTelemetr
     }
   }
   lines.push('');
-  writeFileSync(join(pkgRoot, 'src', 'runtime-sources', `${language}-telemetry.ts`), lines.join('\n'));
+  writeFileSync(
+    join(pkgRoot, 'src', 'runtime-sources', `${language}-telemetry.ts`),
+    lines.join('\n')
+  );
 }
 
 // The PHP runtime embeds the same way (a single curl-only module).

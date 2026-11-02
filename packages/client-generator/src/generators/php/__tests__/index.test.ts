@@ -222,14 +222,14 @@ describe('phpGenerator (full client assembly)', () => {
 });
 
 describe('phpGenerator: telemetry option', () => {
-  it('writes telemetry.php in the client namespace beside an unchanged client', () => {
+  it('writes <client>.telemetry.php in the client namespace beside an unchanged client', () => {
     const input = { model: PHP_CAFE, outputPath: '/out/client.ts', outputMode: 'single' as const };
     const withTelemetry = phpGenerator({ ...input, emit: { telemetry: 'on' } });
     const withoutTelemetry = phpGenerator({ ...input, emit: {} });
 
     expect(withTelemetry.map((file) => file.path)).toEqual([
       '/out/client.php',
-      '/out/telemetry.php',
+      '/out/client.telemetry.php',
     ]);
     expect(withTelemetry[0].content).toBe(withoutTelemetry[0].content);
     const module = withTelemetry[1].content;

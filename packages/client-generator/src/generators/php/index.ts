@@ -187,7 +187,9 @@ export const phpGenerator: Generator = ({ model, output, banner, emit, paginatio
       "private const GENERATOR_VERSION = 'dev';",
       () => `private const GENERATOR_VERSION = ${phpString(GENERATOR_VERSION)};`
     );
-    files.push(sibling('telemetry.php', telemetrySource));
+    // Named after the client, so two clients in one folder do not share one telemetry file.
+    const clientName = entry.path.replace(/^.*[\\/]/, '');
+    files.push(sibling(clientName.replace(/\.php$/, '.telemetry.php'), telemetrySource));
   }
   return files;
 };

@@ -7,10 +7,10 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import random
 import time
 import uuid
-import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
 
@@ -101,7 +101,8 @@ def _settle(middleware: List[Any], context: Dict[str, Any], call: Dict[str, Any]
     if not hook_errors:
         return
     if call["error"] is not None:
-        warnings.warn(f"on_settled hook failed: {hook_errors[0]!r}")
+        # A log record, not a warning: under `-W error`, a warning would replace the call's error.
+        logging.getLogger(__name__).warning("on_settled hook failed: %r", hook_errors[0])
         return
     raise hook_errors[0]
 

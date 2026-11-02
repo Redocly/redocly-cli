@@ -8,7 +8,7 @@ declare(strict_types=1);
 use BaseConsumer\{Client, Config, UsageTelemetry};
 
 require __DIR__ . '/client/client.php';
-require __DIR__ . '/client/telemetry.php';
+require __DIR__ . '/client/client.telemetry.php';
 
 $telemetry = new UsageTelemetry(
     sdkName: '@acme/pets-sdk',
