@@ -13,17 +13,10 @@ import { cleanupOutput, getCommandOutput, getParams } from '../helpers.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 const testPath = join(__dirname, 'project');
+const snapshots = join(__dirname, '__snapshots__');
 
 function run(args: string[]) {
   return cleanupOutput(getCommandOutput(getParams(indexEntryPoint, args), { testPath }));
-}
-
-function generated(path: string) {
-  return readFileSync(join(testPath, path), 'utf8');
-}
-
-function snapshot(name: string) {
-  return join(__dirname, 'snapshots', `${name}.txt`);
 }
 
 describe('config-ref', () => {
@@ -34,17 +27,20 @@ describe('config-ref', () => {
   });
 
   test('check-config accepts the referenced config', async () => {
-    await expect(run(['check-config'])).toMatchFileSnapshot(snapshot('check-config'));
+    await expect(run(['check-config'])).toMatchFileSnapshot(join(snapshots, 'check-config.txt'));
   });
 
   test('lint finds every api root', async () => {
-    await expect(run(['lint'])).toMatchFileSnapshot(snapshot('lint'));
+    await expect(run(['lint'])).toMatchFileSnapshot(join(snapshots, 'lint.txt'));
   });
 
   test('bundle writes each output and applies the overlays', async () => {
-    await expect(run(['bundle'])).toMatchFileSnapshot(snapshot('bundle'));
+    await expect(run(['bundle'])).toMatchFileSnapshot(join(snapshots, 'bundle.txt'));
     for (const api of ['cafe', 'cafe-nested']) {
-      expect(generated(`config/generated/${api}.yaml`), api).not.toContain('/stats');
+      expect(
+        readFileSync(join(testPath, `config/generated/${api}.yaml`), 'utf8'),
+        api
+      ).not.toContain('/stats');
     }
     for (const api of ['orders', 'menu', 'archive', 'remote']) {
       expect(existsSync(join(testPath, `config/generated/${api}.yaml`)), api).toBe(true);
@@ -57,24 +53,28 @@ describe('config-ref', () => {
     ['cafe-nested', 'Nested cafe template'],
   ])('build-docs %s uses the htmlTemplate of its level', (api, title) => {
     run(['build-docs', api, '-o', `out/${api}.html`]);
-    expect(generated(`out/${api}.html`)).toContain(`<title>${title}</title>`);
+    expect(readFileSync(join(testPath, `out/${api}.html`), 'utf8')).toContain(
+      `<title>${title}</title>`
+    );
   });
 
   test('join reads both api roots', async () => {
-    await expect(run(['join', 'cafe', 'orders'])).toMatchFileSnapshot(snapshot('join'));
+    await expect(run(['join', 'cafe', 'orders'])).toMatchFileSnapshot(join(snapshots, 'join.txt'));
   });
 
   test('stats reads the api root', async () => {
-    await expect(run(['stats', 'cafe'])).toMatchFileSnapshot(snapshot('stats'));
+    await expect(run(['stats', 'cafe'])).toMatchFileSnapshot(join(snapshots, 'stats.txt'));
   });
 
   test('recheck reads the markdoc tags file', async () => {
-    await expect(run(['recheck', 'docs'])).toMatchFileSnapshot(snapshot('recheck'));
+    await expect(run(['recheck', 'docs'])).toMatchFileSnapshot(join(snapshots, 'recheck.txt'));
   });
 
   test('generate-client writes the client, the setup and the composed cli', () => {
     run(['generate-client']);
-    expect(generated('config/generated/client/cafe.ts')).toContain('https://setup.example.com');
+    expect(readFileSync(join(testPath, 'config/generated/client/cafe.ts'), 'utf8')).toContain(
+      'https://setup.example.com'
+    );
     expect(existsSync(join(testPath, 'config/generated/bin/cafe.ts'))).toBe(true);
   }, 60_000);
 });
