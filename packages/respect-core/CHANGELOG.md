@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 1.34.23
+
+### Patch Changes
+
+- Updated `undici` to `6.29.1`.
+- Updated @redocly/openapi-core to v1.34.23.
+
 ## 1.34.22
 
 ### Patch Changes
