@@ -122,6 +122,8 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   in. The client file does not change. The module imports nothing from the client; the
   application passes `telemetry(sdk_name=..., sdk_version=..., client=...)` in the client's
   `middleware`, and the open window is sent at interpreter exit.
+  A timeout of the caller, such as `asyncio.wait_for`, cancels the task like any cancel, so
+  it counts as `aborted`; only the client's own `timeout` counts as `timeout`.
 - Authored ONLY with the neutral toolkit (`Printer`, naming, schema, pagination helpers) —
   the dogfooding guard fails otherwise.
 

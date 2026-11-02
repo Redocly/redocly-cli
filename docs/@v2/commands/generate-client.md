@@ -223,6 +223,7 @@ api = Client(middleware=[telemetry(sdk_name="acme-billing", sdk_version="3.2.0",
 
 The module sends the open window when the interpreter exits.
 Before `os._exit()` or on a signal, call `flush()`.
+A timeout of the caller, such as `asyncio.wait_for`, counts as `aborted`, because the module cannot tell it from a cancel.
 
 {% /tab %}
 {% tab label="PHP" %}

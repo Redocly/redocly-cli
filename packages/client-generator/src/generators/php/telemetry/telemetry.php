@@ -83,6 +83,8 @@ final class UsageTelemetry
         $now = microtime(true);
         if ($this->counts !== [] && $now >= $this->nextSendAt) {
             $this->flushWindow(true);
+            // The send can take up to SEND_TIMEOUT_MS, so the next window starts after it.
+            $now = microtime(true);
         }
         if ($this->counts === []) {
             $this->windowStart = $now;
