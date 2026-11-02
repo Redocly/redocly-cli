@@ -1,0 +1,7 @@
+apis:
+  cafe:
+    root: ../../../../resources/cafe.yaml
+    client:
+      telemetry: true
+client:
+  outputMode: weird

@@ -133,6 +133,30 @@ describe('generate-client --report', () => {
     `);
   });
 
+  it('writes the config warnings to the API that they belong to and to the run', async () => {
+    const configPath = join(__dirname, 'config-warnings.yaml');
+    await expect(generate(['--config', configPath], 'cafe')).toMatchFileSnapshot(
+      join(snapshots, 'config-warnings.txt')
+    );
+    const report = readReport();
+    expect(report.apis[0].findings[0]).toMatchInlineSnapshot(`
+      {
+        "kind": "config-warning",
+        "message": "\`telemetry\` can be one of the following only: "on", "off". (#/apis/cafe/client/telemetry)",
+        "operations": [],
+      }
+    `);
+    expect(report.findings).toMatchInlineSnapshot(`
+      [
+        {
+          "kind": "config-warning",
+          "message": "\`outputMode\` can be one of the following only: "single", "split". (#/client/outputMode)",
+          "operations": [],
+        },
+      ]
+    `);
+  });
+
   it('writes the error of a failed generation', async () => {
     await expect(generate(['--generator', 'sdk'])).toMatchFileSnapshot(
       join(snapshots, 'generation-failed.txt')
@@ -214,6 +238,15 @@ describe('generate-client --report', () => {
       join(snapshots, 'report-over-generated-file.txt')
     );
     expect(readFileSync(join(outputDir, 'client.ts'), 'utf-8')).not.toMatch(/^\{/);
+  });
+
+  it('does not write the report over the API description', async () => {
+    const spec = join(outputDir, 'cafe.yaml');
+    writeFileSync(spec, readFileSync(fixture, 'utf-8'));
+    await expect(generate([], spec, spec)).toMatchFileSnapshot(
+      join(snapshots, 'report-over-api-description.txt')
+    );
+    expect(readFileSync(spec, 'utf-8')).toMatch(/^openapi:/);
   });
 
   it('names the report path when the report cannot be written', async () => {

@@ -34,7 +34,9 @@ export function reportFinding(finding: GenerateClientFinding): void {
     );
   }
   logger.warn(`generate-client: ${finding.message}\n`);
-  findingListener.getStore()?.(finding);
+  // A custom generator can pass more keys, and the report holds only the documented ones.
+  const { kind, message, operations } = finding;
+  findingListener.getStore()?.({ kind, message, operations });
 }
 
 function isFinding(value: unknown): value is GenerateClientFinding {

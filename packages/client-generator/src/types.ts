@@ -177,7 +177,7 @@ export type GenerateClientResult = {
   /**
    * Every operation of the API. `id` is the operationId, or the generated name when the
    * description has none; findings and telemetry events name an operation by it. `name` is the
-   * generated identifier.
+   * identifier in the TypeScript client, which the other generators derive their names from.
    */
   operations: Array<{ id: string; name: string }>;
 };

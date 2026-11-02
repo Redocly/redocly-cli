@@ -6,7 +6,7 @@ import type {
   generateClient as generateClientFunction,
   mergeConfig as mergeConfigFunction,
 } from '@redocly/client-generator';
-import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
+import { HandledError, isPlainObject, lintConfig, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -50,7 +50,7 @@ export type GenerateClientCommandArgv = {
 };
 
 type ReportedFinding = Omit<GenerateClientFinding, 'kind'> & {
-  kind: GenerateClientFindingKind | 'generation-failed';
+  kind: GenerateClientFindingKind | 'generation-failed' | 'config-warning';
 };
 
 /**
@@ -113,9 +113,13 @@ type GenerationRun = {
   toolkit: ClientGeneratorToolkit;
   /** Every path this run wrote or will write — collision guard across apis and the composed entry. */
   seenOutputs: Set<string>;
+  /** The local API description files of the run, which the report must not replace. */
+  inputFiles: Set<string>;
   /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
   composable: Array<{ alias: string; cliPath: string }>;
   report: GenerationReport;
+  /** The config warnings under `apis.<alias>`, by alias, for the report entry of that API. */
+  configWarningsByAlias: Map<string, ReportedFinding[]>;
 };
 
 export async function handleGenerateClient({
@@ -154,9 +158,12 @@ export async function handleGenerateClient({
     outputFlag: argv.output,
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
+    inputFiles: new Set<string>(),
     composable: [],
     report: { apis: [], findings: [] },
+    configWarningsByAlias: new Map(),
   };
+  await collectConfigWarnings(argv, run);
 
   let generationError: HandledError | undefined;
   try {
@@ -227,11 +234,46 @@ export async function handleGenerateClient({
   }
 }
 
-/** Writes the `--report` file. It never replaces a file that the run generated. */
+// The wrapper prints the config warnings before the handler and passes no problems on, so the
+// report lints the config again, with the same severity.
+async function collectConfigWarnings(
+  argv: CommandArgs<GenerateClientCommandArgv>['argv'],
+  run: GenerationRun
+): Promise<void> {
+  if (argv['lint-config'] === 'off' || run.config.document === undefined) return;
+  const problems = await lintConfig({
+    config: run.config,
+    severity: argv['lint-config'] || 'warn',
+  });
+  for (const problem of problems) {
+    const pointer = problem.location[0]?.pointer ?? '#/';
+    const finding: ReportedFinding = {
+      kind: 'config-warning',
+      message: `${problem.message} (${pointer})`,
+      operations: [],
+    };
+    const aliasMatch = pointer.match(/^#\/apis\/([^/]+)/);
+    if (aliasMatch === null) {
+      run.report.findings.push(finding);
+      continue;
+    }
+    const alias = aliasMatch[1].replaceAll('~1', '/').replaceAll('~0', '~');
+    const warnings = run.configWarningsByAlias.get(alias) ?? [];
+    warnings.push(finding);
+    run.configWarningsByAlias.set(alias, warnings);
+  }
+}
+
+/** Writes the `--report` file. It never replaces a file that the run generated or reads. */
 async function writeReport(reportPath: string, run: GenerationRun): Promise<void> {
   if (run.seenOutputs.has(reportPath)) {
     throw new HandledError(
       `\n❌  --report points at a file that this run generated: ${reportPath}.\n   Give the report its own path.\n`
+    );
+  }
+  if (run.inputFiles.has(reportPath)) {
+    throw new HandledError(
+      `\n❌  --report points at an API description of this run: ${reportPath}.\n   Give the report its own path.\n`
     );
   }
   try {
@@ -253,13 +295,22 @@ async function generateApiClient(
     outputFlag,
     toolkit,
     seenOutputs,
+    inputFiles,
     composable,
     report,
+    configWarningsByAlias,
   }: GenerationRun
 ): Promise<void> {
   const { path, alias } = entry;
+  if (!URL_SCHEME.test(path)) {
+    inputFiles.add(resolvePath(path));
+  }
   const name = alias ?? basename(path, extname(path));
-  const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
+  const reportedApi: GenerationReport['apis'][number] = {
+    name,
+    operations: [],
+    findings: alias === undefined ? [] : [...(configWarningsByAlias.get(alias) ?? [])],
+  };
   report.apis.push(reportedApi);
   try {
     const aliasConfig = config.forAlias(alias);

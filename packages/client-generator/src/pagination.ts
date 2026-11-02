@@ -233,7 +233,7 @@ function applyRule(
     if (!documentsLink) {
       reportFinding({
         kind: 'undocumented-header',
-        message: `${label.toLowerCase()} follows the Link header, but the success response does not document one.`,
+        message: `${label} follows the Link header, but the success response does not document one.`,
         operations: [op.specName ?? op.name],
       });
     }
