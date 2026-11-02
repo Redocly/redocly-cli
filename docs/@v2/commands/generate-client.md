@@ -273,7 +273,7 @@ Use `--report` to write a JSON file that a script or a build tool can read:
 redocly generate-client openapi.yaml -o src/api/client.ts --report generate-client-report.json
 ```
 
-The file has one entry for each API that the command started to generate:
+The file has one entry for each API that the command started to generate, and the failures that belong to no single API:
 
 ```json
 {
@@ -289,19 +289,23 @@ The file has one entry for each API that the command started to generate:
         }
       ]
     }
-  ]
+  ],
+  "findings": []
 }
 ```
 
 - `operations` lists every operation of the API.
   `id` is the `operationId`, or the generated name when the operation has none.
+  It is the same ID that the usage telemetry sends, so two operations with the same `operationId` have the same `id`.
   `name` is the name in the generated code.
 - `findings` lists the warnings of the run.
   A tool can act on `kind`, which does not change between releases.
   The `message` text can change.
   The `operations` of a finding are the IDs of the operations it is about.
-- When the generation of an API fails, the command still writes the report.
-  The last finding of that API then has the kind `generation-failed`.
+  The list is empty when the finding is about the whole API, a schema, or a security scheme.
+- When the run fails, the command still writes the report, unless the config file does not load.
+  If the generation of an API fails, the last finding of that API has the kind `generation-failed`.
+  Any other failure, for example a `client.cliOutput` file that the command cannot write, is a `generation-failed` finding in the top-level `findings`.
 
 | Kind                  | Meaning                                                                    |
 | --------------------- | -------------------------------------------------------------------------- |
@@ -313,7 +317,7 @@ The file has one entry for each API that the command started to generate:
 | `undocumented-header` | Pagination reads a response header that the description does not document. |
 | `browser-unsupported` | A feature of the client does not work in a browser.                        |
 | `command-shadowed`    | A command of the generated CLI has the name of a command group.            |
-| `generation-failed`   | The generation of the API failed.                                          |
+| `generation-failed`   | The generation of the API, or the run, failed.                             |
 
 ## Resources
 

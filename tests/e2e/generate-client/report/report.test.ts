@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,16 +19,16 @@ describe('generate-client --report', () => {
     rmSync(outputDir, { recursive: true, force: true });
   });
 
-  function generate(args: string[]): string {
+  function generate(args: string[], api = fixture, reportPath = join(outputDir, 'report.json')) {
     const output = getCommandOutput(
       [
         cliEntry,
         'generate-client',
-        fixture,
+        api,
         '--output',
         join(outputDir, 'client.ts'),
         '--report',
-        join(outputDir, 'report.json'),
+        reportPath,
         ...args,
       ],
       { testPath: __dirname }
@@ -106,6 +106,7 @@ describe('generate-client --report', () => {
             ],
           },
         ],
+        "findings": [],
       }
     `);
   });
@@ -171,7 +172,42 @@ describe('generate-client --report', () => {
             "operations": [],
           },
         ],
+        "findings": [],
       }
     `);
+  });
+
+  it('fails the run on a custom generator finding without the documented shape', () => {
+    const output = generate(['--generator', join(__dirname, 'invalid-finding-generator.mjs')]);
+    expect(output).toContain('invalid finding "oops"');
+    const failure = readReport().apis[0].findings.at(-1);
+    expect(failure.kind).toBe('generation-failed');
+    expect(failure.message).toContain(
+      'Generator "invalid-finding-generator" failed: invalid finding'
+    );
+  });
+
+  it('replaces an old report when the run fails before any API', () => {
+    writeFileSync(join(outputDir, 'report.json'), '{ "old": true }\n');
+    generate([], join(outputDir, 'missing.yaml'));
+    expect(readReport()).toEqual({
+      apis: [],
+      findings: [
+        { kind: 'generation-failed', message: 'Please provide a valid path.', operations: [] },
+      ],
+    });
+  });
+
+  it('does not write the report over a generated file', () => {
+    const output = generate([], fixture, join(outputDir, 'client.ts'));
+    expect(output).toContain('--report points at a file that this run generated');
+    expect(readFileSync(join(outputDir, 'client.ts'), 'utf-8')).not.toMatch(/^\{/);
+  });
+
+  it('names the report path when the report cannot be written', () => {
+    mkdirSync(join(outputDir, 'report.json'));
+    const output = generate([]);
+    expect(output).toContain('Could not write the report to <output>/report.json.');
+    expect(output).not.toContain('This is likely a bug');
   });
 });

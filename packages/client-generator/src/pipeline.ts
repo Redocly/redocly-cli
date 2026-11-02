@@ -339,8 +339,8 @@ async function generate(options: GenerateClientOptions): Promise<GenerateClientR
   }
 
   const operations: GenerateClientResult['operations'] = [];
-  for (const op of allOperations(model.services)) {
-    operations.push({ id: op.specName ?? op.name, name: op.name });
+  for (const operation of allOperations(model.services)) {
+    operations.push({ id: operation.specName ?? operation.name, name: operation.name });
   }
 
   return {

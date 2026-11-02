@@ -32,7 +32,7 @@ export function wrappableOperations(
       message: `${label} skipped ${sse.length} server-sent-events operation(s) — iterate the sdk's exported async generators directly: ${sse
         .map((op) => op.name)
         .join(', ')}.`,
-      operations: sse.map((op) => op.specName ?? op.name),
+      operations: sse.map((operation) => operation.specName ?? operation.name),
     });
   }
   const schemaNames = new Set(model.schemas.map((s) => s.name));
@@ -43,7 +43,7 @@ export function wrappableOperations(
       message: `${label} skipped ${clashing.length} operation(s) whose variables type name collides with a schema — rename the schema or the operation: ${clashing
         .map((op) => op.name)
         .join(', ')}.`,
-      operations: clashing.map((op) => op.specName ?? op.name),
+      operations: clashing.map((operation) => operation.specName ?? operation.name),
     });
   }
   return all.filter((op) => op.sse === undefined && !collides(op, schemaNames));

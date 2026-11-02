@@ -83,6 +83,15 @@ export function categorizeGenerateClientError(message: string): string {
   if (message.includes('Unknown generator') || message.includes('does not support')) {
     return 'not-supported';
   }
+  // The `client` config of the API: a remote setup, a bad output path, or a bad serverUrl.
+  if (
+    message.includes('`client.setup` must be a local file path') ||
+    message.includes('output must point at a TypeScript file') ||
+    message.includes('Two APIs write to the same path') ||
+    message.includes('serverUrl must be')
+  ) {
+    return 'config';
+  }
   return 'other';
 }
 

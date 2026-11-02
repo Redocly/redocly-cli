@@ -3,6 +3,7 @@
 // the `runCli` engine and dispatches through the sibling generated client.
 
 import {
+  allOperations,
   type ApiModel,
   casing,
   type CliAuthScheme,
@@ -213,10 +214,8 @@ function warnShadowedCommands(
   // A command is named after its operation's generated name, which is unique in the model.
   const shadowedNames = new Set(shadowed.map((command) => command.name));
   const operationIds: string[] = [];
-  for (const service of model.services) {
-    for (const op of service.operations) {
-      if (shadowedNames.has(op.name)) operationIds.push(op.specName ?? op.name);
-    }
+  for (const operation of allOperations(model.services)) {
+    if (shadowedNames.has(operation.name)) operationIds.push(operation.specName ?? operation.name);
   }
   reportFinding({
     kind: 'command-shadowed',

@@ -47,6 +47,9 @@ describe('categorizeGenerateClientError', () => {
     expect(
       categorizeGenerateClientError('The "swr" generator does not support --error-mode "result"')
     ).toBe('not-supported');
+    expect(categorizeGenerateClientError('serverUrl must be an absolute URL. Got: x')).toBe(
+      'config'
+    );
     expect(categorizeGenerateClientError('boom')).toBe('other');
     expect(categorizeGenerateClientError('Generator "php" failed: something broke')).toBe(
       'generator-run'

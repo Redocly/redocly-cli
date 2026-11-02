@@ -49,17 +49,21 @@ export type GenerateClientCommandArgv = {
   report?: string;
 };
 
-/** The `--report` file: what each API of the run produced, for tools that act on a generation. */
+type ReportedFinding = Omit<GenerateClientFinding, 'kind'> & {
+  kind: GenerateClientFindingKind | 'generation-failed';
+};
+
+/**
+ * The `--report` file: what each API of the run produced, for tools that act on a generation.
+ * `findings` holds the failures that belong to no single API.
+ */
 type GenerationReport = {
   apis: Array<{
     name: string;
     operations: GenerateClientResult['operations'];
-    findings: Array<
-      Omit<GenerateClientFinding, 'kind'> & {
-        kind: GenerateClientFindingKind | 'generation-failed';
-      }
-    >;
+    findings: ReportedFinding[];
   }>;
+  findings: ReportedFinding[];
 };
 
 // Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
@@ -142,27 +146,6 @@ export async function handleGenerateClient({
     setup: argv.setup,
   };
 
-  const apis = config.resolvedConfig.apis ?? {};
-  const optedIn = Object.keys(apis).filter(
-    (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
-  );
-  if (argv.api === undefined) {
-    if (argv.output) {
-      throw new HandledError(
-        `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
-      );
-    }
-    if (optedIn.length === 0) {
-      throw new HandledError(
-        `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
-      );
-    }
-  }
-  const entrypoints = await getFallbackApisOrExit(
-    argv.api === undefined ? optedIn : [argv.api],
-    config
-  );
-
   const run: GenerationRun = {
     config,
     collectSpecData,
@@ -172,33 +155,80 @@ export async function handleGenerateClient({
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
     composable: [],
-    report: { apis: [] },
+    report: { apis: [], findings: [] },
   };
 
   try {
+    const apis = config.resolvedConfig.apis ?? {};
+    const optedIn = Object.keys(apis).filter(
+      (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
+    );
+    if (argv.api === undefined) {
+      if (argv.output) {
+        throw new HandledError(
+          `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
+        );
+      }
+      if (optedIn.length === 0) {
+        throw new HandledError(
+          `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
+        );
+      }
+    }
+    const entrypoints = await getFallbackApisOrExit(
+      argv.api === undefined ? optedIn : [argv.api],
+      config
+    );
+
     for (const entry of entrypoints) {
       await generateApiClient(entry, run);
     }
+
+    // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
+    // the run-everything form, where all the modules exist.
+    const topLevelClient = (
+      isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
+    ) as GenerateClientConfig;
+    if (
+      topLevelClient.cliOutput !== undefined &&
+      argv.api === undefined &&
+      run.composable.length > 0
+    ) {
+      await writeComposedCliEntry(topLevelClient.cliOutput, run);
+    }
+  } catch (error) {
+    // The API that failed already holds its error as its last finding. Any other error
+    // belongs to the whole run.
+    const lastApiFindings = run.report.apis.at(-1)?.findings ?? [];
+    if (lastApiFindings.at(-1)?.kind !== 'generation-failed') {
+      const message = error instanceof Error ? error.message : String(error);
+      run.report.findings.push({
+        kind: 'generation-failed',
+        message: message.replace('❌', '').replace(/\s+/g, ' ').trim(),
+        operations: [],
+      });
+    }
+    throw error;
   } finally {
-    // Written on a failure too: the failed api carries the error as a finding.
     if (argv.report !== undefined) {
-      const reportPath = resolvePath(argv.report);
-      await mkdir(dirname(reportPath), { recursive: true });
-      await writeFile(reportPath, JSON.stringify(run.report, null, 2) + '\n', 'utf-8');
+      await writeReport(resolvePath(argv.report), run);
     }
   }
+}
 
-  // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
-  // the run-everything form, where all the modules exist.
-  const topLevelClient = (
-    isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
-  ) as GenerateClientConfig;
-  if (
-    topLevelClient.cliOutput !== undefined &&
-    argv.api === undefined &&
-    run.composable.length > 0
-  ) {
-    await writeComposedCliEntry(topLevelClient.cliOutput, run);
+/** Writes the `--report` file. It never replaces a file that the run generated. */
+async function writeReport(reportPath: string, run: GenerationRun): Promise<void> {
+  if (run.seenOutputs.has(reportPath)) {
+    throw new HandledError(
+      `\n❌  --report points at a file that this run generated: ${reportPath}.\n   Give the report its own path.\n`
+    );
+  }
+  try {
+    await mkdir(dirname(reportPath), { recursive: true });
+    await writeFile(reportPath, JSON.stringify(run.report, null, 2) + '\n', 'utf-8');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new HandledError(`\n❌  Could not write the report to ${reportPath}.\n   ${message}\n`);
   }
 }
 
@@ -313,6 +343,7 @@ async function writeComposedCliEntry(
       `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
     );
   }
+  seenOutputs.add(entryPath);
   const stem = basename(entryPath, extname(entryPath));
   const content = renderComposedCliEntry(
     composable.map(({ alias, cliPath }) => ({
