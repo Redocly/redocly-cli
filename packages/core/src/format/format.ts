@@ -297,7 +297,7 @@ export function formatProblems(
         if (env.FORMAT_JSON_WITH_CODEFRAMES) {
           const location = p.location[0]; // TODO: support multiple locations
           const loc = getLineColLocation(location);
-          problem.codeframe = getCodeframe(loc, true);
+          problem.codeframe = getCodeframe(loc, false);
         }
         return problem;
       }),

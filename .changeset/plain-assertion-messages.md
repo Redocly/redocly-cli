@@ -3,4 +3,4 @@
 '@redocly/openapi-core': patch
 ---
 
-Fixed the messages of configurable rules so that the `json` output no longer carries terminal color codes.
+Fixed the messages of configurable rules and the codeframes in the `json` output so that they no longer carry terminal color codes.
