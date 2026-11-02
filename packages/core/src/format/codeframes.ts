@@ -1,4 +1,4 @@
-import { type Colorette } from 'colorette';
+import type { Colorette } from 'colorette';
 import * as yamlAst from 'yaml-ast-parser';
 
 import { colorize, isColorEnabled, noColors } from '../logger.js';
