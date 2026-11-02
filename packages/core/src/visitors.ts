@@ -511,9 +511,27 @@ export function normalizeVisitors<T extends BaseVisitor>(
 ): NormalizedOasVisitors<T> {
   const normalizedVisitors: NormalizedOasVisitors<T> = {} as any;
 
-  for (const typeName of [...Object.keys(types), 'any', 'ref', 'scalar'] as Array<keyof T>) {
-    normalizedVisitors[typeName] = { enter: [], leave: [] } as any;
+  normalizedVisitors.any = {
+    enter: [],
+    leave: [],
+  };
+
+  for (const typeName of Object.keys(types) as Array<keyof T>) {
+    normalizedVisitors[typeName] = {
+      enter: [],
+      leave: [],
+    } as any;
   }
+
+  normalizedVisitors.ref = {
+    enter: [],
+    leave: [],
+  };
+
+  normalizedVisitors.scalar = {
+    enter: [],
+    leave: [],
+  };
 
   for (const { ruleId, severity, message, visitor } of visitorsConfig) {
     normalizeVisitorLevel({ ruleId, severity, message }, visitor, null);
