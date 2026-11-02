@@ -53,6 +53,7 @@ paths:
         required: true
         content:
           application/json:
+            description: Should allow a description in a Media Type Object (OpenAPI 3.2.1)
             schema:
               type: object
               properties:
