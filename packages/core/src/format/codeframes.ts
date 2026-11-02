@@ -1,6 +1,7 @@
-import { type Colorette, createColors } from 'colorette';
+import { type Colorette } from 'colorette';
 import * as yamlAst from 'yaml-ast-parser';
 
+import { colorize, isColorEnabled, noColors } from '../logger.js';
 import { parsePointer } from '../ref-utils.js';
 import type { Source } from '../resolve.js';
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
@@ -16,7 +17,8 @@ const MAX_LINE_LENGTH = 150;
 const MAX_CODEFRAME_LINES = 3;
 
 export function getCodeframe(location: LineColLocationObject, color: boolean) {
-  const colors = createColors({ useColor: color });
+  const isColored = color && isColorEnabled;
+  const colors = isColored ? colorize : noColors;
   const { start, end = { line: start.line, col: start.col + 1 }, source } = location;
   const lines = source.getLines();
   const startLineNum = start.line;
@@ -37,7 +39,7 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     const endIdx = i === endLineNum ? end.col - 1 : line.length;
 
     prefixedLines.push([`${i}`, markLine(line, startIdx, endIdx, colors.red)]);
-    if (!color) prefixedLines.push(['', underlineLine(line, startIdx, endIdx)]);
+    if (!isColored) prefixedLines.push(['', underlineLine(line, startIdx, endIdx)]);
   }
 
   if (skipLines > 0) {
@@ -51,7 +53,7 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
       markLine(lines[endLineNum - 1], -1, end.col - 1, colors.red),
     ]);
 
-    if (!color) prefixedLines.push(['', underlineLine(lines[endLineNum - 1], -1, end.col - 1)]);
+    if (!isColored) prefixedLines.push(['', underlineLine(lines[endLineNum - 1], -1, end.col - 1)]);
   }
 
   return printPrefixedLines(
@@ -71,7 +73,6 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     endIdx: number = +Infinity,
     variant = colors.gray
   ) {
-    if (!color) return line;
     if (!line) return line;
 
     if (startIdx === -1) {

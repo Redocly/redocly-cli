@@ -2,15 +2,12 @@ import * as colorette from 'colorette';
 
 import { isBrowser } from './env.js';
 
+// Browser bundles replace `colorette` with an empty module.
 export const isColorEnabled = !isBrowser && colorette.isColorSupported;
 
-const colors: colorette.Colorette = colorette;
+export const noColors = new Proxy({} as colorette.Colorette, { get: () => String });
 
-export const colorize = new Proxy({} as colorette.Colorette, {
-  get(_target, color: keyof colorette.Colorette) {
-    return (text: string | number) => (isColorEnabled ? colors[color](text) : String(text));
-  },
-});
+export const colorize: colorette.Colorette = isColorEnabled ? colorette : noColors;
 
 export interface LoggerInterface {
   info(message: string): void;
