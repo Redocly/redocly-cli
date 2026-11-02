@@ -40,10 +40,12 @@ export async function getFallbackApisOrExit(
 
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
   if (isNotEmptyArray(filteredInvalidEntrypoints)) {
+    const invalidPaths: string[] = [];
     for (const { path } of filteredInvalidEntrypoints) {
       logger.warn(`\n${formatPath(path)} ${red(`does not exist or is invalid.\n\n`)}`);
+      invalidPaths.push(formatPath(path));
     }
-    throw new HandledError('Please provide a valid path.');
+    throw new HandledError(`Please provide a valid path: ${invalidPaths.join(', ')}.`);
   }
   if (res.length === 0) {
     throw new HandledError(

@@ -1,5 +1,3 @@
-import { logger } from '@redocly/openapi-core';
-
 import { reportFinding } from '../../../findings.js';
 import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { resolveModelPagination } from '../../../pagination.js';
@@ -279,31 +277,23 @@ describe('renderCliModule', () => {
     };
   }
 
-  it('warns when an operation is named after a tag, naming how it resolves', () => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
-
-    renderCliModule(modelWithOperationNamedOrders(['Reports']), options);
-    expect(warn.mock.lastCall?.[0]).toContain('orders (run it as "reports orders")');
-
-    renderCliModule(modelWithOperationNamedOrders([]), options);
-    expect(warn.mock.lastCall?.[0]).toContain('orders (keeps the bare word');
-
-    renderCliModule(MODEL, options);
-    expect(warn).toHaveBeenCalledTimes(2);
-    warn.mockRestore();
-  });
-
-  it('lists the operation IDs of the commands named after a tag', () => {
+  it('reports the commands named after a tag, with how each resolves and its operation ID', () => {
     const findings: Parameters<typeof reportFinding>[0][] = [];
-
-    renderCliModule(modelWithOperationNamedOrders([]), {
+    const collecting = {
       ...options,
-      reportFinding: (finding) => findings.push(finding),
-    });
+      reportFinding: (finding: (typeof findings)[number]) => findings.push(finding),
+    };
 
-    expect(findings).toEqual([
-      expect.objectContaining({ kind: 'command-shadowed', operations: ['getOrder'] }),
-    ]);
+    renderCliModule(modelWithOperationNamedOrders(['Reports']), collecting);
+    renderCliModule(modelWithOperationNamedOrders([]), collecting);
+    renderCliModule(MODEL, collecting);
+
+    expect(findings).toHaveLength(2);
+    expect(findings[0].message).toContain('orders (run it as "reports orders")');
+    expect(findings[1]).toEqual(
+      expect.objectContaining({ kind: 'command-shadowed', operations: ['getOrder'] })
+    );
+    expect(findings[1].message).toContain('orders (keeps the bare word');
   });
 });
 

@@ -2,7 +2,7 @@
 
 missing.yaml does not exist or is invalid.
 
-Please provide a valid path.
+Please provide a valid path: missing.yaml.
 
 
 Exit code: 1

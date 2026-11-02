@@ -100,7 +100,7 @@ describe('getFallbackApisOrExit', () => {
   it('should error if file from config do not exist', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     await expect(getFallbackApisOrExit(undefined, config)).rejects.toThrow(
-      'Please provide a valid path.'
+      'Please provide a valid path: someFile.yaml.'
     );
     expect(process.stderr.write).toHaveBeenCalledWith(
       '\nsomeFile.yaml does not exist or is invalid.\n\n'
@@ -129,7 +129,7 @@ describe('getFallbackApisOrExit', () => {
     });
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     await expect(getFallbackApisOrExit(['someFile.yaml'], apisConfig)).rejects.toThrow(
-      'Please provide a valid path.'
+      'Please provide a valid path: someFile.yaml.'
     );
     expect(process.stderr.write).toHaveBeenCalledWith(
       '\nsomeFile.yaml does not exist or is invalid.\n\n'
@@ -143,7 +143,7 @@ describe('getFallbackApisOrExit', () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     await expect(
       getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig)
-    ).rejects.toThrow('Please provide a valid path.');
+    ).rejects.toThrow('Please provide a valid path: someFile.yaml, someFile2.yaml.');
     expect(process.stderr.write).toHaveBeenCalledWith(
       '\nsomeFile.yaml does not exist or is invalid.\n\n'
     );
@@ -163,7 +163,7 @@ describe('getFallbackApisOrExit', () => {
     );
 
     await expect(getFallbackApisOrExit(undefined, configStub)).rejects.toThrow(
-      'Please provide a valid path.'
+      'Please provide a valid path: notExist.yaml.'
     );
     expect(process.stderr.write).toHaveBeenCalledWith(
       '\nnotExist.yaml does not exist or is invalid.\n\n'

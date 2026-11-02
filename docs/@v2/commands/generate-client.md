@@ -296,7 +296,8 @@ The file has one entry for each API that the command started to generate, and th
 
 - `operations` lists every operation of the API.
   `id` is the `operationId`, or the generated name when the operation has none.
-  It is the same ID that the usage telemetry sends, so two operations with the same `operationId` have the same `id`.
+  It is the same ID that the usage telemetry sends.
+  Two operations with the same `operationId` have the same `id`.
   `name` is the name in the generated code.
 - `findings` lists the warnings of the run.
   A tool can act on `kind`, which does not change between releases.

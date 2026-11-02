@@ -201,7 +201,7 @@ describe('generate-client --report', () => {
         "findings": [
           {
             "kind": "generation-failed",
-            "message": "Please provide a valid path.",
+            "message": "Please provide a valid path: missing.yaml.",
             "operations": [],
           },
         ],
