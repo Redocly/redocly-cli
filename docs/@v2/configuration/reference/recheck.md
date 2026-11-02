@@ -217,7 +217,7 @@ Use a rule object to change a preset rule's options or to add a rule.
 
 - tagsFile
 - string
-- Path to a YAML file that maps tag names to tag schemas, relative to `redocly.yaml`.
+- Path to a YAML file that maps tag names to tag schemas, relative to the config file it is written in.
   Inline `tags` win over the file.
   The [`--generate-markdoc-schema`](../../commands/recheck.md#generate-a-markdoc-tag-schema) action writes this file from a theme module.
 
