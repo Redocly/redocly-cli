@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 import atexit
 import json
+import math
 import os
 import platform
 import secrets
@@ -29,6 +30,7 @@ _LATENCY_BUCKETS = [
     ("lt_1s", 1000),
     ("lt_3s", 3000),
     ("lt_10s", 10000),
+    ("gte_10s", math.inf),
 ]
 
 SdkUsageEvent = Dict[str, Any]
@@ -75,12 +77,10 @@ class UsageTelemetry:
             operation["duration_sum_ms"] += duration_ms
             status = _status_class(call)
             operation["status"][status] = operation["status"].get(status, 0) + 1
-            bucket = "gte_10s"
-            for name, below_ms in _LATENCY_BUCKETS:
+            for bucket, below_ms in _LATENCY_BUCKETS:
                 if duration_ms < below_ms:
-                    bucket = name
+                    operation["latency"][bucket] = operation["latency"].get(bucket, 0) + 1
                     break
-            operation["latency"][bucket] = operation["latency"].get(bucket, 0) + 1
 
     def flush(self, keep_on_failure: bool = True) -> None:
         timer = self._timer
@@ -220,7 +220,7 @@ def _to_events(
         for status in _STATUS_CLASSES:
             if status in operation["status"]:
                 usage[f"status_{status}"] = operation["status"][status]
-        for bucket in [name for name, _ in _LATENCY_BUCKETS] + ["gte_10s"]:
+        for bucket, _ in _LATENCY_BUCKETS:
             if bucket in operation["latency"]:
                 usage[f"latency_{bucket}"] = operation["latency"][bucket]
         events.append(

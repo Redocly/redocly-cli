@@ -8,6 +8,8 @@
 // the runtime sources at prepare time (`RUNTIME_DECLARED_NAMES`), so it tracks the
 // real runtime with no hand-maintained list to drift.
 
+import { GO_TELEMETRY_DECLARED_NAMES } from './runtime-sources/go-telemetry.js';
+import { PHP_TELEMETRY_DECLARED_NAMES } from './runtime-sources/php-telemetry.js';
 import { RUNTIME_DECLARED_NAMES } from './runtime-sources/typescript.js';
 
 /** Module-scope identifiers every package-mode sdk file emits or imports — never renamed. */
@@ -52,16 +54,6 @@ const SATELLITE_NAMES = [
   'useSWR',
   'useSWRMutation',
   '__Writable',
-];
-
-// The exported declarations of the Go and PHP telemetry modules, which share the package
-// or namespace with the model types. Reserved whether or not telemetry is on, so turning
-// it on never renames a type.
-const TELEMETRY_NAMES = [
-  'UsageTelemetry',
-  'UsageTelemetryOptions',
-  'UsageTelemetryEvent',
-  'NewUsageTelemetry',
 ];
 
 // Platform globals and TS utility/lib types the emitted code references by bare name —
@@ -138,7 +130,10 @@ export function reservedModuleNames(): Set<string> {
     cached = new Set([
       ...WIRING_NAMES,
       ...SATELLITE_NAMES,
-      ...TELEMETRY_NAMES,
+      // The Go and PHP telemetry modules share the package or namespace with the model types.
+      // Reserved whether or not telemetry is on, so turning it on never renames a type.
+      ...GO_TELEMETRY_DECLARED_NAMES,
+      ...PHP_TELEMETRY_DECLARED_NAMES,
       ...GLOBAL_NAMES,
       ...RUNTIME_DECLARED_NAMES,
     ]);

@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"runtime"
@@ -38,6 +39,7 @@ var usageTelemetryLatencyBuckets = []struct {
 	{"lt_1s", 1000},
 	{"lt_3s", 3000},
 	{"lt_10s", 10000},
+	{"gte_10s", math.MaxInt64},
 }
 
 // UsageTelemetryOptions identifies the SDK. Endpoint defaults to the Redocly
@@ -151,14 +153,12 @@ func (t *UsageTelemetry) record(call SettledCall) {
 	operation.attempts += int64(call.Attempts)
 	operation.durationSumMs += durationMs
 	operation.status[usageTelemetryStatusClass(call)]++
-	bucket := "gte_10s"
-	for _, candidate := range usageTelemetryLatencyBuckets {
-		if durationMs < candidate.belowMs {
-			bucket = candidate.name
+	for _, bucket := range usageTelemetryLatencyBuckets {
+		if durationMs < bucket.belowMs {
+			operation.latency[bucket.name]++
 			break
 		}
 	}
-	operation.latency[bucket]++
 }
 
 // openWindow must run with t.mu held.
