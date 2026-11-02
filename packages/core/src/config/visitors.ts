@@ -1,7 +1,8 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 import * as path from 'node:path';
+import * as url from 'node:url';
 
-import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
+import { isAbsoluteUrl, isFileUrl, replaceRef } from '../ref-utils.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -99,10 +100,11 @@ function resolveUriReference(value: unknown, ctx: UserContext) {
   }
   const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
-  if (sourceRef === rootRef || isAbsoluteUrl(sourceRef)) {
+  const sourcePath = isFileUrl(sourceRef) ? url.fileURLToPath(sourceRef) : sourceRef;
+  if (sourceRef === rootRef || isAbsoluteUrl(sourcePath)) {
     return;
   }
-  ctx.parent[ctx.key] = resolvePath(value, sourceRef);
+  ctx.parent[ctx.key] = resolvePath(value, sourcePath);
 }
 
 export const configBundlerVisitor = normalizeVisitors(

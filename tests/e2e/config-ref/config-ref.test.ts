@@ -3,10 +3,11 @@
 // root above it, and mixes a `$ref` with a sibling option, a `$ref` chain, a `$ref` on a path
 // field itself two levels down, `../` paths that climb one to four levels back up, and a `$ref`
 // over https into a config whose `root` is a URL. Every command below must find the files
-// that these paths point to.
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+// that these paths point to. A second root config, written by the test because its `$ref` is a
+// `file://` URL of this machine, points at an api config of the project the same way.
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { cleanupOutput, getCommandOutput, getParams } from '../helpers.js';
 
@@ -21,7 +22,7 @@ function run(args: string[]) {
 
 describe('config-ref', () => {
   afterEach(() => {
-    for (const written of ['config/generated', 'out', 'openapi.yaml']) {
+    for (const written of ['config/generated', 'out', 'openapi.yaml', 'redocly-file-url.yaml']) {
       rmSync(join(testPath, written), { recursive: true, force: true });
     }
   });
@@ -55,6 +56,21 @@ describe('config-ref', () => {
     run(['build-docs', api, '-o', `out/${api}.html`]);
     expect(readFileSync(join(testPath, `out/${api}.html`), 'utf8')).toContain(
       `<title>${title}</title>`
+    );
+  });
+
+  test('lint and bundle follow a $ref that is a file URL', async () => {
+    const apiConfig = pathToFileURL(join(testPath, 'config/apis/orders/config.yaml')).href;
+    writeFileSync(
+      join(testPath, 'redocly-file-url.yaml'),
+      `extends:\n  - recommended\napis:\n  file-url:\n    $ref: ${apiConfig}\n`
+    );
+    await expect(run(['lint', '--config', 'redocly-file-url.yaml'])).toMatchFileSnapshot(
+      join(snapshots, 'lint-file-url.txt')
+    );
+    run(['bundle', '--config', 'redocly-file-url.yaml']);
+    expect(readFileSync(join(testPath, 'config/generated/orders.yaml'), 'utf8')).not.toContain(
+      '/stats'
     );
   });
 
