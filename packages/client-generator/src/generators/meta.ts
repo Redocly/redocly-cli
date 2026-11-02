@@ -162,8 +162,14 @@ export function validateSelection(
       operations: [],
     });
   }
-  const telemetryWriters = ['typescript', 'go', 'python', 'php'];
-  if (emit.telemetry === 'on' && !telemetryWriters.some((name) => selected.has(name))) {
+  let telemetryWriterSelected = false;
+  for (const name of ['typescript', 'go', 'python', 'php']) {
+    if (selected.has(name)) {
+      telemetryWriterSelected = true;
+      break;
+    }
+  }
+  if (emit.telemetry === 'on' && !telemetryWriterSelected) {
     reportFinding({
       kind: 'option-ignored',
       message:

@@ -30,7 +30,7 @@ import {
   renderPythonModels,
   type PythonModels,
 } from './models.ts';
-import { operationIdents, PY } from './naming.ts';
+import { naming, operationIdents, PY } from './naming.ts';
 
 export { renderPythonModels, type PythonModels } from './models.ts';
 export { pythonType } from './types.ts';
@@ -186,7 +186,7 @@ export const pythonGenerator: Generator = ({
   if (emit.telemetry === 'on') {
     const telemetrySource = PYTHON_TELEMETRY_SOURCE.replace(
       'GENERATOR_VERSION = "dev"',
-      () => `GENERATOR_VERSION = ${JSON.stringify(GENERATOR_VERSION)}`
+      () => `GENERATOR_VERSION = ${naming.string(GENERATOR_VERSION)}`
     );
     files.push({
       path: entry.path.replace(/\.py$/, '_telemetry.py'),

@@ -167,12 +167,12 @@ client:
 
 The `typescript`, `go`, `python`, and `php` generators then also write a telemetry module next to the client:
 
-| Generator    | File                    |
-| ------------ | ----------------------- |
-| `typescript` | `<output>.telemetry.ts` |
-| `go`         | `telemetry.go`          |
-| `python`     | `<module>_telemetry.py` |
-| `php`        | `telemetry.php`         |
+| Generator    | File                     |
+| ------------ | ------------------------ |
+| `typescript` | `<output>.telemetry.ts`  |
+| `go`         | `telemetry.go`           |
+| `python`     | `<module>_telemetry.py`  |
+| `php`        | `<output>.telemetry.php` |
 
 The module counts the calls of your SDK per operation in windows of 60 seconds, and sends the counts at the end of each window.
 Use it to learn which operations your SDK users call, how often, with which outcome, and how fast.
@@ -229,7 +229,7 @@ Before `os._exit()` or on a signal, call `flush()`.
 {% tab label="PHP" %}
 
 ```php
-require __DIR__ . '/telemetry.php';
+require __DIR__ . '/client.telemetry.php';
 
 $telemetry = new UsageTelemetry(sdkName: 'acme/billing-sdk', sdkVersion: '3.2.0', client: 'invoice-worker/1.8.4');
 $api = new Client(new Config(onSettled: [$telemetry]));
@@ -262,6 +262,7 @@ Each event contains only:
 The module never sends URLs, path or query parameters, headers, request or response bodies, or any other value from a request.
 
 To turn off sending at run time, set `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1`.
+Under PHP-FPM, the default `clear_env = yes` hides the host environment from PHP, so set the variable in the pool configuration, for example `env[REDOCLY_SDK_TELEMETRY] = off`.
 In a browser, the TypeScript module does nothing.
 
 ### Write a report

@@ -114,7 +114,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   error is thrown for a successful call; on a failed call, the original error wins and the
   hook error goes to `error_log`. SSE streams open outside `send()`, so they reach no hook.
 - **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
-  writes `telemetry.php` (from `telemetry/telemetry.php` in this folder, embedded at prepare
+  writes `<client>.telemetry.php` (from `telemetry/telemetry.php` in this folder, embedded at prepare
   time) beside the client, in both runtime modes, with the client's namespace and the
   generator version baked in. The client file does not change. The application requires it
   and passes `new UsageTelemetry(...)` in `Config->onSettled`. PHP has no timers: a call that

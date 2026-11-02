@@ -25,8 +25,8 @@ describe("generate-client php generator, telemetry: 'on' against a local OTLP si
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  it('telemetry.php passes php -l and PHPStan level 5', () => {
-    const telemetryFile = join(workDir, 'client/telemetry.php');
+  it('client.telemetry.php passes php -l and PHPStan level 5', () => {
+    const telemetryFile = join(workDir, 'client/client.telemetry.php');
     const lint = spawnSync('php', ['-l', telemetryFile], { encoding: 'utf-8' });
     expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
     const analyse = spawnSync(

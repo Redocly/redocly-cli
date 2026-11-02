@@ -365,6 +365,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			if cancel != nil {
 				cancel()
 			}
+			settle(nil, err, attempt)
 			return nil, err
 		}
 		for key, value := range headers {

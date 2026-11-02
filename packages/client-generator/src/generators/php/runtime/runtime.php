@@ -164,8 +164,12 @@ function buildUrl(string $serverUrl, string $path, array $pathParams): string
  */
 function defaultRetryOn(array $context): bool
 {
-    $safe = in_array(strtoupper($context['method'] ?? ''), ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'], true)
-        || isset($context['headers']['Idempotency-Key']);
+    $safe = in_array(strtoupper($context['method'] ?? ''), ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'], true);
+    foreach (array_keys($context['headers'] ?? []) as $name) {
+        if (strtolower((string) $name) === 'idempotency-key') {
+            $safe = true;
+        }
+    }
     if (!$safe) {
         return false;
     }
