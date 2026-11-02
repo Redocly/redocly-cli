@@ -1,4 +1,3 @@
-import type * as colorette from 'colorette';
 import { outdent } from 'outdent';
 
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
@@ -6,11 +5,6 @@ import { createConfig } from '../../../../config/index.js';
 import { lintDocument } from '../../../../lint.js';
 import { BaseResolver } from '../../../../resolve.js';
 import { Assertions } from '../index.js';
-
-vi.mock('colorette', async (importActual) => {
-  const actual = await importActual<typeof colorette>();
-  return { ...actual, ...actual.createColors({ useColor: false }) };
-});
 
 const opts = {
   '0': {

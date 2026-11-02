@@ -1,14 +1,8 @@
-import type * as colorette from 'colorette';
 import { outdent } from 'outdent';
 
 import { replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { createConfig } from '../../../config/index.js';
 import { lintFromString } from '../../../lint.js';
-
-vi.mock('colorette', async (importActual) => {
-  const actual = await importActual<typeof colorette>();
-  return { ...actual, ...actual.createColors({ useColor: false }) };
-});
 
 describe('GraphQL configurable rules (rule/*)', () => {
   it('reports a casing violation on the type name via a configurable rule while ignoring a correct one (when no property is specified)', async () => {
