@@ -54,13 +54,16 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     if (!color) prefixedLines.push(['', underlineLine(lines[endLineNum - 1], -1, end.col - 1)]);
   }
 
-  return printPrefixedLines(colors, [
-    [`${startLineNum - 2}`, markLine(lines[startLineNum - 1 - 2])],
-    [`${startLineNum - 1}`, markLine(lines[startLineNum - 1 - 1])],
-    ...prefixedLines,
-    [`${endLineNum + 1}`, markLine(lines[endLineNum - 1 + 1])],
-    [`${endLineNum + 2}`, markLine(lines[endLineNum - 1 + 2])],
-  ]);
+  return printPrefixedLines(
+    [
+      [`${startLineNum - 2}`, markLine(lines[startLineNum - 1 - 2])],
+      [`${startLineNum - 1}`, markLine(lines[startLineNum - 1 - 1])],
+      ...prefixedLines,
+      [`${endLineNum + 1}`, markLine(lines[endLineNum - 1 + 1])],
+      [`${endLineNum + 2}`, markLine(lines[endLineNum - 1 + 2])],
+    ],
+    colors
+  );
 
   function markLine(
     line: string,
@@ -82,7 +85,7 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
   }
 }
 
-function printPrefixedLines(colors: Colorette, lines: [string, string][]): string {
+function printPrefixedLines(lines: [string, string][], colors: Colorette): string {
   const existingLines = lines.filter(([_, line]) => line !== undefined);
 
   const padLen = Math.max(...existingLines.map(([prefix]) => prefix.length));
@@ -94,12 +97,12 @@ function printPrefixedLines(colors: Colorette, lines: [string, string][]): strin
     .map(
       ([prefix, line]) =>
         colors.gray(leftPad(padLen, prefix) + ' |') +
-        (line ? ' ' + limitLineLength(colors, line.substring(dedentLen)) : '')
+        (line ? ' ' + limitLineLength(line.substring(dedentLen), colors) : '')
     )
     .join('\n');
 }
 
-function limitLineLength(colors: Colorette, line: string, maxLen: number = MAX_LINE_LENGTH) {
+function limitLineLength(line: string, colors: Colorette, maxLen: number = MAX_LINE_LENGTH) {
   const overflowLen = line.length - maxLen;
   if (overflowLen > 0) {
     const charsMoreText = colors.gray(`...<${overflowLen} chars>`);
