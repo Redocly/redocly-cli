@@ -160,6 +160,8 @@ export async function handleGenerateClient({
 
   let generationError: HandledError | undefined;
   try {
+    // A flag of the whole run, so a bad `--setup` is a failure of the run, not of one API.
+    run.cliFlags = resolveSetup(cliFlags, process.cwd());
     const apis = config.resolvedConfig.apis ?? {};
     const optedIn = Object.keys(apis).filter(
       (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
@@ -266,7 +268,7 @@ async function generateApiClient(
       (isPlainObject(client) ? client : {}) as GenerateClientConfig,
       configDir
     );
-    const clientConfig = toolkit.mergeConfig(clientBlock, resolveSetup(cliFlags, process.cwd()));
+    const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
     collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
 
     const outputPath =
