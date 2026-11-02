@@ -312,7 +312,7 @@ describe('bundle', () => {
     `);
   });
 
-  it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
+  it('should inline external media type refs (OAS 3.2)', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/external-media-types.yaml'),
@@ -321,39 +321,6 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.2.0
-      paths:
-        /test:
-          get:
-            responses:
-              '200':
-                description: OK
-                content:
-                  application/json:
-                    $ref: '#/components/mediaTypes/testMediaType'
-      components:
-        mediaTypes:
-          testMediaType:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-            examples:
-              Test:
-                value:
-                  id: 1
-    `);
-  });
-
-  it('should inline external mediaTypes refs before OAS 3.2', async () => {
-    const { bundle: res, problems } = await bundle({
-      config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/refs/external-media-types-oas31.yaml'),
-    });
-
-    expect(problems).toHaveLength(0);
-    expect(res.parsed).toMatchInlineSnapshot(`
-      openapi: 3.1.0
       paths:
         /test:
           get:

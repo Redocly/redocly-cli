@@ -1,6 +1,5 @@
 import { type RuleSeverity } from '../config/types.js';
-import { getMajorSpecVersion } from '../detect-spec.js';
-import { type SpecVersion } from '../oas-types.js';
+import { type SpecMajorVersion } from '../oas-types.js';
 import {
   isAbsoluteUrl,
   isFileUrl,
@@ -27,8 +26,8 @@ import { type ComponentNamesStrategy } from './bundle-document.js';
 type ComponentTarget = { node: unknown; location: Location };
 type ComponentsGroup = Record<string, unknown>;
 
-export function mapTypeToComponent(typeName: string, version: SpecVersion) {
-  switch (getMajorSpecVersion(version)) {
+export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
+  switch (version) {
     case 'oas3':
       switch (typeName) {
         case 'Schema':
@@ -49,9 +48,6 @@ export function mapTypeToComponent(typeName: string, version: SpecVersion) {
           return 'links';
         case 'Callback':
           return 'callbacks';
-        case 'MediaType':
-          // Only OAS 3.2 has `components.mediaTypes`.
-          return version === 'oas3_2' ? 'mediaTypes' : null;
         default:
           return null;
       }
@@ -123,7 +119,7 @@ export function mapTypeToComponent(typeName: string, version: SpecVersion) {
 }
 
 export function makeBundleVisitor({
-  specVersion,
+  version,
   dereference,
   rootDocument,
   resolvedRefMap,
@@ -131,7 +127,7 @@ export function makeBundleVisitor({
   componentRenamingConflicts = 'warn',
   componentNamesStrategy = 'basename',
 }: {
-  specVersion: SpecVersion;
+  version: SpecMajorVersion;
   dereference: boolean;
   rootDocument: Document;
   resolvedRefMap: ResolvedRefMap;
@@ -144,8 +140,7 @@ export function makeBundleVisitor({
 
   const firstSchemaLocationByName = new Map<string, Location>();
 
-  const version = getMajorSpecVersion(specVersion);
-  const schemaComponentType = mapTypeToComponent('Schema', specVersion)!;
+  const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
@@ -178,7 +173,7 @@ export function makeBundleVisitor({
           return;
         }
 
-        const componentType = mapTypeToComponent(ctx.type.name, specVersion);
+        const componentType = mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
           replaceRef(node, target, ctx);
         } else {
