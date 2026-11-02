@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+servers:
+  - url: https://{region}.cafe.redocly.com
+    variables:
+      region:
+        enum: []
+        default: eu
+  - url: https://api.cafe.redocly.com/{version}
+    variables:
+      version:
+        enum: [v1, v2]
+        default: v3
+paths: {}

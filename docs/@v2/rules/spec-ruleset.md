@@ -12,6 +12,7 @@ All the rules are of severity `error`:
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
+- [no-server-variables-empty-enum](./oas/no-server-variables-empty-enum.md) (OpenAPI 3.1 and 3.2)
 - [no-undefined-server-variable](./oas/no-undefined-server-variable.md)
 - [no-unresolved-refs](./common/no-unresolved-refs.md)
 - [nullable-type-sibling](./oas/nullable-type-sibling.md)
