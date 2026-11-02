@@ -175,7 +175,11 @@ export function makeBundleVisitor({
           return;
         }
 
-        const componentType = mapTypeToComponent(ctx.type.name, version);
+        // Only OAS 3.2 has `components.mediaTypes`.
+        const componentType =
+          ctx.type.name === 'MediaType' && ctx.specVersion !== 'oas3_2'
+            ? null
+            : mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
           replaceRef(node, target, ctx);
         } else {

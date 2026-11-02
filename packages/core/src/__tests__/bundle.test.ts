@@ -345,6 +345,36 @@ describe('bundle', () => {
     `);
   });
 
+  it('should inline external mediaTypes refs before OAS 3.2', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/external-media-types-oas31.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                    examples:
+                      Test:
+                        value:
+                          id: 1
+      components: {}
+    `);
+  });
+
   it('should accept parameter in: querystring (OAS 3.2)', async () => {
     const document = outdent`
       openapi: 3.2.0
