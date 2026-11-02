@@ -28,7 +28,7 @@ It does not change code: the only file it may create is a changeset.
 Use the current branch when it is not `main` and has no PR yet (`gh pr list --head <branch> --state all` is empty).
 The user created it for this change, so its commits belong to the PR: read them with `git log origin/main..HEAD` and `git diff origin/main...HEAD`.
 
-Otherwise, create the PR branch from `origin/main`, unless the user asks for another base:
+Otherwise, create the PR branch from `origin/main`:
 
 ```bash
 git switch -c <type>/<short-topic> origin/main
@@ -112,10 +112,11 @@ Keep `## Screenshots (optional)` even when it stays empty.
 - **What/Why/How?**
   The reader knows Redocly CLI but has not read this code.
   Describe the changes, and keep the section short:
-  - One sentence on what changes, at the level of commands, options, rules, and output, and why users need it.
+  - One sentence on why: the current limit or bug that users have.
+  - One sentence on what changes, at the level of commands, options, rules, and output.
   - A bullet only for a major decision that the code does not show.
     A decision that follows the existing approach is obvious, so it stays out.
-  - Leave out the background, such as how other commands already work, and what the reader can read in the code, such as the details of the implementation.
+  - Leave out the background that does not explain the problem, and what the reader can read in the code, such as the details of the implementation.
 - **Reference**: public links only, such as a GitHub issue or a related PR.
   Leave it empty when there is none.
   Each related link goes in this section.
@@ -132,7 +133,7 @@ Keep `## Screenshots (optional)` even when it stays empty.
 
 The repository is public, so keep internal context out of the title, body, and commits.
 When the user tells you such context, use it to understand the why.
-Then write the why as what users get.
+Then write the why as the public problem that users have.
 
 Write plain English: short sentences, active voice, no filler, and no marketing tone.
 Say each thing once in the whole body.
@@ -146,7 +147,8 @@ gh pr create --draft --base main --title "<title>" --body-file "$TMPDIR/pr-body.
 
 - Use the main commit sentence as the title.
 - Add `--label "no changeset needed"` when step 4 found that no changeset is needed.
-- When the author is a member of the Redocly organization (`gh api orgs/Redocly/members/$(gh api user --jq .login)` returns `204`), add `--assignee @me --project "Dark Side Board"`.
+- When the author is a member of the Redocly organization (`gh api orgs/Redocly/members/$(gh api user --jq .login)` returns `204`), add `--assignee @me`.
+- Add `--project "Dark Side Board"` when the user asks for it.
 - Always open a draft PR.
 - Delete the temporary body file.
 - Give the user the PR URL and the list of committed files.
