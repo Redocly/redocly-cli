@@ -230,7 +230,7 @@ describe('generate-client --report', () => {
     expect(readReport().apis[0].findings.at(-1)).toMatchInlineSnapshot(`
       {
         "kind": "generation-failed",
-        "message": "Generator "invalid-finding-generator" failed: invalid finding "oops": a finding is { kind, message, operations }, with a known kind and the operation IDs as strings.",
+        "message": "Generator "invalid-finding-generator" failed: invalid finding 'oops': a finding is { kind, message, operations }, with a known kind and the operation IDs as strings.",
         "operations": [],
       }
     `);

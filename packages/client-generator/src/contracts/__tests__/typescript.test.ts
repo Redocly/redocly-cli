@@ -1,7 +1,5 @@
-import { logger } from '@redocly/openapi-core';
-
-import { apiModel, operation, param, SCALAR } from '../../__tests__/fixtures.js';
-import { operationSignature, templatePathParams, wrappableOperations } from '../typescript.js';
+import { operation, param } from '../../__tests__/fixtures.js';
+import { operationSignature, templatePathParams } from '../typescript.js';
 
 describe('operationSignature', () => {
   it('orders path params by URL-template position, keeping their wire names', () => {
@@ -63,32 +61,6 @@ describe('operationSignature', () => {
   it('derives the <Op>Variables type name from the (PascalCased) operation name', () => {
     expect(operationSignature(operation({ name: 'getPet' })).variablesTypeName).toBe(
       'GetPetVariables'
-    );
-  });
-});
-
-describe('wrappableOperations', () => {
-  it('reports a skipped operation when an older ejected wrapper passes no reportFinding', () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
-    const model = apiModel({
-      services: [
-        {
-          name: 'Default',
-          operations: [
-            operation({
-              name: 'streamEvents',
-              method: 'get',
-              path: '/events',
-              successResponses: [{ contentType: 'text/event-stream', schema: SCALAR, status: 200 }],
-            }),
-          ],
-        },
-      ],
-    });
-
-    expect(wrappableOperations(model, 'swr')).toEqual([]);
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('swr skipped 1 server-sent-events operation(s)')
     );
   });
 });

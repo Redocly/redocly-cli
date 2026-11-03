@@ -1,5 +1,6 @@
 import { isPlainObject, logger } from '@redocly/openapi-core';
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { inspect } from 'node:util';
 
 import type {
   GenerateClientFinding,
@@ -29,22 +30,14 @@ const FINDING_KINDS: Record<GenerateClientFindingKind, true> = {
  */
 export function reportFinding(finding: GenerateClientFinding): void {
   if (!isFinding(finding)) {
-    let shownFinding: string;
-    try {
-      shownFinding = JSON.stringify(finding);
-    } catch {
-      // A circular object or a BigInt cannot be written as JSON.
-      shownFinding = String(finding);
-    }
     throw new Error(
-      `invalid finding ${shownFinding}: a finding is { kind, message, operations }, with a known kind and the operation IDs as strings.`
+      `invalid finding ${inspect(finding)}: a finding is { kind, message, operations }, with a known kind and the operation IDs as strings.`
     );
   }
   logger.warn(`generate-client: ${finding.message}\n`);
   // A custom generator can pass more keys, and the report holds only the documented ones.
-  // A copy of `operations`, so a later change to the array of the generator does not change the report.
   const { kind, message, operations } = finding;
-  findingListener.getStore()?.({ kind, message, operations: [...operations] });
+  findingListener.getStore()?.({ kind, message, operations });
 }
 
 function isFinding(value: unknown): value is GenerateClientFinding {
