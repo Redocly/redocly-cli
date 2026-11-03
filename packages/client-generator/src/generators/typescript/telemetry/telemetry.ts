@@ -75,7 +75,7 @@ function telemetryDisabled(): boolean {
   const runtimeProcess = nodeProcess();
   if (runtimeProcess === undefined) return true;
   // A browser bundle can add a `process` shim, so also check for `document`.
-  if (typeof document !== 'undefined') return true;
+  if ('document' in globalThis) return true;
   const env = runtimeProcess.env ?? {};
   if (env.REDOCLY_SDK_TELEMETRY === 'off') return true;
   if (env.DO_NOT_TRACK === '1') return true;
