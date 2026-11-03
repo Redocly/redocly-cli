@@ -7,7 +7,12 @@ import type { Oas3Schema } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
-type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
+type ExtendedJSONSchema = JSONSchema & {
+  nodeTypeName?: string;
+  documentationLink?: string;
+  deprecated?: boolean;
+  replacement?: string;
+};
 
 let ajv: Ajv2020 | undefined;
 
@@ -189,8 +194,11 @@ function extractNodeToContext(
   const nodeTypeName = schema.nodeTypeName ?? propertyName;
 
   const properties: Record<string, PropType | ResolveTypeFn> = {};
+  const deprecatedProperties: NodeType['deprecatedProperties'] = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
     properties[name] = transformJSONSchemaToNodeType(nodeTypeName + '.' + name, property, ctx);
+    const { deprecated, replacement } = property as ExtendedJSONSchema;
+    if (deprecated) deprecatedProperties[name] = { replacement };
   }
 
   let additionalProperties;
@@ -242,6 +250,7 @@ function extractNodeToContext(
     required,
     description: schema.description,
     documentationLink: schema.documentationLink,
+    ...(Object.keys(deprecatedProperties).length > 0 && { deprecatedProperties }),
   };
   return nodeTypeName;
 }
