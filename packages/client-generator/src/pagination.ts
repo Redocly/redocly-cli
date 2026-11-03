@@ -6,9 +6,10 @@
 // operation; an explicit rule (per-op config or extension) that doesn't fit — and a
 // malformed rule from ANY source — is a generate-time error. No heuristics, ever.
 
-import { isPlainObject, logger } from '@redocly/openapi-core';
+import { isPlainObject } from '@redocly/openapi-core';
 
 import { schemaAtPointer as resolveSchemaPointer } from './authoring/schema.js';
+import { reportFinding } from './findings.js';
 import {
   allOperations,
   type ApiModel,
@@ -230,9 +231,11 @@ function applyRule(
       op.successResponseHeaders?.some((header) => header.name === 'link') === true;
     if (!documentsLink && !explicit) return {};
     if (!documentsLink) {
-      logger.warn(
-        `generate-client: ${label.toLowerCase()} follows the Link header, but the success response does not document one.\n`
-      );
+      reportFinding({
+        kind: 'undocumented-header',
+        message: `${label.toLowerCase()} follows the Link header, but the success response does not document one.`,
+        operations: [op.specName ?? op.name],
+      });
     }
   }
   const itemsTarget = resolveSchemaPointer(page.schema, valid.items, model);

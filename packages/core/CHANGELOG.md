@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.73.0
+
+### Minor Changes
+
+- Added the `no-server-variables-empty-enum` rule to the `spec` ruleset for OpenAPI 3.1 and 3.2 descriptions, where the specification requires a non-empty `enum` that holds the `default` value.
+
 ## 2.72.1
 
 ### Patch Changes

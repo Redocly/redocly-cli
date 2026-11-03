@@ -45,6 +45,8 @@ export type {
 export type { PaginationConfig, PaginationRule, PaginationStyle } from './pagination.js';
 export type {
   GenerateClientConfig,
+  GenerateClientFinding,
+  GenerateClientFindingKind,
   GenerateClientOptions,
   GenerateClientResult,
   LoadResult,
