@@ -41,6 +41,8 @@ export type CommandArgs<T extends CommandArgv> = {
   version: string;
   collectSpecData?: CollectSpecData;
   collectResults?: CollectResults;
+  /** The config problems that the wrapper printed before the handler, all below the error level. */
+  configProblems?: NormalizedProblem[];
 };
 
 export function commandWrapper<T extends CommandArgv>(
@@ -114,10 +116,18 @@ export function commandWrapper<T extends CommandArgv>(
       if (argv.config && !doesYamlFileExist(argv.config)) {
         throw new HandledError('Please provide a valid path to the configuration file.');
       }
-      config = await loadAndCheckConfig(argv as Exact<T>, version, options.plugins);
+      const checked = await loadAndCheckConfig(argv as Exact<T>, version, options.plugins);
+      config = checked.config;
       code = 1;
       if (typeof commandHandler === 'function') {
-        await commandHandler({ argv, config, version, collectSpecData, collectResults });
+        await commandHandler({
+          argv,
+          config,
+          version,
+          collectSpecData,
+          collectResults,
+          configProblems: checked.problems,
+        });
       }
       code = 0;
     } catch (err) {

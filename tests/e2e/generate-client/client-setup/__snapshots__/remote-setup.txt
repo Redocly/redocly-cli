@@ -1,6 +1,7 @@
 
 
-❌  `client.setup` must be a local file path — remote setup modules are not supported. Got: https://evil.example/mod.ts
+❌  `client.setup` must be a local file path — remote setup modules are not supported.
+   Got: https://evil.example/mod.ts
 
 
 

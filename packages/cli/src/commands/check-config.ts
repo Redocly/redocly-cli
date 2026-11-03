@@ -9,6 +9,7 @@ import {
   pluralize,
   type Config,
   type Exact,
+  type NormalizedProblem,
   type Plugin,
 } from '@redocly/openapi-core';
 import { green } from 'colorette';
@@ -18,11 +19,12 @@ import type { CommandArgv, Totals } from '../types.js';
 import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 
 // Every command loads and checks the config before its handler, so the `check-config` command itself has no handler.
+// `problems` are the config problems that the check printed; none of them is an error, because an error aborts the run.
 export async function loadAndCheckConfig(
   argv: Exact<CommandArgv>,
   version: string,
   plugins?: Plugin[]
-): Promise<Config> {
+): Promise<{ config: Config; problems: NormalizedProblem[] }> {
   let config: Config;
   try {
     config = await loadConfig({
@@ -35,7 +37,7 @@ export async function loadAndCheckConfig(
   }
 
   if (argv['lint-config'] === 'off' || config.document === undefined) {
-    return config;
+    return { config, problems: [] };
   }
 
   const problems = await lintConfig({
@@ -59,7 +61,7 @@ export async function loadAndCheckConfig(
     throw new AbortFlowError('Config check failed.');
   }
 
-  return config;
+  return { config, problems };
 }
 
 export function printConfigLintTotals(totals: Totals, command?: string | number): void {

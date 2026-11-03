@@ -34,7 +34,7 @@ describe('commandWrapper', () => {
 
   it('should send telemetry if there is "telemetry: on" in the config', async () => {
     vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-      return { resolvedConfig: { telemetry: 'on' } } as Config;
+      return { config: { resolvedConfig: { telemetry: 'on' } } as Config, problems: [] };
     });
     vi.mocked(detectSpec).mockImplementationOnce(() => {
       return 'oas3_1';
@@ -70,7 +70,7 @@ describe('commandWrapper', () => {
 
   it('should not collect spec version if the file is not parsed to json (except for graphql)', async () => {
     vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-      return { resolvedConfig: { telemetry: 'on' } } as Config;
+      return { config: { resolvedConfig: { telemetry: 'on' } } as Config, problems: [] };
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
       collectSpecData?.(makeDocumentFromString('some text file', 'some.txt'));
@@ -103,7 +103,7 @@ describe('commandWrapper', () => {
 
   it('should collect the spec version of a GraphQL document', async () => {
     vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-      return { resolvedConfig: { telemetry: 'on' } } as Config;
+      return { config: { resolvedConfig: { telemetry: 'on' } } as Config, problems: [] };
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
       collectSpecData?.(makeDocumentFromString('type Query { cafe: String }', 'some.graphql'));
@@ -123,7 +123,7 @@ describe('commandWrapper', () => {
 
   it('should not keep the spec keyword of a previously linted document', async () => {
     vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-      return { resolvedConfig: { telemetry: 'on' } } as Config;
+      return { config: { resolvedConfig: { telemetry: 'on' } } as Config, problems: [] };
     });
     vi.mocked(detectSpec).mockImplementationOnce(() => {
       return 'oas3_1';
@@ -147,7 +147,7 @@ describe('commandWrapper', () => {
 
   it('should collect the names of lint rules that reported problems', async () => {
     vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-      return { resolvedConfig: { telemetry: 'on' } } as Config;
+      return { config: { resolvedConfig: { telemetry: 'on' } } as Config, problems: [] };
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectResults: collectLintResults }) => {
       collectLintResults?.([
@@ -171,7 +171,7 @@ describe('commandWrapper', () => {
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
     vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-      return { resolvedConfig: { telemetry: 'off' } } as Config;
+      return { config: { resolvedConfig: { telemetry: 'off' } } as Config, problems: [] };
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 

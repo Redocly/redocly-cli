@@ -50,7 +50,7 @@ describe('bundle', () => {
       return process.on(_e, cb);
     });
 
-    vi.mocked(loadAndCheckConfig).mockResolvedValue(configFixture);
+    vi.mocked(loadAndCheckConfig).mockResolvedValue({ config: configFixture, problems: [] });
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );

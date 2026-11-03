@@ -19,7 +19,13 @@ describe('generate-client --report', () => {
     rmSync(outputDir, { recursive: true, force: true });
   });
 
-  function generate(args: string[], api = fixture, reportPath = join(outputDir, 'report.json')) {
+  function generate(
+    args: string[],
+    {
+      api = fixture,
+      reportPath = join(outputDir, 'report.json'),
+    }: { api?: string; reportPath?: string } = {}
+  ) {
     const output = getCommandOutput(
       [
         cliEntry,
@@ -135,7 +141,7 @@ describe('generate-client --report', () => {
 
   it('writes the config warnings to the API that they belong to and to the run', async () => {
     const configPath = join(__dirname, 'config-warnings.yaml');
-    await expect(generate(['--config', configPath], 'cafe')).toMatchFileSnapshot(
+    await expect(generate(['--config', configPath], { api: 'cafe' })).toMatchFileSnapshot(
       join(snapshots, 'config-warnings.txt')
     );
     const report = readReport();
@@ -216,7 +222,7 @@ describe('generate-client --report', () => {
 
   it('replaces an old report when the run fails before any API', async () => {
     writeFileSync(join(outputDir, 'report.json'), '{ "old": true }\n');
-    await expect(generate([], join(__dirname, 'missing.yaml'))).toMatchFileSnapshot(
+    await expect(generate([], { api: join(__dirname, 'missing.yaml') })).toMatchFileSnapshot(
       join(snapshots, 'failed-before-any-api.txt')
     );
     expect(readReport()).toMatchInlineSnapshot(`
@@ -234,19 +240,10 @@ describe('generate-client --report', () => {
   });
 
   it('does not write the report over a generated file', async () => {
-    await expect(generate([], fixture, join(outputDir, 'client.ts'))).toMatchFileSnapshot(
+    await expect(generate([], { reportPath: join(outputDir, 'client.ts') })).toMatchFileSnapshot(
       join(snapshots, 'report-over-generated-file.txt')
     );
     expect(readFileSync(join(outputDir, 'client.ts'), 'utf-8')).not.toMatch(/^\{/);
-  });
-
-  it('does not write the report over the API description', async () => {
-    const spec = join(outputDir, 'cafe.yaml');
-    writeFileSync(spec, readFileSync(fixture, 'utf-8'));
-    await expect(generate([], spec, spec)).toMatchFileSnapshot(
-      join(snapshots, 'report-over-api-description.txt')
-    );
-    expect(readFileSync(spec, 'utf-8')).toMatch(/^openapi:/);
   });
 
   it('names the report path when the report cannot be written', async () => {

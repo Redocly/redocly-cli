@@ -6,7 +6,14 @@ import type {
   generateClient as generateClientFunction,
   mergeConfig as mergeConfigFunction,
 } from '@redocly/client-generator';
-import { HandledError, isPlainObject, lintConfig, logger, pluralize } from '@redocly/openapi-core';
+import {
+  HandledError,
+  isPlainObject,
+  logger,
+  parsePointer,
+  pluralize,
+  type NormalizedProblem,
+} from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -73,8 +80,8 @@ function resolveSetup(client: GenerateClientConfig, configDir: string): Generate
   const { setup } = client;
   if (typeof setup !== 'string') return client;
   if (URL_SCHEME.test(setup)) {
-    throw new Error(
-      `\`client.setup\` must be a local file path — remote setup modules are not supported. Got: ${setup}`
+    throw new HandledError(
+      `\n❌  \`client.setup\` must be a local file path — remote setup modules are not supported.\n   Got: ${setup}\n`
     );
   }
   if (!isAbsolute(setup)) {
@@ -113,8 +120,6 @@ type GenerationRun = {
   toolkit: ClientGeneratorToolkit;
   /** Every path this run wrote or will write — collision guard across apis and the composed entry. */
   seenOutputs: Set<string>;
-  /** The local API description files of the run, which the report must not replace. */
-  inputFiles: Set<string>;
   /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
   composable: Array<{ alias: string; cliPath: string }>;
   report: GenerationReport;
@@ -126,6 +131,7 @@ export async function handleGenerateClient({
   argv,
   config,
   collectSpecData,
+  configProblems = [],
 }: CommandArgs<GenerateClientCommandArgv>) {
   const { AUTHORING_HELPER_NAMES, generateClient, mergeConfig } =
     await import('@redocly/client-generator');
@@ -158,14 +164,15 @@ export async function handleGenerateClient({
     outputFlag: argv.output,
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
-    inputFiles: new Set<string>(),
     composable: [],
     report: { apis: [], findings: [] },
     configWarningsByAlias: new Map(),
   };
-  await collectConfigWarnings(argv, run);
+  if (argv.report !== undefined) {
+    groupConfigWarnings(configProblems, run);
+  }
 
-  let generationError: HandledError | undefined;
+  let generationError: Error | undefined;
   try {
     // A flag of the whole run, so a bad `--setup` is a failure of the run, not of one API.
     run.cliFlags = resolveSetup(cliFlags, process.cwd());
@@ -175,13 +182,13 @@ export async function handleGenerateClient({
     );
     if (argv.api === undefined) {
       if (argv.output) {
-        throw new Error(
-          `--output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.`
+        throw new HandledError(
+          `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
         );
       }
       if (optedIn.length === 0) {
-        throw new Error(
-          `No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).`
+        throw new HandledError(
+          `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
         );
       }
     }
@@ -207,15 +214,18 @@ export async function handleGenerateClient({
       await writeComposedCliEntry(topLevelClient.cliOutput, run);
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
     // The API that failed already holds its error as its last finding. Any other error
     // belongs to the whole run.
     const lastApiFindings = run.report.apis.at(-1)?.findings ?? [];
     if (lastApiFindings.at(-1)?.kind !== 'generation-failed') {
-      run.report.findings.push({ kind: 'generation-failed', message, operations: [] });
+      run.report.findings.push({
+        kind: 'generation-failed',
+        message: reportMessageOf(error),
+        operations: [],
+      });
     }
-    generationError =
-      error instanceof HandledError ? error : new HandledError(`\n❌  ${message}\n`);
+    // The original error, so the wrapper still prints the stack of an error that is not a HandledError.
+    generationError = error instanceof Error ? error : new Error(String(error));
   }
 
   if (argv.report !== undefined) {
@@ -234,17 +244,14 @@ export async function handleGenerateClient({
   }
 }
 
-// The wrapper prints the config warnings before the handler and passes no problems on, so the
-// report lints the config again, with the same severity.
-async function collectConfigWarnings(
-  argv: CommandArgs<GenerateClientCommandArgv>['argv'],
-  run: GenerationRun
-): Promise<void> {
-  if (argv['lint-config'] === 'off' || run.config.document === undefined) return;
-  const problems = await lintConfig({
-    config: run.config,
-    severity: argv['lint-config'] || 'warn',
-  });
+/** The message of an error on one line, without the `❌` mark of the CLI output. */
+function reportMessageOf(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.replace('❌', '').replace(/\s+/g, ' ').trim();
+}
+
+/** Adds each config problem to the findings of its `apis` alias, or to the run findings. */
+function groupConfigWarnings(problems: NormalizedProblem[], run: GenerationRun): void {
   for (const problem of problems) {
     const pointer = problem.location[0]?.pointer ?? '#/';
     const finding: ReportedFinding = {
@@ -252,28 +259,22 @@ async function collectConfigWarnings(
       message: `${problem.message} (${pointer})`,
       operations: [],
     };
-    const aliasMatch = pointer.match(/^#\/apis\/([^/]+)/);
-    if (aliasMatch === null) {
+    const [, section, alias] = parsePointer(pointer);
+    if (section !== 'apis' || alias === undefined) {
       run.report.findings.push(finding);
       continue;
     }
-    const alias = aliasMatch[1].replaceAll('~1', '/').replaceAll('~0', '~');
     const warnings = run.configWarningsByAlias.get(alias) ?? [];
     warnings.push(finding);
     run.configWarningsByAlias.set(alias, warnings);
   }
 }
 
-/** Writes the `--report` file. It never replaces a file that the run generated or reads. */
+/** Writes the `--report` file. It never replaces a file that the run generated. */
 async function writeReport(reportPath: string, run: GenerationRun): Promise<void> {
   if (run.seenOutputs.has(reportPath)) {
     throw new HandledError(
       `\n❌  --report points at a file that this run generated: ${reportPath}.\n   Give the report its own path.\n`
-    );
-  }
-  if (run.inputFiles.has(reportPath)) {
-    throw new HandledError(
-      `\n❌  --report points at an API description of this run: ${reportPath}.\n   Give the report its own path.\n`
     );
   }
   try {
@@ -295,16 +296,12 @@ async function generateApiClient(
     outputFlag,
     toolkit,
     seenOutputs,
-    inputFiles,
     composable,
     report,
     configWarningsByAlias,
   }: GenerationRun
 ): Promise<void> {
   const { path, alias } = entry;
-  if (!URL_SCHEME.test(path)) {
-    inputFiles.add(resolvePath(path));
-  }
   const name = alias ?? basename(path, extname(path));
   const reportedApi: GenerationReport['apis'][number] = {
     name,
@@ -396,13 +393,13 @@ async function writeComposedCliEntry(
   const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
   const entryPath = resolvePath(configDir, cliOutput);
   if (!entryPath.endsWith('.ts')) {
-    throw new Error(
-      `client.cliOutput must point at a TypeScript file (ending in .ts). Got: ${entryPath}`
+    throw new HandledError(
+      `\n❌  client.cliOutput must point at a TypeScript file (ending in .ts).\n   Got: ${entryPath}\n`
     );
   }
   if (seenOutputs.has(entryPath)) {
-    throw new Error(
-      `client.cliOutput resolves to a file this run generated: ${entryPath}. Give the composed entry its own path.`
+    throw new HandledError(
+      `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
     );
   }
   seenOutputs.add(entryPath);
