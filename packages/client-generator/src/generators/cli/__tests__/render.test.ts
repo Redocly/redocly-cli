@@ -1,6 +1,7 @@
 import { reportFinding } from '../../../findings.js';
 import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { resolveModelPagination } from '../../../pagination.js';
+import type { GenerateClientFinding } from '../../../types.js';
 import { commandData, renderCliModule, renderComposedCliEntry } from '../render.js';
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
@@ -278,10 +279,10 @@ describe('renderCliModule', () => {
   }
 
   it('reports the commands named after a tag, with how each resolves and its operation ID', () => {
-    const findings: Parameters<typeof reportFinding>[0][] = [];
+    const findings: GenerateClientFinding[] = [];
     const collecting = {
       ...options,
-      reportFinding: (finding: (typeof findings)[number]) => findings.push(finding),
+      reportFinding: (finding: GenerateClientFinding) => findings.push(finding),
     };
 
     renderCliModule(modelWithOperationNamedOrders(['Reports']), collecting);

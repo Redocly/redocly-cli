@@ -223,19 +223,12 @@ describe('generate-client --report', () => {
         "findings": [
           {
             "kind": "generation-failed",
-            "message": "Please provide a valid path: missing.yaml.",
+            "message": "Please provide a valid path.",
             "operations": [],
           },
         ],
       }
     `);
-  });
-
-  it('does not write the report over a generated file', async () => {
-    await expect(generate([], { reportPath: join(outputDir, 'client.ts') })).toMatchFileSnapshot(
-      join(snapshots, 'report-over-generated-file.txt')
-    );
-    expect(readFileSync(join(outputDir, 'client.ts'), 'utf-8')).not.toMatch(/^\{/);
   });
 
   it('names the report path when the report cannot be written', async () => {

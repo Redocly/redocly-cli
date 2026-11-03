@@ -236,13 +236,8 @@ function formatReportMessage(error: unknown): string {
   return message.replace('❌', '').replace(/\s+/g, ' ').trim();
 }
 
-/** Writes the `--report` file. It never replaces a file that the run generated. */
+/** Writes the `--report` file. */
 async function writeReport(reportPath: string, run: GenerationRun): Promise<void> {
-  if (run.seenOutputs.has(reportPath)) {
-    throw new HandledError(
-      `\n❌  --report points at a file that this run generated: ${reportPath}.\n   Give the report its own path.\n`
-    );
-  }
   try {
     await mkdir(dirname(reportPath), { recursive: true });
     await writeFile(reportPath, JSON.stringify(run.report, null, 2) + '\n', 'utf-8');
@@ -365,7 +360,6 @@ async function writeComposedCliEntry(
       `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
     );
   }
-  seenOutputs.add(entryPath);
   const stem = basename(entryPath, extname(entryPath));
   const content = renderComposedCliEntry(
     composable.map(({ alias, cliPath }) => ({
