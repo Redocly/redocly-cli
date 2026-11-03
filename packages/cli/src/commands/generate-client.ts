@@ -195,7 +195,6 @@ export async function handleGenerateClient({
   }
 }
 
-/** Writes the `--report` file. */
 async function writeReport(reportPath: string, report: GenerationReport): Promise<void> {
   try {
     await mkdir(dirname(reportPath), { recursive: true });
@@ -222,8 +221,6 @@ async function generateApiClient(
 ): Promise<void> {
   const { path, alias } = entry;
   const name = alias ?? basename(path, extname(path));
-  const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
-  report.apis.push(reportedApi);
   const aliasConfig = config.forAlias(alias);
   const { client, clientOutput } = aliasConfig.resolvedConfig;
   const clientBlock = resolveSetup(
@@ -259,6 +256,7 @@ async function generateApiClient(
 
   try {
     logger.info(gray(`\n  Generating client for ${name}... \n`));
+    const findings: GenerateClientFinding[] = [];
     const result = await toolkit.generateClient({
       ...clientConfig,
       api: path,
@@ -266,9 +264,9 @@ async function generateApiClient(
       config: aliasConfig,
       configDir,
       collectSpecData,
-      onFinding: (finding) => reportedApi.findings.push(finding),
+      onFinding: (finding) => findings.push(finding),
     });
-    reportedApi.operations = result.operations;
+    report.apis.push({ name, operations: result.operations, findings });
     // The emitted module decides what composes: `cli` reaches a run as a built-in
     // name, a path to an ejected copy, or another generator's prerequisite.
     const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
