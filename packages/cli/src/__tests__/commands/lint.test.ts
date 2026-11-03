@@ -69,7 +69,7 @@ describe('handleLint', () => {
 
     vi.spyOn(performance, 'now').mockImplementation(() => 42);
 
-    vi.mocked(loadAndCheckConfig).mockResolvedValue({ config: configFixture, problems: [] });
+    vi.mocked(loadAndCheckConfig).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
@@ -266,7 +266,7 @@ describe('handleLint', () => {
 
     it('should call exit with 0 if no errors', async () => {
       vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-        return { config: configFixture, problems: [] };
+        return configFixture;
       });
       await commandWrapper(handleLint)(argvMock);
       await exitCb?.();
@@ -282,7 +282,7 @@ describe('handleLint', () => {
 
     it('should suggest recommended fallback if there is no config', async () => {
       vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-        return { config: await loadConfig({}), problems: [] };
+        return await loadConfig({});
       });
       await commandWrapper(handleLint)(argvMock);
       expect(logger.info).toHaveBeenCalledWith(
@@ -294,7 +294,7 @@ describe('handleLint', () => {
 
     it('should not suggest recommended fallback if --extends is provided', async () => {
       vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
-        return { config: await loadConfig({}), problems: [] };
+        return await loadConfig({});
       });
       await commandWrapper(handleLint)({ ...argvMock, extends: ['some/path'] });
       expect(logger.info).not.toHaveBeenCalledWith(

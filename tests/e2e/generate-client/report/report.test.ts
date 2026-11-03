@@ -139,35 +139,6 @@ describe('generate-client --report', () => {
     `);
   });
 
-  it('writes the config warnings to the API that they belong to, and the other config warnings to the run', async () => {
-    const configPath = join(__dirname, 'config-warnings.yaml');
-    await expect(generate(['--config', configPath], { api: 'cafe' })).toMatchFileSnapshot(
-      join(snapshots, 'config-warnings.txt')
-    );
-    const report = readReport();
-    expect(report.apis[0].findings[0]).toMatchInlineSnapshot(`
-      {
-        "kind": "config-warning",
-        "message": "\`telemetry\` can be one of the following only: "on", "off". (#/apis/cafe/client/telemetry)",
-        "operations": [],
-      }
-    `);
-    expect(report.findings).toMatchInlineSnapshot(`
-      [
-        {
-          "kind": "config-warning",
-          "message": "\`outputMode\` can be one of the following only: "single", "split". (#/client/outputMode)",
-          "operations": [],
-        },
-        {
-          "kind": "config-warning",
-          "message": "\`telemetry\` can be one of the following only: "on", "off". (#/apis/other/client/telemetry)",
-          "operations": [],
-        },
-      ]
-    `);
-  });
-
   it('writes the error of a failed generation', async () => {
     await expect(generate(['--generator', 'sdk'])).toMatchFileSnapshot(
       join(snapshots, 'generation-failed.txt')

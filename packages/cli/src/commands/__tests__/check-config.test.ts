@@ -28,7 +28,7 @@ describe('loadAndCheckConfig', () => {
       '2.0.0'
     );
 
-    expect(result).toEqual({ config, problems: [] });
+    expect(result).toBe(config);
     expect(formatProblems).toHaveBeenCalledWith([], {
       maxProblems: undefined,
       totals: { errors: 0, warnings: 0, ignored: 0 },

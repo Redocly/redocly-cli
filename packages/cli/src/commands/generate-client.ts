@@ -6,14 +6,7 @@ import type {
   generateClient as generateClientFunction,
   mergeConfig as mergeConfigFunction,
 } from '@redocly/client-generator';
-import {
-  HandledError,
-  isPlainObject,
-  logger,
-  parsePointer,
-  pluralize,
-  type NormalizedProblem,
-} from '@redocly/openapi-core';
+import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -57,12 +50,12 @@ export type GenerateClientCommandArgv = {
 };
 
 type ReportedFinding = Omit<GenerateClientFinding, 'kind'> & {
-  kind: GenerateClientFindingKind | 'generation-failed' | 'config-warning';
+  kind: GenerateClientFindingKind | 'generation-failed';
 };
 
 /**
  * The `--report` file: what each API of the run produced, for tools that act on a generation.
- * `findings` holds the failures and the config warnings that belong to no single API.
+ * `findings` holds the failures that belong to no single API.
  */
 type GenerationReport = {
   apis: Array<{
@@ -123,18 +116,12 @@ type GenerationRun = {
   /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
   composable: Array<{ alias: string; cliPath: string }>;
   report: GenerationReport;
-  /**
-   * The config warnings under `apis.<alias>`, by alias. The entry of a generated API takes the warnings
-   * of its alias, and the warnings that no API takes go to the run findings.
-   */
-  configWarningsByAlias: Map<string, ReportedFinding[]>;
 };
 
 export async function handleGenerateClient({
   argv,
   config,
   collectSpecData,
-  configProblems = [],
 }: CommandArgs<GenerateClientCommandArgv>) {
   const { AUTHORING_HELPER_NAMES, generateClient, mergeConfig } =
     await import('@redocly/client-generator');
@@ -169,11 +156,7 @@ export async function handleGenerateClient({
     seenOutputs: new Set<string>(),
     composable: [],
     report: { apis: [], findings: [] },
-    configWarningsByAlias: new Map(),
   };
-  if (argv.report !== undefined) {
-    groupConfigWarnings(configProblems, run);
-  }
 
   let generationError: Error | undefined;
   try {
@@ -232,9 +215,6 @@ export async function handleGenerateClient({
   }
 
   if (argv.report !== undefined) {
-    for (const warnings of run.configWarningsByAlias.values()) {
-      run.report.findings.push(...warnings);
-    }
     try {
       await writeReport(resolvePath(argv.report), run);
     } catch (reportError) {
@@ -254,26 +234,6 @@ export async function handleGenerateClient({
 function formatReportMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   return message.replace('❌', '').replace(/\s+/g, ' ').trim();
-}
-
-/** Adds each config problem to the findings of its `apis` alias, or to the run findings. */
-function groupConfigWarnings(problems: NormalizedProblem[], run: GenerationRun): void {
-  for (const problem of problems) {
-    const pointer = problem.location[0]?.pointer ?? '#/';
-    const finding: ReportedFinding = {
-      kind: 'config-warning',
-      message: `${problem.message} (${pointer})`,
-      operations: [],
-    };
-    const [, section, alias] = parsePointer(pointer);
-    if (section !== 'apis' || alias === undefined) {
-      run.report.findings.push(finding);
-      continue;
-    }
-    const warnings = run.configWarningsByAlias.get(alias) ?? [];
-    warnings.push(finding);
-    run.configWarningsByAlias.set(alias, warnings);
-  }
 }
 
 /** Writes the `--report` file. It never replaces a file that the run generated. */
@@ -304,16 +264,11 @@ async function generateApiClient(
     seenOutputs,
     composable,
     report,
-    configWarningsByAlias,
   }: GenerationRun
 ): Promise<void> {
   const { path, alias } = entry;
   const name = alias ?? basename(path, extname(path));
   const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
-  if (alias !== undefined) {
-    reportedApi.findings.push(...(configWarningsByAlias.get(alias) ?? []));
-    configWarningsByAlias.delete(alias);
-  }
   report.apis.push(reportedApi);
   try {
     const aliasConfig = config.forAlias(alias);

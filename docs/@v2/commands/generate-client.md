@@ -280,7 +280,7 @@ Use `--report` to write a JSON file that a script or a build tool can read:
 redocly generate-client openapi.yaml -o src/api/client.ts --report generate-client-report.json
 ```
 
-The file has one entry for each API that the command started to generate, and the failures and config warnings that belong to no single API:
+The file has one entry for each API that the command started to generate, and the failures that belong to no single API:
 
 ```json
 {
@@ -308,8 +308,6 @@ The file has one entry for each API that the command started to generate, and th
   `name` is the name in the generated TypeScript code.
   The other generators derive their names from it.
 - `findings` lists the warnings of the run.
-  A config warning under the `apis` entry of an API that the command generates is in the findings of that API.
-  Any other config warning is in the top-level `findings`, for example a warning under an `apis` entry that the command does not generate.
   A tool can act on `kind`, which does not change between releases.
   The `message` text can change.
   The `operations` of a finding are the IDs of the operations it is about.
@@ -328,7 +326,6 @@ The file has one entry for each API that the command started to generate, and th
 | `undocumented-header` | Pagination reads a response header that the description does not document. |
 | `browser-unsupported` | A feature of the client does not work in a browser.                        |
 | `command-shadowed`    | A command of the generated CLI has the name of a command group.            |
-| `config-warning`      | The configuration file has a warning, for example an unknown option value. |
 | `generation-failed`   | The generation of the API, or the run, failed.                             |
 
 ## Resources
