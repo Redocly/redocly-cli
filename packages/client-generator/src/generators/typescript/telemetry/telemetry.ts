@@ -200,7 +200,9 @@ function emptyCounts(): OperationCounts {
 
 function record(operation: OperationCounts, call: SettledCall): void {
   operation.calls += 1;
-  operation.attempts += call.attempts;
+  // A call aborted before its first attempt settles with 0 attempts. It counts as 1, as in the
+  // other languages, so the attempts of an event are never fewer than its calls.
+  operation.attempts += Math.max(call.attempts, 1);
   operation.durationSumMs += call.durationMs;
   operation.status[statusClass(call)] += 1;
   for (const { bucket, belowMs } of LATENCY_BUCKETS) {

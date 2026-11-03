@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-use BaseConsumer\{ApiError, Client, Config, Pet};
+use BaseConsumer\{ApiError, Client, Config, Pet, TimeoutError};
 
 // Like a Composer classmap autoloader: the file is loaded only when its classes are
 // not already there, which they are when php/client.test.ts preloads it through OPcache.
@@ -43,6 +43,26 @@ try {
 } catch (ApiError $error) {
     if ($error->status !== 404) {
         fwrite(STDERR, "expected 404, got {$error->status}\n");
+        exit(1);
+    }
+}
+
+// A refused connection is a transport error, not a timeout, and it is retried (port 1 has no listener).
+$settled = [];
+$refused = new Client(new Config(
+    serverUrl: 'http://127.0.0.1:1',
+    retry: ['attempts' => 2, 'delay' => 0.01],
+    onSettled: [function (array $call) use (&$settled): void {
+        $settled[] = $call;
+    }],
+));
+try {
+    $refused->listPets();
+    fwrite(STDERR, "expected a transport error\n");
+    exit(1);
+} catch (\RuntimeException $error) {
+    if ($error instanceof TimeoutError || $settled[0]['timedOut'] || $settled[0]['attempts'] !== 2) {
+        fwrite(STDERR, "a refused connection should fail after 2 attempts, and not as a timeout\n");
         exit(1);
     }
 }

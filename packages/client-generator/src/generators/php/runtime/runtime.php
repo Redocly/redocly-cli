@@ -21,7 +21,7 @@ final class ApiError extends \RuntimeException
     }
 }
 
-/** Every attempt timed out or failed to connect. */
+/** The last attempt timed out. */
 final class TimeoutError extends \RuntimeException
 {
     public function __construct(
@@ -87,9 +87,17 @@ final class ServerSentEvent
  * `auth`: `['bearer' => string|callable, 'basic' => ['username' => ..., 'password' => ...], 'apiKey' => [scheme => string|callable]]`.
  * `retry`: `['attempts' => int, 'delay' => float, 'strategy' => 'exponential'|'fixed', 'retryOn' => callable]`.
  * `middleware`: callables `fn(array $request, callable $next): array` around each attempt.
+ * `onSettled`: callables `fn(array $call): void`, run once per call after the last attempt, with
+ * `['operationId' => string, 'status' => int (0 without a response), 'timedOut' => bool, 'attempts' => int, 'durationMs' => int]`.
  */
 final class Config
 {
+    /**
+     * Callables that run after `onSettled` on every client of the namespace. The usage telemetry
+     * module adds to it, so one registration counts the calls of every client.
+     */
+    public static array $registeredOnSettled = [];
+
     public function __construct(
         public string $serverUrl = '',
         public array $auth = [],
@@ -97,6 +105,7 @@ final class Config
         public array $retry = [],
         public array $middleware = [],
         public string $clientHeader = 'redocly-client-generator',
+        public array $onSettled = [],
     ) {
     }
 }
@@ -155,14 +164,11 @@ function buildUrl(string $serverUrl, string $path, array $pathParams): string
     return rtrim($serverUrl, '/') . $path;
 }
 
-/** The default retry predicate: 5xx, 429, and transport timeouts/connect failures. */
+/** The default retry predicate: 5xx, 429, and transport failures (timeouts and refused connections). */
 function defaultRetryOn(array $context): bool
 {
-    if (($context['timedOut'] ?? false) === true) {
-        return true;
-    }
     $status = $context['status'] ?? 0;
-    return $status >= 500 || $status === 429;
+    return $status === 0 || $status >= 500 || $status === 429;
 }
 
 /** Delay before the next attempt: `Retry-After` wins; otherwise jittered (fixed|exponential) backoff. */
@@ -235,14 +241,13 @@ function rawSend(Config $config, array $request): array
     $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
     $effectiveUrl = (string) curl_getinfo($handle, CURLINFO_EFFECTIVE_URL);
     if ($errno !== 0) {
-        $timedOut = $errno === CURLE_OPERATION_TIMEDOUT || $errno === CURLE_COULDNT_CONNECT;
         return [
             'status' => 0,
             'reason' => curl_strerror($errno) ?? 'transport error',
             'headers' => [],
             'body' => '',
             'url' => $effectiveUrl,
-            'timedOut' => $timedOut,
+            'timedOut' => $errno === CURLE_OPERATION_TIMEDOUT,
         ];
     }
     return [
@@ -283,6 +288,7 @@ function send(Config $config, array $request): array
     $attempts = is_resource($request['body'] ?? null) ? 1 : max(1, (int) ($config->retry['attempts'] ?? 3));
     $retryOn = $config->retry['retryOn'] ?? __NAMESPACE__ . '\\defaultRetryOn';
     $response = null;
+    $started = hrtime(true);
     for ($attempt = 1; $attempt <= $attempts; $attempt++) {
         $response = $handler($request);
         $context = [
@@ -297,8 +303,32 @@ function send(Config $config, array $request): array
         $seconds = retryDelay($attempt, $config->retry, $response['headers']['retry-after'] ?? null);
         usleep((int) round($seconds * 1_000_000));
     }
+    $call = [
+        'operationId' => $request['operationId'] ?? '',
+        'status' => $response['status'],
+        'timedOut' => $response['timedOut'],
+        'attempts' => $attempt,
+        'durationMs' => intdiv(hrtime(true) - $started, 1_000_000),
+    ];
+    $hookErrors = [];
+    foreach ([$config->onSettled, Config::$registeredOnSettled] as $hooks) {
+        foreach ($hooks as $onSettled) {
+            try {
+                $onSettled($call);
+            } catch (\Throwable $hookError) {
+                $hookErrors[] = $hookError;
+            }
+        }
+    }
+    // On a failed call, the call's own error wins over a hook error.
+    $failed = $response['timedOut'] || $response['status'] === 0;
+    if ($hookErrors !== [] && $failed) {
+        error_log('onSettled hook failed: ' . $hookErrors[0]->getMessage());
+    } elseif ($hookErrors !== []) {
+        throw $hookErrors[0];
+    }
     if ($response['timedOut']) {
-        throw new TimeoutError($response['url'], $config->timeout, $attempts);
+        throw new TimeoutError($response['url'], $config->timeout, $attempt);
     }
     if ($response['status'] === 0) {
         throw new \RuntimeException("Request to {$response['url']} failed: {$response['reason']}");
