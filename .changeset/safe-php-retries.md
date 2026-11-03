@@ -3,7 +3,7 @@
 '@redocly/cli': patch
 ---
 
-Fixed an issue where the generated PHP client retried requests that the Go, Python, and TypeScript clients do not retry.
-The default retry now applies only to safe methods or requests with an `Idempotency-Key`, and only after a transport error or a `408`, `429`, `500`, `502`, `503`, or `504`.
+Fixed an issue where the generated PHP client retried a `POST` or `PATCH` without an `Idempotency-Key`, and retried a `501` or a `505` to `599`.
+The default retry now follows the same rule as the other generated clients.
 
-**Note:** A `POST` or `PATCH` without an `Idempotency-Key` is not retried any more, and neither is a `501` or a `505` to `599`.
+**Note:** To retry a `POST` or `PATCH`, pass an `idempotencyKey` to the call, or pass a `retryOn` callable in `Config->retry`.
