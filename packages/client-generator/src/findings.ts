@@ -48,13 +48,9 @@ function isFinding(value: unknown): value is GenerateClientFinding {
   if (typeof kind !== 'string' || !Object.hasOwn(FINDING_KINDS, kind)) {
     return false;
   }
-  if (typeof message !== 'string' || !Array.isArray(operations)) {
-    return false;
-  }
-  for (const operation of operations) {
-    if (typeof operation !== 'string') {
-      return false;
-    }
-  }
-  return true;
+  return (
+    typeof message === 'string' &&
+    Array.isArray(operations) &&
+    operations.every((operation) => typeof operation === 'string')
+  );
 }

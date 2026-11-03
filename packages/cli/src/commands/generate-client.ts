@@ -1,7 +1,6 @@
 import type {
   GenerateClientConfig,
   GenerateClientFinding,
-  GenerateClientFindingKind,
   GenerateClientResult,
   generateClient as generateClientFunction,
   mergeConfig as mergeConfigFunction,
@@ -49,21 +48,13 @@ export type GenerateClientCommandArgv = {
   report?: string;
 };
 
-type ReportedFinding = Omit<GenerateClientFinding, 'kind'> & {
-  kind: GenerateClientFindingKind | 'generation-failed';
-};
-
-/**
- * The `--report` file: what each API of the run produced, for tools that act on a generation.
- * `findings` holds the failures that belong to no single API.
- */
+/** The `--report` file: what each API of a successful run produced, for tools that act on a generation. */
 type GenerationReport = {
   apis: Array<{
     name: string;
     operations: GenerateClientResult['operations'];
-    findings: ReportedFinding[];
+    findings: GenerateClientFinding[];
   }>;
-  findings: ReportedFinding[];
 };
 
 // Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
@@ -143,110 +134,65 @@ export async function handleGenerateClient({
     generators: argv.generator?.map((specifier) =>
       specifier.startsWith('.') ? resolvePath(specifier) : specifier
     ),
-    setup: argv.setup,
+    setup:
+      argv.setup === undefined
+        ? undefined
+        : resolveSetup({ setup: argv.setup }, process.cwd()).setup,
   };
 
-  const report: GenerationReport = { apis: [], findings: [] };
-  let generationError: Error | undefined;
-  try {
-    const run: GenerationRun = {
-      config,
-      collectSpecData,
-      configDir,
-      // A flag of the whole run, so a bad `--setup` is a failure of the run, not of one API.
-      cliFlags: resolveSetup(cliFlags, process.cwd()),
-      outputFlag: argv.output,
-      toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
-      seenOutputs: new Set<string>(),
-      composable: [],
-      report,
-    };
-    const apis = config.resolvedConfig.apis ?? {};
-    const optedIn = Object.keys(apis).filter(
-      (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
-    );
-    if (argv.api === undefined) {
-      if (argv.output) {
-        throw new HandledError(
-          `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
-        );
-      }
-      if (optedIn.length === 0) {
-        throw new HandledError(
-          `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
-        );
-      }
+  const apis = config.resolvedConfig.apis ?? {};
+  const optedIn = Object.keys(apis).filter(
+    (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
+  );
+  if (argv.api === undefined) {
+    if (argv.output) {
+      throw new HandledError(
+        `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
+      );
     }
-    const entrypoints = await getFallbackApisOrExit(
-      argv.api === undefined ? optedIn : [argv.api],
-      config
-    );
+    if (optedIn.length === 0) {
+      throw new HandledError(
+        `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
+      );
+    }
+  }
+  const entrypoints = await getFallbackApisOrExit(
+    argv.api === undefined ? optedIn : [argv.api],
+    config
+  );
 
-    for (const entry of entrypoints) {
-      try {
-        await generateApiClient(entry, run);
-      } catch (error) {
-        // A failed check of the `client` config happens before generateApiClient records a failure.
-        addGenerationFailure(report.apis.at(-1)?.findings ?? [], error);
-        throw error;
-      }
-    }
+  const run: GenerationRun = {
+    config,
+    collectSpecData,
+    configDir,
+    cliFlags,
+    outputFlag: argv.output,
+    toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
+    seenOutputs: new Set<string>(),
+    composable: [],
+    report: { apis: [] },
+  };
 
-    // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
-    // the run-everything form, where all the modules exist.
-    const topLevelClient = (
-      isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
-    ) as GenerateClientConfig;
-    if (
-      topLevelClient.cliOutput !== undefined &&
-      argv.api === undefined &&
-      run.composable.length > 0
-    ) {
-      await writeComposedCliEntry(topLevelClient.cliOutput, run);
-    }
-  } catch (error) {
-    // The API that failed already holds its error as its last finding. Any other error
-    // belongs to the whole run.
-    const lastApiFindings = report.apis.at(-1)?.findings ?? [];
-    if (lastApiFindings.at(-1)?.kind !== 'generation-failed') {
-      report.findings.push({
-        kind: 'generation-failed',
-        message: formatReportMessage(error),
-        operations: [],
-      });
-    }
-    // The original error, so the wrapper still prints the stack of an error that is not a HandledError.
-    generationError = error instanceof Error ? error : new Error(String(error));
+  for (const entry of entrypoints) {
+    await generateApiClient(entry, run);
+  }
+
+  // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
+  // the run-everything form, where all the modules exist.
+  const topLevelClient = (
+    isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
+  ) as GenerateClientConfig;
+  if (
+    topLevelClient.cliOutput !== undefined &&
+    argv.api === undefined &&
+    run.composable.length > 0
+  ) {
+    await writeComposedCliEntry(topLevelClient.cliOutput, run);
   }
 
   if (argv.report !== undefined) {
-    try {
-      await writeReport(resolvePath(argv.report), report);
-    } catch (reportError) {
-      if (generationError === undefined) {
-        throw reportError;
-      }
-      // The run exits with the generation error, so the report error is only printed.
-      logger.error(reportError instanceof Error ? reportError.message : String(reportError));
-    }
+    await writeReport(resolvePath(argv.report), run.report);
   }
-  if (generationError !== undefined) {
-    throw generationError;
-  }
-}
-
-/** Adds a `generation-failed` finding for the error, unless the last finding already is one. */
-function addGenerationFailure(findings: ReportedFinding[], error: unknown): void {
-  if (findings.at(-1)?.kind === 'generation-failed') {
-    return;
-  }
-  findings.push({ kind: 'generation-failed', message: formatReportMessage(error), operations: [] });
-}
-
-/** The message of an error on one line, without the `❌` mark of the CLI output. */
-function formatReportMessage(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
-  return message.replace('❌', '').replace(/\s+/g, ' ').trim();
 }
 
 /** Writes the `--report` file. */
@@ -346,7 +292,6 @@ async function generateApiClient(
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
-    addGenerationFailure(reportedApi.findings, error);
     throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
   }
 }

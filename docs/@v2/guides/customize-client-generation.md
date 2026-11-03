@@ -185,7 +185,7 @@ run({ model, output, reportFinding }) {
 ```
 
 The CLI displays the message as a warning and adds the finding to the [`--report`](../commands/generate-client.md#write-a-report) file.
-`kind` must be one of the kinds in the [table of kinds](../commands/generate-client.md#write-a-report), except `generation-failed`.
+`kind` must be one of the kinds in the [table of kinds](../commands/generate-client.md#write-a-report).
 Another kind, or a finding without `kind`, `message`, and `operations`, stops the generation.
 
 ### Language-neutral helpers

@@ -280,7 +280,7 @@ Use `--report` to write a JSON file that a script or a build tool can read:
 redocly generate-client openapi.yaml -o src/api/client.ts --report generate-client-report.json
 ```
 
-The file has one entry for each API that the command started to generate, and the failures that belong to no single API:
+The command writes the file when the run succeeds. It has one entry for each API:
 
 ```json
 {
@@ -296,8 +296,7 @@ The file has one entry for each API that the command started to generate, and th
         }
       ]
     }
-  ],
-  "findings": []
+  ]
 }
 ```
 
@@ -312,9 +311,8 @@ The file has one entry for each API that the command started to generate, and th
   The `message` text can change.
   The `operations` of a finding are the IDs of the operations it is about.
   The list is empty when the finding is about the whole API, a schema, or a security scheme.
-- When the run fails, the command still writes the report, unless the config file does not load or the config check finds an error.
-  If the generation of an API fails, the last finding of that API has the kind `generation-failed`.
-  Any other failure, for example a `client.cliOutput` file that the command cannot write, is a `generation-failed` finding in the top-level `findings`.
+- When the run fails, the command exits with a code other than 0 and does not write the report.
+  A file from an earlier run stays as it was, so check the exit code before you read the report.
 
 | Kind                  | Meaning                                                                    |
 | --------------------- | -------------------------------------------------------------------------- |
@@ -326,7 +324,6 @@ The file has one entry for each API that the command started to generate, and th
 | `undocumented-header` | Pagination reads a response header that the description does not document. |
 | `browser-unsupported` | A feature of the client does not work in a browser.                        |
 | `command-shadowed`    | A command of the generated CLI has the name of a command group.            |
-| `generation-failed`   | The generation of the API, or the run, failed.                             |
 
 ## Resources
 

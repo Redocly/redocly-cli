@@ -338,10 +338,10 @@ async function generate(options: GenerateClientOptions): Promise<GenerateClientR
     written.push({ path: file.path, bytes: Buffer.byteLength(file.content, 'utf-8') });
   }
 
-  const operations: GenerateClientResult['operations'] = [];
-  for (const operation of allOperations(model.services)) {
-    operations.push({ id: operation.specName ?? operation.name, name: operation.name });
-  }
+  const operations = allOperations(model.services).map((operation) => ({
+    id: operation.specName ?? operation.name,
+    name: operation.name,
+  }));
 
   return {
     outputPath,

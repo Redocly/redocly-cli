@@ -213,10 +213,9 @@ function warnShadowedCommands(
   if (shadowed.length === 0) return;
   // A command is named after its operation's generated name, which is unique in the model.
   const shadowedNames = new Set(shadowed.map((command) => command.name));
-  const operationIds: string[] = [];
-  for (const operation of allOperations(model.services)) {
-    if (shadowedNames.has(operation.name)) operationIds.push(operation.specName ?? operation.name);
-  }
+  const operationIds = allOperations(model.services)
+    .filter((operation) => shadowedNames.has(operation.name))
+    .map((operation) => operation.specName ?? operation.name);
   reportFinding({
     kind: 'command-shadowed',
     message: `cli reads a leading group name as the group, so ${shadowed.length} operation(s) named after a tag resolve unusually — rename the operation or the tag: ${shadowed
