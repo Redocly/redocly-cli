@@ -7,6 +7,7 @@ import type { Oas3Schema } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
+// TODO: reuse RedoclyConfigJSONSchema from redocly-config package
 type ExtendedJSONSchema = JSONSchema & {
   nodeTypeName?: string;
   documentationLink?: string;
