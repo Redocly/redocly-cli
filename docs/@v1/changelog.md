@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.23 (2026-11-02)
+
+### Patch Changes
+
+- Updated `undici` to `6.29.1`.
+- Updated @redocly/respect-core to v1.34.23.
+
 ## 1.34.22 (2026-10-22)
 
 ### Patch Changes

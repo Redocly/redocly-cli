@@ -205,6 +205,9 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.label.name == 'snapshot'
     name: Release Snapshot
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-snapshot
+      queue: max
     permissions:
       contents: write
       pull-requests: write

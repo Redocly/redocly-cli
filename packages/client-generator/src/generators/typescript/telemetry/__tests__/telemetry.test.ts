@@ -100,12 +100,32 @@ describe('telemetry', () => {
     await flush();
     expect(windows[0][0].data.usage).toMatchObject({
       calls: 3,
-      attempts: 3,
+      attempts: 4,
       status_network_error: 1,
       status_timeout: 1,
       status_aborted: 1,
       latency_lt_100ms: 2,
       latency_lt_10s: 1,
+    });
+  });
+
+  it('counts a call aborted before its first attempt as one attempt', async () => {
+    const { telemetry, flush } = await loadTelemetry();
+    const { windows, sink } = sinkSpy();
+    const middleware = telemetry({ ...identity, sink });
+    await settle(middleware, 'getOrder', {
+      attempts: 1,
+      durationMs: 20,
+      response: new Response(null, { status: 200 }),
+    });
+    const abort = new DOMException('The operation was aborted.', 'AbortError');
+    await settle(middleware, 'getOrder', { error: abort, attempts: 0, durationMs: 0 });
+    await flush();
+    expect(windows[0][0].data.usage).toMatchObject({
+      calls: 2,
+      attempts: 2,
+      status_2xx: 1,
+      status_aborted: 1,
     });
   });
 
