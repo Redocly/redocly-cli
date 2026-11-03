@@ -62,7 +62,7 @@ type ReportedFinding = Omit<GenerateClientFinding, 'kind'> & {
 
 /**
  * The `--report` file: what each API of the run produced, for tools that act on a generation.
- * `findings` holds the failures that belong to no single API.
+ * `findings` holds the failures and the config warnings that belong to no single API.
  */
 type GenerationReport = {
   apis: Array<{
@@ -377,10 +377,12 @@ async function generateApiClient(
     generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
     reportedApi.findings.push({
       kind: 'generation-failed',
-      message,
+      message: reportMessageOf(error),
       operations: [],
     });
-    throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
+    // A check in this block, such as the one in resolveSetup, throws a message that already has the ❌ mark.
+    const detail = message.replace('❌', '').trim();
+    throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${detail}\n`);
   }
 }
 

