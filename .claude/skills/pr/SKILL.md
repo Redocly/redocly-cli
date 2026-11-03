@@ -80,7 +80,8 @@ It is a file of the change: when the user staged the files, ask them to stage it
 - List only the packages whose behavior changed for users.
   If the code is in another package, such as `@redocly/openapi-core`, but it changes CLI behavior, list `@redocly/cli` too.
 - Write one sentence in the past tense from the user's point of view: "Added …", "Fixed … so that …".
-  If the change can break an existing flow, add a short **Note**.
+  Add a short **Note** only when the user has to change something to keep an existing flow working, and say what.
+  A Note that repeats the sentence, such as "lint now reports …" after "Added the … rule", is noise.
 - Changes to docs, tests, CI, or AI instructions need no changeset.
   The PR then gets the `no changeset needed` label (step 7).
 
