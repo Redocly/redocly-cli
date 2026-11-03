@@ -35,7 +35,7 @@ flowchart LR
    Facts every generator would otherwise re-derive are computed once here — for example `op.sse` (the streaming facts of a `text/event-stream` operation).
    `intermediate-representation/sanitize-identifiers.ts` renames spec names that collide with generated-module identifiers (the reserved set in `reserved-names.ts` spans every target language, so one schema keeps one name across SDKs).
 3. **`pipeline.ts`** — resolves pagination ONCE for the run (`pagination.ts`: per-operation config > `x-redoclyPagination` > convention, statically fit-verified, one aggregated error; [ADR-0018](./docs/adr/0018-auto-pagination.md)), parses the `--output` anchor, and calls `runGenerators`.
-   Each selected generator receives one `GeneratorInput`: the IR, the parsed `output` anchor, the `banner` lines, the emit options, and the resolved pagination map.
+   Each selected generator receives one `GeneratorInput`: the IR, the parsed `output` anchor, the `banner` lines, the emit options, the resolved pagination map, and `reportFinding`, which reports a warning to the console and to the `--report` file.
    Every emitted path is contained under the output directory — a generator (ours or a user's) cannot write outside it.
 4. **The generators** (`generators/<name>/`) render their files; `pipeline.ts` writes them to disk.
 

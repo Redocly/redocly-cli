@@ -16,6 +16,7 @@
 
 import {
   type ApiModel,
+  type GeneratorInput,
   type ModelPagination,
   type OperationModel,
   type PaginationSpec,
@@ -34,6 +35,7 @@ import {
 } from '@redocly/client-generator/printers/typescript';
 
 export type TanstackOptions = {
+  reportFinding: GeneratorInput['reportFinding'];
   /** Import specifier for the sdk entry the `client` instance and types live in. */
   sdkModule: string;
   /** TanStack adapter to import the option helpers from (`@tanstack/${framework}-query`). */
@@ -49,7 +51,7 @@ export type TanstackOptions = {
 
 /** Render the full TanStack Query module source. `''` when there are no wrappable operations. */
 export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): string {
-  const ops = wrappableOperations(model, 'tanstack-query');
+  const ops = wrappableOperations(model, 'tanstack-query', opts.reportFinding);
   if (ops.length === 0) return '';
   const pagination = opts.pagination ?? new Map();
   const source = [

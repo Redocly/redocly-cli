@@ -1332,6 +1332,12 @@ yargs(hideBin(process.argv))
             type: 'string',
             requiresArg: true,
           },
+          report: {
+            describe:
+              'Path of a JSON file to write with the warnings of the run and the operations of each API.',
+            type: 'string',
+            requiresArg: true,
+          },
         });
     },
     async (argv) => {
