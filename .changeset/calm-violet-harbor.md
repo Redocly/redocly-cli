@@ -3,5 +3,4 @@
 '@redocly/cli': minor
 ---
 
-Added a warning for the deprecated `reunite` option and `access.rbac.reunite` scope in `redocly.yaml`.
-Use `platform` instead.
+Added a warning for deprecated options in `redocly.yaml`, for example `reunite`, which `platform` replaces.

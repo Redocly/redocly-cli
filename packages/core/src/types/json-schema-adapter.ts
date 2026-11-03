@@ -250,7 +250,9 @@ function extractNodeToContext(
     required,
     description: schema.description,
     documentationLink: schema.documentationLink,
-    ...(Object.keys(deprecatedProperties).length > 0 && { deprecatedProperties }),
+    deprecatedProperties: Object.keys(deprecatedProperties).length
+      ? deprecatedProperties
+      : undefined,
   };
   return nodeTypeName;
 }

@@ -10,9 +10,7 @@ export const DeprecatedConfigProperties: ConfigRule = () => {
       for (const key of Object.keys(node)) {
         if (!Object.hasOwn(type.deprecatedProperties, key)) continue;
 
-        const replacement = type.deprecatedProperties[key].replacement
-          ?.replace(/^\//, '')
-          .replaceAll('/', '.');
+        const { replacement } = type.deprecatedProperties[key];
         report({
           message: replacement
             ? `Property \`${key}\` is deprecated. Use \`${replacement}\` instead.`

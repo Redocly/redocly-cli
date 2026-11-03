@@ -1,5 +1,6 @@
 ---
-'@redocly/openapi-core': patch
+'@redocly/openapi-core': minor
+'@redocly/cli': minor
 ---
 
-Updated @redocly/config to v0.70.0.
+Added support for the `platform` option and the `access.rbac.platform` scope in `redocly.yaml`.

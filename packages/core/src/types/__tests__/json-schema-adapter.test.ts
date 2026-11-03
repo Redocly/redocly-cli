@@ -27,6 +27,6 @@ describe('getNodeTypesFromJSONSchema', () => {
       oldFlag: { replacement: '/settings/flag' },
       oldLogin: { replacement: undefined },
     });
-    expect(ctx['root.newOption']).not.toHaveProperty('deprecatedProperties');
+    expect(ctx['root.newOption'].deprecatedProperties).toBeUndefined();
   });
 });
