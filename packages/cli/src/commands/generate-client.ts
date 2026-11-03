@@ -265,6 +265,8 @@ async function generateApiClient(
   const name = alias ?? basename(path, extname(path));
   const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
   report.apis.push(reportedApi);
+  // Only an error of the generation gets a telemetry category, not an error of the `client` config.
+  let isGenerating = false;
   try {
     const aliasConfig = config.forAlias(alias);
     const { client, clientOutput } = aliasConfig.resolvedConfig;
@@ -297,6 +299,7 @@ async function generateApiClient(
       );
     }
 
+    isGenerating = true;
     logger.info(gray(`\n  Generating client for ${name}... \n`));
     const result = await toolkit.generateClient({
       ...clientConfig,
@@ -330,7 +333,10 @@ async function generateApiClient(
     logger.info('\n' + blue(summary) + '\n');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
+    if (isGenerating) {
+      generateClientTelemetry.generate_client_error_category =
+        categorizeGenerateClientError(message);
+    }
     reportedApi.findings.push({
       kind: 'generation-failed',
       message: formatReportMessage(error),
