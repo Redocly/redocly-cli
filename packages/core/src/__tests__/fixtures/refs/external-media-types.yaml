@@ -6,4 +6,5 @@ paths:
         '200':
           description: OK
           content:
-            $ref: ./testMediaType.yaml
+            application/json:
+              $ref: ./testMediaType.yaml
