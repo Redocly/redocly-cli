@@ -1334,7 +1334,7 @@ yargs(hideBin(process.argv))
           },
           report: {
             describe:
-              'Also write a JSON file with the warnings of the run, each with a stable kind, and the operations of each API. Written when the run fails too, unless the config file does not load or the config check finds an error.',
+              'Path of a JSON file to write with the warnings of the run and the operations of each API.',
             type: 'string',
             requiresArg: true,
           },

@@ -146,22 +146,21 @@ export async function handleGenerateClient({
     setup: argv.setup,
   };
 
-  const run: GenerationRun = {
-    config,
-    collectSpecData,
-    configDir,
-    cliFlags,
-    outputFlag: argv.output,
-    toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
-    seenOutputs: new Set<string>(),
-    composable: [],
-    report: { apis: [], findings: [] },
-  };
-
+  const report: GenerationReport = { apis: [], findings: [] };
   let generationError: Error | undefined;
   try {
-    // A flag of the whole run, so a bad `--setup` is a failure of the run, not of one API.
-    run.cliFlags = resolveSetup(cliFlags, process.cwd());
+    const run: GenerationRun = {
+      config,
+      collectSpecData,
+      configDir,
+      // A flag of the whole run, so a bad `--setup` is a failure of the run, not of one API.
+      cliFlags: resolveSetup(cliFlags, process.cwd()),
+      outputFlag: argv.output,
+      toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
+      seenOutputs: new Set<string>(),
+      composable: [],
+      report,
+    };
     const apis = config.resolvedConfig.apis ?? {};
     const optedIn = Object.keys(apis).filter(
       (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
@@ -202,9 +201,9 @@ export async function handleGenerateClient({
   } catch (error) {
     // The API that failed already holds its error as its last finding. Any other error
     // belongs to the whole run.
-    const lastApiFindings = run.report.apis.at(-1)?.findings ?? [];
+    const lastApiFindings = report.apis.at(-1)?.findings ?? [];
     if (lastApiFindings.at(-1)?.kind !== 'generation-failed') {
-      run.report.findings.push({
+      report.findings.push({
         kind: 'generation-failed',
         message: formatReportMessage(error),
         operations: [],
@@ -216,7 +215,7 @@ export async function handleGenerateClient({
 
   if (argv.report !== undefined) {
     try {
-      await writeReport(resolvePath(argv.report), run);
+      await writeReport(resolvePath(argv.report), report);
     } catch (reportError) {
       if (generationError === undefined) {
         throw reportError;
@@ -237,10 +236,10 @@ function formatReportMessage(error: unknown): string {
 }
 
 /** Writes the `--report` file. */
-async function writeReport(reportPath: string, run: GenerationRun): Promise<void> {
+async function writeReport(reportPath: string, report: GenerationReport): Promise<void> {
   try {
     await mkdir(dirname(reportPath), { recursive: true });
-    await writeFile(reportPath, JSON.stringify(run.report, null, 2) + '\n', 'utf-8');
+    await writeFile(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new HandledError(`\n❌  Could not write the report to ${reportPath}.\n   ${message}\n`);
