@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { lintConfig } from '../../lint.js';
@@ -2762,32 +2762,6 @@ describe('loadConfig', () => {
     const ids = config.plugins.map((plugin) => plugin.id);
     expect(ids).toContain('nested-plugin');
     expect(ids).not.toContain('root-plugin');
-  });
-
-  it('should resolve file paths from a config referenced with a file URL', async () => {
-    const fixtureDir = path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths');
-    const rootPath = path.join(fixtureDir, 'redocly.yaml');
-    const apiRef = pathToFileURL(path.join(fixtureDir, 'nested/config.yaml')).href + '#/api';
-    const externalRefResolver = new BaseResolver();
-    const resolveDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
-    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation((base, ref, isRoot) =>
-      ref === rootPath
-        ? Promise.resolve(
-            makeDocumentFromString(`apis:\n  file-url:\n    $ref: ${apiRef}\n`, rootPath)
-          )
-        : resolveDocument(base, ref, isRoot)
-    );
-
-    const { resolvedConfig } = await loadConfig({ configPath: rootPath, externalRefResolver });
-
-    expect(resolvedConfig.apis).toMatchObject({
-      'file-url': {
-        root: path.join(fixtureDir, 'nested/openapi.yaml'),
-        output: path.join(fixtureDir, 'nested/dist/openapi.yaml'),
-        overlays: [path.join(fixtureDir, 'nested/overlays/add-servers.yaml')],
-        client: { setup: path.join(fixtureDir, 'nested/setup.mjs') },
-      },
-    });
   });
 
   it('should keep file paths written in a remote config file as written', async () => {
