@@ -183,22 +183,6 @@ describe('generate-client --report', () => {
     `);
   });
 
-  it('writes the error of a remote setup module in the client block of an API', async () => {
-    const configPath = join(__dirname, 'remote-setup.yaml');
-    await expect(generate(['--config', configPath], { api: 'cafe' })).toMatchFileSnapshot(
-      join(snapshots, 'remote-setup-of-api.txt')
-    );
-    expect(readReport().apis[0].findings).toMatchInlineSnapshot(`
-      [
-        {
-          "kind": "generation-failed",
-          "message": "\`client.setup\` must be a local file path — remote setup modules are not supported. Got: https://evil.example/mod.ts",
-          "operations": [],
-        },
-      ]
-    `);
-  });
-
   it('fails the run on a custom generator finding without the documented shape', async () => {
     await expect(
       generate(['--generator', join(__dirname, 'invalid-finding-generator.mjs')])

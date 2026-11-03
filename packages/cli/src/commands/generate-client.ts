@@ -183,7 +183,13 @@ export async function handleGenerateClient({
     );
 
     for (const entry of entrypoints) {
-      await generateApiClient(entry, run);
+      try {
+        await generateApiClient(entry, run);
+      } catch (error) {
+        // A failed check of the `client` config happens before generateApiClient records a failure.
+        addGenerationFailure(report.apis.at(-1)?.findings ?? [], error);
+        throw error;
+      }
     }
 
     // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
@@ -229,6 +235,14 @@ export async function handleGenerateClient({
   }
 }
 
+/** Adds a `generation-failed` finding for the error, unless the last finding already is one. */
+function addGenerationFailure(findings: ReportedFinding[], error: unknown): void {
+  if (findings.at(-1)?.kind === 'generation-failed') {
+    return;
+  }
+  findings.push({ kind: 'generation-failed', message: formatReportMessage(error), operations: [] });
+}
+
 /** The message of an error on one line, without the `❌` mark of the CLI output. */
 function formatReportMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
@@ -264,41 +278,40 @@ async function generateApiClient(
   const name = alias ?? basename(path, extname(path));
   const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
   report.apis.push(reportedApi);
-  // Only an error of the generation gets a telemetry category, not an error of the `client` config.
-  let isGenerating = false;
-  try {
-    const aliasConfig = config.forAlias(alias);
-    const { client, clientOutput } = aliasConfig.resolvedConfig;
-    const clientBlock = resolveSetup(
-      (isPlainObject(client) ? client : {}) as GenerateClientConfig,
-      configDir
+  const aliasConfig = config.forAlias(alias);
+  const { client, clientOutput } = aliasConfig.resolvedConfig;
+  const clientBlock = resolveSetup(
+    (isPlainObject(client) ? client : {}) as GenerateClientConfig,
+    configDir
+  );
+  const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
+  collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
+
+  const outputPath =
+    outputFlag !== undefined
+      ? resolvePath(outputFlag)
+      : clientOutput !== undefined
+        ? resolvePath(configDir, clientOutput)
+        : resolvePath(configDir, fileNameFor(name));
+
+  if (!outputPath.endsWith('.ts')) {
+    throw new HandledError(
+      `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
     );
-    const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
-    collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
+  }
+  if (seenOutputs.has(outputPath)) {
+    throw new HandledError(
+      `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
+    );
+  }
+  seenOutputs.add(outputPath);
+  if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
+    throw new HandledError(
+      `\n❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}\n`
+    );
+  }
 
-    const outputPath =
-      outputFlag !== undefined
-        ? resolvePath(outputFlag)
-        : clientOutput !== undefined
-          ? resolvePath(configDir, clientOutput)
-          : resolvePath(configDir, fileNameFor(name));
-
-    if (!outputPath.endsWith('.ts')) {
-      throw new Error(`output must point at a TypeScript file (ending in .ts). Got: ${outputPath}`);
-    }
-    if (seenOutputs.has(outputPath)) {
-      throw new Error(
-        `Two APIs write to the same path: ${outputPath}. Give each api a distinct \`clientOutput\`.`
-      );
-    }
-    seenOutputs.add(outputPath);
-    if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
-      throw new Error(
-        `serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml. Got: ${clientConfig.serverUrl}`
-      );
-    }
-
-    isGenerating = true;
+  try {
     logger.info(gray(`\n  Generating client for ${name}... \n`));
     const result = await toolkit.generateClient({
       ...clientConfig,
@@ -332,18 +345,9 @@ async function generateApiClient(
     logger.info('\n' + blue(summary) + '\n');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    if (isGenerating) {
-      generateClientTelemetry.generate_client_error_category =
-        categorizeGenerateClientError(message);
-    }
-    reportedApi.findings.push({
-      kind: 'generation-failed',
-      message: formatReportMessage(error),
-      operations: [],
-    });
-    // A check in this block, such as the one in resolveSetup, throws a message that already has the ❌ mark.
-    const detail = message.replace('❌', '').trim();
-    throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${detail}\n`);
+    generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
+    addGenerationFailure(reportedApi.findings, error);
+    throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
   }
 }
 

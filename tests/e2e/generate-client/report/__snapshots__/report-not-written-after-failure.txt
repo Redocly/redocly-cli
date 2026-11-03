@@ -3,8 +3,8 @@
 ❌  Could not write the report to <output>/report.json.
    EISDIR: illegal operation on a directory, open '<output>/report.json'
 
-❌  Failed to generate client for cafe.
-   serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the `client` block in redocly.yaml. Got: api.example.com
+❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the `client` block in redocly.yaml.
+   Got: api.example.com
 
 
 
