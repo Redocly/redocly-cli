@@ -139,7 +139,7 @@ describe('generate-client --report', () => {
     `);
   });
 
-  it('writes the config warnings to the API that they belong to and to the run', async () => {
+  it('writes the config warnings to the API that they belong to, and the other config warnings to the run', async () => {
     const configPath = join(__dirname, 'config-warnings.yaml');
     await expect(generate(['--config', configPath], { api: 'cafe' })).toMatchFileSnapshot(
       join(snapshots, 'config-warnings.txt')
@@ -157,6 +157,11 @@ describe('generate-client --report', () => {
         {
           "kind": "config-warning",
           "message": "\`outputMode\` can be one of the following only: "single", "split". (#/client/outputMode)",
+          "operations": [],
+        },
+        {
+          "kind": "config-warning",
+          "message": "\`telemetry\` can be one of the following only: "on", "off". (#/apis/other/client/telemetry)",
           "operations": [],
         },
       ]

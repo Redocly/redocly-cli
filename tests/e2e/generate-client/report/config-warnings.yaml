@@ -3,5 +3,9 @@ apis:
     root: ../../../../resources/cafe.yaml
     client:
       telemetry: true
+  other:
+    root: ../../../../resources/cafe.yaml
+    client:
+      telemetry: maybe
 client:
   outputMode: weird

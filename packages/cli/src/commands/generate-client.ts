@@ -123,7 +123,10 @@ type GenerationRun = {
   /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
   composable: Array<{ alias: string; cliPath: string }>;
   report: GenerationReport;
-  /** The config warnings under `apis.<alias>`, by alias, for the report entry of that API. */
+  /**
+   * The config warnings under `apis.<alias>`, by alias. The entry of a generated API takes the warnings
+   * of its alias, and the warnings that no API takes go to the run findings.
+   */
   configWarningsByAlias: Map<string, ReportedFinding[]>;
 };
 
@@ -220,7 +223,7 @@ export async function handleGenerateClient({
     if (lastApiFindings.at(-1)?.kind !== 'generation-failed') {
       run.report.findings.push({
         kind: 'generation-failed',
-        message: reportMessageOf(error),
+        message: formatReportMessage(error),
         operations: [],
       });
     }
@@ -229,6 +232,9 @@ export async function handleGenerateClient({
   }
 
   if (argv.report !== undefined) {
+    for (const warnings of run.configWarningsByAlias.values()) {
+      run.report.findings.push(...warnings);
+    }
     try {
       await writeReport(resolvePath(argv.report), run);
     } catch (reportError) {
@@ -245,7 +251,7 @@ export async function handleGenerateClient({
 }
 
 /** The message of an error on one line, without the `❌` mark of the CLI output. */
-function reportMessageOf(error: unknown): string {
+function formatReportMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   return message.replace('❌', '').replace(/\s+/g, ' ').trim();
 }
@@ -303,11 +309,11 @@ async function generateApiClient(
 ): Promise<void> {
   const { path, alias } = entry;
   const name = alias ?? basename(path, extname(path));
-  const reportedApi: GenerationReport['apis'][number] = {
-    name,
-    operations: [],
-    findings: alias === undefined ? [] : [...(configWarningsByAlias.get(alias) ?? [])],
-  };
+  const reportedApi: GenerationReport['apis'][number] = { name, operations: [], findings: [] };
+  if (alias !== undefined) {
+    reportedApi.findings.push(...(configWarningsByAlias.get(alias) ?? []));
+    configWarningsByAlias.delete(alias);
+  }
   report.apis.push(reportedApi);
   try {
     const aliasConfig = config.forAlias(alias);
@@ -377,7 +383,7 @@ async function generateApiClient(
     generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
     reportedApi.findings.push({
       kind: 'generation-failed',
-      message: reportMessageOf(error),
+      message: formatReportMessage(error),
       operations: [],
     });
     // A check in this block, such as the one in resolveSetup, throws a message that already has the ❌ mark.
