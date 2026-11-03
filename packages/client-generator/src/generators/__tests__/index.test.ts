@@ -116,13 +116,15 @@ describe('validateGenerators', () => {
       expect(warn).not.toHaveBeenCalled();
 
       warn.mockClear();
-      validateGenerators(['python'], { telemetry: 'on' });
+      validateGenerators(['zod'], { telemetry: 'on' });
       expect(warn.mock.calls.map(([message]) => message).join('')).toContain(
         'telemetry is ignored'
       );
-      warn.mockClear();
-      validateGenerators(['typescript'], { telemetry: 'on' });
-      expect(warn).not.toHaveBeenCalled();
+      for (const name of ['typescript', 'go', 'python', 'php'] as const) {
+        warn.mockClear();
+        validateGenerators([name], { telemetry: 'on' });
+        expect(warn, name).not.toHaveBeenCalled();
+      }
     } finally {
       warn.mockRestore();
     }

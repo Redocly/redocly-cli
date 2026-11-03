@@ -105,10 +105,12 @@ type GenerateClientResult = {
   outputPath: string; // the `output` anchor path (the entry file in multi-file modes)
   bytes: number; // total bytes written
   files: Array<{ path: string; bytes: number }>; // every file written to disk
+  operations: Array<{ id: string; name: string }>; // the operationId (or the generated name) and the generated name
 };
 ```
 
 `GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `options`, `setup`, `pagination`, `queryKeyPrefix`, `goPackage`, `cliOutput`, `codeSamples`, `docs`, `docsFrontmatter`, `telemetry` optional) plus an optional resolved Redocly `config` used to load the description.
+`onFinding`, when set, receives each warning of the run as `{ kind, message, operations }`, besides the printed text.
 
 ### `collectGeneratedFiles`
 

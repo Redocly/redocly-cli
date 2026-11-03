@@ -3,9 +3,8 @@
 // table and dynamic-imports only the generators actually selected; the sync
 // `/generate` registry in index.ts derives from it, so the metadata has one home.
 
-import { logger } from '@redocly/openapi-core';
-
 import { NotSupportedError } from '../errors.js';
+import { reportFinding } from '../findings.js';
 import type { EmitOptions, GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
 
 export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample' | 'docs'> & {
@@ -156,14 +155,21 @@ export function validateSelection(
   // typescript --generator go`, where `go` does apply it. Setting it with `go` unselected
   // does nothing at all, which is worth saying.
   if (emit.goPackage !== undefined && !selected.has('go')) {
-    logger.warn(
-      'generate-client: goPackage is ignored — it declares the Go package clause, and no selected generator uses it (add --generator go).\n'
-    );
+    reportFinding({
+      kind: 'option-ignored',
+      message:
+        'goPackage is ignored — it declares the Go package clause, and no selected generator uses it (add --generator go).',
+      operations: [],
+    });
   }
-  if (emit.telemetry === 'on' && !selected.has('typescript')) {
-    logger.warn(
-      'generate-client: telemetry is ignored — the typescript generator writes the telemetry module, and it is not selected (add --generator typescript).\n'
-    );
+  const writers = ['typescript', 'go', 'python', 'php'];
+  if (emit.telemetry === 'on' && !writers.some((name) => selected.has(name))) {
+    reportFinding({
+      kind: 'option-ignored',
+      message:
+        'telemetry is ignored — no selected generator writes a telemetry module (add --generator typescript, go, python, or php).',
+      operations: [],
+    });
   }
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
@@ -195,7 +201,11 @@ export function validateSelection(
     const chosen: Record<string, unknown> = { ...emit, outputMode };
     for (const [option, reason] of Object.entries(descriptor.notApplicable ?? {})) {
       if (chosen[option] !== undefined) {
-        logger.warn(`generate-client: the "${name}" generator ignores ${option} — ${reason}.\n`);
+        reportFinding({
+          kind: 'option-ignored',
+          message: `the "${name}" generator ignores ${option} — ${reason}.`,
+          operations: [],
+        });
       }
     }
   }

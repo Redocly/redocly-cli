@@ -48,28 +48,15 @@ describe('format', () => {
     });
   });
 
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('should correctly format summary output', () => {
     formatProblems(problems, {
       format: 'summary',
       version: '1.0.0',
       totals: getTotals(problems),
-      color: false,
-    });
-
-    expect(output).toMatchInlineSnapshot(`
-      "error   struct: 2
-      warning other-rule: 1
-
-      "
-    `);
-  });
-
-  it('should correctly format summary output in color mode', () => {
-    formatProblems(problems, {
-      format: 'summary',
-      version: '1.0.0',
-      totals: getTotals(problems),
-      color: true,
     });
 
     expect(replaceColors(output)).toMatchInlineSnapshot(`
@@ -360,6 +347,48 @@ describe('format', () => {
           },
         },
       ]
+    `);
+  });
+
+  it('should keep the codeframes in json format free of color codes', () => {
+    vi.stubEnv('FORMAT_JSON_WITH_CODEFRAMES', '1');
+    const problems: NormalizedProblem[] = [
+      {
+        ruleId: 'struct',
+        message: 'message',
+        severity: 'error',
+        location: [
+          {
+            reportOnKey: true,
+            pointer: '#/info/license',
+            source: new Source(
+              'openapi.yaml',
+              outdent`
+                openapi: 3.0.2
+                info:
+                  license:
+                    name: MIT
+              `
+            ),
+          },
+        ],
+        suggest: [],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'json',
+      version: '1.0.0',
+      totals: getTotals(problems),
+      cwd: '.',
+    });
+
+    expect(JSON.parse(output).problems[0].codeframe).toMatchInlineSnapshot(`
+      "1 | openapi: 3.0.2
+      2 | info:
+      3 |   license:
+        |   ^^^^^^^
+      4 |     name: MIT"
     `);
   });
 

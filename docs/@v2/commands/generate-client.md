@@ -82,6 +82,7 @@ redocly generate-client [--help]
 | `--setup`        | string   | The path to a publisher setup module that the command includes in the client. Use it to pre-configure defaults, for example the server URL, retries, headers, and middleware. A published SDK then contains these defaults. See [Publisher defaults](../guides/customize-client-generation.md#publisher-defaults).                                                                                                                                                 |
 | `--docs`         | boolean  | Also write the reference documentation for what this run generates: one Markdown page for each selected generator that documents itself (the CLI, and each SDK). Default value is `false`.                                                                                                                                                                                                                                                                         |
 | `--go-package`   | string   | The package clause in the output of the `go` generator. It must be a valid Go package name (lowercase letters, digits, and `_`; it must not start with a digit or be a keyword). Default value is `client`.                                                                                                                                                                                                                                                        |
+| `--report`       | string   | The path of a JSON file to write with the warnings of the run and the operations of each API. See [Write a report](#write-a-report).                                                                                                                                                                                                                                                                                                                               |
 | `--config`       | string   | Specify the path to the [configuration file](#generate-from-the-configuration-file).                                                                                                                                                                                                                                                                                                                                                                               |
 | `--help`         | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
@@ -164,13 +165,25 @@ client:
   telemetry: on
 ```
 
-The `typescript` generator then also writes `<output>.telemetry.ts` next to the client.
-The module counts the calls of your SDK per operation and sends the counts once a minute.
+The `typescript`, `go`, `python`, and `php` generators then also write a telemetry module next to the client:
+
+| Generator    | File                     |
+| ------------ | ------------------------ |
+| `typescript` | `<output>.telemetry.ts`  |
+| `go`         | `telemetry.go`           |
+| `python`     | `<module>_telemetry.py`  |
+| `php`        | `<output>.telemetry.php` |
+
+The module counts the calls of your SDK per operation in windows of 60 seconds, and sends the counts at the end of each window.
 Use it to learn which operations your SDK users call, how often, with which outcome, and how fast.
 Without `telemetry: on`, the generated code contains no telemetry, and the client file is the same in both cases.
 This option is available only in the configuration file and has no flag.
 
-Register the middleware once, where your SDK creates its client:
+Register the module once, where your SDK creates its client.
+The module counts each call once, after the last retry.
+
+{% tabs %}
+{% tab label="TypeScript" %}
 
 ```ts
 import { telemetry } from './client.telemetry.ts';
@@ -181,14 +194,66 @@ use(
 );
 ```
 
-The middleware counts each call once, after the last retry.
-It sends one event per operation and window (60 seconds by default), and the open window when Node.js emits `beforeExit`.
+The middleware sends the open window when Node.js emits `beforeExit`.
 Before `process.exit()` or on a signal, call `await flush()`.
+
+{% /tab %}
+{% tab label="Go" %}
+
+```go
+telemetry := client.NewUsageTelemetry(client.UsageTelemetryOptions{
+    SDKName:    "github.com/acme/billing-sdk",
+    SDKVersion: "3.2.0",
+    Client:     "invoice-worker/1.8.4",
+})
+defer telemetry.Flush(context.Background())
+api := client.New(client.Config{Middleware: []client.Middleware{telemetry.Middleware()}})
+```
+
+Go has no exit hook, so call `Flush(ctx)` before your program ends.
+
+To count the calls of every client of the package, for example in a published SDK, call `telemetry.Register()` in an `init` function instead of passing the middleware.
+Then call `client.FlushUsageTelemetry(ctx)` before your program ends.
+
+{% /tab %}
+{% tab label="Python" %}
+
+```python
+from billing_client import Client
+from billing_client_telemetry import telemetry
+
+api = Client(middleware=[telemetry(sdk_name="acme-billing", sdk_version="3.2.0", client="invoice-worker/1.8.4")])
+```
+
+The module sends the open window when the interpreter exits.
+Before `os._exit()` or on a signal, call `flush()`.
+A timeout of the caller, such as `asyncio.wait_for`, counts as `aborted`, because the module cannot tell it from a cancel.
+
+{% /tab %}
+{% tab label="PHP" %}
+
+```php
+require __DIR__ . '/client.telemetry.php';
+
+$telemetry = new UsageTelemetry(sdkName: 'acme/billing-sdk', sdkVersion: '3.2.0', client: 'invoice-worker/1.8.4');
+$api = new Client(new Config(onSettled: [$telemetry]));
+```
+
+PHP has no timers, so the first call after a window ends sends that window, in the same request.
+At shutdown, the module sends the open window, which can add up to 3 seconds to the request.
+Under PHP-FPM, each request that calls the SDK sends its own events at shutdown.
+
+To count the calls of every client of the namespace, for example in a published SDK, call `$telemetry->register()` instead of passing it in `onSettled`.
+Then `UsageTelemetry::flushRegistered()` sends the open windows, for example before `exit` in a long-running worker.
+
+{% /tab %}
+{% /tabs %}
+
 By default, the events go to the Redocly OpenTelemetry endpoint.
 Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
 Pass a `sink` function to receive the events yourself instead.
 
-If the connection fails or the endpoint answers `408`, `429`, or `5xx`, the middleware adds the counts to the next window.
+If the connection fails or the endpoint answers `408`, `429`, or `5xx`, the module adds the counts to the next window.
 After a timeout or any other failed send, it drops the counts.
 
 Each event contains only:
@@ -198,13 +263,67 @@ Each event contains only:
 - The calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`) and the calls per duration bucket.
   An outcome or a bucket with no calls is not sent.
 - The window start and length.
-- The SDK name and version, the generator version, the language, and the runtime name and version (Node.js, Bun, or Deno).
+- The SDK name and version, the generator version, the language, and the runtime name and version, for example Node.js or CPython.
 - The client name that you pass.
 
 The module never sends URLs, path or query parameters, headers, request or response bodies, or any other value from a request.
 
 To turn off sending at run time, set `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1`.
-In a browser, the middleware does nothing.
+Under PHP-FPM, the default `clear_env = yes` hides the host environment from PHP, so set the variable in the pool configuration, for example `env[REDOCLY_SDK_TELEMETRY] = off`.
+In a browser, the TypeScript module does nothing.
+
+### Write a report
+
+Use `--report` to write a JSON file that a script or a build tool can read:
+
+```bash
+redocly generate-client openapi.yaml -o src/api/client.ts --report generate-client-report.json
+```
+
+The command writes the file when the run succeeds. It has one entry for each API:
+
+```json
+{
+  "apis": [
+    {
+      "name": "cafe",
+      "operations": [{ "id": "listMenuItems", "name": "listMenuItems" }],
+      "findings": [
+        {
+          "kind": "name-changed",
+          "message": "schema \"Error\" is a name a generated client already declares, so it is emitted as \"Error_2\" — ...",
+          "operations": []
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `operations` lists every operation of the API.
+  `id` is the `operationId`, or the generated name when the operation has none.
+  It is the same ID that the usage telemetry sends.
+  Two operations with the same `operationId` have the same `id`.
+  `name` is the name in the generated TypeScript code.
+  The other generators derive their names from it.
+- `findings` lists the warnings of the run.
+  A tool can act on `kind`, which does not change between releases.
+  The `message` text can change.
+  The `operations` of a finding are the IDs of the operations it is about.
+  The list is empty when the finding is about the whole API, a schema, or a security scheme.
+- When the run fails, the command exits with a code other than 0 and does not write the report.
+  A file from an earlier run stays as it was, so check the exit code before you read the report.
+
+| Kind                  | Meaning                                                                    |
+| --------------------- | -------------------------------------------------------------------------- |
+| `operation-skipped`   | A generator writes no code for some operations.                            |
+| `name-changed`        | The generated code uses another name than the description.                 |
+| `option-ignored`      | An option has no effect with the selected generators.                      |
+| `generator-replaced`  | A custom generator replaces the built-in generator with the same name.     |
+| `description-ignored` | The generated code ignores a keyword of the description.                   |
+| `undocumented-header` | Pagination reads a response header that the description does not document. |
+| `browser-unsupported` | A feature of the client does not work in a browser.                        |
+| `command-shadowed`    | A command of the generated CLI has the name of a command group.            |
 
 ## Resources
 
