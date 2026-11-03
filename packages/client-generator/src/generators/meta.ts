@@ -162,14 +162,8 @@ export function validateSelection(
       operations: [],
     });
   }
-  let telemetryWriterSelected = false;
-  for (const name of ['typescript', 'go', 'python', 'php']) {
-    if (selected.has(name)) {
-      telemetryWriterSelected = true;
-      break;
-    }
-  }
-  if (emit.telemetry === 'on' && !telemetryWriterSelected) {
+  const writers = ['typescript', 'go', 'python', 'php'];
+  if (emit.telemetry === 'on' && !writers.some((name) => selected.has(name))) {
     reportFinding({
       kind: 'option-ignored',
       message:

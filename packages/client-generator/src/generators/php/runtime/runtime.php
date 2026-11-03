@@ -170,12 +170,9 @@ function buildUrl(string $serverUrl, string $path, array $pathParams): string
  */
 function defaultRetryOn(array $context): bool
 {
-    $safe = in_array(strtoupper($context['method'] ?? ''), ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'], true);
-    foreach (array_keys($context['headers'] ?? []) as $name) {
-        if (strtolower((string) $name) === 'idempotency-key') {
-            $safe = true;
-        }
-    }
+    $headerNames = array_map('strtolower', array_keys($context['headers'] ?? []));
+    $safe = in_array(strtoupper($context['method'] ?? ''), ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'], true)
+        || in_array('idempotency-key', $headerNames, true);
     if (!$safe) {
         return false;
     }
@@ -325,11 +322,13 @@ function send(Config $config, array $request): array
         'durationMs' => intdiv(hrtime(true) - $started, 1_000_000),
     ];
     $hookErrors = [];
-    foreach ([...$config->onSettled, ...Config::$registeredOnSettled] as $onSettled) {
-        try {
-            $onSettled($call);
-        } catch (\Throwable $hookError) {
-            $hookErrors[] = $hookError;
+    foreach ([$config->onSettled, Config::$registeredOnSettled] as $hooks) {
+        foreach ($hooks as $onSettled) {
+            try {
+                $onSettled($call);
+            } catch (\Throwable $hookError) {
+                $hookErrors[] = $hookError;
+            }
         }
     }
     // On a failed call, the call's own error wins over a hook error.

@@ -4,4 +4,5 @@
 ---
 
 Added usage telemetry and the `onSettled` hook to the generated Go, Python, and PHP clients.
-A schema named `UsageTelemetry`, `UsageTelemetryOptions`, `UsageTelemetryEvent`, `NewUsageTelemetry`, or `FlushUsageTelemetry` is now renamed in every generated client, for example to `UsageTelemetry_2`.
+Renamed a schema named `UsageTelemetry`, `UsageTelemetryOptions`, `UsageTelemetryEvent`, `NewUsageTelemetry`, or `FlushUsageTelemetry` in every generated client, for example to `UsageTelemetry_2`, so that it does not clash with the usage telemetry code.
+If your code uses one of these generated types, update its name.
