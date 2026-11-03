@@ -4,6 +4,7 @@ import { Ajv2020 } from '@redocly/ajv/dist/2020.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type { Oas3Schema } from '../typings/openapi.js';
+import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
@@ -251,9 +252,7 @@ function extractNodeToContext(
     required,
     description: schema.description,
     documentationLink: schema.documentationLink,
-    deprecatedProperties: Object.keys(deprecatedProperties).length
-      ? deprecatedProperties
-      : undefined,
+    deprecatedProperties: isNotEmptyObject(deprecatedProperties) ? deprecatedProperties : undefined,
   };
   return nodeTypeName;
 }
