@@ -216,7 +216,8 @@ The change applies to every component type: schemas, parameters, responses, requ
 It changes the `$ref` paths in the bundled output and anything generated from it, such as SDK types indexed by component names.
 
 Redocly CLI generates both the old and the new names.
-They depend on file names and on the `$ref` resolution order, so an unrelated edit can change them.
+Generated component names depend on file names and on the order in which `bundle` resolves references.
+Renaming a file or adding a `$ref` can change them.
 To keep a stable name, give the component a unique key in its source file, for example `./parameters.yaml#/orderId`.
 `bundle` uses that key as the component name in every version.
 For schemas, you can also derive the name from their `title` with the [`--component-names-strategy=title`](../commands/bundle.md#configure-the-component-names-strategy) option.
