@@ -79,7 +79,7 @@ describe('generateDigestAuthHeader', () => {
     );
   });
 
-  it('should use sha256 algorithm if algorithm is sha256', () => {
+  it('should use SHA-256 when algorithm is SHA-256', () => {
     const header = generateDigestAuthHeader({
       username: 'test',
       password: 'test',
@@ -90,10 +90,10 @@ describe('generateDigestAuthHeader', () => {
       cnonce: 'test',
       uri: 'test',
       method: 'test',
-      algorithm: 'sha256',
+      algorithm: 'SHA-256',
     });
     expect(header).toBe(
-      'Digest username="test", realm="test", nonce="test", uri="test", qop=test, nc=00000001, cnonce="test", response="5f19ec82bf818203db7c86fda2f3f739", algorithm=sha256, opaque="test"'
+      'Digest username="test", realm="test", nonce="test", uri="test", qop=test, nc=00000001, cnonce="test", response="c301530ad2fc5a090bae52255b1a5aef3cedd990b260ffc162d9f52e6dded801", algorithm=SHA-256, opaque="test"'
     );
   });
 
