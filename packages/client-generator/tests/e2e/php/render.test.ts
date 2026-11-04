@@ -57,6 +57,27 @@ describe('renderPhpModels output, run with php', () => {
   it('makes an OPTIONAL union nullable with |null, never a leading ?', () => {
     const out = renderPhpModels(
       model({
+        Customer: {
+          kind: 'object',
+          properties: [
+            {
+              name: 'instrument',
+              schema: { kind: 'union', members: [STRING, INT] },
+              required: false,
+            },
+          ],
+        },
+      })
+    );
+    expect(out).toContain('public string|int|null $instrument = null');
+    // `?string|int` is a parse error.
+    expect(out).not.toContain('?string|int');
+    expectModelsRun(out);
+  });
+
+  it('types an undiscriminated union of classes as the decoded array that fromArray passes on', () => {
+    const out = renderPhpModels(
+      model({
         Cash: { kind: 'object', properties: [] },
         Card: { kind: 'object', properties: [] },
         Customer: {
@@ -77,10 +98,8 @@ describe('renderPhpModels output, run with php', () => {
         },
       })
     );
-    expect(out).toContain('public Cash|Card|null $instrument = null');
-    // `?Cash|Card` is a parse error.
-    expect(out).not.toContain('?Cash|Card');
-    expectModelsRun(out);
+    expect(out).toContain('public ?array $instrument = null');
+    expectModelsRun(`${out}Customer::fromArray(['instrument' => ['kind' => 'cash']]);\n`);
   });
 
   it('renders classes — required first, optionals nullable with defaults, wire maps preserved', () => {
@@ -243,6 +262,7 @@ describe('renderPhpModels output, run with php', () => {
         },
       })
     );
+    expect(out).toContain('public Cat|Dog|array $pet');
     expect(out).toContain("pet: unmarshalPet($data['pet'])");
     expect(out).toContain('array_map(static fn ($item) => unmarshalPet($item)');
     // Serialization must accept both hydrated instances and raw arrays.
