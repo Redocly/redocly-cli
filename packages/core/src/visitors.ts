@@ -187,6 +187,8 @@ export type BaseVisitor = {
         leave?: VisitRefFunction;
       }
     | VisitRefFunction;
+
+  scalar?: VisitFunction<unknown>;
 };
 
 type Oas3FlatVisitor = {
@@ -446,7 +448,7 @@ export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<an
 export type ConfigVisitor = BaseVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, BaseVisitor>>;
 
-export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
+export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'scalar' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
   [V in keyof T]-?: {
@@ -522,6 +524,11 @@ export function normalizeVisitors<T extends BaseVisitor>(
   }
 
   normalizedVisitors.ref = {
+    enter: [],
+    leave: [],
+  };
+
+  normalizedVisitors.scalar = {
     enter: [],
     leave: [],
   };
@@ -621,11 +628,12 @@ export function normalizeVisitors<T extends BaseVisitor>(
     parentContext: VisitorLevelContext | null,
     depth = 0
   ) {
-    const visitorKeys = Object.keys(types) as Array<keyof T | 'any'>;
+    const visitorKeys = Object.keys(types) as Array<keyof T | 'any' | 'ref' | 'scalar'>;
 
     if (depth === 0) {
       visitorKeys.push('any');
       visitorKeys.push('ref');
+      visitorKeys.push('scalar');
     } else {
       if (visitor.any) {
         throw new Error('any() is allowed only on top level');

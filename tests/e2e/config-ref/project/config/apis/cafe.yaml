@@ -1,0 +1,62 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+  description: Order drinks from the Redocly Cafe.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://cafe.example.com
+tags:
+  - name: Menu
+    description: Drinks on the menu.
+  - name: Internal
+    description: Operations for the cafe staff.
+paths:
+  /menu:
+    get:
+      operationId: listMenuItems
+      summary: List menu items
+      description: Returns every drink on the menu.
+      tags: [Menu]
+      security: []
+      responses:
+        '200':
+          description: The menu.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+        '400':
+          description: Bad request.
+  /stats:
+    get:
+      operationId: getStats
+      summary: Get sales stats
+      description: Returns the sales of the day. Only the staff can call it.
+      tags: [Internal]
+      security: []
+      responses:
+        '200':
+          description: The stats.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sold:
+                    type: integer
+        '400':
+          description: Bad request.
+components:
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string

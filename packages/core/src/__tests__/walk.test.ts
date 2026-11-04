@@ -1534,6 +1534,83 @@ describe('walk order', () => {
       ]
     `);
   });
+  it('should give scalar visitors every value without a node type, where it is written', async () => {
+    const calls: string[] = [];
+    const schemas: Record<string, unknown> = {};
+
+    const testRuleSet: Oas3RuleSet = {
+      test: vi.fn(() => {
+        return {
+          scalar(value: unknown, { type, location }: any) {
+            calls.push(
+              `${location.source.absoluteRef}${location.pointer} ${JSON.stringify(value)}`
+            );
+            schemas[location.pointer] = type.scalar;
+          },
+        };
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: '1.0'
+          description:
+            $ref: '#/components/x-texts/intro'
+        paths:
+          /pet:
+            parameters:
+              - $ref: '#/components/parameters/shared'
+                description: written next to the $ref
+            get:
+              tags: [pets, store]
+        components:
+          parameters:
+            shared:
+              name: shared
+              in: query
+          x-texts:
+            intro: referenced text
+      `,
+      'root.yaml'
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        plugins: [
+          {
+            id: 'test',
+            rules: {
+              oas3: testRuleSet,
+            },
+          },
+        ],
+        rules: {
+          'test/test': 'error',
+        },
+      }),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      [
+        "root.yaml#/info/title "Test"",
+        "root.yaml#/info/version "1.0"",
+        "root.yaml#/components/x-texts/intro "referenced text"",
+        "root.yaml#/components/parameters/shared/name "shared"",
+        "root.yaml#/components/parameters/shared/in "query"",
+        "root.yaml#/paths/~1pet/parameters/0/description "written next to the $ref"",
+        "root.yaml#/paths/~1pet/get/tags/0 "pets"",
+        "root.yaml#/paths/~1pet/get/tags/1 "store"",
+        "root.yaml#/components/x-texts/intro "referenced text"",
+      ]
+    `);
+    expect(schemas['#/info/title']).toMatchObject({ type: 'string' });
+    expect(schemas['#/paths/~1pet/get/tags/1']).toMatchObject({ type: 'string' });
+  });
 });
 
 describe('context.report', () => {

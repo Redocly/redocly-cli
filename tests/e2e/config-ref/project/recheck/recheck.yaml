@@ -1,0 +1,4 @@
+markdoc:
+  schema: realm
+  extend:
+    tagsFile: ./tags.yaml

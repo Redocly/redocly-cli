@@ -34,6 +34,7 @@ Keys of the object are one of the following:
 - document-specific node types, such as the [OpenAPI node types](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
 - `any` - visitor is called on every node.
 - `ref` - visitor is called on $ref nodes.
+- `scalar` - visitor is called on values that have no node type (a string, a list of strings, a free-form object) where they are written; `ctx.type.scalar` is the schema of the value.
 
 To find the exact type of a place in your API description, either:
 
@@ -50,7 +51,7 @@ This works fine for most context-free rules. If you need contextual info you sho
 
 ## Nested visitors
 
-The visitor object (if it is not `any` or `ref`) can define nested visitors.
+The visitor object (if it is not `any`, `ref` or `scalar`) can define nested visitors.
 
 Here is a basic example of a nested visitor:
 
