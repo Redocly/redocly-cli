@@ -35,11 +35,11 @@ describe('phpType — unions', () => {
         },
         base
       )
-    ).toBe('Kind|array');
-    // A class member keeps its class name.
+    ).toBe('string|array');
+    // A class member is the decoded array.
     expect(
       phpType({ kind: 'union', members: [{ kind: 'ref', name: 'Order' }, STRING] }, base)
-    ).toBe('Order|string');
+    ).toBe('array|string');
   });
 
   it('expresses nullability as |null inside a union — PHP forbids mixing ? with |', () => {

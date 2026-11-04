@@ -59,15 +59,17 @@ export function phpType(
       if (kind === 'class' || kind === 'enum') return className(schema.name);
       const target = deref(schema, model);
       if (target === undefined) return 'mixed';
-      const type = phpType(target, model, dateType);
-      // A discriminated union hydrates through `unmarshalX`, which hands a value with an
-      // unknown discriminator back as the raw array.
-      // A nullable type drops its `?` first, because PHP forbids `?` inside a union.
-      const raw = discriminatorCases(target, model) !== undefined;
-      if (!raw || type === 'mixed' || type.split('|').includes('array')) return type;
-      const nullable = type.startsWith('?') || type.endsWith('|null');
-      const bare = type.startsWith('?') ? type.slice(1) : type.replace(/\|null$/, '');
-      return nullable ? phpNullable(`${bare}|array`) : `${bare}|array`;
+      if (target.kind !== 'union' || discriminatorCases(target, model) === undefined) {
+        return phpType(target, model, dateType);
+      }
+      // A discriminated union hydrates through `unmarshalX`, so its members keep their own
+      // types, and a value with an unknown discriminator stays the raw array.
+      const members: SchemaModel[] = [
+        ...target.members,
+        { kind: 'array', items: { kind: 'unknown' } },
+      ];
+      const type = phpUnionType(members, (member) => phpType(member, model, dateType));
+      return isNullable(target) ? phpNullable(type) : type;
     }
     case 'enum':
       // Anonymous (inline) enums keep the wire scalar; only NAMED enums get types.
@@ -82,7 +84,7 @@ export function phpType(
       // PHP has no Omit; the base class is the honest annotation.
       return className(schema.base);
     case 'union':
-      return phpUnionType(schema.members, model, dateType);
+      return phpUnionType(schema.members, (member) => decodedType(member, model));
     case 'null':
     case 'object':
     case 'intersection':
@@ -107,18 +109,35 @@ export function phpNullable(type: string): string {
 }
 
 /**
- * A union as a native PHP 8.1 union type (`int|string`, `PromotionType|array`). Rich list
+ * The PHP type of a schema's decoded JSON, before any hydration: a class is an `array`, an
+ * enum is its backing scalar, and a date is a `string`. Only a named discriminated union
+ * hydrates, so a value of any other union keeps this type.
+ */
+function decodedType(schema: SchemaModel, model: ApiModel): string {
+  if (isNullable(schema)) return phpNullable(decodedType(unwrapNullable(schema), model));
+  if (schema.kind === 'omit') return 'array';
+  if (schema.kind !== 'ref') return phpType(schema, model);
+  if (classify(schema.name, model) === 'class') return 'array';
+  const target = deref(schema, model);
+  return target === undefined ? 'mixed' : decodedType(target, model);
+}
+
+/**
+ * A union as a native PHP 8.1 union type (`int|string`, `string|array`). Rich list
  * filters are usually unions, and collapsing them to `mixed` throws away the typing that
  * makes the SDK worth generating. `mixed` cannot be a union member, so a member without a
  * PHP type of its own (inline object, intersection, unknown) forces the whole union to
  * `mixed`. Members that map to the same PHP type collapse to one.
  */
-export function phpUnionType(members: SchemaModel[], model: ApiModel, dateType: DateType): string {
+export function phpUnionType(
+  members: SchemaModel[],
+  memberType: (member: SchemaModel) => string
+): string {
   const rendered: string[] = [];
   for (const member of members) {
     // `null` is handled by the caller's nullability check, never as a member here.
     if (member.kind === 'null') continue;
-    const type = phpType(member, model, dateType);
+    const type = memberType(member);
     if (type === 'mixed') return 'mixed';
     // A nullable member inside a union contributes its bare type plus null.
     const bare = type.startsWith('?') ? type.slice(1) : type;
