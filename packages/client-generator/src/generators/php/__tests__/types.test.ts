@@ -62,6 +62,28 @@ describe('phpType — unions', () => {
     expect(phpType({ kind: 'ref', name: 'Pet' }, pets)).toBe('Cat|array|null');
   });
 
+  it('names each type once when a member of a discriminated union is itself a union', () => {
+    const events = model({
+      Click: { kind: 'object', properties: [] },
+      Other: { kind: 'union', members: [{ kind: 'ref', name: 'Click' }, STRING] },
+      Event: {
+        kind: 'union',
+        members: [
+          { kind: 'ref', name: 'Click' },
+          { kind: 'ref', name: 'Other' },
+        ],
+        discriminator: {
+          propertyName: 'kind',
+          mapping: [
+            { value: 'click', schemaName: 'Click' },
+            { value: 'other', schemaName: 'Other' },
+          ],
+        },
+      },
+    });
+    expect(phpType({ kind: 'ref', name: 'Event' }, events)).toBe('Click|array|string');
+  });
+
   it('falls back to mixed when a member has no PHP type — mixed cannot be a union member', () => {
     const withInlineObject: SchemaModel = {
       kind: 'union',

@@ -139,13 +139,17 @@ export function phpUnionType(
     if (member.kind === 'null') continue;
     const type = memberType(member);
     if (type === 'mixed') return 'mixed';
-    // A nullable member inside a union contributes its bare type plus null.
-    const bare = type.startsWith('?') ? type.slice(1) : type;
-    if (!rendered.includes(bare)) rendered.push(bare);
-    if (type.startsWith('?') && !rendered.includes('null')) rendered.push('null');
+    // A nullable member contributes its bare type plus null, and a union member each of its
+    // types, because PHP rejects a union that names a type twice.
+    const parts = type.startsWith('?') ? [type.slice(1), 'null'] : type.split('|');
+    for (const part of parts) {
+      if (!rendered.includes(part)) rendered.push(part);
+    }
   }
-  if (rendered.length === 0) return 'mixed';
-  return rendered.join('|');
+  const bare = rendered.filter((part) => part !== 'null');
+  if (bare.length === 0) return 'mixed';
+  // `null` goes last, so a caller's `phpNullable` sees it and does not add it twice.
+  return rendered.includes('null') ? phpNullable(bare.join('|')) : bare.join('|');
 }
 
 /**
