@@ -9,30 +9,31 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 
 ## Index
 
-| #                                                      | Decision                                                          | Status                  |
-| ------------------------------------------------------ | ----------------------------------------------------------------- | ----------------------- |
-| [0001](./0001-ast-codegen.md)                          | Generate TypeScript via the TS AST (`ts.factory`), not strings    | Superseded by 0021      |
-| [0002](./0002-typescript-peer-dep.md)                  | `typescript` as a peer dep; zero-runtime-dependency output        | Accepted                |
-| [0003](./0003-spec-agnostic-ir.md)                     | A spec-agnostic IR as the builder↔emitter contract                | Accepted                |
-| [0004](./0004-registry-seams.md)                       | First-party `getGenerator` / `getWriter` registry seams           | Accepted                |
-| [0005](./0005-error-mode-terminals.md)                 | Error handling as a generate-time mode (throw vs result)          | Amended by 0017         |
-| [0006](./0006-sse-namespace.md)                        | SSE as a derived response kind under an `sse.*` namespace         | Superseded by 0017      |
-| [0007](./0007-call-site-auth.md)                       | Auth resolved at the call site via async `__auth`                 | Superseded by 0017      |
-| [0008](./0008-redocly-yaml-config.md)                  | `generate-client` config via `redocly.yaml` `x-client-generator`  | Superseded by 0019      |
-| [0009](./0009-per-instance-auth.md)                    | Per-instance auth via `ClientConfig.auth`                         | Amended by 0017         |
-| [0010](./0010-mock-data-baked-vs-faker.md)             | Mock data: baked literals by default, faker opt-in                | Accepted                |
-| [0011](./0011-wrapper-generators.md)                   | Data-fetching wrapper generators (`swr`, `tanstack-query`)        | Accepted                |
-| [0012](./0012-plugin-api.md)                           | Experimental custom-generator (plugin) API                        | Accepted (experimental) |
-| [0013](./0013-experimental-status.md)                  | Experimental release status & stabilization criteria              | Accepted                |
-| [0014](./0014-request-response-customization.md)       | Request/response customization as a runtime contract              | Accepted                |
-| [0015](./0015-publisher-setup-bake-in.md)              | Publisher setup bake-in via `--setup`                             | Accepted                |
-| [0016](./0016-msw-generator-vs-mock-server.md)         | In-process MSW mocks coexist with the out-of-process mock server  | Accepted                |
-| [0017](./0017-runtime-module-and-descriptor-client.md) | Hand-written runtime module + descriptor-driven generated clients | Amended by 0022         |
-| [0018](./0018-auto-pagination.md)                      | Auto-pagination as declared, statically verified configuration    | Accepted                |
-| [0019](./0019-first-class-client-config.md)            | `generate-client` config via a first-class `client` block         | Accepted                |
-| [0020](./0020-self-contained-generator-folders.md)     | Self-contained generator folders, ejected as source               | Accepted                |
-| [0021](./0021-text-printers.md)                        | Text printers — one common printer plus one per language          | Accepted                |
-| [0022](./0022-runtime-inline-or-module.md)             | Runtime is inline or a sibling module; package mode removed       | Accepted                |
+| #                                                      | Decision                                                                 | Status                  |
+| ------------------------------------------------------ | ------------------------------------------------------------------------ | ----------------------- |
+| [0001](./0001-ast-codegen.md)                          | Generate TypeScript via the TS AST (`ts.factory`), not strings           | Superseded by 0021      |
+| [0002](./0002-typescript-peer-dep.md)                  | `typescript` as a peer dep; zero-runtime-dependency output               | Accepted                |
+| [0003](./0003-spec-agnostic-ir.md)                     | A spec-agnostic IR as the builder↔emitter contract                       | Accepted                |
+| [0004](./0004-registry-seams.md)                       | First-party `getGenerator` / `getWriter` registry seams                  | Accepted                |
+| [0005](./0005-error-mode-terminals.md)                 | Error handling as a generate-time mode (throw vs result)                 | Amended by 0017         |
+| [0006](./0006-sse-namespace.md)                        | SSE as a derived response kind under an `sse.*` namespace                | Superseded by 0017      |
+| [0007](./0007-call-site-auth.md)                       | Auth resolved at the call site via async `__auth`                        | Superseded by 0017      |
+| [0008](./0008-redocly-yaml-config.md)                  | `generate-client` config via `redocly.yaml` `x-client-generator`         | Superseded by 0019      |
+| [0009](./0009-per-instance-auth.md)                    | Per-instance auth via `ClientConfig.auth`                                | Amended by 0017         |
+| [0010](./0010-mock-data-baked-vs-faker.md)             | Mock data: baked literals by default, faker opt-in                       | Accepted                |
+| [0011](./0011-wrapper-generators.md)                   | Data-fetching wrapper generators (`swr`, `tanstack-query`)               | Accepted                |
+| [0012](./0012-plugin-api.md)                           | Experimental custom-generator (plugin) API                               | Accepted (experimental) |
+| [0013](./0013-experimental-status.md)                  | Experimental release status & stabilization criteria                     | Accepted                |
+| [0014](./0014-request-response-customization.md)       | Request/response customization as a runtime contract                     | Accepted                |
+| [0015](./0015-publisher-setup-bake-in.md)              | Publisher setup bake-in via `--setup`                                    | Accepted                |
+| [0016](./0016-msw-generator-vs-mock-server.md)         | In-process MSW mocks coexist with the out-of-process mock server         | Accepted                |
+| [0017](./0017-runtime-module-and-descriptor-client.md) | Hand-written runtime module + descriptor-driven generated clients        | Amended by 0022         |
+| [0018](./0018-auto-pagination.md)                      | Auto-pagination as declared, statically verified configuration           | Accepted                |
+| [0019](./0019-first-class-client-config.md)            | `generate-client` config via a first-class `client` block                | Accepted                |
+| [0020](./0020-self-contained-generator-folders.md)     | Self-contained generator folders, ejected as source                      | Accepted                |
+| [0021](./0021-text-printers.md)                        | Text printers — one common printer plus one per language                 | Accepted                |
+| [0022](./0022-runtime-inline-or-module.md)             | Runtime is inline or a sibling module; package mode removed              | Accepted                |
+| [0023](./0023-usage-telemetry-across-languages.md)     | One usage telemetry event for every SDK language, through a settled hook | Accepted                |
 
 ## Template
 
