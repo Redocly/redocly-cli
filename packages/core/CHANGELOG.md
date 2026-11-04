@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.75.0
+
+### Minor Changes
+
+- Added support for the `platform` option and the `access.rbac.platform` scope in `redocly.yaml`.
+- Added a warning for deprecated options in `redocly.yaml`, for example `reunite`, which `platform` replaces.
+
 ## 2.74.0
 
 ### Minor Changes

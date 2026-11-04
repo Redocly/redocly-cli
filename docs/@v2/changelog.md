@@ -7,6 +7,20 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.75.0 (2026-11-04)
+
+### Minor Changes
+
+- Added support for the `platform` option and the `access.rbac.platform` scope in `redocly.yaml`.
+- Added a warning for deprecated options in `redocly.yaml`, for example `reunite`, which `platform` replaces.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/client-generator to v0.9.2.
+- Updated @redocly/openapi-core to v2.75.0.
+
 ## 2.74.0 (2026-11-04)
 
 ### Patch Changes
