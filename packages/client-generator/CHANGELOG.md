@@ -1,5 +1,19 @@
 # @redocly/client-generator
 
+## 0.9.2
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 0.9.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.74.0.
+
 ## 0.9.0
 
 ### Minor Changes

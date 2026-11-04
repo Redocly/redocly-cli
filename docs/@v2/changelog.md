@@ -7,6 +7,32 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.75.0 (2026-11-04)
+
+### Minor Changes
+
+- Added support for the `platform` option and the `access.rbac.platform` scope in `redocly.yaml`.
+- Added a warning for deprecated options in `redocly.yaml`, for example `reunite`, which `platform` replaces.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/client-generator to v0.9.2.
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 2.74.0 (2026-11-04)
+
+### Patch Changes
+
+- Fixed an issue where `lint` reported Media Type Objects under `components.mediaTypes` in OpenAPI 3.2 descriptions as invalid.
+  A `$ref` to such an object goes in a `content` entry, as the specification defines.
+- Fixed an issue where `lint` reported the `encoding`, `prefixEncoding`, and `itemEncoding` fields of a nested Encoding Object in OpenAPI 3.2 descriptions as invalid.
+  The `spec-no-invalid-encoding-combinations` rule also checks nested Encoding Objects.
+- Fixed the messages of configurable rules and the codeframes in the `json` output so that they no longer carry terminal color codes.
+- Fixed the `spec-strict-refs` rule so that it no longer reports a `$ref` to a Media Type Object in a `content` entry of OpenAPI 3.2 descriptions.
+- Updated @redocly/openapi-core to v2.74.0.
+
 ## 2.73.0 (2026-11-03)
 
 ### Minor Changes
