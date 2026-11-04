@@ -23,4 +23,16 @@ describe('parseWwwAuthenticateHeader', () => {
       nonce: '2115c839b5039f8221bf3e970f9ef06b',
     });
   });
+
+  it('should keep `=` and `,` inside quoted values', () => {
+    const wwwAuthenticateHeader =
+      'Digest realm="me@smth.com", qop="auth, auth-int", nonce="MTIzNDU2Nzg5MA==", algorithm=MD5';
+    const result = parseWwwAuthenticateHeader(wwwAuthenticateHeader);
+    expect(result).toEqual({
+      realm: 'me@smth.com',
+      qop: 'auth, auth-int',
+      nonce: 'MTIzNDU2Nzg5MA==',
+      algorithm: 'MD5',
+    });
+  });
 });
