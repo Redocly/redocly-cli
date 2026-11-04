@@ -4,7 +4,7 @@ slug: /docs/cli/rules/oas/spec-no-invalid-encoding-combinations
 
 # spec-no-invalid-encoding-combinations
 
-Ensures that MediaType objects have valid combinations of encoding fields according to the OpenAPI 3.2.0 specification.
+Ensures that MediaType objects and nested Encoding objects have valid combinations of encoding fields according to the OpenAPI 3.2.0 specification.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -20,8 +20,10 @@ Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
 PathItem --> Parameter
 Operation --> RequestBody --> MediaType
 Operation --> Responses --> MediaType
+MediaType --> Encoding --> Encoding
 
 style MediaType fill:#codaf9,stroke:#0044d4,stroke-width:5px
+style Encoding fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ```
 
@@ -29,6 +31,7 @@ style MediaType fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 According to the [OpenAPI 3.2.0 specification](https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-11), MediaType objects have strict rules about which encoding fields can be used together.
 This rule ensures that only valid encoding field combinations are used in MediaType objects.
+An Encoding object can nest `encoding`, `prefixEncoding`, and `itemEncoding` for a `multipart` part, so the same rules apply to it.
 
 ## Configuration
 
@@ -79,6 +82,20 @@ requestBody:
           style: form
       itemEncoding:
         style: form
+    'multipart/mixed':
+      schema:
+        type: object
+        properties:
+          addresses:
+            type: array
+      encoding:
+        addresses:
+          contentType: multipart/mixed
+          encoding:
+            street:
+              style: form
+          itemEncoding:
+            style: form
 ```
 
 Example of **correct** MediaType objects:

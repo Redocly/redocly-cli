@@ -236,6 +236,9 @@ export interface Oas3Encoding<T extends Oas3Schema | Oas3_1Schema = Oas3Schema |
   style: Oas3ParameterStyle;
   explode: boolean;
   allowReserved: boolean;
+  encoding?: Record<string, Oas3Encoding<T>>; // added in OAS 3.2
+  prefixEncoding?: Oas3Encoding<T>[]; // added in OAS 3.2
+  itemEncoding?: Referenced<Oas3Encoding<T>>; // added in OAS 3.2
 }
 
 export type Oas3ParameterLocation =

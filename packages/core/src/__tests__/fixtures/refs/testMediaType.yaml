@@ -1,10 +1,9 @@
-application/json:
-  schema:
-    type: object
-    properties:
-      id:
-        type: integer
-  examples:
-    Test:
-      value:
-        id: 1
+schema:
+  type: object
+  properties:
+    id:
+      type: integer
+examples:
+  Test:
+    value:
+      id: 1
