@@ -3,5 +3,5 @@
 '@redocly/cli': patch
 ---
 
-Added support for the `description` field of the Media Type Object, defined in OpenAPI 3.2.1.
+Added support for the `description` field of the Media Type Object, which the next patch release of OpenAPI 3.2 adds.
 The `lint` command no longer reports it as an error in OpenAPI 3.2 descriptions.
