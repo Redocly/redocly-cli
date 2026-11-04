@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 2.74.0
+
+### Patch Changes
+
+- Fixed an issue where `lint` reported Media Type Objects under `components.mediaTypes` in OpenAPI 3.2 descriptions as invalid.
+  A `$ref` to such an object goes in a `content` entry, as the specification defines.
+- Fixed an issue where `lint` reported the `encoding`, `prefixEncoding`, and `itemEncoding` fields of a nested Encoding Object in OpenAPI 3.2 descriptions as invalid.
+  The `spec-no-invalid-encoding-combinations` rule also checks nested Encoding Objects.
+- Fixed the messages of configurable rules and the codeframes in the `json` output so that they no longer carry terminal color codes.
+- Fixed the `spec-strict-refs` rule so that it no longer reports a `$ref` to a Media Type Object in a `content` entry of OpenAPI 3.2 descriptions.
+- Updated @redocly/openapi-core to v2.74.0.
+
 ## 2.73.0
 
 ### Minor Changes

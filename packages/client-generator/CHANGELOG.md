@@ -1,5 +1,11 @@
 # @redocly/client-generator
 
+## 0.9.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.74.0.
+
 ## 0.9.0
 
 ### Minor Changes
