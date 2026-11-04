@@ -360,7 +360,7 @@ export class ApiFetcher implements IFetcher {
         );
       }
 
-      const { realm, nonce, opaque, qop, algorithm, cnonce, nc } =
+      const { realm, nonce, opaque, qop, algorithm } =
         parseWwwAuthenticateHeader(wwwAuthenticateHeader);
       const { username, password } = lastDigestSecurityScheme.values;
       const uri = new URL(urlToFetch).pathname + new URL(urlToFetch).search;
@@ -373,8 +373,6 @@ export class ApiFetcher implements IFetcher {
         opaque,
         qop,
         algorithm,
-        cnonce,
-        nc,
         uri,
         method: method.toUpperCase(),
         bodyContent: JSON.stringify(encodedBody) || '',
