@@ -35,4 +35,16 @@ describe('parseWwwAuthenticateHeader', () => {
       algorithm: 'MD5',
     });
   });
+
+  it('should read only the first Digest challenge', () => {
+    const wwwAuthenticateHeader =
+      'Basic realm="basic", Digest realm="digest", nonce="first", qop="auth", algorithm=SHA-256, Digest realm="digest", nonce="second", qop="auth", algorithm=MD5, Basic realm="other"';
+    const result = parseWwwAuthenticateHeader(wwwAuthenticateHeader);
+    expect(result).toEqual({
+      realm: 'digest',
+      nonce: 'first',
+      qop: 'auth',
+      algorithm: 'SHA-256',
+    });
+  });
 });
