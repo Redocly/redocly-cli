@@ -1,22 +1,13 @@
 import * as colorette from 'colorette';
 
 import { isBrowser } from './env.js';
-import { identity } from './utils/identity.js';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore this works but some types are not working
-export const colorOptions = colorette.options;
+// Browser bundles replace `colorette` with an empty module.
+export const isColorEnabled = !isBrowser && colorette.isColorSupported;
 
-export const colorize = new Proxy(colorette, {
-  get(target: typeof colorette, prop: string): typeof identity {
-    if (isBrowser) {
-      return identity;
-    }
+export const noColors = new Proxy({} as colorette.Colorette, { get: () => String });
 
-    // oxlint-disable-next-line typescript/no-explicit-any
-    return (target as any)[prop];
-  },
-});
+export const colorize: colorette.Colorette = isColorEnabled ? colorette : noColors;
 
 export interface LoggerInterface {
   info(message: string): void;

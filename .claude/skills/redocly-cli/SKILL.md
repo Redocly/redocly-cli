@@ -117,6 +117,9 @@ The `recheck-lint` skill covers running it on touched files, and `recheck-config
 
 Decorators rewrite the description at bundle time — `lint` checks the source as written; `bundle`, `build-docs`, and `push` see the decorated output.
 Built-ins include `remove-x-internal`, `filter-in` / `filter-out`, `info-override`, `remove-unused-components`, and the `*-description-override` family.
+`join` skips every decorator, so a transformation that a join needs runs in a `bundle` of each API first.
+
+When no built-in does the transformation, write a custom plugin decorator the way the `redocly-lint-rules` skill writes a plugin rule: take the node types from `redocly inspect-node-types`, scope the visitor by nesting it under the parent type instead of walking the document by hand, change the node in the hook, and prove it with `redocly bundle` on a fixture that holds the shape and on one that does not.
 
 ## Apply overlays
 
@@ -150,6 +153,7 @@ export default function myPlugin() {
 ```
 
 Visitor keys are node types: confirm them with `redocly inspect-node-types <api>`.
+A decorator has the same shape under a `decorators` key, and the `redocly-lint-rules` skill covers the visitor pattern for both: the hooks, the context, nested visitors for scope, and resolved versus raw children.
 Register it in `redocly.yaml` (paths relative to the config file) and reference its rules as `<plugin-id>/<rule-name>`:
 
 ```yaml
@@ -180,7 +184,8 @@ apis:
 ```
 
 With `apis.<name>.clientOutput` set, a bare `redocly generate-client` generates every opted-in API.
-`client.telemetry: on` (config-only) makes the `typescript` generator also write `<output>.telemetry.ts`: register `use(telemetry({ sdkName, sdkVersion, client }))` to count calls per operation and send the counts once a minute (no request data; `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1` turns sending off).
+`--report <file>` also writes a JSON file with the operations of each API (`id`, `name`) and the warnings of the run, each with a stable `kind`, after a successful run.
+`client.telemetry: on` (config-only) makes the `typescript` generator also write `<output>.telemetry.ts` (register `use(telemetry({ sdkName, sdkVersion, client }))`), and the `go`, `python`, and `php` generators write `telemetry.go`, `<module>_telemetry.py`, and `<output>.telemetry.php`, to count calls per operation and send the counts once a minute (no request data; `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1` turns sending off).
 An API's own `client` block replaces the top-level one wholesale — repeat the shared fields in it.
 With `client.codeSamples: true`, it also writes `<output>.code-samples.yaml`, an overlay that adds `x-codeSamples`; add it to the API's `overlays` (or pass `--overlay`) so `bundle` puts the samples in the description.
 
@@ -224,6 +229,7 @@ A step that leaves out `parameters` or `requestBody` takes them from the descrip
 - A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
+- `bundle` takes a URL: `redocly bundle https://example.com/openapi.yaml -o openapi.yaml` fetches a remote description and its `$ref`s into one local file, with no `curl`. It also fetches `externalValue` URLs and writes no output when one is unreachable; add `--force` to write it anyway.
 - `generate-client` needs the `typescript` package (6.x) available at generation time; the generated client itself compiles with any TypeScript, including 7.
 
 ## Resources

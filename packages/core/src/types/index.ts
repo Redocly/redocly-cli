@@ -33,6 +33,7 @@ export type NodeType = {
   extensionsPrefix?: string;
   description?: string;
   documentationLink?: string;
+  deprecatedProperties?: Record<string, { replacement?: string }>;
 };
 export type PropType = string | NodeType | ScalarSchema | undefined | null;
 export type ResolveTypeFn = (value: any, key: string) => string | PropType;
@@ -49,6 +50,7 @@ export type NormalizedNodeType = {
   directResolveAs?: NormalizedNodeType;
   description?: string;
   documentationLink?: string;
+  deprecatedProperties?: Record<string, { replacement?: string }>;
 };
 
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;

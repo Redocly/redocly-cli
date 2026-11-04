@@ -79,9 +79,26 @@ type RetryConfig struct {
 
 // Middleware hooks run around every request (OnRequest before serialization order
 // is N/A in Go — bodies are values; OnResponse runs in reverse registration order).
+// OnSettled runs once per call, after the last attempt, in registration order.
 type Middleware struct {
 	OnRequest  func(req *http.Request)
 	OnResponse func(resp *http.Response)
+	OnSettled  func(call SettledCall)
+}
+
+// registeredMiddleware runs after Config.Middleware on every client of the package. The usage
+// telemetry module adds to it, so one registration counts the calls of every client.
+var registeredMiddleware []Middleware
+
+// SettledCall is the outcome of one call: the final response, or the error.
+// The response body is still unread, so a hook must not read or close it.
+// Duration spans from the first attempt to the end of the OnResponse hooks.
+type SettledCall struct {
+	OperationID string
+	Response    *http.Response
+	Err         error
+	Attempts    int
+	Duration    time.Duration
 }
 
 // Date is an RFC 3339 full-date — a calendar date with no time component. Fields
@@ -319,6 +336,25 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		// The first attempt consumes the reader, so there is nothing to replay.
 		maxAttempts = 1
 	}
+	// Config.Middleware, then the registered middleware, without a combined slice for each call.
+	middlewareLists := [2][]Middleware{config.Middleware, registeredMiddleware}
+	started := time.Now()
+	settle := func(resp *http.Response, err error, attempts int) {
+		call := SettledCall{
+			OperationID: spec.OperationID,
+			Response:    resp,
+			Err:         err,
+			Attempts:    attempts,
+			Duration:    time.Since(started),
+		}
+		for _, middleware := range middlewareLists {
+			for _, mw := range middleware {
+				if mw.OnSettled != nil {
+					mw.OnSettled(call)
+				}
+			}
+		}
+	}
 	for attempt := 1; ; attempt++ {
 		attemptCtx := ctx
 		var cancel context.CancelFunc
@@ -337,6 +373,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			if cancel != nil {
 				cancel()
 			}
+			settle(nil, err, attempt)
 			return nil, err
 		}
 		for key, value := range headers {
@@ -345,9 +382,11 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		if spec.ContentType != "" && bodyReader != nil && req.Header.Get("Content-Type") == "" {
 			req.Header.Set("Content-Type", spec.ContentType)
 		}
-		for _, mw := range config.Middleware {
-			if mw.OnRequest != nil {
-				mw.OnRequest(req)
+		for _, middleware := range middlewareLists {
+			for _, mw := range middleware {
+				if mw.OnRequest != nil {
+					mw.OnRequest(req)
+				}
 			}
 		}
 		resp, err := httpClient.Do(req)
@@ -368,13 +407,17 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 				continue
 			}
 			if timedOut {
-				return nil, &TimeoutError{OperationID: spec.OperationID, Timeout: timeout, Attempt: attempt}
+				err = &TimeoutError{OperationID: spec.OperationID, Timeout: timeout, Attempt: attempt}
 			}
+			settle(nil, err, attempt)
 			return nil, err
 		}
-		for i := len(config.Middleware) - 1; i >= 0; i-- {
-			if config.Middleware[i].OnResponse != nil {
-				config.Middleware[i].OnResponse(resp)
+		for list := len(middlewareLists) - 1; list >= 0; list-- {
+			middleware := middlewareLists[list]
+			for i := len(middleware) - 1; i >= 0; i-- {
+				if middleware[i].OnResponse != nil {
+					middleware[i].OnResponse(resp)
+				}
 			}
 		}
 		if resp.StatusCode >= 400 && attempt < maxAttempts && retryable {
@@ -391,6 +434,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		if cancel != nil {
 			resp.Body = &cancelOnClose{ReadCloser: resp.Body, cancel: cancel}
 		}
+		settle(resp, nil, attempt)
 		return resp, nil
 	}
 }

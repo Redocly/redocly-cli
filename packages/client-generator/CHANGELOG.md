@@ -1,5 +1,44 @@
 # @redocly/client-generator
 
+## 0.9.2
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 0.9.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.74.0.
+
+## 0.9.0
+
+### Minor Changes
+
+- Added usage telemetry and the `onSettled` hook to the generated Go, Python, and PHP clients.
+  Renamed a schema named `UsageTelemetry`, `UsageTelemetryOptions`, `UsageTelemetryEvent`, `NewUsageTelemetry`, or `FlushUsageTelemetry` in every generated client, for example to `UsageTelemetry_2`, so that it does not clash with the usage telemetry code.
+  If your code uses one of these generated types, update its name.
+- Added the `--report` option to the `generate-client` command.
+  It writes a JSON file with the operations of each API and the warnings of the run, each with a stable kind.
+  A custom or ejected generator gets `reportFinding` in its `run` input, to add its own warnings to the report.
+
+  **Note:** `wrappableOperations` from `@redocly/client-generator/contracts/typescript` takes `reportFinding` as its third argument.
+  A custom or ejected `swr` or `tanstack-query` generator must pass the `reportFinding` that its `run` receives.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw `TimeoutError` for a refused connection instead of a transport error.
+- Fixed an issue where the TypeScript usage telemetry counted 0 attempts for a call aborted before its first attempt, so an event had fewer attempts than calls.
+- Fixed an issue where the generated PHP client retried a `POST` or `PATCH` without an `Idempotency-Key`, and retried a `501` or a `505` to `599`.
+  The default retry follows the same rule as the other generated clients.
+
+  **Note:** To retry a `POST` or `PATCH`, pass an `idempotencyKey` to the call, or pass a `retryOn` callable in `Config->retry`.
+
+- Updated @redocly/openapi-core to v2.73.0.
+
 ## 0.8.1
 
 ### Patch Changes

@@ -90,7 +90,7 @@ describe('resolveProjectRef()', () => {
       resolveProjectRef(client, { organization: 'acme', project: 'nope' })
     ).rejects.toThrow(
       new ReuniteApiError(
-        'Project "nope" was not found in organization "acme". Use the IDs from the organization and project settings in Reunite.',
+        'Project "nope" was not found in organization "acme". Use the IDs from the organization and project settings in the Redocly platform.',
         404
       )
     );

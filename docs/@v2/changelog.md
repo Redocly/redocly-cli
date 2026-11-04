@@ -7,6 +7,60 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.75.0 (2026-11-04)
+
+### Minor Changes
+
+- Added support for the `platform` option and the `access.rbac.platform` scope in `redocly.yaml`.
+- Added a warning for deprecated options in `redocly.yaml`, for example `reunite`, which `platform` replaces.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/client-generator to v0.9.2.
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 2.74.0 (2026-11-04)
+
+### Patch Changes
+
+- Fixed an issue where `lint` reported Media Type Objects under `components.mediaTypes` in OpenAPI 3.2 descriptions as invalid.
+  A `$ref` to such an object goes in a `content` entry, as the specification defines.
+- Fixed an issue where `lint` reported the `encoding`, `prefixEncoding`, and `itemEncoding` fields of a nested Encoding Object in OpenAPI 3.2 descriptions as invalid.
+  The `spec-no-invalid-encoding-combinations` rule also checks nested Encoding Objects.
+- Fixed the messages of configurable rules and the codeframes in the `json` output so that they no longer carry terminal color codes.
+- Fixed the `spec-strict-refs` rule so that it no longer reports a `$ref` to a Media Type Object in a `content` entry of OpenAPI 3.2 descriptions.
+- Updated @redocly/openapi-core to v2.74.0.
+
+## 2.73.0 (2026-11-03)
+
+### Minor Changes
+
+- Added usage telemetry and the `onSettled` hook to the generated Go, Python, and PHP clients.
+  Renamed a schema named `UsageTelemetry`, `UsageTelemetryOptions`, `UsageTelemetryEvent`, `NewUsageTelemetry`, or `FlushUsageTelemetry` in every generated client, for example to `UsageTelemetry_2`, so that it does not clash with the usage telemetry code.
+  If your code uses one of these generated types, update its name.
+- Added the `--report` option to the `generate-client` command.
+  It writes a JSON file with the operations of each API and the warnings of the run, each with a stable kind.
+  A custom or ejected generator gets `reportFinding` in its `run` input, to add its own warnings to the report.
+
+  **Note:** `wrappableOperations` from `@redocly/client-generator/contracts/typescript` takes `reportFinding` as its third argument.
+  A custom or ejected `swr` or `tanstack-query` generator must pass the `reportFinding` that its `run` receives.
+
+- Added the `no-server-variables-empty-enum` rule to the `spec` ruleset for OpenAPI 3.1 and 3.2 descriptions, where the specification requires a non-empty `enum` that holds the `default` value.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw `TimeoutError` for a refused connection instead of a transport error.
+- Fixed an issue where the TypeScript usage telemetry counted 0 attempts for a call aborted before its first attempt, so an event had fewer attempts than calls.
+- Fixed an issue where the generated PHP client retried a `POST` or `PATCH` without an `Idempotency-Key`, and retried a `501` or a `505` to `599`.
+  The default retry follows the same rule as the other generated clients.
+
+  **Note:** To retry a `POST` or `PATCH`, pass an `idempotencyKey` to the call, or pass a `retryOn` callable in `Config->retry`.
+
+- Updated @redocly/client-generator to v0.9.0.
+- Updated @redocly/openapi-core to v2.73.0.
+
 ## 2.72.1 (2026-10-29)
 
 ### Patch Changes
