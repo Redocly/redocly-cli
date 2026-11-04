@@ -191,6 +191,37 @@ Read [what's new in Redoc 3](https://redocly.com/blog/redoc-3-whats-new) for det
 
 To keep the Redoc 2 output, pin `@redocly/cli` to the version you used before, or use Redocly CLI v1: `npx @redocly/cli@v1-archive build-docs openapi.yaml`.
 
+### Changes in `bundle` component naming (since v2.27.1)
+
+When two referenced components share a name but have different content, the [`bundle`](../commands/bundle.md) command renames one of them.
+Redocly CLI v1 built the new name from the `$ref`.
+For a reference with a JSON pointer, such as `./parameters.yaml#/id`, it prefixed the file name and produced `parameters_id`.
+Since v2.27.1, every duplicate gets a numeric suffix instead, so the same reference produces `id-2`:
+
+```yaml
+# ❌ v1 output
+components:
+  parameters:
+    id: ...
+    parameters_id: ...
+
+# ✅ v2 output
+components:
+  parameters:
+    id: ...
+    id-2: ...
+```
+
+The change applies to every component type: schemas, parameters, responses, request bodies, headers, and so on.
+It changes the `$ref` paths in the bundled output and anything generated from it, such as SDK types indexed by component names.
+
+Redocly CLI generates both the old and the new names.
+They depend on file names and on the `$ref` resolution order, so an unrelated edit can change them.
+To keep a stable name, give the component a unique key in its source file, for example `./parameters.yaml#/orderId`.
+`bundle` uses that key as the component name in every version.
+For schemas, you can also derive the name from their `title` with the [`--component-names-strategy=title`](../commands/bundle.md#configure-the-component-names-strategy) option.
+To find such conflicts before bundling, enable the [`component-name-unique`](../rules/oas/component-name-unique.md) rule, or fail the bundle on them with [`--component-renaming-conflicts-severity=error`](../commands/bundle.md#configure-component-renaming-conflicts).
+
 ### Platform changes
 
 - **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Redocly platform](https://app.cloud.redocly.com/).
@@ -250,6 +281,7 @@ paths:
 1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
 1. **Revise your YAML files** to comply with the latest YAML specification (v1.2).
 1. **Revise `build-docs` usage**: replace `--theme.openapi` with `--openapi`, remove `--disableGoogleFont`, review your Redoc options and custom templates for Redoc 3, or pin the CLI version to keep the Redoc 2 output.
+1. **Revise the bundled output** if you generate code from it: duplicate components now get the `id-2` suffix instead of the `parameters_id` prefix.
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`
