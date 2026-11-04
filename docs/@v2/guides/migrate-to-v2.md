@@ -199,13 +199,13 @@ For a reference with a JSON pointer, such as `./parameters.yaml#/id`, it prefixe
 Since v2.27.1, every duplicate gets a numeric suffix instead, so the same reference produces `id-2`:
 
 ```yaml
-# ❌ v1 output
+# Redocly CLI v1
 components:
   parameters:
     id: ...
     parameters_id: ...
 
-# ✅ v2 output
+# Redocly CLI v2
 components:
   parameters:
     id: ...
