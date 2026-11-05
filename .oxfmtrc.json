@@ -8,6 +8,7 @@
     "lib/",
     "output/",
     "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
+    "packages/cli/src/commands/build-docs/redoc.standalone.js",
     "packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml",
     "packages/recheck/src/config/__tests__/fixtures/",
     "tests/e2e/recheck/*/docs/",
