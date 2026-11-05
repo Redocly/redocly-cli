@@ -69,9 +69,13 @@ describe('runtime-sources', () => {
     expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
       'export type SdkUsageAggregatedMessage = BaseEventMessage & {'
     );
-    // The module's own code is the source file's, byte-for-byte.
+    // The module's own code is the source file's, byte-for-byte, around the re-export that the
+    // declarations replace.
+    const reExportStart = source.indexOf('// The package root reaches');
+    const reExportEnd = source.indexOf(';', source.indexOf('export type {', reExportStart)) + 1;
     expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
-      source.slice(source.indexOf('const GENERATOR_VERSION'))
+      source.slice(source.indexOf('const GENERATOR_VERSION'), reExportStart)
     );
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(source.slice(reExportEnd));
   });
 });

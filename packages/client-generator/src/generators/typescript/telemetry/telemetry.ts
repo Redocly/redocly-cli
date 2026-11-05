@@ -1,5 +1,3 @@
-// The package root reaches its types through paths without an extension, which `nodenext`
-// cannot resolve, so the type comes from its own file. The prepare script inlines it.
 import type { SdkUsageAggregatedMessage } from '@redocly/cli-otel/lib/generated-async-redocly-cli/messages/SdkUsageAggregatedMessage.js';
 
 import type { Middleware, SettledCall } from '../../../runtime-contract.js';
@@ -31,6 +29,13 @@ const LATENCY_BUCKETS: Array<{ bucket: LatencyBucket; belowMs: number }> = [
   { bucket: 'lt_10s', belowMs: 10000 },
   { bucket: 'gte_10s', belowMs: Infinity },
 ];
+
+// The package root reaches its types through paths without an extension, which `nodenext`
+// cannot resolve, so the types come from their own file. The prepare script inlines them.
+export type {
+  BaseEventMessage,
+  SdkUsageAggregatedMessage,
+} from '@redocly/cli-otel/lib/generated-async-redocly-cli/messages/SdkUsageAggregatedMessage.js';
 
 /** The `com.redocly.sdkUsage.aggregated` CloudEvent. The OpenTelemetry collector sets `env`. */
 export type SdkUsageEvent = Omit<SdkUsageAggregatedMessage, 'env'>;

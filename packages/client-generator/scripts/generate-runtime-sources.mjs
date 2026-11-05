@@ -43,11 +43,15 @@ const CONTRACT_MODULES = {
   '../../../cli-contract.js': join(pkgRoot, 'src', 'cli-contract.ts'),
 };
 
-/** The declaration's start including its own doc comment, excluding detached trivia. */
+/**
+ * The declaration's start including its own doc comment, excluding detached trivia and the
+ * file header comment.
+ */
 function declStartWithDocs(source, declaration) {
   const ranges = ts.getLeadingCommentRanges(source, declaration.getFullStart()) ?? [];
   let start = declaration.getStart();
   for (let index = ranges.length - 1; index >= 0; index--) {
+    if (ranges[index].pos === 0) break;
     if (/\n\s*\n/.test(source.slice(ranges[index].end, start))) break;
     start = ranges[index].pos;
   }
@@ -62,7 +66,9 @@ function contractDeclarationsText(modulePath, names) {
   const parts = [];
   for (const statement of file.statements) {
     const named =
-      (ts.isTypeAliasDeclaration(statement) || ts.isFunctionDeclaration(statement)) &&
+      (ts.isTypeAliasDeclaration(statement) ||
+        ts.isInterfaceDeclaration(statement) ||
+        ts.isFunctionDeclaration(statement)) &&
       statement.name !== undefined;
     if (named && wanted.has(statement.name.text)) {
       parts.push(source.slice(declStartWithDocs(source, statement), statement.end));
@@ -76,15 +82,15 @@ function contractDeclarationsText(modulePath, names) {
 }
 
 /**
- * Replace the runtime module's contract imports/re-exports with the definitions they
- * point at, so every downstream use (full source, stripped embed, declared names) sees
- * one self-contained module.
+ * Replace the module's imports/re-exports of `modules` with the definitions they point at,
+ * so every downstream use (full source, stripped embed, declared names) sees one
+ * self-contained module.
  */
-function spliceContracts(source) {
+function spliceContracts(source, modules = CONTRACT_MODULES) {
   const file = ts.createSourceFile('__splice.ts', source, ts.ScriptTarget.Latest, true);
   const edits = [];
   for (const statement of file.statements) {
-    if (ts.isImportDeclaration(statement) && CONTRACT_MODULES[statement.moduleSpecifier.text]) {
+    if (ts.isImportDeclaration(statement) && modules[statement.moduleSpecifier.text]) {
       // Delete the import line and its trailing newlines only — the module's header
       // comment is this statement's leading trivia and must survive.
       let end = statement.end;
@@ -93,13 +99,10 @@ function spliceContracts(source) {
     } else if (
       ts.isExportDeclaration(statement) &&
       statement.moduleSpecifier !== undefined &&
-      CONTRACT_MODULES[statement.moduleSpecifier.text]
+      modules[statement.moduleSpecifier.text]
     ) {
       const names = statement.exportClause.elements.map((element) => element.name.text);
-      const block = contractDeclarationsText(
-        CONTRACT_MODULES[statement.moduleSpecifier.text],
-        names
-      );
+      const block = contractDeclarationsText(modules[statement.moduleSpecifier.text], names);
       edits.push({ start: statement.getFullStart(), end: statement.end, text: `\n\n${block}` });
     }
   }
@@ -213,61 +216,19 @@ writeFileSync(
   ].join('\n')
 );
 
-/**
- * Replace the type import from @redocly/cli-otel with the declarations of the imported file,
- * after the other imports, so that a generated SDK has no dependencies. The declarations lose
- * the 4-space indent of `tsc`.
- */
-function inlineEventType(source) {
-  const file = ts.createSourceFile('__telemetry.ts', source, ts.ScriptTarget.Latest, true);
-  let eventTypeImport;
-  for (const statement of file.statements) {
-    if (
-      ts.isImportDeclaration(statement) &&
-      statement.moduleSpecifier.text.startsWith('@redocly/cli-otel/')
-    ) {
-      eventTypeImport = statement;
-    }
-  }
-  if (eventTypeImport === undefined) {
-    throw new Error('telemetry.ts imports no type from @redocly/cli-otel');
-  }
-
-  const specifier = eventTypeImport.moduleSpecifier.text;
-  const packageJsonPath = createRequire(import.meta.url).resolve('@redocly/cli-otel/package.json');
-  const declarationPath = join(
-    dirname(packageJsonPath),
-    specifier.slice('@redocly/cli-otel/'.length).replace(/\.js$/, '.d.ts')
-  );
-  const declarationSource = readFileSync(declarationPath, 'utf-8');
-  const declarationFile = ts.createSourceFile(
-    '__event.d.ts',
-    declarationSource,
-    ts.ScriptTarget.Latest,
-    true
-  );
-  const declarations = declarationSource
-    .slice(declarationFile.statements[0].getStart(), declarationFile.statements.at(-1).end)
-    .replace(/^( {4})+/gm, (indent) => ' '.repeat(indent.length / 2));
-
-  // The comment before the import goes with it: the output has no import to explain.
-  let importEnd = eventTypeImport.end;
-  while (source[importEnd] === '\n') importEnd++;
-  const withoutImport = source.slice(0, eventTypeImport.getFullStart()) + source.slice(importEnd);
-  const rest = ts.createSourceFile('__rest.ts', withoutImport, ts.ScriptTarget.Latest, true);
-  let lastImportEnd = 0;
-  for (const statement of rest.statements) {
-    if (ts.isImportDeclaration(statement)) lastImportEnd = statement.end;
-  }
-  return `${withoutImport.slice(0, lastImportEnd)}\n\n${declarations}${withoutImport.slice(lastImportEnd)}`;
-}
-
+const EVENT_TYPE_MODULE =
+  '@redocly/cli-otel/lib/generated-async-redocly-cli/messages/SdkUsageAggregatedMessage.js';
 // Not in RUNTIME_SOURCES, so `telemetry` and `flush` never become reserved names of every client.
-const telemetrySource = inlineEventType(
+const telemetrySource = spliceContracts(
   readFileSync(
     join(pkgRoot, 'src', 'generators', 'typescript', 'telemetry', 'telemetry.ts'),
     'utf-8'
-  )
+  ),
+  {
+    [EVENT_TYPE_MODULE]: createRequire(import.meta.url).resolve(
+      EVENT_TYPE_MODULE.replace(/\.js$/, '.d.ts')
+    ),
+  }
 );
 writeFileSync(
   join(pkgRoot, 'src', 'runtime-sources', 'telemetry.ts'),
