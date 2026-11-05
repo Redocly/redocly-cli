@@ -1,5 +1,5 @@
 
-index.js inspect-node-types <api>
+redocly inspect-node-types <api>
 
 Show the node types of an API description, for writing configurable rules and cu
 stom plugins [experimental].

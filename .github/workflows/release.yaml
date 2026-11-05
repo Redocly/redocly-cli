@@ -1,7 +1,7 @@
 name: Release
 
 on:
-  push: # for the regular release flow (release --> dockerhub --> post-release-smoke-checks --> notify)
+  push: # for the regular release flow (release --> dockerhub and binaries --> post-release-smoke-checks --> notify)
     branches:
       - main
   pull_request: # for the snapshot release flow
@@ -30,6 +30,7 @@ jobs:
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+      cliVersion: ${{ steps.cli-version.outputs.value }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -68,6 +69,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_ENV: production
+
+      - name: Get the CLI version
+        id: cli-version
+        run: echo "value=$(jq -r '.version' packages/cli/package.json)" >> "$GITHUB_OUTPUT"
+
+  binaries:
+    needs: [release]
+    if: needs.release.outputs.published == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/binaries.yaml
+    with:
+      version: ${{ needs.release.outputs.cliVersion }}
 
   dockerhub:
     needs: [release]

@@ -27,3 +27,4 @@ __changesets__.json
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
 __pycache__/
+/dist/

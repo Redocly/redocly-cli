@@ -62,7 +62,9 @@ const showUpdateBanner = (latest: string) => {
   logger.info(
     renderBanner([
       `A new version of ${cyan('Redocly CLI')} (${green(latest)}) is available.`,
-      `Update now: \`${cyan('npm i -g @redocly/cli@latest')}\`.`,
+      process.versions.bun
+        ? `Download it: ${cyan(`https://github.com/Redocly/redocly-cli/releases/tag/%40redocly%2Fcli%40${latest}`)}`
+        : `Update now: \`${cyan('npm i -g @redocly/cli@latest')}\`.`,
       `Changelog: https://redocly.com/docs/cli/changelog/`,
     ])
   );

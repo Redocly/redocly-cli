@@ -1,5 +1,5 @@
 
-index.js bundle [apis...]
+redocly bundle [apis...]
 
 Bundle a multi-file API description to a single file.
 
