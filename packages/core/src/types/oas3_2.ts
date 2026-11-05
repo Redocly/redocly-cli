@@ -231,11 +231,7 @@ const MediaType: NodeType = {
   ...Oas3_1Types.MediaType,
   properties: {
     ...Oas3_1Types.MediaType.properties,
-    description: {
-      type: 'string',
-      description:
-        'An optional description for the media type. CommonMark syntax MAY be used for rich text representation.',
-    },
+    description: { type: 'string' },
     itemSchema: 'Schema',
     prefixEncoding: listOf('Encoding', {
       description:
