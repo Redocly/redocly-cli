@@ -753,4 +753,51 @@ describe('evaluateRuntimeExpression', () => {
       },
     ]);
   });
+
+  it('should treat values from the context as data, never as code', () => {
+    const globals = globalThis as { respectInjected?: unknown };
+    const context = {
+      $request: { body: { code: '||(globalThis.respectInjected = process.pid)||' } },
+      $response: {
+        body: { value: '$request.body#/code', reference: '$steps.login.outputs.token#/x' },
+      },
+      $steps: { login: { outputs: { token: { x: '||(globalThis.respectInjected = 1)||' } } } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/value', context, logger)).toEqual(
+      '$request.body#/code'
+    );
+    expect(evaluateRuntimeExpression('$response.body#/reference', context, logger)).toEqual(
+      '$steps.login.outputs.token#/x'
+    );
+    expect(
+      evaluateRuntimeExpression('$response.body#/value == "$request.body#/code"', context, logger)
+    ).toEqual(true);
+    expect(globals.respectInjected).toBeUndefined();
+  });
+
+  it('should read only own properties of the context', () => {
+    const context = { $inputs: { name: 'ann' } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$inputs.constructor', context, logger)).toBeUndefined();
+    expect(evaluateRuntimeExpression('$inputs.name.length', context, logger)).toEqual(3);
+  });
+
+  it('should decode escaped JSON Pointer segments', () => {
+    const context = {
+      $response: { body: { 'a/b': 1, 'c~d': 2, items: ['x', 'y'] } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/a~1b', context, logger)).toEqual(1);
+    expect(evaluateRuntimeExpression('$response.body#/c~0d', context, logger)).toEqual(2);
+    expect(evaluateRuntimeExpression('$response.body#/items.length == 2', context, logger)).toEqual(
+      true
+    );
+  });
+
+  it('should throw for a JSON Pointer that reaches no value', () => {
+    expect(() =>
+      evaluateRuntimeExpression('$response.body#/missing == 1', runtimeExpressionContext, logger)
+    ).toThrow("Error in resolving runtime expression '$response.body#/missing == 1'");
+  });
 });
