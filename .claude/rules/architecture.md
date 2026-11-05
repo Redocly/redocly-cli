@@ -41,6 +41,10 @@ Validates real API responses against OpenAPI/Arazzo specs.
 Everything that talks to the Redocly platform: the API client, authentication, and the
 functions behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 Keep Redocly platform API calls and credential handling here, not in `packages/cli`.
+One function here chooses the credential, the API key from `REDOCLY_AUTHORIZATION` or the
+`redocly login` token, and every command accepts both through it.
+A restriction such as "pull requests accept only a user session" lives next to the API that
+enforces it, not in a command.
 The package is also published so other programs, such as GitHub actions, can call it, so its
 functions take plain options and return data: no `argv`, no spinner, and no printed output.
 Scorecard fetching, target matching, and validation report configuration failures as
