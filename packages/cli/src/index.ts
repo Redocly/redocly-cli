@@ -52,6 +52,7 @@ cacheLatestVersion();
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs(hideBin(process.argv))
+  .scriptName('redocly')
   .version(false)
   .option('version', { type: 'boolean', description: 'Show version number.', global: false })
   .middleware((argv) => {
