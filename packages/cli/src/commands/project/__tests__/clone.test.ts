@@ -1,5 +1,5 @@
 import { HandledError } from '@redocly/openapi-core';
-import { getReuniteUrl } from '@redocly/reunite-integration';
+import { getReuniteUrl } from '@redocly/platform-integration';
 
 import type { CommandArgv } from '../../../types.js';
 import type { CommandArgs } from '../../../wrapper.js';
@@ -15,8 +15,8 @@ vi.mock('../utils.js', async () => {
     runGit: vi.fn(),
   };
 });
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual<object>('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual<object>('@redocly/platform-integration');
   return { ...actual, getReuniteUrl: vi.fn() };
 });
 

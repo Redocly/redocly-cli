@@ -6,7 +6,7 @@ import {
   RedoclyOAuthClient,
   type HostedProject,
   type PullRequestStatus,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import { readFile } from 'node:fs/promises';
 
 import type { CommandArgs } from '../../wrapper.js';

@@ -5,12 +5,12 @@ import {
   waitForDeployment,
   type PushResponse,
   type UpsertRemoteResponse,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 
 import { handlePush, type PushArgv } from '../push.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, collectFilesToPush: vi.fn(), pushFiles: vi.fn(), waitForDeployment: vi.fn() };
 });
 

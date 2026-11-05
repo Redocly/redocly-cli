@@ -1,12 +1,12 @@
 import { logger } from '@redocly/openapi-core';
-import type * as ReuniteIntegration from '@redocly/reunite-integration';
-import { RedoclyOAuthClient } from '@redocly/reunite-integration';
+import type * as ReuniteIntegration from '@redocly/platform-integration';
+import { RedoclyOAuthClient } from '@redocly/platform-integration';
 import { Readable } from 'node:stream';
 
 import { handleProjectGitCredentials } from '../git-credentials.js';
 
-vi.mock('@redocly/reunite-integration', async () => ({
-  ...(await vi.importActual<typeof ReuniteIntegration>('@redocly/reunite-integration')),
+vi.mock('@redocly/platform-integration', async () => ({
+  ...(await vi.importActual<typeof ReuniteIntegration>('@redocly/platform-integration')),
   RedoclyOAuthClient: vi.fn(),
 }));
 

@@ -1,4 +1,4 @@
-# @redocly/reunite-integration
+# @redocly/platform-integration
 
 ## 2.75.0
 

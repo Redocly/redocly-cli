@@ -1,7 +1,7 @@
 {
-  "name": "@redocly/reunite-integration",
+  "name": "@redocly/platform-integration",
   "version": "2.75.0",
-  "description": "Programmatic access to the Redocly Reunite platform capabilities",
+  "description": "Programmatic access to the Redocly platform capabilities",
   "type": "module",
   "sideEffects": false,
   "types": "lib/index.d.ts",

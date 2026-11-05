@@ -13,7 +13,7 @@ import {
   type ScorecardItem,
   type SunsetWarning,
   type ProjectRefResolution,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import * as colors from 'colorette';
 
 import { printExecutionTime } from '../utils/miscellaneous.js';

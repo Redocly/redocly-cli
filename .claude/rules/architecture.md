@@ -36,7 +36,7 @@ Validates real API responses against OpenAPI/Arazzo specs.
 - `src/run.ts` — Test execution logic.
 - `src/modules/` — Core testing modules, including runtime expression evaluation.
 
-## `packages/reunite-integration` (@redocly/reunite-integration)
+## `packages/platform-integration` (@redocly/platform-integration)
 
 Everything that talks to the Redocly platform (Reunite): the API client, authentication, and the
 functions behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.

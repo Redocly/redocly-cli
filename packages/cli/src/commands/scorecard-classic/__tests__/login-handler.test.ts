@@ -1,10 +1,10 @@
 import { logger } from '@redocly/openapi-core';
-import { RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { RedoclyOAuthClient } from '@redocly/platform-integration';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { handleLoginAndFetchToken } from '../login-handler.js';
 
-vi.mock('@redocly/reunite-integration', () => ({
+vi.mock('@redocly/platform-integration', () => ({
   RedoclyOAuthClient: vi.fn(),
   getReuniteUrl: vi.fn(() => 'https://www.test.com'),
 }));

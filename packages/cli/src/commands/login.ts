@@ -1,5 +1,5 @@
 import { logger, HandledError } from '@redocly/openapi-core';
-import { getReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { getReuniteUrl, RedoclyOAuthClient } from '@redocly/platform-integration';
 import { green } from 'colorette';
 
 import { printDeviceCode } from '../utils/print-device-code.js';

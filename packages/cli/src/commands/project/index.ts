@@ -1,5 +1,5 @@
 import { HandledError, logger } from '@redocly/openapi-core';
-import { buildProjectGitUrl, getReuniteUrl } from '@redocly/reunite-integration';
+import { buildProjectGitUrl, getReuniteUrl } from '@redocly/platform-integration';
 
 import type { CommandArgs } from '../../wrapper.js';
 import { getCredentialHelperConfig, runGit } from './utils.js';

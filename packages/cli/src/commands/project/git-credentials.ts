@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import { isValidReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { isValidReuniteUrl, RedoclyOAuthClient } from '@redocly/platform-integration';
 
 // Credential helper protocol: https://git-scm.com/docs/gitcredentials
 export async function handleProjectGitCredentials({

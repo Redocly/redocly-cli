@@ -6,7 +6,7 @@ import {
   pushFiles,
   type FileToUpload,
   type SunsetWarning,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import { green } from 'colorette';
 
 import { printExecutionTime } from '../utils/miscellaneous.js';
