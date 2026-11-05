@@ -90,10 +90,10 @@ export async function sendTelemetry({
       $0: _,
       ...args
     } = argv as Exact<Arguments<CommandArgv>>;
-    const { RedoclyOAuthClient, getReuniteUrl } = await import('@redocly/platform-integration');
+    const { RedoclyOAuthClient, getPlatformUrl } = await import('@redocly/platform-integration');
     const oauthClient = new RedoclyOAuthClient(version);
-    const reuniteUrl = getReuniteUrl(config, args.residency);
-    const logged_in = await oauthClient.isAuthorized(reuniteUrl);
+    const platformUrl = getPlatformUrl(config, args.residency);
+    const logged_in = await oauthClient.isAuthorized(platformUrl);
     let anonymous_id = getCachedAnonymousId();
     if (!anonymous_id) {
       anonymous_id = `ann_${ulid()}`;

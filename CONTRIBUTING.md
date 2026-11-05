@@ -468,7 +468,7 @@ To add an entry:
 
   - **`packages/respect-core`**: contains the Respect core package.
 
-  - **`packages/platform-integration`**: contains everything that talks to the Redocly platform (Reunite) - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+  - **`packages/platform-integration`**: contains everything that talks to the Redocly platform - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 
   - **`packages/client-generator`**: contains the client and SDK generators.
 

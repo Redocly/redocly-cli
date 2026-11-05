@@ -24,7 +24,7 @@
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
     "Redocly",
-    "Reunite"
+    "platform"
   ],
   "dependencies": {
     "@redocly/openapi-core": "2.75.0",

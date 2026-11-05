@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import { isValidReuniteUrl, RedoclyOAuthClient } from '@redocly/platform-integration';
+import { isValidPlatformUrl, RedoclyOAuthClient } from '@redocly/platform-integration';
 
 // Credential helper protocol: https://git-scm.com/docs/gitcredentials
 export async function handleProjectGitCredentials({
@@ -12,19 +12,19 @@ export async function handleProjectGitCredentials({
   version: string;
 }): Promise<string> {
   const request = await readCredentialRequest(input);
-  const reuniteUrl = `${request.protocol}://${request.host}`;
+  const platformUrl = `${request.protocol}://${request.host}`;
 
-  if (operation !== 'get' || !isValidReuniteUrl(reuniteUrl)) {
+  if (operation !== 'get' || !isValidPlatformUrl(platformUrl)) {
     return '';
   }
 
   const password =
     process.env.REDOCLY_AUTHORIZATION ||
-    (await new RedoclyOAuthClient(version).getAccessToken(reuniteUrl));
+    (await new RedoclyOAuthClient(version).getAccessToken(platformUrl));
 
   if (!password) {
     logger.error(
-      `You are not logged in to ${reuniteUrl}. Run \`redocly login --residency ${reuniteUrl}\` or set the REDOCLY_AUTHORIZATION environment variable.\n`
+      `You are not logged in to ${platformUrl}. Run \`redocly login --residency ${platformUrl}\` or set the REDOCLY_AUTHORIZATION environment variable.\n`
     );
     return 'quit=1\n';
   }

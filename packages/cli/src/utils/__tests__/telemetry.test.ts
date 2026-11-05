@@ -1,5 +1,5 @@
 import { createConfig } from '@redocly/openapi-core';
-import { RedoclyOAuthClient, getReuniteUrl } from '@redocly/platform-integration';
+import { RedoclyOAuthClient, getPlatformUrl } from '@redocly/platform-integration';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
@@ -48,7 +48,7 @@ it('sendTelemetry calls all telemetry functions', async () => {
 
   expect(respondWithinMs).toHaveBeenCalled();
   expect(RedoclyOAuthClient).toHaveBeenCalled();
-  expect(getReuniteUrl).toHaveBeenCalled();
+  expect(getPlatformUrl).toHaveBeenCalled();
   expect(mockMapToCloudEvent).toHaveBeenCalledWith(expect.objectContaining({ env: 'development' }));
   expect(mockOtelSend).toHaveBeenCalled();
 });

@@ -1,4 +1,4 @@
-import { ReuniteApiError, type ReuniteApi } from '../api/api-client.js';
+import { PlatformApiError, type PlatformApi } from '../api/api-client.js';
 import { resolveProjectRef } from '../resolve-project-ref.js';
 
 const ORG_ID = 'org_01hksn7dgmb6jpak0tzzepreq1';
@@ -11,7 +11,7 @@ const PROJECT = {
 };
 
 const projects = { find: vi.fn() };
-const client = { projects } as unknown as ReuniteApi;
+const client = { projects } as unknown as PlatformApi;
 
 describe('resolveProjectRef()', () => {
   beforeEach(() => {
@@ -61,7 +61,7 @@ describe('resolveProjectRef()', () => {
 
   it('keeps the given values when the API key may not look the project up', async () => {
     projects.find.mockRejectedValue(
-      new ReuniteApiError('Missing required organization permissions.', 403)
+      new PlatformApiError('Missing required organization permissions.', 403)
     );
     const onSlugDeprecated = vi.fn();
 
@@ -76,7 +76,7 @@ describe('resolveProjectRef()', () => {
   });
 
   it('lets other lookup errors through', async () => {
-    projects.find.mockRejectedValue(new ReuniteApiError('Bad Gateway.', 502));
+    projects.find.mockRejectedValue(new PlatformApiError('Bad Gateway.', 502));
 
     await expect(
       resolveProjectRef(client, { organization: 'acme', project: 'docs' })
@@ -89,7 +89,7 @@ describe('resolveProjectRef()', () => {
     await expect(
       resolveProjectRef(client, { organization: 'acme', project: 'nope' })
     ).rejects.toThrow(
-      new ReuniteApiError(
+      new PlatformApiError(
         'Project "nope" was not found in organization "acme". Use the IDs from the organization and project settings in the Redocly platform.',
         404
       )

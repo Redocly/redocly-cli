@@ -6,7 +6,7 @@ import { handleLoginAndFetchToken } from '../login-handler.js';
 
 vi.mock('@redocly/platform-integration', () => ({
   RedoclyOAuthClient: vi.fn(),
-  getReuniteUrl: vi.fn(() => 'https://www.test.com'),
+  getPlatformUrl: vi.fn(() => 'https://www.test.com'),
 }));
 
 const version = '1.2.3';
