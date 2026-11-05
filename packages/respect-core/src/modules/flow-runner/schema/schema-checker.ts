@@ -1,5 +1,5 @@
 import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
-import type { Oas3Responses } from '@redocly/openapi-core';
+import { isPlainObject, type Oas3Responses } from '@redocly/openapi-core';
 import { blue, dim, red, yellow, green } from 'colorette';
 
 import {
@@ -12,21 +12,102 @@ import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
 import { CHECKS } from '../../checks/index.js';
 
-const ajvStrict = new (Ajv as any)({
+const ajvBaseOptions = {
   schemaId: '$id',
   meta: true,
   allErrors: true,
   strictSchema: false,
   inlineRefs: false,
   validateSchema: false,
-  discriminator: true,
   allowUnionTypes: true,
   validateFormats: true,
   passContext: true,
   logger: false,
   verbose: true,
   defaultUnevaluatedProperties: false,
+};
+
+const ajvStrict = new (Ajv as any)({
+  ...ajvBaseOptions,
+  discriminator: true,
 });
+
+const ajvWithoutDiscriminator = new (Ajv as any)({
+  ...ajvBaseOptions,
+  discriminator: false,
+});
+
+const DISCRIMINATOR_VARIANT_THRESHOLD = 100;
+
+function isDiscriminatorLarge(
+  discr: Record<string, unknown>,
+  sch: Record<string, unknown>,
+  threshold: number
+): boolean {
+  if (isPlainObject(discr.mapping) && Object.keys(discr.mapping).length >= threshold) {
+    return true;
+  }
+
+  const variants = Array.isArray(sch.oneOf)
+    ? sch.oneOf
+    : Array.isArray(sch.anyOf)
+      ? sch.anyOf
+      : undefined;
+
+  if (!variants) {
+    return false;
+  }
+
+  if (variants.length >= threshold) {
+    return true;
+  }
+
+  const propertyName = discr.propertyName;
+  if (typeof propertyName === 'string') {
+    return variants.some((variant) => {
+      const prop = (variant as Record<string, unknown>)?.properties as
+        | Record<string, unknown>
+        | undefined;
+      const targetProp = prop?.[propertyName] as Record<string, unknown> | undefined;
+      return Array.isArray(targetProp?.enum) && targetProp.enum.length >= threshold;
+    });
+  }
+
+  return false;
+}
+
+export function hasLargeDiscriminator(
+  schema: unknown,
+  threshold = DISCRIMINATOR_VARIANT_THRESHOLD,
+  visited = new Set<unknown>()
+): boolean {
+  if (!schema || visited.has(schema)) {
+    return false;
+  }
+
+  if (Array.isArray(schema)) {
+    visited.add(schema);
+    return schema.some((item) => hasLargeDiscriminator(item, threshold, visited));
+  }
+
+  if (!isPlainObject(schema)) {
+    return false;
+  }
+  visited.add(schema);
+
+  const sch = schema as Record<string, unknown>;
+  if (isPlainObject(sch.discriminator) && isDiscriminatorLarge(sch.discriminator, sch, threshold)) {
+    return true;
+  }
+
+  for (const value of Object.values(sch)) {
+    if (hasLargeDiscriminator(value, threshold, visited)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export function checkSchema({
   stepCallCtx,
@@ -81,8 +162,11 @@ function checkSchemaFromDescription({
   }
 
   if (schemaFromDescription && !isSchemaWithCircularRef) {
+    const useDiscriminator = !hasLargeDiscriminator(schemaFromDescription);
+    const ajv = useDiscriminator ? ajvStrict : ajvWithoutDiscriminator;
+
     try {
-      const validate = ajvStrict.compile(schemaFromDescription as JSONSchemaType<unknown>);
+      const validate = ajv.compile(schemaFromDescription as JSONSchemaType<unknown>);
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
         passed: validate.call(ajvContext, resultBody),
@@ -96,6 +180,34 @@ function checkSchemaFromDescription({
         severity: ctx.severity['SCHEMA_CHECK'],
       });
     } catch (error: any) {
+      if (
+        useDiscriminator &&
+        (error instanceof RangeError ||
+          (typeof error?.message === 'string' &&
+            error.message.includes('Maximum call stack size exceeded')))
+      ) {
+        try {
+          const fallbackValidate = ajvWithoutDiscriminator.compile(
+            schemaFromDescription as JSONSchemaType<unknown>
+          );
+          checks.push({
+            name: CHECKS.SCHEMA_CHECK,
+            passed: fallbackValidate.call(ajvContext, resultBody),
+            message: fallbackValidate.errors
+              ? printAjvErrors(
+                  schemaFromDescription as JSONSchemaType<unknown>,
+                  resultBody,
+                  fallbackValidate.errors
+                )
+              : '',
+            severity: ctx.severity['SCHEMA_CHECK'],
+          });
+          return;
+        } catch {
+          // Fall through to record original error if fallback also fails
+        }
+      }
+
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
         passed: false,

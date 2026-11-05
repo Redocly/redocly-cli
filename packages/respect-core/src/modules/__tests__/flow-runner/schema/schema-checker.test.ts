@@ -1,3 +1,4 @@
+import Ajv from '@redocly/ajv/dist/2020.js';
 import { logger } from '@redocly/openapi-core';
 
 import type { StepCallContext, TestContext } from '../../../../types.js';
@@ -6,6 +7,7 @@ import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
 import {
   CHECKS,
   checkSchema,
+  hasLargeDiscriminator,
   statusCodeDiff,
   resolveContentByType,
 } from '../../../flow-runner/index.js';
@@ -615,6 +617,197 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
+  });
+
+  it('should validate schemas with 150+ discriminator variants without exceeding call stack', () => {
+    const variantsCount = 150;
+    const mapping: Record<string, string> = {};
+    for (let i = 0; i < variantsCount; i++) {
+      mapping[`type_${i}`] = `#/components/schemas/Type_${i}`;
+    }
+
+    const largeDiscriminatorSchema = {
+      type: 'object',
+      discriminator: {
+        propertyName: 'type',
+        mapping,
+      },
+      anyOf: [
+        {
+          type: 'object',
+          required: ['type', 'id'],
+          properties: {
+            type: { type: 'string' },
+            id: { type: 'string' },
+          },
+        },
+      ],
+    };
+
+    const result = checkSchema({
+      stepCallCtx: {
+        $request: {
+          header: {},
+          path: '/orders',
+          url: 'https://example.com/',
+          method: 'post',
+          queryParams: {},
+          pathParams: {},
+          headerParams: {},
+        },
+        $response: {
+          body: {
+            type: 'type_0',
+            id: 'ord_123',
+          },
+          statusCode: 200,
+          header: new Headers({ 'content-type': 'application/json' }),
+          contentType: 'application/json',
+        },
+        $outputs: {},
+      } as unknown as StepCallContext,
+      descriptionOperation: {
+        responses: {
+          '200': {
+            description: 'success',
+            content: {
+              'application/json': {
+                schema: largeDiscriminatorSchema,
+              },
+            },
+          },
+        },
+      },
+      ctx,
+    });
+
+    const schemaCheck = result.find((c) => c.name === CHECKS.SCHEMA_CHECK);
+    expect(schemaCheck?.passed).toBe(true);
+    expect(schemaCheck?.message).toBe('');
+  });
+
+  it('should fallback to non-discriminator validator when Maximum call stack size exceeded is encountered', () => {
+    const compileSpy = vi.spyOn((Ajv as any).prototype, 'compile').mockImplementationOnce(() => {
+      throw new RangeError('Maximum call stack size exceeded');
+    });
+
+    const result = checkSchema({
+      stepCallCtx,
+      descriptionOperation,
+      ctx,
+    });
+
+    const schemaCheck = result.find((c) => c.name === CHECKS.SCHEMA_CHECK);
+    expect(schemaCheck).toBeDefined();
+    expect(schemaCheck?.message).not.toContain('Maximum call stack size exceeded');
+    compileSpy.mockRestore();
+  });
+});
+
+describe('hasLargeDiscriminator', () => {
+  it('should return true when discriminator mapping has 100 or more entries', () => {
+    const mapping: Record<string, string> = {};
+    for (let i = 0; i < 100; i++) {
+      mapping[`type_${i}`] = `#/components/schemas/Type_${i}`;
+    }
+    const schema = {
+      type: 'object',
+      discriminator: {
+        propertyName: 'type',
+        mapping,
+      },
+    };
+    expect(hasLargeDiscriminator(schema)).toBe(true);
+  });
+
+  it('should return true when discriminator oneOf has 100 or more variants', () => {
+    const oneOf = Array.from({ length: 100 }, (_, i) => ({
+      type: 'object',
+      properties: { type: { const: `type_${i}` } },
+    }));
+    const schema = {
+      type: 'object',
+      discriminator: { propertyName: 'type' },
+      oneOf,
+    };
+    expect(hasLargeDiscriminator(schema)).toBe(true);
+  });
+
+  it('should return true when a variant discriminator property enum has 100 or more values', () => {
+    const enumValues = Array.from({ length: 100 }, (_, i) => `type_${i}`);
+    const schema = {
+      type: 'object',
+      discriminator: { propertyName: 'type' },
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            type: { type: 'string', enum: enumValues },
+          },
+        },
+      ],
+    };
+    expect(hasLargeDiscriminator(schema)).toBe(true);
+  });
+
+  it('should return false for schemas with fewer than 100 variants', () => {
+    const schema = {
+      type: 'object',
+      discriminator: {
+        propertyName: 'type',
+        mapping: {
+          cat: '#/components/schemas/Cat',
+          dog: '#/components/schemas/Dog',
+        },
+      },
+      oneOf: [
+        { type: 'object', properties: { type: { const: 'cat' } } },
+        { type: 'object', properties: { type: { const: 'dog' } } },
+      ],
+    };
+    expect(hasLargeDiscriminator(schema)).toBe(false);
+  });
+
+  it('should safely handle circular references without overflowing stack', () => {
+    const circularSchema: Record<string, any> = {
+      type: 'object',
+      properties: {},
+    };
+    circularSchema.properties.self = circularSchema;
+    expect(hasLargeDiscriminator(circularSchema)).toBe(false);
+  });
+
+  it('should detect large discriminator nested under composition arrays (allOf, oneOf, anyOf)', () => {
+    const mapping: Record<string, string> = {};
+    for (let i = 0; i < 100; i++) {
+      mapping[`type_${i}`] = `#/components/schemas/Type_${i}`;
+    }
+    const discriminatedSchema = {
+      type: 'object',
+      discriminator: {
+        propertyName: 'type',
+        mapping,
+      },
+    };
+
+    expect(
+      hasLargeDiscriminator({
+        type: 'object',
+        allOf: [{ type: 'object', properties: { id: { type: 'string' } } }, discriminatedSchema],
+      })
+    ).toBe(true);
+
+    expect(
+      hasLargeDiscriminator({
+        oneOf: [{ type: 'string' }, discriminatedSchema],
+      })
+    ).toBe(true);
+
+    expect(
+      hasLargeDiscriminator({
+        anyOf: [{ type: 'null' }, discriminatedSchema],
+      })
+    ).toBe(true);
   });
 });
 
