@@ -215,13 +215,9 @@ components:
 The change applies to every component type: schemas, parameters, responses, request bodies, headers, and so on.
 It changes the `$ref` paths in the bundled output and anything generated from it, such as SDK types indexed by component names.
 
-Redocly CLI generates both the old and the new names.
-Generated component names depend on file names and on the order in which `bundle` resolves references.
-Renaming a file or adding a `$ref` can change them.
 To keep a stable name, give the component a unique key in its source file, for example `./parameters.yaml#/orderId`.
 `bundle` uses that key as the component name in every version.
-For schemas, you can also derive the name from their `title` with the [`--component-names-strategy=title`](../commands/bundle.md#configure-the-component-names-strategy) option.
-To find such conflicts before bundling, enable the [`component-name-unique`](../rules/oas/component-name-unique.md) rule, or fail the bundle on them with [`--component-renaming-conflicts-severity=error`](../commands/bundle.md#configure-component-renaming-conflicts).
+For the other options, see [Configure the component names strategy](../commands/bundle.md#configure-the-component-names-strategy) and [Configure component renaming conflicts](../commands/bundle.md#configure-component-renaming-conflicts).
 
 ### Platform changes
 
@@ -282,7 +278,6 @@ paths:
 1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
 1. **Revise your YAML files** to comply with the latest YAML specification (v1.2).
 1. **Revise `build-docs` usage**: replace `--theme.openapi` with `--openapi`, remove `--disableGoogleFont`, review your Redoc options and custom templates for Redoc 3, or pin the CLI version to keep the Redoc 2 output.
-1. **Revise the bundled output** if you generate code from it: duplicate components now get the `id-2` suffix instead of the `parameters_id` prefix.
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`
