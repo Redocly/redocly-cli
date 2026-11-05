@@ -98,6 +98,7 @@
     }
   },
   "devDependencies": {
+    "@redocly/cli-otel": "0.4.0",
     "typescript": "6.0.2"
   },
   "files": [

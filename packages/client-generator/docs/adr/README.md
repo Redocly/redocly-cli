@@ -34,6 +34,7 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0021](./0021-text-printers.md)                        | Text printers — one common printer plus one per language                 | Accepted                |
 | [0022](./0022-runtime-inline-or-module.md)             | Runtime is inline or a sibling module; package mode removed              | Accepted                |
 | [0023](./0023-usage-telemetry-across-languages.md)     | One usage telemetry event for every SDK language, through a settled hook | Accepted                |
+| [0024](./0024-usage-event-follows-cli-otel-schema.md)  | The usage telemetry event follows the CloudEvent schema of cli-otel      | Accepted                |
 
 ## Template
 

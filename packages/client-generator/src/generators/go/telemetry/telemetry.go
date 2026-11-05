@@ -28,6 +28,8 @@ const (
 	usageTelemetryEventType        = "com.redocly.sdkUsage.aggregated"
 	usageTelemetryServiceName      = "redocly-sdk"
 	usageTelemetrySendTimeout      = 3 * time.Second
+	usageTelemetrySDKURNPrefix     = "urn:redocly:cli:sdk:go:"
+	usageTelemetryCrockfordBase32  = "0123456789abcdefghjkmnpqrstvwxyz"
 )
 
 // usageTelemetryRegistered holds each UsageTelemetry that Register added.
@@ -57,15 +59,22 @@ type UsageTelemetryOptions struct {
 	FlushInterval time.Duration
 }
 
-// UsageTelemetryEvent is the counts of one operation in one window. Usage values
-// are strings or int64; Time is the window start in RFC 3339 with milliseconds.
+// UsageTelemetryEvent is one com.redocly.sdkUsage.aggregated CloudEvent: the counts
+// of one operation in one window. Data holds the operation, then the SDK; their values
+// are strings or int64. Time is the window start in RFC 3339 with milliseconds. The
+// OpenTelemetry collector sets the env of the event.
 type UsageTelemetryEvent struct {
-	ID     string
-	Type   string
-	Source string
-	Time   string
-	Usage  map[string]any
-	SDK    map[string]string
+	ID              string           `json:"id"`
+	Object          string           `json:"object"`
+	SpecVersion     string           `json:"specversion"`
+	DataContentType string           `json:"datacontenttype"`
+	Type            string           `json:"type"`
+	Source          string           `json:"source"`
+	Time            string           `json:"time"`
+	Origin          string           `json:"origin"`
+	Category        string           `json:"category"`
+	Signal          string           `json:"signal"`
+	Data            []map[string]any `json:"data"`
 }
 
 type usageTelemetryCounts struct {
@@ -80,7 +89,7 @@ type usageTelemetryCounts struct {
 // its Middleware(). It is safe for concurrent use.
 type UsageTelemetry struct {
 	options     UsageTelemetryOptions
-	sdk         map[string]string
+	sdk         map[string]any
 	mu          sync.Mutex
 	counts      map[string]*usageTelemetryCounts
 	windowStart time.Time
@@ -99,8 +108,10 @@ func NewUsageTelemetry(options UsageTelemetryOptions) *UsageTelemetry {
 	}
 	return &UsageTelemetry{
 		options: options,
-		sdk: map[string]string{
-			"name":              options.SDKName,
+		sdk: map[string]any{
+			"id":                options.SDKName,
+			"object":            "sdk",
+			"uri":               usageTelemetrySDKURNPrefix + options.SDKName,
 			"version":           options.SDKVersion,
 			"generator_version": usageTelemetryGeneratorVersion,
 			"language":          "go",
@@ -264,29 +275,53 @@ func usageTelemetryStatusClass(call SettledCall) string {
 func (t *UsageTelemetry) toEvents(counts map[string]*usageTelemetryCounts, windowStart time.Time, window time.Duration) []UsageTelemetryEvent {
 	events := []UsageTelemetryEvent{}
 	for operationID, operation := range counts {
-		usage := map[string]any{
-			"operation_id":    operationID,
+		operationItem := map[string]any{
+			"id":              operationID,
+			"object":          "operation",
+			"uri":             usageTelemetrySDKURNPrefix + t.options.SDKName + ":operation:" + operationID,
 			"window_ms":       window.Milliseconds(),
 			"calls":           operation.calls,
 			"attempts":        operation.attempts,
 			"duration_sum_ms": operation.durationSumMs,
 		}
 		for key, count := range operation.status {
-			usage["status_"+key] = count
+			operationItem["status_"+key] = count
 		}
 		for key, count := range operation.latency {
-			usage["latency_"+key] = count
+			operationItem["latency_"+key] = count
 		}
 		events = append(events, UsageTelemetryEvent{
-			ID:     "evt_" + usageTelemetryRandomHex(16),
-			Type:   usageTelemetryEventType,
-			Source: t.options.SDKName,
-			Time:   windowStart.UTC().Format("2006-01-02T15:04:05.000Z"),
-			Usage:  usage,
-			SDK:    t.sdk,
+			ID:              usageTelemetryEventID(),
+			Object:          "event",
+			SpecVersion:     "1.0",
+			DataContentType: "application/json; charset=utf-8",
+			Type:            usageTelemetryEventType,
+			Source:          "urn:redocly:cli",
+			Time:            windowStart.UTC().Format("2006-01-02T15:04:05.000Z"),
+			Origin:          "redocly-sdk",
+			Category:        "product",
+			Signal:          "metric",
+			Data:            []map[string]any{operationItem, t.sdk},
 		})
 	}
 	return events
+}
+
+// usageTelemetryEventID returns evt_ and a lowercase ULID: 10 characters of the time
+// in milliseconds, then 16 random characters.
+func usageTelemetryEventID() string {
+	id := make([]byte, 26)
+	millis := time.Now().UnixMilli()
+	for index := 9; index >= 0; index-- {
+		id[index] = usageTelemetryCrockfordBase32[millis%32]
+		millis /= 32
+	}
+	random := make([]byte, 16)
+	rand.Read(random)
+	for index, value := range random {
+		id[10+index] = usageTelemetryCrockfordBase32[value%32]
+	}
+	return "evt_" + string(id)
 }
 
 type usageTelemetryRejectedError struct {
@@ -342,24 +377,30 @@ func usageTelemetryOtlpRequest(events []UsageTelemetryEvent) map[string]any {
 	for _, event := range events {
 		eventTime, _ := time.Parse(time.RFC3339, event.Time)
 		timeUnixNano := strconv.FormatInt(eventTime.UnixMilli(), 10) + "000000"
+		// The attributes that processCloudEventAttributes of @redocly/cli-otel gives for the event.
 		attributes := []map[string]any{
 			usageTelemetryAttribute("cloudevents.event_id", event.ID),
 			usageTelemetryAttribute("cloudevents.event_type", event.Type),
 			usageTelemetryAttribute("cloudevents.event_source", event.Source),
-			usageTelemetryAttribute("cloudevents.event_spec_version", "1.0"),
-			usageTelemetryAttribute("cloudevents.event_data_content_type", "application/json; charset=utf-8"),
+			usageTelemetryAttribute("cloudevents.event_spec_version", event.SpecVersion),
+			usageTelemetryAttribute("cloudevents.event_data_content_type", event.DataContentType),
 			usageTelemetryAttribute("cloudevents.event_time", event.Time),
-			usageTelemetryAttribute("cloudevents.event_subject", ""),
-			usageTelemetryAttribute("cloudevents.event_origin", usageTelemetryServiceName),
-			usageTelemetryAttribute("cloudevents.event_object", "event"),
-			usageTelemetryAttribute("cloudevents.event_category", "product"),
-			usageTelemetryAttribute("cloudevents.event_signal", "metric"),
+			usageTelemetryAttribute("cloudevents.event_subject", event.Data[0]["id"]),
+			usageTelemetryAttribute("cloudevents.event_origin", event.Origin),
+			usageTelemetryAttribute("cloudevents.event_object", event.Object),
+			usageTelemetryAttribute("cloudevents.event_category", event.Category),
+			usageTelemetryAttribute("cloudevents.event_signal", event.Signal),
+			usageTelemetryAttribute("cloudevents.event_request_id", ""),
 		}
-		for key, value := range event.Usage {
-			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.usage."+key, value))
+		for _, item := range event.Data {
+			for key, value := range item {
+				attributes = append(attributes, usageTelemetryAttribute(fmt.Sprintf("cloudevents.event_data.%s.%s", item["object"], key), value))
+			}
 		}
-		for key, value := range event.SDK {
-			attributes = append(attributes, usageTelemetryAttribute("cloudevents.event_data.sdk."+key, value))
+		for _, item := range event.Data {
+			for _, key := range []string{"id", "object", "uri"} {
+				attributes = append(attributes, usageTelemetryAttribute(fmt.Sprintf("cloudevents.event_subjects.%s.%s", item["object"], key), item[key]))
+			}
 		}
 		spans = append(spans, map[string]any{
 			"traceId":           usageTelemetryRandomHex(16),

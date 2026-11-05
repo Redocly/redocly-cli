@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -212,10 +213,61 @@ writeFileSync(
   ].join('\n')
 );
 
+/**
+ * Replace the type import from @redocly/cli-otel with the declarations of the imported file,
+ * after the other imports, so that a generated SDK has no dependencies. The declarations lose
+ * the 4-space indent of `tsc`.
+ */
+function inlineEventType(source) {
+  const file = ts.createSourceFile('__telemetry.ts', source, ts.ScriptTarget.Latest, true);
+  let eventTypeImport;
+  for (const statement of file.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      statement.moduleSpecifier.text.startsWith('@redocly/cli-otel/')
+    ) {
+      eventTypeImport = statement;
+    }
+  }
+  if (eventTypeImport === undefined) {
+    throw new Error('telemetry.ts imports no type from @redocly/cli-otel');
+  }
+
+  const specifier = eventTypeImport.moduleSpecifier.text;
+  const packageJsonPath = createRequire(import.meta.url).resolve('@redocly/cli-otel/package.json');
+  const declarationPath = join(
+    dirname(packageJsonPath),
+    specifier.slice('@redocly/cli-otel/'.length).replace(/\.js$/, '.d.ts')
+  );
+  const declarationSource = readFileSync(declarationPath, 'utf-8');
+  const declarationFile = ts.createSourceFile(
+    '__event.d.ts',
+    declarationSource,
+    ts.ScriptTarget.Latest,
+    true
+  );
+  const declarations = declarationSource
+    .slice(declarationFile.statements[0].getStart(), declarationFile.statements.at(-1).end)
+    .replace(/^( {4})+/gm, (indent) => ' '.repeat(indent.length / 2));
+
+  // The comment before the import goes with it: the output has no import to explain.
+  let importEnd = eventTypeImport.end;
+  while (source[importEnd] === '\n') importEnd++;
+  const withoutImport = source.slice(0, eventTypeImport.getFullStart()) + source.slice(importEnd);
+  const rest = ts.createSourceFile('__rest.ts', withoutImport, ts.ScriptTarget.Latest, true);
+  let lastImportEnd = 0;
+  for (const statement of rest.statements) {
+    if (ts.isImportDeclaration(statement)) lastImportEnd = statement.end;
+  }
+  return `${withoutImport.slice(0, lastImportEnd)}\n\n${declarations}${withoutImport.slice(lastImportEnd)}`;
+}
+
 // Not in RUNTIME_SOURCES, so `telemetry` and `flush` never become reserved names of every client.
-const telemetrySource = readFileSync(
-  join(pkgRoot, 'src', 'generators', 'typescript', 'telemetry', 'telemetry.ts'),
-  'utf-8'
+const telemetrySource = inlineEventType(
+  readFileSync(
+    join(pkgRoot, 'src', 'generators', 'typescript', 'telemetry', 'telemetry.ts'),
+    'utf-8'
+  )
 );
 writeFileSync(
   join(pkgRoot, 'src', 'runtime-sources', 'telemetry.ts'),
