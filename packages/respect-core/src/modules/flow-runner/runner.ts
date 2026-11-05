@@ -180,6 +180,14 @@ export async function runWorkflow({
   const runInputs = inputs
     ? { ...ctx.$workflows[workflowId].inputs, ...inputs }
     : ctx.$workflows[workflowId].inputs;
+  // A goto re-enters the workflow with inputs that were already checked.
+  const onInvalidInputs = (problems: string) => {
+    if (!fromStepId) {
+      logger.warn(
+        `Workflow "${workflowId}" runs with inputs that don't match its inputs schema: ${problems}.\n`
+      );
+    }
+  };
 
   // The run gets its own copy of the workflow entry, so the inputs passed to it
   // don't leak into later or concurrent runs of the same workflow.
@@ -195,6 +203,7 @@ export async function runWorkflow({
               inputs: runInputs,
               workflowInputSchema,
               env: ctx.options.envVariables,
+              onInvalidInputs,
             })
           : runInputs,
       },
