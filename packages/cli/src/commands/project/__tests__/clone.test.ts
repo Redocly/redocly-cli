@@ -1,5 +1,5 @@
 import { HandledError } from '@redocly/openapi-core';
-import { getReuniteUrl } from '@redocly/reunite-integration';
+import { getPlatformUrl } from '@redocly/platform-integration';
 
 import type { CommandArgv } from '../../../types.js';
 import type { CommandArgs } from '../../../wrapper.js';
@@ -15,9 +15,9 @@ vi.mock('../utils.js', async () => {
     runGit: vi.fn(),
   };
 });
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual<object>('@redocly/reunite-integration');
-  return { ...actual, getReuniteUrl: vi.fn() };
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual<object>('@redocly/platform-integration');
+  return { ...actual, getPlatformUrl: vi.fn() };
 });
 
 const HELPER_CONFIG = [
@@ -31,7 +31,7 @@ function commandArgs<T extends CommandArgv>(argv: T): CommandArgs<T> {
 
 describe('redocly project clone', () => {
   beforeEach(() => {
-    vi.mocked(getReuniteUrl).mockReturnValue('http://localhost');
+    vi.mocked(getPlatformUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
     vi.mocked(runGit).mockResolvedValue({ code: 0, output: '' });
   });

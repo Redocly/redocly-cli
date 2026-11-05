@@ -32,12 +32,12 @@ jobs:
           npm run pack:prepare
           npm i -g ./redocly-cli.tgz
           redocly --version
-      - name: Push to the staging Reunite project
+      - name: Push to the staging Redocly platform project
         run: |
           echo "Pushed at $(date -u +%Y-%m-%dT%H:%M:%SZ) by GitHub run ${{ github.run_id }} on Node.js ${{ matrix.node-version }}." > "$RUNNER_TEMP/push.md"
           redocly push "$RUNNER_TEMP/push.md" \
-            --organization redocly \
-            --project dark-side-push-command-test \
+            --organization org_01hkmdy7b4ec4jybpjszg6nf4q \
+            --project prj_01m2q9xa0vbe1ccqzr7jey27g4 \
             --mount-path cli-smoke \
             --branch main \
             --author "Redocly CLI Smoke <cli-smoke@redocly.com>" \

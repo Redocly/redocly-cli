@@ -4,7 +4,7 @@ import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node
 import { homedir } from 'node:os';
 import path from 'node:path';
 
-import { isValidReuniteUrl } from '../api/domains.js';
+import { isValidPlatformUrl } from '../api/domains.js';
 import { type Credentials, type DeviceCode, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
 const CREDENTIALS_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
@@ -52,25 +52,25 @@ export class RedoclyOAuthClient {
     }
   }
 
-  public async isAuthorized(reuniteUrl: string, apiKey?: string): Promise<boolean> {
+  public async isAuthorized(platformUrl: string, apiKey?: string): Promise<boolean> {
     if (apiKey) {
-      const deviceFlow = new RedoclyOAuthDeviceFlow(reuniteUrl, this.version);
+      const deviceFlow = new RedoclyOAuthDeviceFlow(platformUrl, this.version);
       return deviceFlow.verifyApiKey(apiKey);
     }
 
-    const accessToken = await this.getAccessToken(reuniteUrl);
+    const accessToken = await this.getAccessToken(platformUrl);
 
     return Boolean(accessToken);
   }
 
-  public getAccessToken = async (reuniteUrl: string): Promise<string | null> => {
-    const deviceFlow = new RedoclyOAuthDeviceFlow(reuniteUrl, this.version);
+  public getAccessToken = async (platformUrl: string): Promise<string | null> => {
+    const deviceFlow = new RedoclyOAuthDeviceFlow(platformUrl, this.version);
     const credentials = await this.readCredentials();
 
     if (
       !credentials ||
-      !isValidReuniteUrl(reuniteUrl) ||
-      (credentials.residency && credentials.residency !== reuniteUrl)
+      !isValidPlatformUrl(platformUrl) ||
+      (credentials.residency && credentials.residency !== platformUrl)
     ) {
       return null;
     }

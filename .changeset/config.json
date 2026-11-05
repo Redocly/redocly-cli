@@ -7,7 +7,7 @@
       "@redocly/cli",
       "@redocly/openapi-core",
       "@redocly/respect-core",
-      "@redocly/reunite-integration",
+      "@redocly/platform-integration",
       "@redocly/recheck"
     ]
   ],
