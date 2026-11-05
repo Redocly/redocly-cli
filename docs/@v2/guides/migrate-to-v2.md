@@ -194,30 +194,52 @@ To keep the Redoc 2 output, pin `@redocly/cli` to the version you used before, o
 ### Changes in `bundle` component naming (since v2.27.1)
 
 When two referenced components share a name but have different content, the [`bundle`](../commands/bundle.md) command renames one of them.
-Redocly CLI v1 built the new name from the `$ref`.
-For a reference with a JSON pointer, such as `./parameters.yaml#/id`, it prefixed the file name and produced `parameters_id`.
-Since v2.27.1, every duplicate gets a numeric suffix instead, so the same reference produces `id-2`:
+Redocly CLI v1 prefixed the file name to the component name.
+Since v2.27.1, `bundle` adds a numeric suffix instead.
+
+For example, the root document defines an `Order` schema and references a different `Order` from another file:
 
 ```yaml
-# Redocly CLI v1
+# openapi.yaml
+paths:
+  /orders:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas.yaml#/Order
 components:
-  parameters:
-    id: ...
-    parameters_id: ...
-
-# Redocly CLI v2
-components:
-  parameters:
-    id: ...
-    id-2: ...
+  schemas:
+    Order:
+      type: object
 ```
 
-The change applies to every component type: schemas, parameters, responses, request bodies, headers, and so on.
-It changes the `$ref` paths in the bundled output and anything generated from it, such as SDK types indexed by component names.
+```yaml
+# schemas.yaml
+Order:
+  type: object
+  properties:
+    coffee:
+      type: string
+```
 
-To keep a stable name, give the component a unique key in its source file, for example `./parameters.yaml#/orderId`.
-`bundle` uses that key as the component name in every version.
-For the other options, see [Configure the component names strategy](../commands/bundle.md#configure-the-component-names-strategy) and [Configure component renaming conflicts](../commands/bundle.md#configure-component-renaming-conflicts).
+In the bundled output, Redocly CLI v1 names the second schema `schemas_Order`, and v2 names it `Order-2`:
+
+```yaml
+components:
+  schemas:
+    Order:
+      type: object
+    schemas_Order: # Order-2 in v2
+      type: object
+      properties:
+        coffee:
+          type: string
+```
+
+The change applies to every component type and changes the `$ref` paths in the bundled output.
+To control the names, see [Configure the component names strategy](../commands/bundle.md#configure-the-component-names-strategy) and [Configure component renaming conflicts](../commands/bundle.md#configure-component-renaming-conflicts).
 
 ### Platform changes
 
