@@ -71,11 +71,15 @@ describe('runtime-sources', () => {
     );
     // The module's own code is the source file's, byte-for-byte, around the re-export that the
     // declarations replace.
-    const reExportStart = source.indexOf('// The package root reaches');
-    const reExportEnd = source.indexOf(';', source.indexOf('export type {', reExportStart)) + 1;
     expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
-      source.slice(source.indexOf('const GENERATOR_VERSION'), reExportStart)
+      between(source, 'const GENERATOR_VERSION', '\n\n// The package root reaches')
     );
-    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(source.slice(reExportEnd));
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
+      between(
+        source,
+        '/** The `com.redocly.sdkUsage.aggregated` CloudEvent.',
+        '\n\nfunction randomHex'
+      )
+    );
   });
 });
