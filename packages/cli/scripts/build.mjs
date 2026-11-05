@@ -112,10 +112,13 @@ cpSync(
   { recursive: true }
 );
 
-cpSync(
-  fileURLToPath(import.meta.resolve('redoc/bundles/redoc.standalone.js')),
-  path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js')
-);
+const redocStandalone = fileURLToPath(import.meta.resolve('redoc/bundles/redoc.standalone.js'));
+for (const target of [
+  path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js'),
+  path.join(packageDir, 'src', 'commands', 'build-docs', 'redoc.standalone.js'),
+]) {
+  cpSync(redocStandalone, target);
+}
 
 for (const skill of ['redocly-cli', 'redocly-lint-rules', 'recheck-lint', 'recheck-config']) {
   cpSync(
