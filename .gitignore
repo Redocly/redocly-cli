@@ -6,6 +6,7 @@ coverage/
 .vscode/
 yarn.lock
 lib/
+packages/cli/src/commands/build-docs/redoc.standalone.js
 output/
 *.tar.gz
 *.tsbuildinfo
@@ -27,4 +28,4 @@ __changesets__.json
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
 __pycache__/
-packages/cli/src/commands/build-docs/redoc.standalone.js
+
