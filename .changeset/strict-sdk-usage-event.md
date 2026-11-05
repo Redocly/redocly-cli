@@ -3,5 +3,5 @@
 '@redocly/cli': minor
 ---
 
-Changed the usage telemetry event of the generated TypeScript, Go, Python, and PHP clients to the `com.redocly.sdkUsage.aggregated` CloudEvent, with the operation and its counts as the first item of `data` and the SDK as the second.
-If you pass a custom `sink`, read the counts and the SDK from these items instead of `data.usage` and `data.sdk`.
+Changed the usage telemetry event of the generated clients to the `com.redocly.sdkUsage.aggregated` CloudEvent.
+**Note:** A custom `sink` reads the counts and the SDK from the two items of `data` instead of `data.usage` and `data.sdk`.
