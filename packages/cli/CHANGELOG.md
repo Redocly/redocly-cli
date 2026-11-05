@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.24
+
+### Patch Changes
+
+- Updated the new version notifier to request the latest Redocly CLI version from the npm registry over HTTPS.
+- Updated @redocly/openapi-core to v1.34.24.
+
 ## 1.34.23
 
 ### Patch Changes
