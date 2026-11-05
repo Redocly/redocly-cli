@@ -32,26 +32,26 @@ export function mergeWorkflowInputs({
   inputs,
   workflowInputSchema,
   env,
+  onInvalidInputs,
 }: {
   inputs: Record<string, string> | undefined;
   workflowInputSchema: InputSchema | undefined;
   env: Record<string, string> | undefined;
+  onInvalidInputs?: (problems: string) => void;
 }) {
-  let resolvedInputs = {};
-  let resolvedDotEnvInputs = {};
-
-  if (workflowInputSchema) {
-    resolvedInputs = resolveInputValuesToSchema(inputs, workflowInputSchema as InputSchema);
+  if (!workflowInputSchema) {
+    return {};
   }
 
-  if (workflowInputSchema?.properties?.env) {
-    resolvedDotEnvInputs = resolveInputValuesToSchema(
-      env || {},
-      workflowInputSchema.properties.env as InputSchema
-    );
-  }
+  const resolvedDotEnvInputs = workflowInputSchema.properties?.env
+    ? resolveInputValuesToSchema(env || {}, workflowInputSchema.properties.env as InputSchema)
+    : {};
 
-  return Object.keys(resolvedDotEnvInputs).length > 0
-    ? { ...resolvedInputs, env: resolvedDotEnvInputs }
-    : resolvedInputs;
+  return resolveInputValuesToSchema(
+    Object.keys(resolvedDotEnvInputs).length > 0
+      ? { ...inputs, env: resolvedDotEnvInputs }
+      : inputs,
+    workflowInputSchema,
+    onInvalidInputs
+  );
 }
