@@ -1,186 +1,171 @@
 # Redocly CLI
 
-[@Redocly](https://redocly.com) CLI is your all-in-one API documentation utility.
-It builds, manages, improves, and quality-checks your API descriptions, all of which comes in handy for various phases of the API Lifecycle.
-Create your own rulesets to make API governance easy, publish beautiful API reference documentation, and more.
-Supports OpenAPI 3.x and 2.0 (legacy Swagger), AsyncAPI 3.x and 2.6, Arazzo 1.x, and more.
+**Govern your APIs with one tool.**
+Lint, bundle, test, document, and generate clients from the command line.
 
-![build and test](https://github.com/redocly/redocly-cli/actions/workflows/tests.yaml/badge.svg)
-![npm (scoped)](https://img.shields.io/npm/v/@redocly/cli)
-![NPM](https://img.shields.io/npm/l/@redocly/cli)
+[![npm version](https://img.shields.io/npm/v/@redocly/cli)](https://www.npmjs.com/package/@redocly/cli)
+[![npm downloads per month](https://img.shields.io/npm/dm/@redocly/cli)](https://www.npmjs.com/package/@redocly/cli)
+[![License](https://img.shields.io/npm/l/@redocly/cli)](LICENSE.md)
+[![Build and test](https://github.com/redocly/redocly-cli/actions/workflows/tests.yaml/badge.svg)](https://github.com/Redocly/redocly-cli/actions/workflows/tests.yaml)
 
-![OpenAPI CLI toolset](./media/redocly-cli.gif)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./media/lifecycle-dark.svg">
+  <img alt="The API lifecycle with Redocly CLI: lint, test, document, generate, and compare, on every change, locally and in CI." src="./media/lifecycle-light.svg" width="100%">
+</picture>
 
-## Migration
+Redocly CLI is a fast OpenAPI linter and API governance toolkit.
+It checks OpenAPI 3.2, 3.1, 3.0, Swagger 2.0, AsyncAPI 3.x and 2.6, and Arazzo 1.x descriptions against your API style guide.
+It runs on your machine, in CI/CD, and in Docker.
 
-Migrating from Redocly CLI v1 to v2?
-Here's the [guide](https://redocly.com/docs/cli/guides/migrate-to-v2) to make the transition smoother.
+## Quick start
 
-## Usage
-
-### Node
-
-```sh
-npx @redocly/cli@latest lint path-to-root-file.yaml
-```
-
-Alternatively, install it globally with `npm`:
+Run the latest version without installing it:
 
 ```sh
-npm install @redocly/cli -g
+npx @redocly/cli@latest lint openapi.yaml
 ```
 
-Then you can use it as `redocly [command] [options]`, for example:
+Or install it with npm or Docker.
+
+### npm
 
 ```sh
-redocly lint path-to-root-file.yaml
+npm install -g @redocly/cli
 ```
-
-The minimum required versions of Node.js and NPM are 22.12.0 and 10.9.2 respectively.
 
 ### Docker
 
-To give the Docker container access to the OpenAPI description files, you need to mount the containing directory as a volume.
-Assuming the API description is rooted in the current working directory, you need the following command:
-
 ```sh
-docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
+docker run --rm -v $PWD:/spec redocly/cli lint openapi.yaml
 ```
 
-To build and run with a local image, run the following from the project root:
+npm and npx need Node.js 22.12.0 and npm 10.9.2 or later.
+For more options, see [Install Redocly CLI](https://redocly.com/docs/cli/installation).
 
-```sh
-docker build -t redocly/cli .
-docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
+## What you can do
+
+Lint, design tests with AI, and test the live API:
+
+![Redocly CLI lints a multi-file API description, designs test workflows with AI, and tests a live API.](./media/demo.gif)
+
+### Lint to your API style guide
+
+Mix and match the [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules) to set your API guidelines.
+When you need a rule of your own, write it in `redocly.yaml`.
+[Configurable rules](https://redocly.com/docs/cli/rules/configurable-rules) use simple expressions that know the structure of the API description, not complex JSONPath selectors.
+For full control, [build your own plugin](https://redocly.com/docs/cli/custom-plugins).
+
+```yaml
+extends:
+  - recommended
+rules:
+  operation-summary: error
+  rule/operation-id-camel-case:
+    subject:
+      type: Operation
+      property: operationId
+    assertions:
+      casing: camelCase
+    message: operationId must be camelCase.
 ```
 
-### Use with AI assistants
-
-Redocly CLI ships [agent skills](./.claude/skills) that teach AI coding assistants how to work with the CLI.
-Install them into your project:
-
-```sh
-redocly skills
-```
-
-The command detects Claude Code, Codex, Cursor, GitHub Copilot, and other agents.
-It installs only the skills for Redocly CLI.
-To install every skill that Redocly publishes, use `npx skills add https://redocly.com`.
-
-- `redocly-cli` — day-to-day usage: lint, bundle, decorate, build docs, test, and generate a client.
-- `redocly-lint-rules` — turn a check written in plain language into a built-in rule, a configurable rule, or a custom plugin.
-  It also covers migrating rules from other linters, such as Spectral.
-- `recheck-lint` — run `redocly recheck` on the Markdown the assistant touched, fix what it finds, and never suppress findings to pass.
-- `recheck-config` — write and tune the `recheck` block in `redocly.yaml` from measured counts, and adopt a baseline on a large document set.
-
-## Common tasks
-
-### Generate API reference documentation
-
-Redocly CLI is a great way to render API reference documentation.
-It uses open source [Redoc](https://github.com/redocly/redoc) to build your documentation.
-Use a command like this:
-
-```sh
-redocly build-docs openapi.yaml
-```
-
-Your API reference docs are in `redoc-static.html` by default.
-You can customize this in many ways.
-[Read the main docs](https://redocly.com/docs/cli/commands/build-docs) for more information.
-
-> :bulb: Redocly also has [hosted API management solution](https://redocly.com/reunite/), a (commercial) alternative to Redoc.
-> Redoc, Revel, Reef, and Realm can be worked on locally using the `preview` command.
-
-### Bundle multiple OpenAPI documents
-
-Having one massive OpenAPI description can be annoying, so most people split them up into multiple documents via `$ref`, only to later find out some tools don't support `$ref` or don't support multiple documents.
-Redocly CLI to the rescue! It has a `bundle` command you can use to recombine all of those documents back into one single document.
-The bundled output that Redocly CLI provides is clean, tidy, and looks like a human made it.
-
-### Automate API guidelines with Linting
-
-Check that your API matches the expected API guidelines by using the `lint` command.
-API guidelines are an important piece of API governance. They help to keep APIs consistent by enforcing the same standards and naming conventions, and they can also guide API teams through potential security hazards and other pitfalls.
-Automating API guidelines means you can keep APIs consistent and secure throughout their lifecycle.
-Even better, you can shape the design of the API before it even exists by combining API linting with a design-first API workflow.
-
-Our API linter is designed for speed on even large documents, and it's easy to run locally, in CI, or anywhere you need it.
-It's also designed for humans, with meaningful error messages to help you get your API right every time.
-
-Try it like this:
+**Multiple files supported.**
+You do not need to bundle your API description to lint it.
+Point Redocly CLI at the entry point, for example `openapi.yaml`, and it follows every `$ref`.
 
 ```sh
 redocly lint openapi.yaml
 ```
 
-**Configure the rules** as you wish.
-Other API Linters use complicated identifiers like JSONPath, but Redocly makes life easy with simple expressions that understand the API specification structure.
-You can either use the [built-in rules](https://redocly.com/docs/cli/rules) to mix-and-match your ideal API guidelines, or break out the tools to [build your own](https://redocly.com/docs/cli/rules#rule-ideas).
+The default output is `codeframe`.
+Other tools can read the `stylish`, JSON, Markdown, Checkstyle, JUnit, and other formats.
+Moving from Spectral?
+Read [Migrate from Spectral](https://redocly.com/docs/cli/guides/migrate-from-spectral).
 
-**Format the output** in whatever way you need.
-The `stylish` output is as good as it sounds, but if you need JSON, Markdown, Checkstyle and other outputs to integrate with other tools, the `lint` command can output those too.
+[Learn more about API standards and how to configure rules](https://redocly.com/docs/cli/api-standards).
+For ready-made rules and plugins, see the [Cookbook](./cookbook/README.md).
 
-**Multiple files supported** so you don't need to bundle your API description to lint it; just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it handles the rest.
+### Bundle, split, and join
 
-[Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
-
-Looking for more examples? Check out our [Cookbook](./cookbook/README.md).
-
-### API contract testing with Respect
-
-Ensure your APIs match their OpenAPI descriptions with **Respect**, Redocly's API contract testing system. Respect sends real HTTP requests to your API server and validates that responses match the expectations defined in your OpenAPI description and Arazzo workflows.
-
-- Verify API responses match your OpenAPI schema
-- Test complex API sequences using OpenAPI Arazzo format
-- Catch API drift early in development and CI/CD
-- Ensure external APIs you depend on behave as expected
-- Track response times and detect anomalies
-
-#### Quick start
+Keep a large description in many files, and bundle it into one file for tools that need it.
+Use [decorators](https://redocly.com/docs/cli/decorators) to remove internal endpoints or change server URLs as you bundle.
 
 ```sh
-# Generate test workflows from your OpenAPI spec
-redocly generate-arazzo openapi.yaml
-
-# Run contract tests against your API
-redocly respect auto-generated.arazzo.yaml --verbose
+redocly bundle openapi.yaml -o dist/openapi.yaml
 ```
 
-#### Respect vs. Respect Monitoring
+### Test the live API
 
-Respect is Redocly's community-edition product. Looking for something more? We also offer continuous API monitoring with additional features including:
+[Respect](https://redocly.com/docs/respect/get-started) sends real requests to your API and checks each response against your OpenAPI description and Arazzo workflows.
+With `--with-ai`, your local AI CLI (Claude, Codex, or Cursor) designs multi-step workflows from the OpenAPI description.
 
-- Real-time insights
-- Automated alerts via email or Slack
-- Automated API checks
-- Proactive API quality assurance
+```sh
+redocly generate-arazzo openapi.yaml --with-ai
+redocly respect auto-generated.arazzo.yaml
+```
 
-Learn more about [Respect](https://redocly.com/respect) and [get started with API contract testing](https://redocly.com/docs/respect/get-started).
+### Build API reference docs
 
-### Generate a TypeScript client
+Make a single HTML page of API reference docs with [Redoc CE](https://redocly.com/redoc-ce).
 
-> ⚠️ **Experimental** — flags, output, and configuration may change in any minor release until declared stable.
+```sh
+redocly build-docs openapi.yaml
+```
 
-Turn an OpenAPI description (3.0/3.1/3.2 or Swagger 2.0) into a typed TypeScript client with the `generate-client` command.
-The emitted client has zero runtime dependencies and runs in browsers, Node, Bun, Deno, and edge runtimes.
+### Generate typed clients (experimental)
+
+Generate a TypeScript client with zero runtime dependencies, or SDKs for Python, Go, PHP, and Java.
+Flags, output, and configuration can change in any minor release until the feature is stable.
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts
 ```
 
-Inline types plus a typed client instance and one async function per operation, with auth, opt-in abort-aware retries, middleware, and typed Server-Sent Events.
-The same command can also emit Zod schemas, TanStack Query / SWR hooks, MSW mocks, and more via `--generator`.
-For detailed information, read the [ `generate-client` docs](./docs/@v2/commands/generate-client.md).
+Read the [`generate-client` docs](https://redocly.com/docs/cli/commands/generate-client).
 
-### Transform an OpenAPI description
+### Compare versions and traffic (experimental)
 
-If your OpenAPI description isn't everything you hoped it would be, enhance it with the Redocly [decorators](https://redocly.com/docs/cli/decorators) feature.
-This allows you to:
+[`diff`](https://redocly.com/docs/cli/commands/diff) lists the changes between two versions of a description.
+[`drift`](https://redocly.com/docs/cli/commands/drift) compares recorded HTTP traffic with the description.
 
-- Publish reference docs with a subset of endpoints for public use
-- Improve the docs by adding examples and descriptions
-- Adapt an existing OpenAPI description, and replace details like URLs for use on staging platforms
+See [all commands](https://redocly.com/docs/cli/commands).
+
+## Use with AI assistants
+
+Redocly CLI ships [agent skills](./.claude/skills) that teach AI coding assistants how to use it.
+This command finds Claude Code, Codex, Cursor, GitHub Copilot, and other agents, and installs the skills into your project:
+
+```sh
+redocly skills
+```
+
+It installs only the skills for Redocly CLI.
+To install every skill that Redocly publishes, use `npx skills add https://redocly.com`.
+
+- `redocly-cli`: lint, bundle, decorate, build docs, test, and generate a client.
+- `redocly-lint-rules`: turn a rule written in plain language into a built-in rule, a configurable rule, or a plugin.
+  It also moves rules from other linters, such as Spectral.
+- `recheck-lint`: run `redocly recheck` on the Markdown that the assistant changed, and fix what it finds.
+- `recheck-config`: write and tune the `recheck` settings in `redocly.yaml`.
+
+## Migrate
+
+- [From Redocly CLI v1 to v2](https://redocly.com/docs/cli/guides/migrate-to-v2)
+- [From Spectral](https://redocly.com/docs/cli/guides/migrate-from-spectral)
+- From [swagger-cli](https://redocly.com/docs/cli/guides/migrate-from-swagger-cli), [redoc-cli](https://redocly.com/docs/cli/guides/migrate-from-redoc-cli), or [openapi-cli](https://redocly.com/docs/cli/guides/migrate-from-openapi-cli)
+
+## From the CLI to a full API platform
+
+<a href="https://redocly.com/pricing">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./media/platform-dark.svg">
+    <img alt="Redocly Platform: publish what you lint. Interactive API docs, a mock server, and an API catalog, published from your Git repository. Start a free trial." src="./media/platform-light.svg" width="100%">
+  </picture>
+</a>
+
+See [plans and pricing](https://redocly.com/pricing).
+To work on a Redocly Framework project locally, run [`redocly preview`](https://redocly.com/docs/cli/commands/preview).
+Add `--plan=pro`, `--plan=scale`, or `--plan=enterprise` to see the features of that plan.
 
 ## Data collection
 
