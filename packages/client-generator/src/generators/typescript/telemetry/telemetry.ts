@@ -30,8 +30,8 @@ const LATENCY_BUCKETS: Array<{ bucket: LatencyBucket; belowMs: number }> = [
   { bucket: 'gte_10s', belowMs: Infinity },
 ];
 
-// The package root reaches its types through paths without an extension, which `nodenext`
-// cannot resolve, so the types come from their own file. The prepare script inlines them.
+// The package root does not export the message types, so they come from their own file.
+// The prepare script inlines them.
 export type {
   BaseEventMessage,
   SdkUsageAggregatedMessage,

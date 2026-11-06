@@ -33,4 +33,5 @@ A generated SDK has no dependencies, so it cannot import the package.
 - Point 3 of ADR 0023 changes: the `uri` fields hold the language, so they differ between languages too, beside `sdk.language`, `sdk.runtime`, and `sdk.runtime_version`.
 - A custom `sink` receives the CloudEvent, so a sink that read `data.usage` must read the first item of `data`.
 - The generated TypeScript module carries the type declarations of the event, about 190 lines.
-- The type import names a file inside the package, because the package root reaches its types through paths without an extension, which `nodenext` cannot resolve.
+- The type import names a file inside the package, because the package root does not export the message types.
+  The root also re-exports through paths without an extension, so under `nodenext` its types are `any`; `skipLibCheck`, which this repository turns on, hides the error.

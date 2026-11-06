@@ -62,8 +62,8 @@ type UsageTelemetryOptions struct {
 // UsageTelemetryEvent is one com.redocly.sdkUsage.aggregated CloudEvent: the counts
 // of one operation in one window. Data holds the operation, then the SDK; their values
 // are strings or int64. Time is the window start in RFC 3339 with milliseconds. The
-// OpenTelemetry collector sets the env of the event. The json tags give a Sink that
-// marshals an event the CloudEvent field names, as in the other languages.
+// OpenTelemetry collector sets the env of the event. The json tags make a Sink that
+// marshals an event write the CloudEvent field names, as in the other languages.
 type UsageTelemetryEvent struct {
 	ID              string           `json:"id"`
 	Object          string           `json:"object"`

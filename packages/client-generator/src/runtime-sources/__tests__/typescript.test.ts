@@ -72,7 +72,7 @@ describe('runtime-sources', () => {
     // The module's own code is the source file's, byte-for-byte, around the re-export that the
     // declarations replace.
     expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
-      between(source, 'const GENERATOR_VERSION', '\n\n// The package root reaches')
+      between(source, 'const GENERATOR_VERSION', '\n\n// The package root does not export')
     );
     expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
       between(
