@@ -79,6 +79,15 @@ export const handlerBuildCommand = async ({
       `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
   } catch (error) {
+    // A bug in the renderer (for example `TypeError: x.match is not a function`)
+    // keeps its stack trace so it can be reported and located.
+    if (
+      error instanceof TypeError ||
+      error instanceof ReferenceError ||
+      error instanceof RangeError
+    ) {
+      throw error;
+    }
     throw new HandledError(error instanceof Error ? error.message : String(error));
   }
 };
