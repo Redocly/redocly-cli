@@ -1,0 +1,15 @@
+arazzo: 1.1.0
+info:
+  title: Test that respect shows a notice for an AsyncAPI source description
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-events
+    type: asyncapi
+    url: ./cafe-events.asyncapi.yaml
+
+workflows:
+  - workflowId: wait-for-order
+    steps:
+      - stepId: order-created
+        operationId: $sourceDescriptions.cafe-events.orderCreated

@@ -1,9 +1,10 @@
-import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
+import { type ArazzoDefinition, BaseResolver, HandledError, logger } from '@redocly/openapi-core';
 import { type JsonLogs } from '@redocly/respect-core';
-import { blue, green } from 'colorette';
+import { blue, cyan, green } from 'colorette';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, basename } from 'node:path';
 
+import { renderBanner } from '../../utils/banner.js';
 import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
 import { readEnvVariables } from '../../utils/read-env-variables.js';
 import { type CommandArgs } from '../../wrapper.js';
@@ -118,6 +119,30 @@ export async function handleRespect({
       throw new Error(
         'Currently only a single file can be run with --har-output. Please run a single file at a time.'
       );
+    }
+
+    // Respect cannot run an AsyncAPI source description, so the run stops before it starts.
+    for (const file of options.files) {
+      const document = await externalRefResolver.resolveDocument<ArazzoDefinition>(
+        null,
+        file,
+        true
+      );
+      if (document instanceof Error || !Array.isArray(document.parsed?.sourceDescriptions)) {
+        continue;
+      }
+      if (document.parsed.sourceDescriptions.some((source) => source.type === 'asyncapi')) {
+        collectSpecData?.(document);
+        logger.info(
+          renderBanner([
+            `AsyncAPI source descriptions are not supported by ${cyan('respect')} yet.`,
+            `Need them? Upvote or open an issue: ${cyan('https://github.com/Redocly/redocly-cli/issues')}`,
+          ])
+        );
+        throw new Error(
+          `Stopped before running any workflow: ${basename(file)} has an AsyncAPI source description.`
+        );
+      }
     }
 
     const startedAt = performance.now();

@@ -1,0 +1,16 @@
+asyncapi: 3.0.0
+info:
+  title: Redocly Cafe events
+  version: 1.0.0
+channels:
+  orders:
+    address: orders
+    messages:
+      orderCreated:
+        payload:
+          type: object
+operations:
+  orderCreated:
+    action: receive
+    channel:
+      $ref: '#/channels/orders'
