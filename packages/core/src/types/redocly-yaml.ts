@@ -335,6 +335,7 @@ const ConfigGovernance: NodeType = {
 
 const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
   ...nodeTypes.rootRedoclyConfigSchema,
+  hasGeneratedName: false,
   properties: {
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigGovernance.properties,
@@ -361,6 +362,7 @@ const ConfigApis: NodeType = {
 
 const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => ({
   ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
+  hasGeneratedName: false,
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     // plugins are not allowed in apis, and diff compares two apis, so it is configured once.
