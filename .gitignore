@@ -3,9 +3,11 @@
 node_modules/
 nodejs/
 coverage/
+__pycache__/
 .vscode/
 yarn.lock
 lib/
+packages/cli/src/commands/build-docs/redoc.standalone.js
 output/
 *.tar.gz
 *.tsbuildinfo
@@ -26,4 +28,3 @@ __changesets__.json
 **/.claude/agent-memory-local
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
-__pycache__/
