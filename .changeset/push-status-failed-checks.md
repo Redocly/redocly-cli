@@ -1,5 +1,5 @@
 ---
-'@redocly/reunite-integration': patch
+'@redocly/platform-integration': patch
 '@redocly/cli': patch
 ---
 

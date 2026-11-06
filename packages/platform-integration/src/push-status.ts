@@ -1,4 +1,4 @@
-import { ReuniteApi, type SunsetWarning } from './api/index.js';
+import { PlatformApi, type SunsetWarning } from './api/index.js';
 import type { PushResponse } from './api/types.js';
 import { resolveProjectRef, type ProjectRefResolution } from './resolve-project-ref.js';
 import { retryUntilConditionMet } from './utils/retry-until-condition-met.js';
@@ -16,7 +16,7 @@ export type PushStatusOptions = {
   project: string;
   pushId: string;
   version?: string;
-  // Called after the request with the most urgent sunset warning the Reunite API sent, if any.
+  // Called after the request with the most urgent sunset warning the Redocly platform API sent, if any.
   onSunsetWarning?: (warning: SunsetWarning) => void;
   // Called when the organization or the project was given as a slug.
   onSlugDeprecated?: (resolution: ProjectRefResolution) => void;
@@ -71,11 +71,11 @@ export async function waitForDeployment({
 }
 
 function createClient({ domain, apiKey, version }: PushStatusOptions) {
-  return new ReuniteApi({ domain, apiKey, command: 'push-status', version });
+  return new PlatformApi({ domain, apiKey, command: 'push-status', version });
 }
 
 // Runs whether the request succeeded or not: the client keeps the headers of every response it got.
-function reportSunsetWarning(client: ReuniteApi, { onSunsetWarning }: PushStatusOptions) {
+function reportSunsetWarning(client: PlatformApi, { onSunsetWarning }: PushStatusOptions) {
   const sunsetWarning = client.getSunsetWarning();
 
   if (sunsetWarning) {
@@ -84,7 +84,7 @@ function reportSunsetWarning(client: ReuniteApi, { onSunsetWarning }: PushStatus
 }
 
 function getPush(
-  client: ReuniteApi,
+  client: PlatformApi,
   { organizationId, projectId }: ProjectRefResolution,
   pushId: string
 ) {

@@ -2,12 +2,12 @@ import { slash } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { ReuniteApi, ReuniteApiError } from '../api/index.js';
+import { PlatformApi, PlatformApiError } from '../api/index.js';
 import { collectFilesToPush, pushFiles, type PushOptions } from '../push.js';
 
 vi.mock('../api/index.js', async () => {
   const actual = await vi.importActual('../api/index.js');
-  return { ...actual, ReuniteApi: vi.fn() };
+  return { ...actual, PlatformApi: vi.fn() };
 });
 vi.mock('@redocly/openapi-core', async () => {
   const actual = await vi.importActual('@redocly/openapi-core');
@@ -59,7 +59,7 @@ describe('pushFiles()', () => {
       name: 'Docs',
       uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
     });
-    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+    vi.mocked(PlatformApi).mockImplementation(function (): any {
       return { remotes, projects, getSunsetWarning: vi.fn() };
     });
     vi.mocked(slash).mockImplementation((filePath) => filePath);
@@ -71,7 +71,7 @@ describe('pushFiles()', () => {
 
     const result = await pushFiles({ ...options, onUploadStart });
 
-    expect(ReuniteApi).toHaveBeenCalledWith({
+    expect(PlatformApi).toHaveBeenCalledWith({
       domain: 'test-domain',
       apiKey: 'test-api-key',
       command: 'push',
@@ -164,14 +164,14 @@ describe('pushFiles()', () => {
   });
 
   it('lets API errors through', async () => {
-    remotes.push.mockRejectedValue(new ReuniteApiError('Deprecated.', 412));
+    remotes.push.mockRejectedValue(new PlatformApiError('Deprecated.', 412));
 
     await expect(pushFiles(options)).rejects.toThrow('Deprecated.');
   });
 
   it('hands the sunset warning to the caller', async () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
-    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+    vi.mocked(PlatformApi).mockImplementation(function (): any {
       return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
     const onSunsetWarning = vi.fn();
@@ -183,10 +183,10 @@ describe('pushFiles()', () => {
 
   it('hands the sunset warning to the caller even when the push fails', async () => {
     const sunsetWarning = { sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true };
-    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+    vi.mocked(PlatformApi).mockImplementation(function (): any {
       return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
-    remotes.push.mockRejectedValue(new ReuniteApiError('Gone.', 410));
+    remotes.push.mockRejectedValue(new PlatformApiError('Gone.', 410));
     const onSunsetWarning = vi.fn();
 
     await expect(pushFiles({ ...options, onSunsetWarning })).rejects.toThrow('Gone.');

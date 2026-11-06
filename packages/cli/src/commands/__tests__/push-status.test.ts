@@ -1,9 +1,9 @@
-import { getPushStatus, waitForDeployment, type PushResponse } from '@redocly/reunite-integration';
+import { getPushStatus, waitForDeployment, type PushResponse } from '@redocly/platform-integration';
 
 import { handlePushStatus } from '../push-status.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, getPushStatus: vi.fn(), waitForDeployment: vi.fn() };
 });
 vi.mock('colorette', async () => {

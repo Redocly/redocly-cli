@@ -6,7 +6,7 @@ import {
   RedoclyOAuthClient,
   type HostedProject,
   type PullRequestStatus,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import { readFile } from 'node:fs/promises';
 
 import type { CommandArgs } from '../../wrapper.js';
@@ -34,7 +34,7 @@ const CHECK_STATES = {
   CANCELLED: 'cancelled',
 };
 
-// Opens a pull request in Reunite for the current branch of a clone made by `project clone`,
+// Opens a pull request in the Redocly platform for the current branch of a clone made by `project clone`,
 // and prints its URL.
 export async function handleProjectPrCreate({ argv, version }: CommandArgs<ProjectPrCreateArgv>) {
   const { project, branch } = await readClone();
@@ -50,7 +50,7 @@ export async function handleProjectPrCreate({ argv, version }: CommandArgs<Proje
 
   const pullRequest = await createPullRequest({
     ...project,
-    accessToken: await readLoginToken(project.reuniteUrl, version),
+    accessToken: await readLoginToken(project.platformUrl, version),
     version,
     branch,
     title: argv.title ?? (await runGit(['log', '-1', '--format=%s'], { capture: true })).output,
@@ -67,7 +67,7 @@ export async function handleProjectPrStatus({ version }: { version: string }) {
   const { project, branch } = await readClone();
   const status = await getPullRequestStatus({
     ...project,
-    accessToken: await readLoginToken(project.reuniteUrl, version),
+    accessToken: await readLoginToken(project.platformUrl, version),
     version,
     branch,
   }).catch(asHandledError);
@@ -147,19 +147,19 @@ async function readClone() {
   return { project, branch };
 }
 
-async function readLoginToken(reuniteUrl: string, version: string) {
-  const accessToken = await new RedoclyOAuthClient(version).getAccessToken(reuniteUrl);
+async function readLoginToken(platformUrl: string, version: string) {
+  const accessToken = await new RedoclyOAuthClient(version).getAccessToken(platformUrl);
   if (!accessToken) {
     throw new HandledError(
-      `You are not logged in to ${reuniteUrl}. Run \`redocly login --residency ${reuniteUrl}\`.`
+      `You are not logged in to ${platformUrl}. Run \`redocly login --residency ${platformUrl}\`.`
     );
   }
 
   return accessToken;
 }
 
-function pullRequestUrl({ reuniteUrl, organization, project }: HostedProject, number: number) {
-  return `${reuniteUrl}/org/${encodeURIComponent(organization)}/project/${encodeURIComponent(project)}/pull-requests/${number}`;
+function pullRequestUrl({ platformUrl, organization, project }: HostedProject, number: number) {
+  return `${platformUrl}/org/${encodeURIComponent(organization)}/project/${encodeURIComponent(project)}/pull-requests/${number}`;
 }
 
 function asHandledError(error: Error): never {
