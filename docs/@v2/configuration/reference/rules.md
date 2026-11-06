@@ -18,9 +18,26 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 
 - {rule name}
 - [Rule object](#rule-object)
-- **REQUIRED**. Add as many rule entries as you like. These keys must be built-in rules (for example `security-defined`), configurable rules that you declare here (for example `rule/my-custom-rule`), or a rule from a plugin (for example `my-plugin/add-awesome`).
+- **REQUIRED**.
+  Add as many rule entries as you like.
+  These keys must be built-in rules (for example `security-defined`), configurable rules that you declare here (for example `rule/my-custom-rule`), or a rule from a plugin (for example `my-plugin/add-awesome`).
 
 {% /table %}
+
+To configure rules for a specific specification version, use one of the specification-specific rule sections instead of `rules`.
+They accept the same options and rule objects:
+
+- `oas2Rules`
+- `oas3_0Rules`
+- `oas3_1Rules`
+- `oas3_2Rules`
+- `async2Rules`
+- `async3Rules`
+- `arazzo1Rules`
+- `arazzo1_1Rules`
+- `overlay1Rules`
+- `openrpc1Rules`
+- `graphqlRules`
 
 ### Rule object
 
@@ -34,7 +51,8 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 
 - severity
 - string
-- Severity level of this rule. Must be one of `error`, `warn`, or `off`.
+- Severity level of this rule.
+  Must be one of `error`, `warn`, or `off`.
 
 ---
 
@@ -42,13 +60,15 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 - string
 - Optional custom message for this rule.
   Example: `My Error Description. {{message}}`.
-  The {{message}} placeholder renders with the default error message for the rule. Include the {{message}} placeholder if you want to provide the user with your custom message as well as the default error message for the rule.
+  The {{message}} placeholder renders with the default error message for the rule.
+  Include the {{message}} placeholder if you want to provide the user with your custom message as well as the default error message for the rule.
 
 ---
 
 - {additional properties}
 - any
-- Some rules allow additional configuration, check the details of each rule to find out the values that can be supplied here. For example the [`boolean-parameter-prefixes` rule](../../rules/oas/boolean-parameter-prefixes.md) supports an additional option of `prefixes` that accepts an array of strings.
+- Some rules allow additional configuration, check the details of each rule to find out the values that can be supplied here.
+  For example the [`boolean-parameter-prefixes` rule](../../rules/oas/boolean-parameter-prefixes.md) supports an additional option of `prefixes` that accepts an array of strings.
 
 {% /table %}
 
