@@ -15,6 +15,11 @@ describe('createConfigTypes', () => {
       })
     ).toMatchSnapshot();
   });
+
+  it('does not mark the types it builds from generated types as generated', () => {
+    expect(ConfigTypes.ConfigRoot.hasGeneratedName).toBe(false);
+    expect(ConfigTypes.ConfigApisProperties.hasGeneratedName).toBe(false);
+  });
 });
 
 describe('Rules NodeType resolving', () => {

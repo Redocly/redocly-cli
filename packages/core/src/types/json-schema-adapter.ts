@@ -134,7 +134,11 @@ function transformJSONSchemaToNodeType(
         }
 
         const discriminatorValue = discriminatedProperty.const as string;
-        const actualTypeName = transformJSONSchemaToNodeType(discriminatorValue, option, ctx);
+        const actualTypeName = transformJSONSchemaToNodeType(
+          discriminatorValue,
+          { nodeTypeName: discriminatorValue, ...option },
+          ctx
+        );
 
         // Store mapping from discriminator value to actual type name
         if (typeof actualTypeName === 'string') {
@@ -253,6 +257,7 @@ function extractNodeToContext(
     description: schema.description,
     documentationLink: schema.documentationLink,
     deprecatedProperties: isNotEmptyObject(deprecatedProperties) ? deprecatedProperties : undefined,
+    hasGeneratedName: !schema.nodeTypeName,
   };
   return nodeTypeName;
 }

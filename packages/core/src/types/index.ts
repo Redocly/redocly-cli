@@ -34,6 +34,7 @@ export type NodeType = {
   description?: string;
   documentationLink?: string;
   deprecatedProperties?: Record<string, { replacement?: string }>;
+  hasGeneratedName?: boolean;
 };
 export type PropType = string | NodeType | ScalarSchema | undefined | null;
 export type ResolveTypeFn = (value: any, key: string) => string | PropType;
@@ -51,6 +52,7 @@ export type NormalizedNodeType = {
   description?: string;
   documentationLink?: string;
   deprecatedProperties?: Record<string, { replacement?: string }>;
+  hasGeneratedName?: boolean;
 };
 
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;
