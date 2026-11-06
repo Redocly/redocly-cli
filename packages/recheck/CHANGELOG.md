@@ -1,5 +1,11 @@
 # @redocly/recheck
 
+## 2.76.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.76.0.
+
 ## 2.75.0
 
 ### Patch Changes

@@ -1,10 +1,10 @@
-import { BuildsApi, PullRequestsApi, ReuniteApiClient } from './api/api-client.js';
-import { isValidReuniteUrl } from './api/domains.js';
+import { BuildsApi, PullRequestsApi, PlatformApiClient } from './api/api-client.js';
+import { isValidPlatformUrl } from './api/domains.js';
 import type { PullRequestCheck, PullRequestResponse } from './api/types.js';
 
 const PROJECT_GIT_URL = /^(https?:\/\/[^/]+)\/api\/orgs\/([^/]+)\/projects\/([^/]+)\/git\/?$/;
 
-export type HostedProject = { reuniteUrl: string; organization: string; project: string };
+export type HostedProject = { platformUrl: string; organization: string; project: string };
 
 export type HostedProjectOptions = HostedProject & {
   // The access token of `redocly login`: pull requests and builds accept only a user session.
@@ -28,21 +28,21 @@ export type PullRequestStatus = {
   previewUrl?: string;
 };
 
-export function buildProjectGitUrl(reuniteUrl: string, organization: string, project: string) {
-  return `${reuniteUrl}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(
+export function buildProjectGitUrl(platformUrl: string, organization: string, project: string) {
+  return `${platformUrl}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(
     project
   )}/git`;
 }
 
 // The parts of a URL built by `buildProjectGitUrl`; undefined for any other URL.
 export function parseProjectGitUrl(url: string): HostedProject | undefined {
-  const [, reuniteUrl, organization, project] = url.match(PROJECT_GIT_URL) ?? [];
-  if (!reuniteUrl || !organization || !project || !isValidReuniteUrl(reuniteUrl)) {
+  const [, platformUrl, organization, project] = url.match(PROJECT_GIT_URL) ?? [];
+  if (!platformUrl || !organization || !project || !isValidPlatformUrl(platformUrl)) {
     return undefined;
   }
 
   return {
-    reuniteUrl,
+    platformUrl,
     organization: decodeURIComponent(organization),
     project: decodeURIComponent(project),
   };
@@ -93,12 +93,12 @@ export async function getPullRequestStatus({
   };
 }
 
-function createApis({ reuniteUrl, accessToken, version }: HostedProjectOptions, command: string) {
-  const client = new ReuniteApiClient(command, version);
+function createApis({ platformUrl, accessToken, version }: HostedProjectOptions, command: string) {
+  const client = new PlatformApiClient(command, version);
   const authHeaders = { Cookie: `accessToken=${accessToken}` };
 
   return {
-    pullRequests: new PullRequestsApi(client, reuniteUrl, authHeaders),
-    builds: new BuildsApi(client, reuniteUrl, authHeaders),
+    pullRequests: new PullRequestsApi(client, platformUrl, authHeaders),
+    builds: new BuildsApi(client, platformUrl, authHeaders),
   };
 }

@@ -1,10 +1,10 @@
-import { ReuniteApi } from '../api/index.js';
+import { PlatformApi } from '../api/index.js';
 import type { PushResponse } from '../api/types.js';
 import { getPushStatus, waitForDeployment, type BuildType } from '../push-status.js';
 
 vi.mock('../api/index.js', async () => {
   const actual = await vi.importActual('../api/index.js');
-  return { ...actual, ReuniteApi: vi.fn() };
+  return { ...actual, PlatformApi: vi.fn() };
 });
 
 const remotes = { getPush: vi.fn() };
@@ -69,7 +69,7 @@ beforeEach(() => {
     name: 'Docs',
     uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
   });
-  vi.mocked(ReuniteApi).mockImplementation(function (): any {
+  vi.mocked(PlatformApi).mockImplementation(function (): any {
     return { remotes, projects, getSunsetWarning: vi.fn() };
   });
 });
@@ -80,7 +80,7 @@ describe('getPushStatus()', () => {
 
     const result = await getPushStatus(options);
 
-    expect(ReuniteApi).toHaveBeenCalledWith({
+    expect(PlatformApi).toHaveBeenCalledWith({
       domain: 'test-domain',
       apiKey: 'test-api-key',
       command: 'push-status',
@@ -176,7 +176,7 @@ describe('waitForDeployment()', () => {
 
   it('hands the sunset warning to the caller once the deployment finished', async () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
-    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+    vi.mocked(PlatformApi).mockImplementation(function (): any {
       return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
     remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'success'));
@@ -190,7 +190,7 @@ describe('waitForDeployment()', () => {
 
   it('hands the sunset warning to the caller even when the wait times out', async () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
-    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+    vi.mocked(PlatformApi).mockImplementation(function (): any {
       return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
     remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'pending'));

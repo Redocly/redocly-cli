@@ -1,5 +1,5 @@
 import { HandledError } from '@redocly/openapi-core';
-import type { PullRequestStatus } from '@redocly/reunite-integration';
+import type { PullRequestStatus } from '@redocly/platform-integration';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';

@@ -23,7 +23,7 @@ type CommandOption = 'push' | 'push-status';
 export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean };
 export type SunsetWarningsBuffer = SunsetWarning[];
 
-export class ReuniteApiError extends Error {
+export class PlatformApiError extends Error {
   constructor(
     message: string,
     public status: number
@@ -32,7 +32,7 @@ export class ReuniteApiError extends Error {
   }
 }
 
-export class ReuniteApiClient implements BaseApiClient {
+export class PlatformApiClient implements BaseApiClient {
   public sunsetWarnings: SunsetWarningsBuffer = [];
 
   constructor(
@@ -132,8 +132,8 @@ abstract class ResourceApi {
     } catch (err) {
       const message = `${failure}. ${err.message}`;
 
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
+      if (err instanceof PlatformApiError) {
+        throw new PlatformApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -147,7 +147,7 @@ abstract class ResourceApi {
       return responseBody as T;
     }
 
-    throw new ReuniteApiError(
+    throw new PlatformApiError(
       `${responseBody.title || response.statusText || 'Unknown error'}.`,
       response.status
     );
@@ -178,8 +178,8 @@ class ProjectsApi extends ResourceApi {
     } catch (err) {
       const message = `Failed to fetch project. ${err.message}`;
 
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
+      if (err instanceof PlatformApiError) {
+        throw new PlatformApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -213,8 +213,8 @@ class RemotesApi extends ResourceApi {
     } catch (err) {
       const message = `Failed to fetch default branch. ${err.message}`;
 
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
+      if (err instanceof PlatformApiError) {
+        throw new PlatformApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -252,8 +252,8 @@ class RemotesApi extends ResourceApi {
     } catch (err) {
       const message = `Failed to upsert remote. ${err.message}`;
 
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
+      if (err instanceof PlatformApiError) {
+        throw new PlatformApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -318,8 +318,8 @@ class RemotesApi extends ResourceApi {
     } catch (err) {
       const message = `Failed to push. ${err.message}`;
 
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
+      if (err instanceof PlatformApiError) {
+        throw new PlatformApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -352,8 +352,8 @@ class RemotesApi extends ResourceApi {
     } catch (err) {
       const message = `Failed to get push status. ${err.message}`;
 
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
+      if (err instanceof PlatformApiError) {
+        throw new PlatformApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -421,8 +421,8 @@ export class BuildsApi extends ResourceApi {
   }
 }
 
-export class ReuniteApi {
-  private apiClient: ReuniteApiClient;
+export class PlatformApi {
+  private apiClient: PlatformApiClient;
 
   public projects: ProjectsApi;
   public remotes: RemotesApi;
@@ -438,14 +438,14 @@ export class ReuniteApi {
     command: CommandOption;
     version?: string;
   }) {
-    this.apiClient = new ReuniteApiClient(command, version);
+    this.apiClient = new PlatformApiClient(command, version);
     const authHeaders = { Authorization: `Bearer ${apiKey}` };
 
     this.projects = new ProjectsApi(this.apiClient, domain, authHeaders);
     this.remotes = new RemotesApi(this.apiClient, domain, authHeaders);
   }
 
-  // The most urgent sunset warning the Reunite API sent through this client so far, if any.
+  // The most urgent sunset warning the Redocly platform API sent through this client so far, if any.
   public getSunsetWarning(): SunsetWarning | undefined {
     return getMostUrgentSunsetWarning(this.apiClient.sunsetWarnings);
   }

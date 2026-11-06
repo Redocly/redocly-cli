@@ -4,7 +4,7 @@ import {
   getDomain,
   getMostUrgentSunsetWarning,
   getPushStatus,
-  ReuniteApiError,
+  PlatformApiError,
   waitForDeployment,
   type BuildType,
   type DeploymentStatus,
@@ -13,7 +13,7 @@ import {
   type ScorecardItem,
   type SunsetWarning,
   type ProjectRefResolution,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import * as colors from 'colorette';
 
 import { printExecutionTime } from '../utils/miscellaneous.js';
@@ -117,22 +117,22 @@ export async function handlePushStatus({
   } catch (err) {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
 
-    handleReuniteError('✗ Failed to get push status.', err);
+    handlePlatformError('✗ Failed to get push status.', err);
   } finally {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
     printSunsetWarning('push-status', sunsetWarnings);
   }
 }
 
-export function handleReuniteError(
+export function handlePlatformError(
   message: string,
-  error: ReuniteApiError | DeploymentError | Error
+  error: PlatformApiError | DeploymentError | Error
 ): never {
   if (error instanceof DeploymentError) {
     throw new HandledError(error.message);
   }
 
-  if (error instanceof ReuniteApiError) {
+  if (error instanceof PlatformApiError) {
     throw new HandledError(`${message} Reason: ${error.message} (status: ${error.status})\n`);
   }
 

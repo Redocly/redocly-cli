@@ -2,7 +2,7 @@ import { FormData, type Response, fetch } from 'undici';
 import type * as undici from 'undici';
 
 import packageJson from '../../../package.json' with { type: 'json' };
-import { ReuniteApi, type PushPayload, ReuniteApiError } from '../api-client.js';
+import { PlatformApi, type PushPayload, PlatformApiError } from '../api-client.js';
 
 vi.mock('undici', async (importOriginal) => ({
   ...(await importOriginal<typeof undici>()),
@@ -28,7 +28,7 @@ describe('ApiClient', () => {
       ok: true,
       json: vi.fn().mockResolvedValue({ data: [{ branchName: 'main' }] }),
     });
-    const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
+    const apiClient = new PlatformApi({ domain: testDomain, apiKey: testToken, command });
 
     await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
@@ -48,7 +48,7 @@ describe('ApiClient', () => {
       ok: true,
       json: vi.fn().mockResolvedValue({ data: [{ branchName: 'main' }] }),
     });
-    const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
+    const apiClient = new PlatformApi({ domain: testDomain, apiKey: testToken, command, version });
 
     try {
       await apiClient.remotes.getDefaultBranch(testOrg, testProject);
@@ -67,10 +67,10 @@ describe('ApiClient', () => {
   });
 
   describe('getDefaultBranch()', () => {
-    let apiClient: ReuniteApi;
+    let apiClient: PlatformApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
+      apiClient = new PlatformApi({ domain: testDomain, apiKey: testToken, command, version });
     });
 
     it('should get default project branch', async () => {
@@ -130,7 +130,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
-        new ReuniteApiError('Failed to fetch default branch. Project source not found.', 404)
+        new PlatformApiError('Failed to fetch default branch. Project source not found.', 404)
       );
     });
 
@@ -145,7 +145,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
-        new ReuniteApiError('Failed to fetch default branch. Not found.', 404)
+        new PlatformApiError('Failed to fetch default branch. Not found.', 404)
       );
     });
   });
@@ -165,10 +165,10 @@ describe('ApiClient', () => {
       projectId: testProject,
     };
 
-    let apiClient: ReuniteApi;
+    let apiClient: PlatformApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
+      apiClient = new PlatformApi({ domain: testDomain, apiKey: testToken, command, version });
     });
 
     it('should upsert remote', async () => {
@@ -215,7 +215,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
-        new ReuniteApiError(
+        new PlatformApiError(
           'Failed to upsert remote. Not allowed to mount remote outside of project content path: /docs.',
           403
         )
@@ -233,7 +233,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
-        new ReuniteApiError('Failed to upsert remote. Not found.', 404)
+        new PlatformApiError('Failed to upsert remote. Not found.', 404)
       );
     });
   });
@@ -270,10 +270,10 @@ describe('ApiClient', () => {
       outdated: false,
     };
 
-    let apiClient: ReuniteApi;
+    let apiClient: PlatformApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
+      apiClient = new PlatformApi({ domain: testDomain, apiKey: testToken, command, version });
     });
 
     it('should push to remote', async () => {
@@ -357,7 +357,7 @@ describe('ApiClient', () => {
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
-      ).rejects.toThrow(new ReuniteApiError('Failed to push. Cannot push to remote.', 403));
+      ).rejects.toThrow(new PlatformApiError('Failed to push. Cannot push to remote.', 403));
     });
 
     it('should throw statusText error if response is not ok', async () => {
@@ -372,7 +372,7 @@ describe('ApiClient', () => {
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
-      ).rejects.toThrow(new ReuniteApiError('Failed to push. Not found.', 404));
+      ).rejects.toThrow(new PlatformApiError('Failed to push. Not found.', 404));
     });
   });
 
@@ -437,10 +437,10 @@ describe('ApiClient', () => {
 
     const endpointMocks = [upsertRemoteMock, getDefaultBranchMock, pushMock];
 
-    let apiClient: ReuniteApi;
+    let apiClient: PlatformApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
+      apiClient = new PlatformApi({ domain: testDomain, apiKey: testToken, command, version });
     });
 
     it.each(endpointMocks)(
@@ -535,7 +535,7 @@ describe('ApiClient', () => {
 describe('ProjectsApi', () => {
   const testToken = 'test-token';
   const testDomain = 'test-domain.com';
-  const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command: 'push' });
+  const apiClient = new PlatformApi({ domain: testDomain, apiKey: testToken, command: 'push' });
   const project = {
     id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
     slug: 'docs',
@@ -576,7 +576,7 @@ describe('ProjectsApi', () => {
     });
 
     await expect(apiClient.projects.find('acme', 'docs')).rejects.toThrow(
-      new ReuniteApiError('Failed to fetch project. Forbidden.', 403)
+      new PlatformApiError('Failed to fetch project. Forbidden.', 403)
     );
   });
 });
