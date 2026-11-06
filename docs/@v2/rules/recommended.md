@@ -48,6 +48,7 @@ Warnings:
 - [criteria-unique](./arazzo/criteria-unique.md)
 - [info-license](./oas/info-license.md)
 - [info-license-strict](./oas/info-license-strict.md)
+- [no-ambiguous-component-names](./oas/no-ambiguous-component-names.md)
 - [no-ambiguous-paths](./oas/no-ambiguous-paths.md)
 - [no-duplicated-enum-values](./common/no-duplicated-enum-values.md)
 - [no-duplicated-tag-names](./oas/no-duplicated-tag-names.md)

@@ -134,6 +134,7 @@
             - page: rules/oas/info-contact.md
             - page: rules/oas/info-license.md
             - page: rules/oas/info-license-strict.md
+            - page: rules/oas/no-ambiguous-component-names.md
             - page: rules/oas/no-ambiguous-paths.md
             - page: rules/oas/no-empty-servers.md
             - page: rules/oas/no-example-value-and-externalValue.md

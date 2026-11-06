@@ -108,6 +108,7 @@ const builtInOAS3Rules = [
   'no-schema-type-mismatch',
   'boolean-parameter-prefixes',
   'component-name-unique',
+  'no-ambiguous-component-names',
   'no-empty-servers',
   'no-example-value-and-externalValue',
   'no-illogical-composition-keywords',
