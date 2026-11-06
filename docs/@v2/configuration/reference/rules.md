@@ -20,7 +20,7 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 - [Rule object](#rule-object)
 - **REQUIRED**.
   Add as many rule entries as you like.
-  These keys must be built-in rules (for example `security-defined`), configurable rules that you declare here (for example `rule/my-custom-rule`), or a rule from a plugin (for example `my-plugin/add-awesome`).
+  Specify built-in rules (for example `security-defined`), configurable rules (for example `rule/my-custom-rule`), or plugin rules (for example `my-plugin/add-awesome`).
 
 {% /table %}
 
@@ -67,7 +67,8 @@ They accept the same options and rule objects:
 
 - {additional properties}
 - any
-- Some rules allow additional configuration, check the details of each rule to find out the values that can be supplied here.
+- Some rules allow additional configuration.
+  Check each rule's details to find out the values you can supply here.
   For example the [`boolean-parameter-prefixes` rule](../../rules/oas/boolean-parameter-prefixes.md) supports an additional option of `prefixes` that accepts an array of strings.
 
 {% /table %}
