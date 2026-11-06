@@ -34,7 +34,7 @@ export function mergeWorkflowInputs({
   env,
   onInvalidInputs,
 }: {
-  inputs: Record<string, string> | undefined;
+  inputs: Record<string, unknown> | undefined;
   workflowInputSchema: InputSchema | undefined;
   env: Record<string, string> | undefined;
   onInvalidInputs?: (problems: string) => void;
@@ -43,14 +43,18 @@ export function mergeWorkflowInputs({
     return {};
   }
 
-  const resolvedDotEnvInputs = workflowInputSchema.properties?.env
-    ? resolveInputValuesToSchema(env || {}, workflowInputSchema.properties.env as InputSchema)
-    : {};
+  const envSchema = workflowInputSchema.properties?.env as InputSchema | undefined;
+  if (!envSchema) {
+    return resolveInputValuesToSchema(inputs, workflowInputSchema, onInvalidInputs);
+  }
 
+  const resolvedDotEnvInputs = resolveInputValuesToSchema(env || {}, envSchema);
+  // Without a declared variable set, an `env` input is kept, or an empty `env` is checked,
+  // so a required variable that is not set is reported.
   return resolveInputValuesToSchema(
     Object.keys(resolvedDotEnvInputs).length > 0
       ? { ...inputs, env: resolvedDotEnvInputs }
-      : inputs,
+      : { env: {}, ...inputs },
     workflowInputSchema,
     onInvalidInputs
   );
