@@ -35,7 +35,7 @@ exports[`should use server override from CLI and env 1`] = `
  
     stepId - search-menu 
     ✗ unexpected error 
-    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total': Cannot read "total" of undefined. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
   Workflow name: client-registration
  

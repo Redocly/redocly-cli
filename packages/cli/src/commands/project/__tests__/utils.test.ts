@@ -20,7 +20,7 @@ describe('git utils', () => {
   });
 
   describe('getCredentialHelperConfig', () => {
-    it('clears other helpers for the Reunite host and runs the installed CLI', () => {
+    it('clears other helpers for the Redocly platform host and runs the installed CLI', () => {
       vi.mocked(existsSync).mockImplementation(
         (file) => file === path.join('/opt/node/bin', 'redocly')
       );

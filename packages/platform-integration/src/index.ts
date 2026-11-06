@@ -1,18 +1,18 @@
 export {
   getMostUrgentSunsetWarning,
-  ReuniteApi,
-  ReuniteApiClient,
-  ReuniteApiError,
+  PlatformApi,
+  PlatformApiClient,
+  PlatformApiError,
   type PushPayload,
   type SunsetWarning,
 } from './api/api-client.js';
 export { getApiKeys } from './api/api-keys.js';
 export {
   getDomain,
-  getReuniteUrl,
-  isValidReuniteUrl,
-  InvalidReuniteUrlError,
-  REUNITE_URLS,
+  getPlatformUrl,
+  isValidPlatformUrl,
+  InvalidPlatformUrlError,
+  PLATFORM_URLS,
 } from './api/domains.js';
 export type {
   DeploymentStatus,

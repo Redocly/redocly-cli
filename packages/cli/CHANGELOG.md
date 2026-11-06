@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.76.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` sent `cnonce="undefined"` in every HTTP Digest `Authorization` header instead of a random client nonce.
+- Fixed an issue where `respect` failed HTTP Digest authentication when the server's `WWW-Authenticate` header had no `opaque` parameter.
+- Fixed an issue where `respect` failed HTTP Digest authentication when a value in the server's `WWW-Authenticate` header contained `=` or `,`, such as a base64 nonce with padding.
+- Updated @redocly/platform-integration to v2.76.0.
+- Updated @redocly/respect-core to v2.76.0.
+
 ## 2.75.0
 
 ### Minor Changes

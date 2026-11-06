@@ -1,4 +1,14 @@
-# @redocly/reunite-integration
+# @redocly/platform-integration
+
+## 2.76.0
+
+### Minor Changes
+
+- Renamed the `@redocly/reunite-integration` package to `@redocly/platform-integration`, and its `Reunite*` exports to `Platform*`: `ReuniteApi`, `ReuniteApiClient`, `ReuniteApiError`, `InvalidReuniteUrlError`, `REUNITE_URLS`, `getReuniteUrl`, and `isValidReuniteUrl`.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.76.0.
 
 ## 2.75.0
 

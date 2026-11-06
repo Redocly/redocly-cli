@@ -2,22 +2,22 @@ import { type Config } from '@redocly/openapi-core';
 
 const LOCALHOST_URL_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
-export const REUNITE_URLS = {
+export const PLATFORM_URLS = {
   us: 'https://app.cloud.redocly.com',
   eu: 'https://app.cloud.eu.redocly.com',
 } as const;
 
 export function getDomain(): string {
-  return process.env.REDOCLY_DOMAIN || REUNITE_URLS.us;
+  return process.env.REDOCLY_DOMAIN || PLATFORM_URLS.us;
 }
 
-export const getReuniteUrl = withHttpsValidation(
+export const getPlatformUrl = withHttpsValidation(
   (config: Config | undefined, residencyOption?: string): string => {
     try {
       const residency = residencyOption || config?.resolvedConfig.residency;
 
       if (isLegacyResidency(residency)) {
-        return REUNITE_URLS[residency];
+        return PLATFORM_URLS[residency];
       }
 
       if (residency) {
@@ -28,16 +28,16 @@ export const getReuniteUrl = withHttpsValidation(
         return new URL(config.resolvedConfig.scorecard.fromProjectUrl).origin;
       }
 
-      return REUNITE_URLS.us;
+      return PLATFORM_URLS.us;
     } catch {
-      throw new InvalidReuniteUrlError();
+      throw new InvalidPlatformUrlError();
     }
   }
 );
 
-export function isValidReuniteUrl(reuniteUrl: string): boolean {
+export function isValidPlatformUrl(platformUrl: string): boolean {
   try {
-    getReuniteUrl(undefined, reuniteUrl);
+    getPlatformUrl(undefined, platformUrl);
   } catch {
     return false;
   }
@@ -50,19 +50,19 @@ function withHttpsValidation<Fn extends (...args: any[]) => string>(fn: Fn) {
     const url = fn(...args);
 
     if (!url.startsWith('https://') && !LOCALHOST_URL_PATTERN.test(url)) {
-      throw new InvalidReuniteUrlError();
+      throw new InvalidPlatformUrlError();
     }
 
     return url;
   };
 }
 
-export class InvalidReuniteUrlError extends Error {
+export class InvalidPlatformUrlError extends Error {
   constructor() {
     super('Invalid Redocly platform URL');
   }
 }
 
-function isLegacyResidency(value: unknown): value is keyof typeof REUNITE_URLS {
-  return typeof value === 'string' && value in REUNITE_URLS;
+function isLegacyResidency(value: unknown): value is keyof typeof PLATFORM_URLS {
+  return typeof value === 'string' && value in PLATFORM_URLS;
 }

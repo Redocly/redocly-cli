@@ -1,5 +1,5 @@
 import { logger, HandledError } from '@redocly/openapi-core';
-import { getReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { getPlatformUrl, RedoclyOAuthClient } from '@redocly/platform-integration';
 import { green } from 'colorette';
 
 import { printDeviceCode } from '../utils/print-device-code.js';
@@ -11,7 +11,7 @@ export type LoginArgv = {
 };
 
 export async function handleLogin({ argv, config, version }: CommandArgs<LoginArgv>) {
-  const reuniteUrl = getReuniteUrl(config, argv.residency);
+  const platformUrl = getPlatformUrl(config, argv.residency);
   try {
     const oauthClient = new RedoclyOAuthClient(version);
 
@@ -20,17 +20,17 @@ export async function handleLogin({ argv, config, version }: CommandArgs<LoginAr
       logger.info(`Local credentials file path: ${oauthClient.credentialsFilePath}\n`);
     }
 
-    await oauthClient.login(reuniteUrl, printDeviceCode);
+    await oauthClient.login(platformUrl, printDeviceCode);
     logger.output(green('✅ Logged in\n\n'));
   } catch (error) {
     if (argv.verbose) {
       logger.error(`Residency: ${argv.residency}.\n`);
-      logger.error(`Login URL: ${reuniteUrl}.\n`);
+      logger.error(`Login URL: ${platformUrl}.\n`);
       logger.error(error.stack || error.message);
     }
 
     if (argv.residency) {
-      throw new HandledError(`❌ Connection to ${reuniteUrl} failed.`);
+      throw new HandledError(`❌ Connection to ${platformUrl} failed.`);
     } else {
       throw new HandledError(`❌ Login failed. Please check your credentials and try again.`);
     }

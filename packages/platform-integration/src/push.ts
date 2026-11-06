@@ -2,7 +2,7 @@ import { slash } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { ReuniteApi, type SunsetWarning } from './api/index.js';
+import { PlatformApi, type SunsetWarning } from './api/index.js';
 import type { UpsertRemoteResponse } from './api/types.js';
 import { resolveProjectRef, type ProjectRefResolution } from './resolve-project-ref.js';
 
@@ -31,7 +31,7 @@ export type PushOptions = {
   replace?: boolean;
   // Called once the remote exists, right before the files are uploaded to it.
   onUploadStart?: (remote: UpsertRemoteResponse) => void;
-  // Called after the push with the most urgent sunset warning the Reunite API sent, if any.
+  // Called after the push with the most urgent sunset warning the Redocly platform API sent, if any.
   onSunsetWarning?: (warning: SunsetWarning) => void;
   // Called when the organization or the project was given as a slug.
   onSlugDeprecated?: (resolution: ProjectRefResolution) => void;
@@ -56,7 +56,7 @@ export async function pushFiles({
   onSunsetWarning,
   onSlugDeprecated,
 }: PushOptions): Promise<PushResult> {
-  const client = new ReuniteApi({ domain, apiKey, command: 'push', version });
+  const client = new PlatformApi({ domain, apiKey, command: 'push', version });
 
   try {
     const { organizationId, projectId } = await resolveProjectRef(client, {
