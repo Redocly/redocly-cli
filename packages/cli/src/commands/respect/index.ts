@@ -1,4 +1,4 @@
-import { type ArazzoDefinition, BaseResolver, HandledError, logger } from '@redocly/openapi-core';
+import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
 import { type JsonLogs } from '@redocly/respect-core';
 import { blue, cyan, green } from 'colorette';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -121,36 +121,25 @@ export async function handleRespect({
       );
     }
 
-    // Respect cannot run an AsyncAPI source description, so the run stops before it starts.
-    for (const file of options.files) {
-      const document = await externalRefResolver.resolveDocument<ArazzoDefinition>(
-        null,
-        file,
-        true
-      );
-      if (document instanceof Error || !Array.isArray(document.parsed?.sourceDescriptions)) {
-        continue;
-      }
-      if (document.parsed.sourceDescriptions.some((source) => source.type === 'asyncapi')) {
-        collectSpecData?.(document);
-        logger.info(
-          renderBanner([
-            `AsyncAPI source descriptions are not supported by ${cyan('respect')} yet.`,
-            `Need them? Upvote or open an issue: ${cyan('https://github.com/Redocly/redocly-cli/issues')}`,
-          ])
-        );
-        throw new Error(
-          `Stopped before running any workflow: ${basename(file)} has an AsyncAPI source description.`
-        );
-      }
-    }
-
     const startedAt = performance.now();
     const runAllFilesResult = await run(options);
 
     logger.printNewLine();
     displayFilesSummaryTable(runAllFilesResult, logger);
     logger.printNewLine();
+
+    if (
+      runAllFilesResult.some((result) =>
+        result.ctx.sourceDescriptions?.some((source) => source.type === 'asyncapi')
+      )
+    ) {
+      logger.info(
+        renderBanner([
+          `AsyncAPI source descriptions are not supported by ${cyan('respect')} yet.`,
+          `Need them? Upvote or open an issue: ${cyan('https://github.com/Redocly/redocly-cli/issues')}`,
+        ])
+      );
+    }
 
     const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
     const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);

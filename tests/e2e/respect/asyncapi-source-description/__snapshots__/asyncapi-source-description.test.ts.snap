@@ -1,7 +1,46 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`should show a notice and stop when a source description has the asyncapi type 1`] = `
-"
+exports[`should run the other workflows and show a notice when a source description has the asyncapi type 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow asyncapi-source-description.arazzo.yaml / list-menu 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow asyncapi-source-description.arazzo.yaml / wait-for-order 
+ 
+  ✗ order-created 
+    ✗ unexpected error
+ 
+
+  Failed tests info:
+
+  Workflow name: wait-for-order
+ 
+    stepId - order-created 
+    ✗ unexpected error 
+    Reason: Source description cafe-events is an AsyncAPI description, which respect does not support yet. 
+  Summary for asyncapi-source-description.arazzo.yaml
+  
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 4 passed, 1 failed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                        │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x asyncapi-source-description.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└─────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
 
     ╔═════════════════════════════════════════════════════════════════════════════════════╗
     ║                                                                                     ║
@@ -10,7 +49,7 @@ exports[`should show a notice and stop when a source description has the asyncap
     ║                                                                                     ║
     ╚═════════════════════════════════════════════════════════════════════════════════════╝
 
-Stopped before running any workflow: asyncapi-source-description.arazzo.yaml has an AsyncAPI source description.
+ Tests exited with error 
 
 
 Exit code: 1"

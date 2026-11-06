@@ -29,6 +29,14 @@ export function getOperationById(
 
   const availableDescriptions = Object.keys(descriptions);
 
+  if (
+    sourceDescriptions?.some(({ name, type }) => name === descriptionName && type === 'asyncapi')
+  ) {
+    throw new Error(
+      `Source description ${red(descriptionName)} is an AsyncAPI description, which respect does not support yet.`
+    );
+  }
+
   if (!descriptions[descriptionName]) {
     throw new Error(
       `Unknown description name ${red(descriptionName)} at ${red(

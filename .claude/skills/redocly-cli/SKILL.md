@@ -225,7 +225,7 @@ A step that leaves out `parameters` or `requestBody` takes them from the descrip
 
 - v2 is ESM-only: Node.js v22.12.0+ (or v20.19.0+).
 - `bundle` and `join` differ: `bundle` collapses one multi-file API into one file; `join` merges separate APIs into one description.
-- `respect` currently covers only synchronous HTTP flow: it does not support AsyncAPI source descriptions, and it prints a notice and stops when a description has one.
+- `respect` currently covers only synchronous HTTP flow.
 - A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.

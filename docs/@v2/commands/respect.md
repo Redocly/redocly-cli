@@ -14,9 +14,7 @@ Use this command to execute API tests described in an Arazzo description.
 The `respect` command supports Arazzo 1.0.1 descriptions.
 Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions.
 When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
-AsyncAPI source descriptions are not supported yet.
-When a description has one, the command prints a notice and stops before running any workflow.
-If you need this feature, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
+AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
 
 ## Usage

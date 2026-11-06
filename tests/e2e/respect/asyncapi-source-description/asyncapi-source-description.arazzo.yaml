@@ -1,14 +1,24 @@
 arazzo: 1.1.0
 info:
-  title: Test that respect shows a notice for an AsyncAPI source description
+  title: Test that respect runs the workflows and shows a notice for an AsyncAPI source description
+  description: Testing functionality based on the Redocly Cafe API example
   version: 1.0.0
 
 sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
   - name: cafe-events
     type: asyncapi
     url: ./cafe-events.asyncapi.yaml
 
 workflows:
+  - workflowId: list-menu
+    steps:
+      - stepId: list-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
   - workflowId: wait-for-order
     steps:
       - stepId: order-created
