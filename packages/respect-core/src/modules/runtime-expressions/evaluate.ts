@@ -117,9 +117,10 @@ function evaluateExpressionString(
 
   try {
     return interpretExpression(expression, context);
-  } catch (_error) {
+  } catch (error) {
+    const cause = error instanceof Error ? `: ${error.message}` : '';
     throw new Error(
-      `Error in resolving runtime expression '${expression}'. \n` +
+      `Error in resolving runtime expression '${expression}'${cause}. \n` +
         "This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set."
     );
   }

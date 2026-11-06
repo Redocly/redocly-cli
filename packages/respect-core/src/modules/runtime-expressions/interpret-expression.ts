@@ -7,11 +7,13 @@ type Token =
   | { kind: 'literal'; value: unknown }
   | { kind: 'operator'; text: string };
 
-const REFERENCE_CHAR = /[\w.\-#/~]/;
+const REFERENCE_CHAR = /[\w.-]/;
+// The `Unescaped` and `Escaped` characters of `jsonPointer` in abnf-parser.pegjs.
+const POINTER_CHAR = /[!-.0-9A-Z_a-z/~]/;
 const NUMBER = /^\d+(?:\.\d+)?/;
 const KEYWORD = /^(?:true|false|null|undefined)\b/;
 const EMPTY_ARRAY = /^\[\s*\]/;
-const OPERATORS = ['==', '!=', '<=', '>=', '&&', '||', '<', '>', '!', '{', '}'];
+const OPERATORS = ['==', '!=', '<=', '>=', '&&', '||', '<', '>', '{', '}'];
 const COMPARISONS = new Set(['==', '!=', '<', '<=', '>', '>=']);
 const KEYWORD_VALUES: Record<string, unknown> = {
   true: true,
@@ -20,9 +22,12 @@ const KEYWORD_VALUES: Record<string, unknown> = {
   undefined: undefined,
 };
 
+type Evaluate = () => unknown;
+
 /**
  * Evaluates a runtime expression that passed `lintExpression` against the context. Values are
- * read as data and compared with the JavaScript operators of the same name.
+ * read as data and compared with the JavaScript operators of the same name. `||` and `&&` do not
+ * resolve the right side when the left side decides the result.
  */
 export function interpretExpression(
   expression: string,
@@ -36,59 +41,54 @@ export function interpretExpression(
     return token?.kind === 'operator' && token.text === text;
   };
 
-  const parseOr = (): unknown => {
-    let value = parseAnd();
+  const parseOr = (): Evaluate => {
+    let evaluate = parseAnd();
     while (isOperator('||')) {
       position++;
-      const right = parseAnd();
-      value = value || right;
+      const [left, right] = [evaluate, parseAnd()];
+      evaluate = () => left() || right();
     }
-    return value;
+    return evaluate;
   };
 
-  const parseAnd = (): unknown => {
-    let value = parseNot();
+  const parseAnd = (): Evaluate => {
+    let evaluate = parseComparison();
     while (isOperator('&&')) {
       position++;
-      const right = parseNot();
-      value = value && right;
+      const [left, right] = [evaluate, parseComparison()];
+      evaluate = () => left() && right();
     }
-    return value;
+    return evaluate;
   };
 
-  const parseNot = (): unknown => {
-    if (!isOperator('!')) return parseComparison();
-    position++;
-    return !parseNot();
-  };
-
-  const parseComparison = (): unknown => {
-    let value = parsePrimary();
+  const parseComparison = (): Evaluate => {
+    let evaluate = parsePrimary();
     let token = tokens[position];
     while (token?.kind === 'operator' && COMPARISONS.has(token.text)) {
       position++;
-      value = compare(token.text, value, parsePrimary());
+      const [operator, left, right] = [token.text, evaluate, parsePrimary()];
+      evaluate = () => compare(operator, left(), right());
       token = tokens[position];
     }
-    return value;
+    return evaluate;
   };
 
-  const parsePrimary = (): unknown => {
+  const parsePrimary = (): Evaluate => {
     const token = tokens[position++];
-    if (token?.kind === 'literal') return token.value;
-    if (token?.kind === 'reference') return resolveReference(token.text, context);
+    if (token?.kind === 'literal') return () => token.value;
+    if (token?.kind === 'reference') return () => resolveReference(token.text, context);
     if (token?.kind === 'operator' && token.text === '{') {
-      const value = parseOr();
+      const evaluate = parseOr();
       if (!isOperator('}')) throw new Error(`Expected "}" in "${expression}"`);
       position++;
-      return value;
+      return evaluate;
     }
     throw new Error(`Unexpected end or token in "${expression}"`);
   };
 
-  const value = parseOr();
+  const evaluate = parseOr();
   if (position < tokens.length) throw new Error(`Unexpected token in "${expression}"`);
-  return value;
+  return evaluate();
 }
 
 function compare(operator: string, left: unknown, right: unknown): boolean {
@@ -125,8 +125,9 @@ function withUnderscoreKeys(value: unknown): unknown {
 }
 
 /**
- * Reads `$source.path.to.value`, optionally followed by a JSON Pointer and a further property
- * chain, as in `$response.body#/items.length`. A pointer that reaches no value throws.
+ * Reads `$source.path.to.value`, optionally followed by a JSON Pointer. A pointer that reaches no
+ * value throws. As a Respect extension, a `.` after the pointer starts a property chain, as in
+ * `$response.body#/items.length`, so a pointer cannot reach a key that contains `.`.
  */
 function resolveReference(text: string, context: RuntimeExpressionContext): unknown {
   const hashIndex = text.indexOf('#');
@@ -194,6 +195,10 @@ function tokenize(expression: string): Token[] {
     } else if (char === '$') {
       let end = index + 1;
       while (end < expression.length && REFERENCE_CHAR.test(expression[end])) end++;
+      if (expression[end] === '#') {
+        end++;
+        while (end < expression.length && POINTER_CHAR.test(expression[end])) end++;
+      }
       tokens.push({ kind: 'reference', text: expression.slice(index, end) });
       index = end;
     } else if (char === '"' || char === "'") {

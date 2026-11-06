@@ -795,9 +795,46 @@ describe('evaluateRuntimeExpression', () => {
     );
   });
 
-  it('should throw for a JSON Pointer that reaches no value', () => {
+  it('should throw for a JSON Pointer that reaches no value and name the cause', () => {
     expect(() =>
       evaluateRuntimeExpression('$response.body#/missing == 1', runtimeExpressionContext, logger)
-    ).toThrow("Error in resolving runtime expression '$response.body#/missing == 1'");
+    ).toThrow(
+      `Error in resolving runtime expression '$response.body#/missing == 1': JSON Pointer "/missing" reaches no value.`
+    );
+  });
+
+  it('should not resolve the right side of || and && when the left side decides the result', () => {
+    const context = { $statusCode: 404, $inputs: {} } as unknown as RuntimeExpressionContext;
+
+    expect(
+      evaluateRuntimeExpression(
+        '$statusCode == 404 || $steps.nope.outputs.id == 1',
+        context,
+        logger
+      )
+    ).toEqual(true);
+    expect(
+      evaluateRuntimeExpression(
+        '$inputs.optional == undefined || $inputs.optional.enabled == true',
+        context,
+        logger
+      )
+    ).toEqual(true);
+    expect(
+      evaluateRuntimeExpression(
+        '$statusCode == 200 && $steps.nope.outputs.id == 1',
+        context,
+        logger
+      )
+    ).toEqual(false);
+  });
+
+  it('should read JSON Pointer segments with the characters the grammar allows', () => {
+    const context = {
+      $response: { body: { 'a+b': 1, "it's": 2 } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/a+b', context, logger)).toEqual(1);
+    expect(evaluateRuntimeExpression("$response.body#/it's == 2", context, logger)).toEqual(true);
   });
 });
