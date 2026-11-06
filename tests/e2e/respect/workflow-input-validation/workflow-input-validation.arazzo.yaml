@@ -1,0 +1,131 @@
+arazzo: 1.0.1
+info:
+  title: Warn about cafe workflow inputs
+  version: 1.0.0
+sourceDescriptions:
+  - name: cafe
+    type: openapi
+    url: ../../../../resources/cafe.yaml
+workflows:
+  - workflowId: create-order
+    inputs: &order-inputs
+      type: object
+      required: [callerKey, customerName]
+      properties:
+        callerKey:
+          type: string
+          minLength: 3
+          format: password
+        customerName:
+          type: string
+          minLength: 1
+        quantity:
+          type: integer
+          default: 1
+    steps: &order-steps
+      - stepId: write-order
+        operationId: cafe.createOrder
+        parameters:
+          - in: header
+            name: x-caller-key
+            value: $inputs.callerKey
+        requestBody:
+          contentType: application/json
+          payload:
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: $inputs.quantity
+        successCriteria:
+          - condition: $statusCode == 201
+          - condition: $response.body#/status == "placed"
+        outputs:
+          orderId: $response.body#/id
+  - workflowId: with-dependency
+    inputs: *order-inputs
+    dependsOn: [prepare-order]
+    steps: *order-steps
+  - workflowId: prepare-order
+    steps: &preparation-steps
+      - stepId: prepare
+        operationId: cafe.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
+  - workflowId: unbound-order
+    inputs:
+      type: object
+      required: [approval]
+      properties:
+        approval:
+          type: string
+    steps: *preparation-steps
+  - workflowId: with-invalid-dependency
+    inputs: *order-inputs
+    dependsOn: [prepare-order, unbound-order]
+    steps: *order-steps
+  - workflowId: invoke-order
+    inputs:
+      type: object
+      properties:
+        orderName:
+          type: string
+    steps:
+      - stepId: invoke
+        workflowId: create-order
+        parameters:
+          - name: callerKey
+            value: runtime-key
+          - name: customerName
+            value: $inputs.orderName
+  - workflowId: environment-order
+    inputs:
+      type: object
+      required: [env, customerName]
+      properties:
+        env:
+          type: object
+          required: [CAFE_CALLER_KEY]
+          properties:
+            CAFE_CALLER_KEY:
+              type: string
+              minLength: 3
+              format: password
+            CAFE_REGION:
+              type: string
+              default: local
+        customerName:
+          type: string
+    steps:
+      - stepId: write-environment-order
+        operationId: cafe.createOrder
+        parameters:
+          - in: header
+            name: x-caller-key
+            value: $inputs.env.CAFE_CALLER_KEY
+        requestBody:
+          contentType: application/json
+          payload:
+            customerName: $inputs.customerName
+            orderItems:
+              - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7
+                quantity: 1
+                comment: $inputs.env.CAFE_REGION
+        successCriteria:
+          - condition: $statusCode == 201
+  - workflowId: scalar-order
+    inputs:
+      $ref: '#/components/inputs/reusable-scalar'
+    steps: *order-steps
+  - workflowId: array-order
+    inputs:
+      type: array
+      items:
+        type: string
+    steps: *order-steps
+  - workflowId: empty-schema
+    inputs: {}
+    steps: *preparation-steps
+components:
+  inputs:
+    reusable-scalar:
+      type: string

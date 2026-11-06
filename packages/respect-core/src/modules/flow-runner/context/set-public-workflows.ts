@@ -1,5 +1,8 @@
 import type { Workflow, PublicWorkflow, InputSchema } from '../../../types.js';
-import { resolveInputValuesToSchema } from '../inputs/index.js';
+import {
+  resolveInputValuesToSchema,
+  type WorkflowInputValidationContext,
+} from '../inputs/index.js';
 import { getPublicSteps } from './set-public-steps.js';
 
 export function getPublicWorkflows({
@@ -32,10 +35,12 @@ export function mergeWorkflowInputs({
   inputs,
   workflowInputSchema,
   env,
+  validationContext,
 }: {
   inputs: Record<string, string> | undefined;
   workflowInputSchema: InputSchema | undefined;
   env: Record<string, string> | undefined;
+  validationContext?: WorkflowInputValidationContext;
 }) {
   let resolvedInputs = {};
   let resolvedDotEnvInputs = {};
@@ -51,7 +56,12 @@ export function mergeWorkflowInputs({
     );
   }
 
-  return Object.keys(resolvedDotEnvInputs).length > 0
-    ? { ...resolvedInputs, env: resolvedDotEnvInputs }
-    : resolvedInputs;
+  const mergedInputs =
+    Object.keys(resolvedDotEnvInputs).length > 0
+      ? { ...resolvedInputs, env: resolvedDotEnvInputs }
+      : resolvedInputs;
+
+  return validationContext && workflowInputSchema
+    ? resolveInputValuesToSchema(mergedInputs, workflowInputSchema, validationContext)
+    : mergedInputs;
 }
