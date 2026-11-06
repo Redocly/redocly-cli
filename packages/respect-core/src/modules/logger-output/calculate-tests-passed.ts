@@ -1,6 +1,8 @@
 import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types.js';
 
-export function calculateTotals(workflows: WorkflowExecutionResult[]): CalculatedResults {
+export function calculateTotals(
+  workflows: Pick<WorkflowExecutionResult, 'workflowId' | 'executedSteps'>[]
+): CalculatedResults {
   const totalWorkflows = workflows.length;
   let failedChecks = 0;
   let totalChecks = 0;

@@ -276,6 +276,8 @@ export async function runWorkflow({
       workflowId,
     });
 
+    const hasFailedSteps =
+      calculateTotals([{ workflowId, executedSteps: runCtx.executedSteps }]).steps.failed > 0;
     const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
@@ -285,6 +287,8 @@ export async function runWorkflow({
           logger: ctx.options.logger,
         });
       } catch (error: any) {
+        // A failed step leaves the values its outputs read unset, and the step reports the failure.
+        if (hasFailedSteps) continue;
         throw new Error(
           `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
         );
