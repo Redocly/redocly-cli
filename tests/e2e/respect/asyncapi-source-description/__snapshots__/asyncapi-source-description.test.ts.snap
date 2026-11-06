@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should show a notice and stop when a source description has the asyncapi type 1`] = `
+"
+
+    ╔═════════════════════════════════════════════════════════════════════════════════════╗
+    ║                                                                                     ║
+    ║  AsyncAPI source descriptions are not supported by respect yet.                     ║
+    ║  Need them? Upvote or open an issue: https://github.com/Redocly/redocly-cli/issues  ║
+    ║                                                                                     ║
+    ╚═════════════════════════════════════════════════════════════════════════════════════╝
+
+Stopped before running any workflow: asyncapi-source-description.arazzo.yaml has an AsyncAPI source description.
+
+
+Exit code: 1"
+`;
