@@ -1,8 +1,6 @@
 import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types.js';
 
-export function calculateTotals(
-  workflows: Pick<WorkflowExecutionResult, 'workflowId' | 'executedSteps'>[]
-): CalculatedResults {
+export function calculateTotals(workflows: WorkflowExecutionResult[]): CalculatedResults {
   const totalWorkflows = workflows.length;
   let failedChecks = 0;
   let totalChecks = 0;
@@ -82,7 +80,7 @@ export function calculateTotals(
   };
 }
 
-function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
+export function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
   return steps.flatMap((step) => {
     if ('executedSteps' in step) {
       return flattenNestedSteps((step as WorkflowExecutionResult).executedSteps);
