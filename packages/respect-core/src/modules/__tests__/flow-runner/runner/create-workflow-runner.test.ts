@@ -240,7 +240,10 @@ describe('runWorkflow', () => {
     expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
   });
 
-  it('should skip the workflow outputs that a failed step leaves unresolved', async () => {
+  it.each([
+    ['a run', undefined],
+    ['a retry target', 1],
+  ])('should skip the outputs a failed step leaves unresolved in %s', async (_, retriesLeft) => {
     const apiClient = {
       fetchResult: vi.fn(),
       getVerboseResponseLogs: vi.fn(),
@@ -285,6 +288,7 @@ describe('runWorkflow', () => {
       workflowInput: 'test',
       ctx,
       executedStepsCount: { value: 0 },
+      retriesLeft,
     });
 
     expect(ctx.$outputs?.test).toEqual({ source: 'menu' });

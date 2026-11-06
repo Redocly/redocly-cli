@@ -23,7 +23,7 @@ import {
   printRequiredWorkflowSeparator,
   printUnknownStep,
 } from '../logger-output/helpers.js';
-import { calculateTotals } from '../logger-output/index.js';
+import { calculateTotals, flattenNestedSteps } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { createTestContext } from './context/create-test-context.js';
 import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
@@ -276,8 +276,9 @@ export async function runWorkflow({
       workflowId,
     });
 
-    const hasFailedSteps =
-      calculateTotals([{ workflowId, executedSteps: runCtx.executedSteps }]).steps.failed > 0;
+    const hasFailedSteps = flattenNestedSteps(runCtx.executedSteps).some((step) =>
+      step.checks.some((check) => !check.passed && check.severity === 'error')
+    );
     const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
