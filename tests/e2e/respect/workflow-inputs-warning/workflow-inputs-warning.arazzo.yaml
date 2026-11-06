@@ -1,0 +1,32 @@
+arazzo: 1.0.1
+info:
+  title: Test that inputs that don't match the inputs schema produce a warning and the workflow still runs
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: search-menu
+    inputs:
+      type: object
+      required: [search, customerName]
+      properties:
+        search:
+          type: string
+        customerName:
+          type: string
+        limit:
+          type: integer
+    steps:
+      - stepId: search-menu-items
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: $inputs.search
+        successCriteria:
+          - condition: $statusCode == 200

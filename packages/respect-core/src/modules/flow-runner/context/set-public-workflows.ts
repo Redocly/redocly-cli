@@ -32,26 +32,36 @@ export function mergeWorkflowInputs({
   inputs,
   workflowInputSchema,
   env,
+  onInvalidInputs,
 }: {
-  inputs: Record<string, string> | undefined;
+  inputs: Record<string, unknown> | undefined;
   workflowInputSchema: InputSchema | undefined;
   env: Record<string, string> | undefined;
+  onInvalidInputs?: (problems: string) => void;
 }) {
-  let resolvedInputs = {};
-  let resolvedDotEnvInputs = {};
-
-  if (workflowInputSchema) {
-    resolvedInputs = resolveInputValuesToSchema(inputs, workflowInputSchema as InputSchema);
+  if (!workflowInputSchema) {
+    return {};
   }
 
-  if (workflowInputSchema?.properties?.env) {
-    resolvedDotEnvInputs = resolveInputValuesToSchema(
-      env || {},
-      workflowInputSchema.properties.env as InputSchema
+  const envSchema = workflowInputSchema.properties?.env as InputSchema | undefined;
+  if (!envSchema) {
+    return resolveInputValuesToSchema(inputs, workflowInputSchema, onInvalidInputs);
+  }
+
+  const resolvedDotEnvInputs = resolveInputValuesToSchema(env || {}, envSchema);
+  if (Object.keys(resolvedDotEnvInputs).length > 0) {
+    return resolveInputValuesToSchema(
+      { ...inputs, env: resolvedDotEnvInputs },
+      workflowInputSchema,
+      onInvalidInputs
     );
   }
 
-  return Object.keys(resolvedDotEnvInputs).length > 0
-    ? { ...resolvedInputs, env: resolvedDotEnvInputs }
-    : resolvedInputs;
+  // Without a declared variable set, an `env` input is kept, the `env` default applies,
+  // or an empty `env` is checked, so a required variable that is not set is reported.
+  return resolveInputValuesToSchema(
+    'default' in envSchema ? inputs : { env: {}, ...inputs },
+    workflowInputSchema,
+    onInvalidInputs
+  );
 }
