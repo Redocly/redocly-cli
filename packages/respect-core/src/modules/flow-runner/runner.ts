@@ -23,7 +23,7 @@ import {
   printRequiredWorkflowSeparator,
   printUnknownStep,
 } from '../logger-output/helpers.js';
-import { calculateTotals } from '../logger-output/index.js';
+import { calculateTotals, flattenNestedSteps } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { createTestContext } from './context/create-test-context.js';
 import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
@@ -276,6 +276,9 @@ export async function runWorkflow({
       workflowId,
     });
 
+    const hasFailedSteps = flattenNestedSteps(runCtx.executedSteps).some((step) =>
+      step.checks.some((check) => !check.passed && check.severity === 'error')
+    );
     const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
@@ -285,6 +288,8 @@ export async function runWorkflow({
           logger: ctx.options.logger,
         });
       } catch (error: any) {
+        // A failed step leaves the values its outputs read unset, and the step reports the failure.
+        if (hasFailedSteps) continue;
         throw new Error(
           `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
         );

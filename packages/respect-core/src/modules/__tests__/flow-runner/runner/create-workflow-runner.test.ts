@@ -240,6 +240,68 @@ describe('runWorkflow', () => {
     expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
   });
 
+  it.each([
+    ['a run', undefined],
+    ['a retry target', 1],
+  ])('should skip the outputs a failed step leaves unresolved in %s', async (_, retriesLeft) => {
+    const apiClient = {
+      fetchResult: vi.fn(),
+      getVerboseResponseLogs: vi.fn(),
+    } as unknown as ApiFetcher;
+
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
+      statusCode: 500,
+    } as ResponseContext);
+
+    const step = {
+      stepId: 'read',
+      'x-operation': {
+        url: 'http://localhost:3000/test',
+        method: 'GET',
+      },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      outputs: { state: '$response.body#/state' },
+    };
+    const workflow = {
+      workflowId: 'test',
+      outputs: { state: '$steps.read.outputs.state', source: 'menu' },
+      steps: [step],
+    } as unknown as Workflow;
+
+    const ctx = {
+      apiClient,
+      workflows: [workflow],
+      executedSteps: [],
+      $workflows: { test: { outputs: {}, inputs: {}, steps: { read: {} } } },
+      $steps: {},
+      sourceDescriptions: [],
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+      options: {
+        verbose: false,
+        filePath: fileName,
+        logger,
+      },
+      $outputs: {},
+    } as unknown as TestContext;
+
+    const result = await runWorkflow({
+      workflowInput: 'test',
+      ctx,
+      executedStepsCount: { value: 0 },
+      retriesLeft,
+    });
+
+    expect(ctx.$outputs?.test).toEqual({ source: 'menu' });
+    expect(result.executedSteps).toEqual([
+      expect.objectContaining({
+        stepId: 'read',
+        checks: expect.arrayContaining([
+          expect.objectContaining({ name: 'success criteria check', passed: false }),
+        ]),
+      }),
+    ]);
+  });
+
   it('should return if workflow does not have steps', async () => {
     const apiClient = {
       fetchResult: vi.fn(),
