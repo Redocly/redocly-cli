@@ -15,19 +15,32 @@ export const sanitizeLocale = (input: string): string => {
 };
 
 /**
- * Retrieves platform-specific arguments and utilities.
+ * The command that runs a product package, such as `@redocly/framework`, and downloads it when needed.
+ * The standalone binary embeds Bun and has no npx next to it, so it runs the package with `bun x`
+ * on its own runtime: `BUN_BE_BUN` makes the binary act as the `bun` command.
  */
-export function getPlatformSpawnArgs() {
-  const isWindowsPlatform = process.platform === 'win32';
-  const npxExecutableName = isWindowsPlatform ? 'npx.cmd' : 'npx';
+export function getPackageRunner(packageName: string) {
+  const isBun = !!process.versions.bun;
+  // npx is a batch file on Windows, which only runs through a shell.
+  const shell = !isBun && process.platform === 'win32';
+  const sanitize = (input: string | undefined, sanitizer: (input: string) => string) =>
+    shell && input ? sanitizer(input) : input || '';
 
-  const sanitizeIfWindows = (input: string | undefined, sanitizer: (input: string) => string) => {
-    if (isWindowsPlatform && input) {
-      return sanitizer(input);
-    } else {
-      return input || '';
-    }
+  if (isBun) {
+    return {
+      command: process.execPath,
+      args: ['x', '--bun', packageName],
+      env: { ...process.env, BUN_BE_BUN: '1' },
+      sanitize,
+      shell,
+    };
+  }
+
+  return {
+    command: shell ? 'npx.cmd' : 'npx',
+    args: ['-y', packageName],
+    env: process.env,
+    sanitize,
+    shell,
   };
-
-  return { npxExecutableName, sanitize: sanitizeIfWindows, shell: isWindowsPlatform };
 }

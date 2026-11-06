@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { getPlatformSpawnArgs } from '../../utils/platform.js';
+import { getPackageRunner } from '../../utils/platform.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
 import type { PreviewProjectArgv, Product } from './types.js';
@@ -28,18 +28,15 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
 
-  logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
-  const { npxExecutableName, shell } = getPlatformSpawnArgs();
+  logger.info(`\nLaunching preview of ${productName} ${plan}.\n\n`);
+  const { command, args, env, shell } = getPackageRunner(packageName);
 
-  const child = spawn(
-    npxExecutableName,
-    ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
-    {
-      stdio: 'inherit',
-      cwd: projectDir,
-      shell,
-    }
-  );
+  const child = spawn(command, [...args, 'preview', `--plan=${plan}`, `--port=${port || 4000}`], {
+    stdio: 'inherit',
+    cwd: projectDir,
+    env,
+    shell,
+  });
 
   child.on('error', (error) => {
     logger.info(`Project preview launch failed: ${error.message}`);

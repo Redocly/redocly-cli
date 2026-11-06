@@ -328,6 +328,15 @@ npm i -g redocly-cli.tgz
 Don't forget to visually check the [changes](tests/smoke/basic/pre-built/redoc.html) in a browser.
 For other commands you'd have to do something similar.
 
+The standalone binaries have their own smoke test.
+To build a binary and run it locally, install [Bun](https://bun.com) at the version that [binaries.yaml](.github/workflows/binaries.yaml) pins, then run:
+
+```sh
+npm run compile
+node packages/cli/scripts/build-binary.mjs bun-darwin-arm64 dist/redocly
+bash tests/smoke/binary/run-smoke.sh dist/redocly
+```
+
 ### Performance benchmark
 
 To run the performance tests locally, you should have `hyperfine` (v2.0.0+) installed on your machine.
