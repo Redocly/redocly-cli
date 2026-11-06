@@ -44,9 +44,23 @@ const arazzoSourceDescriptionSchema = {
   additionalProperties: false,
   required: ['name', 'type', 'url'],
 } as const;
+const asyncAPISourceDescriptionSchema = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+    type: { type: 'string', enum: ['asyncapi'] },
+    url: { type: 'string' },
+  },
+  additionalProperties: false,
+  required: ['name', 'type', 'url'],
+} as const;
 export const sourceDescriptionSchema = {
   type: 'object',
-  oneOf: [openAPISourceDescriptionSchema, arazzoSourceDescriptionSchema],
+  oneOf: [
+    openAPISourceDescriptionSchema,
+    arazzoSourceDescriptionSchema,
+    asyncAPISourceDescriptionSchema,
+  ],
 } as const;
 const sourceDescriptionsSchema = {
   type: 'array',
