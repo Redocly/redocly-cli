@@ -7,6 +7,7 @@ import { parseYamlToDocument } from '../../__tests__/utils.js';
 import { resolveDocument, BaseResolver, type Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import { Oas3Types } from '../types/oas3.js';
+import { Oas3_1Types } from '../types/oas3_1.js';
 
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual('node:fs');
@@ -652,5 +653,199 @@ describe('remote refs with query strings', () => {
     const resolvedRef = Array.from(resolvedRefs.values())[0];
     expect(resolvedRef.resolved).toBe(true);
     expect(resolvedRef.node).toEqual({ get: { operationId: 'listInvoices' } });
+  });
+});
+
+describe('schema $id resolution', () => {
+  it('should resolve local $defs refs inside a schema with $id', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            userData:
+              $id: 'https://example.com/classroom/userData'
+              type: object
+              properties:
+                challenges:
+                  type: array
+                  items:
+                    $ref: '#/$defs/Challenge'
+              $defs:
+                Challenge:
+                  type: object
+                  properties:
+                    files:
+                      type: array
+                      items:
+                        $ref: '#/$defs/File'
+                File:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3_1Types).Root,
+    });
+
+    const challengeRef = resolvedRefs.get(
+      'https://example.com/classroom/userData::#/$defs/Challenge'
+    );
+    const fileRef = resolvedRefs.get('https://example.com/classroom/userData::#/$defs/File');
+
+    expect(challengeRef?.resolved).toBe(true);
+    expect(challengeRef?.nodePointer).toBe('#/components/schemas/userData/$defs/Challenge');
+    expect(challengeRef?.document).toBe(rootDocument);
+
+    expect(fileRef?.resolved).toBe(true);
+    expect(fileRef?.nodePointer).toBe('#/components/schemas/userData/$defs/File');
+    expect(fileRef?.node).toEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+    });
+  });
+
+  it('should resolve relative $ref against enclosing schema $id to an in-document $id resource', async () => {
+    const cwd = path.join(__dirname, 'fixtures/resolve');
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Pet:
+              $id: 'https://example.com/schemas/pet'
+              type: object
+              properties:
+                tag:
+                  $ref: 'tag'
+            Tag:
+              $id: 'https://example.com/schemas/tag'
+              type: object
+              required:
+                - label
+              properties:
+                label:
+                  type: string
+      `,
+      path.join(cwd, 'openapi.yaml')
+    );
+
+    const resolver = new BaseResolver();
+    const loadSpy = vi.spyOn(resolver, 'loadExternalRef');
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: resolver,
+      rootType: normalizeTypes(Oas3_1Types).Root,
+    });
+
+    expect(loadSpy).not.toHaveBeenCalled();
+    const tagRef = resolvedRefs.get('https://example.com/schemas/pet::tag');
+    expect(tagRef?.resolved).toBe(true);
+    expect(tagRef?.isRemote).toBe(false);
+    expect(tagRef?.document).toBe(rootDocument);
+    expect(tagRef?.nodePointer).toBe('#/components/schemas/Tag');
+    expect(tagRef?.node).toEqual({
+      $id: 'https://example.com/schemas/tag',
+      type: 'object',
+      required: ['label'],
+      properties: {
+        label: { type: 'string' },
+      },
+    });
+  });
+
+  it('should resolve nested relative $id against parent schema $id', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Pet:
+              $id: 'https://example.com/schemas/pet.json'
+              type: object
+              properties:
+                collar:
+                  $id: 'parts/collar.json'
+                  type: object
+                  properties:
+                    tag:
+                      $ref: '../tag.json'
+                    buckle:
+                      $ref: '#/$defs/Buckle'
+                  $defs:
+                    Buckle:
+                      type: string
+            Tag:
+              $id: 'https://example.com/schemas/tag.json'
+              type: object
+              properties:
+                code:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3_1Types).Root,
+    });
+
+    const tagRef = resolvedRefs.get('https://example.com/schemas/parts/collar.json::../tag.json');
+    const buckleRef = resolvedRefs.get(
+      'https://example.com/schemas/parts/collar.json::#/$defs/Buckle'
+    );
+
+    expect(tagRef?.resolved).toBe(true);
+    expect(tagRef?.nodePointer).toBe('#/components/schemas/Tag');
+    expect(buckleRef?.resolved).toBe(true);
+    expect(buckleRef?.nodePointer).toBe('#/components/schemas/Pet/properties/collar/$defs/Buckle');
+    expect(buckleRef?.node).toEqual({ type: 'string' });
+  });
+
+  it('should resolve URN $id references and ignore $id inside example values of properties named properties', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Feature:
+              $id: 'https://example.com/schemas/feature.json'
+              type: object
+              properties:
+                properties:
+                  type: object
+                  example:
+                    $id: 'urn:uuid:ee564b8a-7a87-4125-8c96-e9f123d6766f'
+                    hijacked: true
+                tag:
+                  $ref: 'urn:uuid:ee564b8a-7a87-4125-8c96-e9f123d6766f'
+            Tag:
+              $id: 'urn:uuid:ee564b8a-7a87-4125-8c96-e9f123d6766f'
+              type: object
+              properties:
+                label:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3_1Types).Root,
+    });
+
+    const tagRef = resolvedRefs.get(
+      'https://example.com/schemas/feature.json::urn:uuid:ee564b8a-7a87-4125-8c96-e9f123d6766f'
+    );
+    expect(tagRef?.resolved).toBe(true);
+    expect(tagRef?.nodePointer).toBe('#/components/schemas/Tag');
   });
 });

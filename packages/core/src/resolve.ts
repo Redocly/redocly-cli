@@ -17,6 +17,9 @@ import {
   isFileUrl,
   isExternalValue,
   isRefWithSiblings,
+  isSchemeUri,
+  getSchemaId,
+  resolveSchemaId,
   Location,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
@@ -25,7 +28,6 @@ import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { isSupportedExtension } from './utils/is-supported-extension.js';
 import { makeRefId } from './utils/make-ref-id.js';
-import { nextTick } from './utils/next-tick.js';
 import { readFileFromUrl } from './utils/read-file-from-url.js';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
@@ -210,6 +212,7 @@ export type ResolvedRefChainHop = {
   node: unknown;
   document: Document;
   location: Location;
+  baseUri?: string;
 };
 
 export type ResolvedRef =
@@ -222,6 +225,7 @@ export type ResolvedRef =
       error?: ResolveError | YamlParseError;
       node?: any;
       chain?: undefined;
+      baseUri?: undefined;
     }
   | {
       resolved: true;
@@ -231,9 +235,17 @@ export type ResolvedRef =
       isRemote: boolean;
       error?: undefined;
       chain?: ResolvedRefChainHop[];
+      baseUri?: string;
     };
 
 export type ResolvedRefMap = Map<string, ResolvedRef>;
+
+type SchemaResource = {
+  baseUri: string;
+  node: Record<string, unknown>;
+  document: Document;
+  nodePointer: string;
+};
 
 type RefFrame = {
   prev: RefFrame | null;
@@ -268,6 +280,8 @@ export async function resolveDocument(opts: {
   const { rootDocument, externalRefResolver, rootType } = opts;
   const resolvedRefMap: ResolvedRefMap = new Map();
   const seenNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
+  const schemaResources = new Map<string, SchemaResource>();
+  const nodeBaseUris = new WeakMap<object, string>();
 
   const resolvePromises: Array<Promise<void>> = [];
   resolveRefsInParallel(rootDocument.parsed, rootDocument, '#/', rootType);
@@ -283,16 +297,37 @@ export async function resolveDocument(opts: {
     rootNode: unknown,
     rootNodeDocument: Document,
     rootNodePointer: string,
-    type: NormalizedNodeType
+    type: NormalizedNodeType,
+    initialBaseUri?: string
   ) {
     const rootNodeDocAbsoluteRef = rootNodeDocument.source.absoluteRef;
     const anchorRefsMap: Map<string, unknown> = new Map();
+    const activeNodes = new WeakSet<object>();
+    const rootBaseUri =
+      (isPlainObject(rootNode) && nodeBaseUris.get(rootNode)) ||
+      initialBaseUri ||
+      rootNodeDocAbsoluteRef;
 
-    walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer);
+    const pendingRefFollows: Array<() => void> = [];
+
+    walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer, rootBaseUri);
+
+    for (const follow of pendingRefFollows) {
+      follow();
+    }
 
     // oxlint-disable-next-line sonarjs/cognitive-complexity
-    function walk(node: unknown, type: NormalizedNodeType, nodeAbsoluteRef: string) {
+    function walk(
+      node: unknown,
+      type: NormalizedNodeType,
+      nodeAbsoluteRef: string,
+      currentBaseUri: string
+    ) {
       if (!isPlainObject(node) && !Array.isArray(node)) {
+        return;
+      }
+
+      if (activeNodes.has(node)) {
         return;
       }
 
@@ -302,11 +337,13 @@ export async function resolveDocument(opts: {
       }
 
       seenNodes.add(nodeId);
+      activeNodes.add(node);
 
       if (Array.isArray(node)) {
         const itemsType = type.items;
         // we continue resolving unknown types, but stop early on known scalars
         if (itemsType === undefined && type !== unknownType && type !== SpecExtension) {
+          activeNodes.delete(node);
           return;
         }
         const isTypeAFunction = typeof itemsType === 'function';
@@ -325,10 +362,35 @@ export async function resolveDocument(opts: {
           walk(
             value,
             isNamedType(itemType) ? itemType : unknownType,
-            joinPointer(nodeAbsoluteRef, i)
+            joinPointer(nodeAbsoluteRef, i),
+            currentBaseUri
           );
         }
+        activeNodes.delete(node);
         return;
+      }
+
+      if (getOwn(type.properties, '$id')) {
+        const indexedBaseUri = nodeBaseUris.get(node);
+        if (indexedBaseUri) {
+          currentBaseUri = indexedBaseUri;
+        } else {
+          const schemaId = getSchemaId(node);
+          if (schemaId) {
+            currentBaseUri = resolveSchemaId(currentBaseUri, schemaId);
+            if (!schemaResources.has(currentBaseUri)) {
+              schemaResources.set(currentBaseUri, {
+                baseUri: currentBaseUri,
+                node,
+                document: rootNodeDocument,
+                nodePointer: nodeAbsoluteRef.slice(rootNodeDocAbsoluteRef.length),
+              });
+            }
+          }
+        }
+        if (currentBaseUri !== rootNodeDocAbsoluteRef) {
+          nodeBaseUris.set(node, currentBaseUri);
+        }
       }
 
       const [_, anchor] = Object.entries(node).find(([key]) => key === '$anchor') || [];
@@ -365,97 +427,162 @@ export async function resolveDocument(opts: {
           continue;
         }
 
-        walk(propValue, propType, joinPointer(nodeAbsoluteRef, escapePointerFragment(propName)));
+        walk(
+          propValue,
+          propType,
+          joinPointer(nodeAbsoluteRef, escapePointerFragment(propName)),
+          currentBaseUri
+        );
       }
 
       if (isRef(node)) {
-        const promise = followRef(rootNodeDocument, node, {
-          prev: null,
-          node,
-        }).then((resolvedRef) => {
-          if (resolvedRef.resolved) {
-            resolveRefsInParallel(
-              resolvedRef.node,
-              resolvedRef.document,
-              resolvedRef.nodePointer!,
-              type
-            );
-            // chain hops carry sibling keys that can contain refs of their own
-            for (const chainHop of resolvedRef.chain ?? []) {
+        const refNode = node;
+        const refBaseUri = currentBaseUri;
+        pendingRefFollows.push(() => {
+          const promise = followRef(
+            rootNodeDocument,
+            refNode,
+            {
+              prev: null,
+              node: refNode,
+            },
+            refBaseUri
+          ).then((resolvedRef) => {
+            if (resolvedRef.resolved) {
               resolveRefsInParallel(
-                chainHop.node,
-                chainHop.document,
-                chainHop.location.pointer,
-                type
+                resolvedRef.node,
+                resolvedRef.document,
+                resolvedRef.nodePointer!,
+                type,
+                resolvedRef.baseUri
               );
+              // chain hops carry sibling keys that can contain refs of their own
+              for (const chainHop of resolvedRef.chain ?? []) {
+                resolveRefsInParallel(
+                  chainHop.node,
+                  chainHop.document,
+                  chainHop.location.pointer,
+                  type,
+                  chainHop.baseUri
+                );
+              }
             }
-          }
+          });
+          resolvePromises.push(promise);
         });
-        resolvePromises.push(promise);
       }
 
       // handle example.externalValue as reference
       if (isExternalValue(node)) {
-        const promise = followRef(
-          rootNodeDocument,
-          { $ref: node.externalValue },
-          {
-            prev: null,
-            node,
-          }
-        ).then((resolvedRef) => {
-          if (resolvedRef.resolved) {
-            resolveRefsInParallel(
-              resolvedRef.node,
-              resolvedRef.document,
-              resolvedRef.nodePointer,
-              type
-            );
-          }
+        const extValNode = node;
+        const extValBaseUri = currentBaseUri;
+        pendingRefFollows.push(() => {
+          const promise = followRef(
+            rootNodeDocument,
+            { $ref: extValNode.externalValue },
+            {
+              prev: null,
+              node: extValNode,
+            },
+            extValBaseUri
+          ).then((resolvedRef) => {
+            if (resolvedRef.resolved) {
+              resolveRefsInParallel(
+                resolvedRef.node,
+                resolvedRef.document,
+                resolvedRef.nodePointer,
+                type,
+                resolvedRef.baseUri
+              );
+            }
+          });
+          resolvePromises.push(promise);
         });
-        resolvePromises.push(promise);
       }
+
+      activeNodes.delete(node);
     }
 
+    // oxlint-disable-next-line sonarjs/cognitive-complexity
     async function followRef(
       document: Document,
       ref: OasRef,
-      refStack: RefFrame
+      refStack: RefFrame,
+      baseUri: string = document.source.absoluteRef
     ): Promise<ResolvedRef> {
       if (hasRef(refStack.prev, ref)) {
         throw new Error('Self-referencing circular pointer');
       }
 
       if (isAnchor(ref.$ref)) {
-        // Wait for all anchors in the document to be collected firstly.
-        await nextTick();
+        const targetNode = anchorRefsMap.get(ref.$ref);
         const resolvedRef: ResolvedRef = {
           resolved: true,
           isRemote: false,
-          node: anchorRefsMap.get(ref.$ref),
+          node: targetNode,
           document,
           nodePointer: ref.$ref,
+          baseUri: (isPlainObject(targetNode) && nodeBaseUris.get(targetNode)) || baseUri,
         };
-        const refId = makeRefId(document.source.absoluteRef, ref.$ref);
+        const refId = makeRefId(baseUri, ref.$ref);
         resolvedRefMap.set(refId, resolvedRef);
         return resolvedRef;
       }
 
       const { uri, pointer } = parseRef(ref.$ref);
+      let resolvedTargetUri: string;
+      try {
+        resolvedTargetUri =
+          uri !== null
+            ? isSchemeUri(uri) && !isAbsoluteUrl(uri)
+              ? uri
+              : externalRefResolver.resolveExternalRef(baseUri, uri)
+            : baseUri;
+      } catch (error) {
+        const resolvedRef = {
+          resolved: false as const,
+          isRemote: true,
+          document: undefined,
+          error,
+        };
+        const refId = makeRefId(baseUri, ref.$ref);
+        resolvedRefMap.set(refId, resolvedRef);
+        return resolvedRef;
+      }
 
-      const isRemote =
-        uri !== null &&
-        externalRefResolver.resolveExternalRef(document.source.absoluteRef, uri) !==
-          document.source.absoluteRef;
+      let embeddedResource =
+        uri !== null
+          ? schemaResources.get(resolvedTargetUri)
+          : baseUri !== document.source.absoluteRef
+            ? schemaResources.get(baseUri)
+            : undefined;
+
+      if (
+        uri === null &&
+        embeddedResource &&
+        embeddedResource.nodePointer !== '#/' &&
+        pointer.length > 0 &&
+        pointer[0] !== '$defs' &&
+        embeddedResource.node[pointer[0]] === undefined &&
+        isPlainObject(document.parsed) &&
+        document.parsed[pointer[0]] !== undefined
+      ) {
+        embeddedResource = undefined;
+      }
+
+      const isRemote = embeddedResource
+        ? embeddedResource.document.source !== document.source
+        : uri !== null && resolvedTargetUri !== document.source.absoluteRef;
 
       let targetDoc: Document;
       try {
-        targetDoc = isRemote
-          ? ((await externalRefResolver.resolveDocument(
-              document.source.absoluteRef,
-              uri!
-            )) as Document)
-          : document;
+        if (embeddedResource) {
+          targetDoc = embeddedResource.document;
+        } else if (isRemote) {
+          targetDoc = (await externalRefResolver.resolveDocument(baseUri, uri!)) as Document;
+        } else {
+          targetDoc = document;
+        }
       } catch (error) {
         const resolvedRef = {
           resolved: false as const,
@@ -463,7 +590,7 @@ export async function resolveDocument(opts: {
           document: undefined,
           error: error,
         };
-        const refId = makeRefId(document.source.absoluteRef, ref.$ref);
+        const refId = makeRefId(baseUri, ref.$ref);
         resolvedRefMap.set(refId, resolvedRef);
         return resolvedRef;
       }
@@ -472,31 +599,50 @@ export async function resolveDocument(opts: {
         resolved: true,
         document: targetDoc,
         isRemote,
-        node: document.parsed,
-        nodePointer: '#/',
+        node: embeddedResource ? embeddedResource.node : document.parsed,
+        nodePointer: embeddedResource ? embeddedResource.nodePointer : '#/',
       };
 
-      let target = targetDoc.parsed;
+      let target = embeddedResource ? embeddedResource.node : targetDoc.parsed;
+      let targetBaseUri = embeddedResource
+        ? embeddedResource.baseUri
+        : (isPlainObject(target) && nodeBaseUris.get(target)) || targetDoc.source.absoluteRef;
+      let targetEnclosingBaseUri = targetBaseUri;
 
       const segments = pointer;
       for (const segment of segments) {
         if (isPlainObject(target) && target[segment] !== undefined) {
+          targetEnclosingBaseUri = targetBaseUri;
           target = target[segment];
           resolvedRef.nodePointer = joinPointer(
             resolvedRef.nodePointer!,
             escapePointerFragment(segment)
           );
+          if (isPlainObject(target)) {
+            targetBaseUri = nodeBaseUris.get(target) || targetBaseUri;
+          }
         } else if (Array.isArray(target) && target[+segment] !== undefined) {
+          targetEnclosingBaseUri = targetBaseUri;
           target = target[+segment];
           resolvedRef.nodePointer = joinPointer(
             resolvedRef.nodePointer!,
             escapePointerFragment(segment)
           );
+          if (isPlainObject(target)) {
+            targetBaseUri = nodeBaseUris.get(target) || targetBaseUri;
+          }
         } else if (isRef(target)) {
-          resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
+          resolvedRef = await followRef(
+            targetDoc,
+            target,
+            pushRef(refStack, target),
+            targetBaseUri
+          );
           // a chain collected while traversing into a ref does not belong to the outer ref
           resolvedRef.chain = undefined;
           targetDoc = resolvedRef.document || targetDoc;
+          targetBaseUri = resolvedRef.baseUri || targetDoc.source.absoluteRef;
+          targetEnclosingBaseUri = targetBaseUri;
 
           if (isPlainObject(resolvedRef.node)) {
             target = resolvedRef.node[segment];
@@ -504,12 +650,18 @@ export async function resolveDocument(opts: {
               resolvedRef.nodePointer!,
               escapePointerFragment(segment)
             );
+            if (isPlainObject(target)) {
+              targetBaseUri = nodeBaseUris.get(target) || targetBaseUri;
+            }
           } else if (Array.isArray(resolvedRef.node)) {
             target = resolvedRef.node[+segment];
             resolvedRef.nodePointer = joinPointer(
               resolvedRef.nodePointer!,
               escapePointerFragment(segment)
             );
+            if (isPlainObject(target)) {
+              targetBaseUri = nodeBaseUris.get(target) || targetBaseUri;
+            }
           } else {
             target = undefined;
             break;
@@ -522,7 +674,8 @@ export async function resolveDocument(opts: {
 
       resolvedRef.node = target;
       resolvedRef.document = targetDoc;
-      const refId = makeRefId(document.source.absoluteRef, ref.$ref);
+      resolvedRef.baseUri = targetBaseUri;
+      const refId = makeRefId(baseUri, ref.$ref);
       if (resolvedRef.document && isRef(target)) {
         // a $ref with sibling keys is a composition, not an alias — record it as a chain hop
         const chainHop: ResolvedRefChainHop | undefined = isRefWithSiblings(target)
@@ -530,9 +683,15 @@ export async function resolveDocument(opts: {
               node: target,
               document: resolvedRef.document,
               location: new Location(resolvedRef.document.source, resolvedRef.nodePointer!),
+              baseUri: targetEnclosingBaseUri,
             }
           : undefined;
-        resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
+        resolvedRef = await followRef(
+          resolvedRef.document,
+          target,
+          pushRef(refStack, target),
+          targetBaseUri
+        );
         if (chainHop && resolvedRef.resolved) {
           // rebuilt, not mutated: the chain array is shared with the inner recursion's map entry
           resolvedRef = { ...resolvedRef, chain: [chainHop, ...(resolvedRef.chain ?? [])] };
