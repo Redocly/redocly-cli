@@ -213,5 +213,49 @@ describe('ApiFetcher', () => {
         `""grant_type=client_credentials&client_id=client-id&client_secret=********""`
       );
     });
+
+    it('should not use digest auth when a later security scheme sets the Authorization header', async () => {
+      const apiFetcher = new ApiFetcher({});
+      const fetch = vi.fn(
+        async () => new Response('{}', { headers: { 'content-type': 'application/json' } })
+      );
+      const ctx = {
+        options: { logger, fetch, maxFetchTimeout: 1000 },
+        workflows: [
+          {
+            workflowId: 'test',
+            'x-security': [
+              {
+                scheme: { type: 'http', scheme: 'digest' },
+                values: { username: 'user', password: 'pass' },
+              },
+              {
+                scheme: { type: 'apiKey', in: 'header', name: 'Authorization' },
+                values: { apiKey: 'Token abc' },
+              },
+            ],
+          },
+        ],
+        noSecretsMasking: false,
+        secretsSet: new Set(),
+      } as any;
+      const requestData = {
+        serverUrl: { url: 'https://api.example.com' },
+        path: '/pets',
+        method: 'get' as OperationMethod,
+        parameters: [{ in: 'header' as const, name: 'Authorization', value: 'Token abc' }],
+        requestBody: {},
+      };
+
+      await apiFetcher.fetchResult({ ctx, step: {} as any, requestData, workflowId: 'test' });
+
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(fetch).toHaveBeenCalledWith(
+        'https://api.example.com/pets',
+        expect.objectContaining({
+          headers: expect.objectContaining({ authorization: 'Token abc' }),
+        })
+      );
+    });
   });
 });

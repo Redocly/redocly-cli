@@ -307,7 +307,7 @@ export class ApiFetcher implements IFetcher {
     const workflowLevelXSecurityParameters =
       ctx.workflows.find((workflow) => workflow.workflowId === workflowId)?.['x-security'] || [];
 
-    const lastDigestSecurityScheme = [
+    const lastAuthorizationSecurity = [
       ...workflowLevelXSecurityParameters,
       ...(step['x-security'] || []),
     ]
@@ -319,8 +319,27 @@ export class ApiFetcher implements IFetcher {
           operation: openapiOperation,
         });
 
-        return scheme?.type === 'http' && scheme?.scheme?.toLowerCase() === 'digest';
+        if (scheme?.type === 'apiKey') {
+          return scheme.in === 'header' && scheme.name.toLowerCase() === 'authorization';
+        }
+
+        return (
+          scheme?.type === 'http' || scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'
+        );
       });
+
+    const lastAuthorizationScheme =
+      lastAuthorizationSecurity &&
+      resolveSecurityScheme({
+        ctx,
+        security: lastAuthorizationSecurity,
+        operation: openapiOperation,
+      });
+    const lastDigestSecurityScheme =
+      lastAuthorizationScheme?.type === 'http' &&
+      lastAuthorizationScheme.scheme?.toLowerCase() === 'digest'
+        ? lastAuthorizationSecurity
+        : undefined;
 
     if (lastDigestSecurityScheme) {
       // FETCH WITH DIGEST AUTH
