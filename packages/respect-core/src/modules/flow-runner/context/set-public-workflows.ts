@@ -49,12 +49,18 @@ export function mergeWorkflowInputs({
   }
 
   const resolvedDotEnvInputs = resolveInputValuesToSchema(env || {}, envSchema);
-  // Without a declared variable set, an `env` input is kept, or an empty `env` is checked,
-  // so a required variable that is not set is reported.
+  if (Object.keys(resolvedDotEnvInputs).length > 0) {
+    return resolveInputValuesToSchema(
+      { ...inputs, env: resolvedDotEnvInputs },
+      workflowInputSchema,
+      onInvalidInputs
+    );
+  }
+
+  // Without a declared variable set, an `env` input is kept, the `env` default applies,
+  // or an empty `env` is checked, so a required variable that is not set is reported.
   return resolveInputValuesToSchema(
-    Object.keys(resolvedDotEnvInputs).length > 0
-      ? { ...inputs, env: resolvedDotEnvInputs }
-      : { env: {}, ...inputs },
+    'default' in envSchema ? inputs : { env: {}, ...inputs },
     workflowInputSchema,
     onInvalidInputs
   );
