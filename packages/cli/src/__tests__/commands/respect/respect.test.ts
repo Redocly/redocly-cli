@@ -11,6 +11,9 @@ vi.mock('node:fs', async () => {
     writeFileSync: vi.fn(),
     existsSync: vi.fn(() => false), // Return false to prevent plugin loading
     readFileSync: vi.fn(() => ''),
+    // The AsyncAPI pre-check reads every Arazzo file through the core resolver.
+    lstatSync: vi.fn(() => ({ isDirectory: () => false })),
+    promises: { readFile: vi.fn(async () => '') },
     accessSync: vi.fn(() => true),
     constants: {
       F_OK: 0,
