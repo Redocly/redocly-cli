@@ -21,6 +21,7 @@ export function resolveInputValuesToSchema(
     removeAdditional: 'all',
     coerceTypes: true,
     strictTypes: false,
+    strictSchema: false,
   });
 
   // Add custom formats
