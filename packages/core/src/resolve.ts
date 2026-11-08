@@ -331,7 +331,7 @@ export async function resolveDocument(opts: {
         return;
       }
 
-      const [_, anchor] = Object.entries(node).find(([key]) => key === '$anchor') || [];
+      const anchor = node.$anchor;
       if (anchor) {
         anchorRefsMap.set(`#${anchor}`, node);
       }
