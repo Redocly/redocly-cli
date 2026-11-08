@@ -1,6 +1,6 @@
 {
   "name": "@redocly/client-generator",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Generate typed, zero-dependency TypeScript clients (fetch, auth, retries, middleware, SSE) from OpenAPI descriptions.",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -87,7 +87,7 @@
     "Roman Marshevskyi <roman.marshevskyy@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "2.75.0"
+    "@redocly/openapi-core": "2.76.0"
   },
   "peerDependencies": {
     "typescript": ">=5.5.0"
@@ -98,6 +98,7 @@
     }
   },
   "devDependencies": {
+    "@redocly/cli-otel": "0.4.0",
     "typescript": "6.0.2"
   },
   "files": [

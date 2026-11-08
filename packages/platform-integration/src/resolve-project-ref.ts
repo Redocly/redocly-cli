@@ -1,4 +1,4 @@
-import { ReuniteApiError, type ReuniteApi } from './api/api-client.js';
+import { PlatformApiError, type PlatformApi } from './api/api-client.js';
 import type { ProjectResponse } from './api/types.js';
 
 const ORGANIZATION_IN_URI = /\/orgs\/([^/]+)\/projects\//;
@@ -21,7 +21,7 @@ export type ResolveProjectRefOptions = ProjectRef & {
 
 // Keeps the given values when the API key is not allowed to look the project up.
 export async function resolveProjectRef(
-  client: ReuniteApi,
+  client: PlatformApi,
   { organization, project, onSlugDeprecated }: ResolveProjectRefOptions
 ): Promise<ProjectRefResolution> {
   const found = await lookUp(client, organization, project);
@@ -40,7 +40,7 @@ export async function resolveProjectRef(
 }
 
 async function lookUp(
-  client: ReuniteApi,
+  client: PlatformApi,
   organization: string,
   project: string
 ): Promise<ProjectResponse | undefined> {
@@ -48,7 +48,7 @@ async function lookUp(
     const found = await client.projects.find(organization, project);
 
     if (!found) {
-      throw new ReuniteApiError(
+      throw new PlatformApiError(
         `Project "${project}" was not found in organization "${organization}". Use the IDs from the organization and project settings in the Redocly platform.`,
         404
       );
@@ -56,7 +56,7 @@ async function lookUp(
 
     return found;
   } catch (err) {
-    if (err instanceof ReuniteApiError && DENIED_STATUSES.includes(err.status)) {
+    if (err instanceof PlatformApiError && DENIED_STATUSES.includes(err.status)) {
       return undefined;
     }
 

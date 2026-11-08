@@ -1,6 +1,6 @@
 import { type Config, createConfig } from '@redocly/openapi-core';
 
-import { getDomain, isValidReuniteUrl, getReuniteUrl } from '../domains.js';
+import { getDomain, isValidPlatformUrl, getPlatformUrl } from '../domains.js';
 
 describe('domains', () => {
   describe('getDomain()', () => {
@@ -21,39 +21,39 @@ describe('domains', () => {
     });
   });
 
-  describe('getReuniteUrl()', () => {
+  describe('getPlatformUrl()', () => {
     let testConfig: Config;
     beforeAll(async () => {
       testConfig = await createConfig();
     });
 
     it('should return US API URL when US region specified', () => {
-      expect(getReuniteUrl(testConfig, 'us')).toBe('https://app.cloud.redocly.com');
+      expect(getPlatformUrl(testConfig, 'us')).toBe('https://app.cloud.redocly.com');
     });
 
     it('should return EU API URL when EU region specified', () => {
-      expect(getReuniteUrl(testConfig, 'eu')).toBe('https://app.cloud.eu.redocly.com');
+      expect(getPlatformUrl(testConfig, 'eu')).toBe('https://app.cloud.eu.redocly.com');
     });
 
     it('should return custom domain API URL when custom domain specified', () => {
       const customDomain = 'https://custom.domain.com';
-      expect(getReuniteUrl(testConfig, customDomain)).toBe('https://custom.domain.com');
+      expect(getPlatformUrl(testConfig, customDomain)).toBe('https://custom.domain.com');
     });
 
     it('should return US API URL when no region specified', () => {
-      expect(getReuniteUrl(testConfig)).toBe('https://app.cloud.redocly.com');
+      expect(getPlatformUrl(testConfig)).toBe('https://app.cloud.redocly.com');
     });
 
     it('should use residency from config when no second parameter provided', async () => {
       const config = await createConfig({ residency: 'eu' });
-      expect(getReuniteUrl(config)).toBe('https://app.cloud.eu.redocly.com');
+      expect(getPlatformUrl(config)).toBe('https://app.cloud.eu.redocly.com');
     });
 
     it('should use fromProjectUrl from config when no residency provided', async () => {
       const config = await createConfig({
         scorecard: { fromProjectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
       });
-      expect(getReuniteUrl(config)).toBe('https://app.cloud.eu.redocly.com');
+      expect(getPlatformUrl(config)).toBe('https://app.cloud.eu.redocly.com');
     });
 
     it('should prioritize second parameter over config residency and fromProjectUrl', async () => {
@@ -61,7 +61,7 @@ describe('domains', () => {
         residency: 'us',
         scorecard: { fromProjectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
       });
-      expect(getReuniteUrl(config, 'eu')).toBe('https://app.cloud.eu.redocly.com');
+      expect(getPlatformUrl(config, 'eu')).toBe('https://app.cloud.eu.redocly.com');
     });
 
     it('should prioritize residency over fromProjectUrl when both are provided', async () => {
@@ -69,12 +69,12 @@ describe('domains', () => {
         residency: 'us',
         scorecard: { fromProjectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
       });
-      expect(getReuniteUrl(config)).toBe('https://app.cloud.redocly.com');
+      expect(getPlatformUrl(config)).toBe('https://app.cloud.redocly.com');
     });
 
     it('should handle custom domain from second parameter', async () => {
       const config = await createConfig({ residency: 'us' });
-      expect(getReuniteUrl(config, 'https://custom.redocly.com')).toBe(
+      expect(getPlatformUrl(config, 'https://custom.redocly.com')).toBe(
         'https://custom.redocly.com'
       );
     });
@@ -83,13 +83,13 @@ describe('domains', () => {
       const config = await createConfig({
         scorecard: { fromProjectUrl: 'https://custom.redocly.com:8080/org/test/project/test' },
       });
-      expect(getReuniteUrl(config)).toBe('https://custom.redocly.com:8080');
+      expect(getPlatformUrl(config)).toBe('https://custom.redocly.com:8080');
     });
 
     it('should throw error for invalid residency or malformed URL', async () => {
       const config = await createConfig({ residency: 'invalid-region' });
-      expect(() => getReuniteUrl(config)).toThrow('Invalid Redocly platform URL');
-      expect(() => getReuniteUrl(testConfig, 'not-a-valid-url')).toThrow(
+      expect(() => getPlatformUrl(config)).toThrow('Invalid Redocly platform URL');
+      expect(() => getPlatformUrl(testConfig, 'not-a-valid-url')).toThrow(
         'Invalid Redocly platform URL'
       );
     });
@@ -98,35 +98,35 @@ describe('domains', () => {
       const config = await createConfig({
         scorecard: { fromProjectUrl: 'not-a-valid-url' },
       });
-      expect(() => getReuniteUrl(config)).toThrow('Invalid Redocly platform URL');
+      expect(() => getPlatformUrl(config)).toThrow('Invalid Redocly platform URL');
     });
   });
 
-  describe('isValidReuniteUrl', () => {
+  describe('isValidPlatformUrl', () => {
     it('should return true for default config', async () => {
-      expect(isValidReuniteUrl('us')).toBe(true);
+      expect(isValidPlatformUrl('us')).toBe(true);
     });
 
     it('should return true when residency is a valid URL', async () => {
-      expect(isValidReuniteUrl('https://app.cloud.cba.redocly.com')).toBe(true);
+      expect(isValidPlatformUrl('https://app.cloud.cba.redocly.com')).toBe(true);
     });
 
     it('should return false when residency is not a valid URL', async () => {
-      expect(isValidReuniteUrl('not-a-valid-url')).toBe(false);
+      expect(isValidPlatformUrl('not-a-valid-url')).toBe(false);
     });
 
     it('should return false when residency has an invalid protocol', async () => {
-      expect(isValidReuniteUrl('http:app.cloud.redocly.com')).toBe(false);
+      expect(isValidPlatformUrl('http:app.cloud.redocly.com')).toBe(false);
     });
 
     it('should accept http localhost URLs for local development', async () => {
-      expect(isValidReuniteUrl('http://localhost')).toBe(true);
-      expect(isValidReuniteUrl('http://localhost:8080')).toBe(true);
-      expect(isValidReuniteUrl('http://127.0.0.1')).toBe(true);
+      expect(isValidPlatformUrl('http://localhost')).toBe(true);
+      expect(isValidPlatformUrl('http://localhost:8080')).toBe(true);
+      expect(isValidPlatformUrl('http://127.0.0.1')).toBe(true);
     });
 
     it('should reject http URLs that are not localhost', async () => {
-      expect(isValidReuniteUrl('http://app.cloud.redocly.com')).toBe(false);
+      expect(isValidPlatformUrl('http://app.cloud.redocly.com')).toBe(false);
     });
   });
 });

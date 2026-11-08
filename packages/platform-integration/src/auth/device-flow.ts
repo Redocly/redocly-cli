@@ -1,6 +1,6 @@
 import * as childProcess from 'node:child_process';
 
-import { ReuniteApiClient } from '../api/api-client.js';
+import { PlatformApiClient } from '../api/api-client.js';
 import { DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 
 export type Credentials = {
@@ -19,14 +19,14 @@ export type DeviceCode = {
 };
 
 export class RedoclyOAuthDeviceFlow {
-  private apiClient: ReuniteApiClient;
+  private apiClient: PlatformApiClient;
   private clientName = 'redocly-cli';
 
   constructor(
     private baseUrl: string,
     version?: string
   ) {
-    this.apiClient = new ReuniteApiClient('login', version);
+    this.apiClient = new PlatformApiClient('login', version);
   }
 
   // `onDeviceCode` gets the URL and code to show the user before the browser opens and polling starts.

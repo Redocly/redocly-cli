@@ -13,7 +13,9 @@ namespace RedoclyClientRuntime;
  * Register with `new Config(onSettled: [new UsageTelemetry(...)])`. PHP has no timers:
  * a call that finds its window elapsed sends that window first, in the calling request,
  * and a shutdown function sends the open windows. `sink`, when set, receives the events
- * instead of a send; an exception it throws keeps the counts.
+ * instead of a send; an exception it throws keeps the counts. Each event is a
+ * `com.redocly.sdkUsage.aggregated` CloudEvent whose `data` holds the operation, then the SDK.
+ * The OpenTelemetry collector sets its `env`.
  */
 final class UsageTelemetry
 {
@@ -22,6 +24,8 @@ final class UsageTelemetry
     private const EVENT_TYPE = 'com.redocly.sdkUsage.aggregated';
     private const SEND_TIMEOUT_MS = 3000;
     private const SERVICE_NAME = 'redocly-sdk';
+    private const SDK_URN_PREFIX = 'urn:redocly:cli:sdk:php:';
+    private const CROCKFORD_BASE32 = '0123456789abcdefghjkmnpqrstvwxyz';
     private const STATUS_CLASSES = ['2xx', '3xx', '4xx', '5xx', 'network_error', 'timeout', 'aborted'];
     private const LATENCY_BUCKETS = [
         'lt_100ms' => 100,
@@ -56,7 +60,9 @@ final class UsageTelemetry
     ) {
         $this->enabled = !self::disabled();
         $this->sdk = [
-            'name' => $sdkName,
+            'id' => $sdkName,
+            'object' => 'sdk',
+            'uri' => self::SDK_URN_PREFIX . $sdkName,
             'version' => $sdkVersion,
             'generator_version' => self::GENERATOR_VERSION,
             'language' => 'php',
@@ -221,8 +227,10 @@ final class UsageTelemetry
         $time = gmdate('Y-m-d\TH:i:s', (int) $windowStart) . sprintf('.%03dZ', $milliseconds);
         $events = [];
         foreach ($counts as $operationId => $operation) {
-            $usage = [
-                'operation_id' => (string) $operationId,
+            $operationItem = [
+                'id' => (string) $operationId,
+                'object' => 'operation',
+                'uri' => $this->sdk['uri'] . ':operation:' . $operationId,
                 'window_ms' => (int) ($windowSeconds * 1000),
                 'calls' => $operation['calls'],
                 'attempts' => $operation['attempts'],
@@ -230,23 +238,44 @@ final class UsageTelemetry
             ];
             foreach (self::STATUS_CLASSES as $status) {
                 if (isset($operation['status'][$status])) {
-                    $usage["status_{$status}"] = $operation['status'][$status];
+                    $operationItem["status_{$status}"] = $operation['status'][$status];
                 }
             }
             foreach (array_keys(self::LATENCY_BUCKETS) as $bucket) {
                 if (isset($operation['latency'][$bucket])) {
-                    $usage["latency_{$bucket}"] = $operation['latency'][$bucket];
+                    $operationItem["latency_{$bucket}"] = $operation['latency'][$bucket];
                 }
             }
             $events[] = [
-                'id' => 'evt_' . bin2hex(random_bytes(16)),
+                'id' => self::eventId(),
+                'object' => 'event',
+                'specversion' => '1.0',
+                'datacontenttype' => 'application/json; charset=utf-8',
                 'type' => self::EVENT_TYPE,
-                'source' => $this->sdk['name'],
+                'source' => 'urn:redocly:cli',
                 'time' => $time,
-                'data' => ['usage' => $usage, 'sdk' => $this->sdk],
+                'origin' => 'redocly-sdk',
+                'category' => 'product',
+                'signal' => 'metric',
+                'data' => [$operationItem, $this->sdk],
             ];
         }
         return $events;
+    }
+
+    /** `evt_` and a lowercase ULID: 10 characters of the time in milliseconds, then 16 random ones. */
+    private static function eventId(): string
+    {
+        $millis = (int) floor(microtime(true) * 1000);
+        $id = '';
+        for ($index = 0; $index < 10; $index++) {
+            $id = self::CROCKFORD_BASE32[$millis % 32] . $id;
+            $millis = intdiv($millis, 32);
+        }
+        foreach (str_split(random_bytes(16)) as $byte) {
+            $id .= self::CROCKFORD_BASE32[ord($byte) % 32];
+        }
+        return 'evt_' . $id;
     }
 
     private static function toOtlpRequest(array $events): array
@@ -255,24 +284,30 @@ final class UsageTelemetry
         foreach ($events as $event) {
             $started = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.v\Z', $event['time'], new \DateTimeZone('UTC'));
             $timeUnixNano = $started->format('Uv') . '000000';
+            // The attributes that processCloudEventAttributes of @redocly/cli-otel gives for the event.
             $attributes = [
                 self::attribute('cloudevents.event_id', $event['id']),
                 self::attribute('cloudevents.event_type', $event['type']),
                 self::attribute('cloudevents.event_source', $event['source']),
-                self::attribute('cloudevents.event_spec_version', '1.0'),
-                self::attribute('cloudevents.event_data_content_type', 'application/json; charset=utf-8'),
+                self::attribute('cloudevents.event_spec_version', $event['specversion']),
+                self::attribute('cloudevents.event_data_content_type', $event['datacontenttype']),
                 self::attribute('cloudevents.event_time', $event['time']),
-                self::attribute('cloudevents.event_subject', ''),
-                self::attribute('cloudevents.event_origin', self::SERVICE_NAME),
-                self::attribute('cloudevents.event_object', 'event'),
-                self::attribute('cloudevents.event_category', 'product'),
-                self::attribute('cloudevents.event_signal', 'metric'),
+                self::attribute('cloudevents.event_subject', $event['data'][0]['id']),
+                self::attribute('cloudevents.event_origin', $event['origin']),
+                self::attribute('cloudevents.event_object', $event['object']),
+                self::attribute('cloudevents.event_category', $event['category']),
+                self::attribute('cloudevents.event_signal', $event['signal']),
+                self::attribute('cloudevents.event_request_id', ''),
             ];
-            foreach ($event['data']['usage'] as $key => $value) {
-                $attributes[] = self::attribute("cloudevents.event_data.usage.{$key}", $value);
+            foreach ($event['data'] as $item) {
+                foreach ($item as $key => $value) {
+                    $attributes[] = self::attribute("cloudevents.event_data.{$item['object']}.{$key}", $value);
+                }
             }
-            foreach ($event['data']['sdk'] as $key => $value) {
-                $attributes[] = self::attribute("cloudevents.event_data.sdk.{$key}", $value);
+            foreach ($event['data'] as $item) {
+                foreach (['id', 'object', 'uri'] as $key) {
+                    $attributes[] = self::attribute("cloudevents.event_subjects.{$item['object']}.{$key}", $item[$key]);
+                }
             }
             $spans[] = [
                 'traceId' => bin2hex(random_bytes(16)),

@@ -1,9 +1,9 @@
-import { RedoclyOAuthClient, type DeviceCode } from '@redocly/reunite-integration';
+import { RedoclyOAuthClient, type DeviceCode } from '@redocly/platform-integration';
 
 import { handleLogin } from '../login.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, RedoclyOAuthClient: vi.fn() };
 });
 

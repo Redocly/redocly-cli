@@ -42,7 +42,7 @@ exports[`should execute successActions for each workflow step if it does not hav
  
     stepId - get-menu-items 
     ✗ unexpected error 
-    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total': Cannot read "total" of undefined. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
     stepId - get-menu-items-2 
     ✗ success criteria check 

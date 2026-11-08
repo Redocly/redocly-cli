@@ -1,7 +1,7 @@
 import { fetch } from 'undici';
 import type * as undici from 'undici';
 
-import { ReuniteApiError } from '../api/api-client.js';
+import { PlatformApiError } from '../api/api-client.js';
 import {
   buildProjectGitUrl,
   createPullRequest,
@@ -17,7 +17,7 @@ vi.mock('undici', async (importOriginal) => ({
 const PROJECT_API_URL = 'https://app.cloud.redocly.com/api/orgs/acme/projects/my%20docs';
 const HEAD = 'c'.repeat(40);
 const options = {
-  reuniteUrl: 'https://app.cloud.redocly.com',
+  platformUrl: 'https://app.cloud.redocly.com',
   organization: 'acme',
   project: 'my docs',
   accessToken: 'token',
@@ -34,7 +34,7 @@ describe('project git URL', () => {
     const url = buildProjectGitUrl('https://app.cloud.redocly.com', 'acme', 'my docs');
 
     expect(parseProjectGitUrl(url)).toEqual({
-      reuniteUrl: 'https://app.cloud.redocly.com',
+      platformUrl: 'https://app.cloud.redocly.com',
       organization: 'acme',
       project: 'my docs',
     });
@@ -154,7 +154,7 @@ describe('pull requests', () => {
 
     await expect(
       createPullRequest({ ...options, branch: 'fix-typo', title: 'Fix a typo' })
-    ).rejects.toThrow(new ReuniteApiError('Failed to open a pull request. Forbidden.', 403));
+    ).rejects.toThrow(new PlatformApiError('Failed to open a pull request. Forbidden.', 403));
   });
 
   it('names the failed step in a failed connection', async () => {
