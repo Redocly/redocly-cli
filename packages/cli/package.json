@@ -9,7 +9,9 @@
   },
   "type": "module",
   "imports": {
-    "#redoc.standalone.js": "./lib/chunks/redoc.standalone.js"
+    "#eject-assets/*": "./lib/eject-assets/*",
+    "#redoc.standalone.js": "./lib/chunks/redoc.standalone.js",
+    "#skills/*": "./lib/skills/*"
   },
   "engines": {
     "node": ">=22.12.0 || >=20.19.0 <21.0.0",
