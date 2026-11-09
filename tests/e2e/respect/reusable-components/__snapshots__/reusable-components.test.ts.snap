@@ -223,9 +223,6 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 └─────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-Workflow "get-menu-items" runs with inputs that don't match its inputs schema: inputs must be string.
-Workflow "final-workflow" runs with inputs that don't match its inputs schema: inputs must be string.
-Workflow "final-workflow" runs with inputs that don't match its inputs schema: inputs must be string.
  Tests exited with error 
 
 

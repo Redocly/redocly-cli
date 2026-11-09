@@ -49,20 +49,20 @@ export function mergeWorkflowInputs({
   // A boolean `env` schema declares no variables.
   const envSchema = isPlainObject<InputSchema>(envProperty) ? envProperty : undefined;
   const resolvedDotEnvInputs = envSchema ? resolveInputValuesToSchema(env || {}, envSchema) : {};
-  const hasEnvVariables = Object.keys(resolvedDotEnvInputs).length > 0;
 
   const problems: string[] = [];
   const collectProblems = (text: string) => problems.push(text);
   const result = resolveInputValuesToSchema(
-    hasEnvVariables ? { ...inputs, env: resolvedDotEnvInputs } : inputs,
+    Object.keys(resolvedDotEnvInputs).length > 0
+      ? { ...inputs, env: resolvedDotEnvInputs }
+      : inputs,
     workflowInputSchema,
     collectProblems
   );
 
-  // An absent `env` passes the check above, so when no declared variable is set, no `env` input
-  // is given, and no `env` default applies, an empty `env` is checked on its own to report a
-  // required variable that is not set.
-  if (envSchema && !hasEnvVariables && inputs?.env === undefined && !('default' in envSchema)) {
+  // The check above passes an absent `env`, so an empty one is checked for a required variable
+  // that is not set.
+  if (envSchema && result.env === undefined) {
     resolveInputValuesToSchema(
       { env: {} },
       { type: 'object', properties: { env: envSchema } },

@@ -1,4 +1,4 @@
-import { mergeWorkflowInputs } from '../../../../modules/flow-runner/index.js';
+import { mergeWorkflowInputs } from '../set-public-workflows.js';
 
 describe('mergeWorkflowInputs', () => {
   const workflowInputSchema = {
