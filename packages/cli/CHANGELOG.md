@@ -1,5 +1,25 @@
 # @redocly/cli
 
+## 2.77.0
+
+### Minor Changes
+
+- Changed the usage telemetry event of the generated clients to the CloudEvent schema of the other Redocly CLI events.
+
+### Patch Changes
+
+- Fixed an issue where the `push-status` and `push --wait-for-deployment` commands did not show why a deployment to Redocly platform failed.
+  The error message lists the failed checks, and the command output includes the link checker result.
+- Changed JSON Pointers in `respect` runtime expressions to accept every character that the Arazzo grammar allows, so put a space before `&&` that follows a pointer, as in `$response.body#/flag && $statusCode == 200`.
+- Added support for the `~0` and `~1` escapes in JSON Pointers of `respect` runtime expressions, so a pointer can reach a key that contains `~` or `/`.
+- Fixed an issue where `respect` reported an unresolved workflow output instead of the failed step that caused it, and stopped the other workflows of the file.
+- Fixed an issue where `respect` could run values from API responses and step outputs as code when it evaluated runtime expressions.
+- Changed `respect` runtime expressions to read a backslash in a string literal as written, so `"a\nb"` no longer contains a newline.
+- Updated @redocly/client-generator to v0.10.0.
+- Updated @redocly/openapi-core to v2.77.0.
+- Updated @redocly/platform-integration to v2.77.0.
+- Updated @redocly/respect-core to v2.77.0.
+
 ## 2.76.0
 
 ### Patch Changes

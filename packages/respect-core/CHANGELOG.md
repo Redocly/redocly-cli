@@ -1,5 +1,16 @@
 # @redocly/respect-core
 
+## 2.77.0
+
+### Patch Changes
+
+- Changed JSON Pointers in `respect` runtime expressions to accept every character that the Arazzo grammar allows, so put a space before `&&` that follows a pointer, as in `$response.body#/flag && $statusCode == 200`.
+- Added support for the `~0` and `~1` escapes in JSON Pointers of `respect` runtime expressions, so a pointer can reach a key that contains `~` or `/`.
+- Fixed an issue where `respect` reported an unresolved workflow output instead of the failed step that caused it, and stopped the other workflows of the file.
+- Fixed an issue where `respect` could run values from API responses and step outputs as code when it evaluated runtime expressions.
+- Changed `respect` runtime expressions to read a backslash in a string literal as written, so `"a\nb"` no longer contains a newline.
+- Updated @redocly/openapi-core to v2.77.0.
+
 ## 2.76.0
 
 ### Patch Changes

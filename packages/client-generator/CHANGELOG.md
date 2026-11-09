@@ -1,5 +1,15 @@
 # @redocly/client-generator
 
+## 0.10.0
+
+### Minor Changes
+
+- Changed the usage telemetry event of the generated clients to the CloudEvent schema of the other Redocly CLI events.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.77.0.
+
 ## 0.9.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @redocly/platform-integration
 
+## 2.77.0
+
+### Patch Changes
+
+- Fixed an issue where the `push-status` and `push --wait-for-deployment` commands did not show why a deployment to Redocly platform failed.
+  The error message lists the failed checks, and the command output includes the link checker result.
+- Updated @redocly/config to v0.72.1.
+- Updated @redocly/openapi-core to v2.77.0.
+
 ## 2.76.0
 
 ### Minor Changes
