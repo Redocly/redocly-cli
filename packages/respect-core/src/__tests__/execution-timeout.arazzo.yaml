@@ -1,0 +1,40 @@
+arazzo: 1.0.1
+info:
+  title: Execution timeout
+  version: 1.0.0
+sourceDescriptions: []
+workflows:
+  - workflowId: retry-after-a-minute
+    steps:
+      - stepId: get-status
+        x-operation:
+          url: http://api.test/status
+          method: get
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: retry-later
+            type: retry
+            retryAfter: 60
+            retryLimit: 3
+  - workflowId: retry-often
+    steps:
+      - stepId: get-status
+        x-operation:
+          url: http://api.test/status
+          method: get
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: retry-soon
+            type: retry
+            retryAfter: 0.02
+            retryLimit: 30
+  - workflowId: single-call
+    steps:
+      - stepId: get-status
+        x-operation:
+          url: http://api.test/status
+          method: get
+        successCriteria:
+          - condition: $statusCode == 200

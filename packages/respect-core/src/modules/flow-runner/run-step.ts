@@ -27,7 +27,7 @@ import {
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { Timer } from '../timeout-timer/timer.js';
+import { hasExecutionTimedOut, retryWaitSeconds } from '../timeout-timer/execution-deadline.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { resolveActionInputs } from './resolve-action-inputs.js';
@@ -58,6 +58,18 @@ export async function runStep({
 }): Promise<{ shouldEnd: boolean } | void> {
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
+
+  if (hasExecutionTimedOut(ctx.options.executionDeadline)) {
+    step.checks.push({
+      name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+      message: `Global Respect timer reached`,
+      passed: false,
+      severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
+    });
+    ctx.executedSteps.push(step);
+    return { shouldEnd: true };
+  }
+
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
@@ -202,19 +214,6 @@ export async function runStep({
       message: `Max steps (${ctx.options.maxSteps}) reached`,
       passed: false,
       severity: ctx.severity['MAX_STEPS_REACHED_ERROR'],
-    });
-    return { shouldEnd: true };
-  }
-
-  if (
-    ctx.options.executionTimeout &&
-    Timer.getInstance(ctx.options.executionTimeout).isTimedOut()
-  ) {
-    step.checks.push({
-      name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-      message: `Global Respect timer reached`,
-      passed: false,
-      severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
     });
     return { shouldEnd: true };
   }
@@ -390,7 +389,7 @@ export async function runStep({
           }
 
           if (retryAfter) {
-            await delay(retryAfter);
+            await delay(retryWaitSeconds(retryAfter, ctx.options.executionDeadline));
           }
 
           if (targetWorkflow || targetStep) {

@@ -90,6 +90,8 @@ export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
 export type RunOptions = Omit<RespectOptions, 'files'> & {
   file: string;
+  /** Epoch milliseconds after which no step starts; none without `executionTimeout`. */
+  executionDeadline?: number;
   testDescription?: TestDescription;
   input?: string | string[];
   server?: string | string[];
@@ -130,6 +132,7 @@ export type AppOptions = {
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout?: number;
+  executionDeadline?: number;
   config: Config;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
   fetch: typeof fetch;
