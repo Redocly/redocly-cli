@@ -7,7 +7,6 @@ __pycache__/
 .vscode/
 yarn.lock
 lib/
-packages/cli/src/commands/build-docs/redoc.standalone.js
 output/
 *.tar.gz
 *.tsbuildinfo
