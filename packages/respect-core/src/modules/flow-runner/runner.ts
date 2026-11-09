@@ -276,6 +276,7 @@ export async function runWorkflow({
       workflowId,
     });
 
+    const hasFailedSteps = hasFailedLastAttempt(runCtx.executedSteps);
     const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
@@ -285,6 +286,8 @@ export async function runWorkflow({
           logger: ctx.options.logger,
         });
       } catch (error: any) {
+        // A failed step leaves the values its outputs read unset, and the step reports the failure.
+        if (hasFailedSteps) continue;
         throw new Error(
           `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
         );
@@ -451,4 +454,20 @@ function calculateWorkflowTotalTimeMs(executedSteps: (Step | WorkflowExecutionRe
   }
 
   return totalTime;
+}
+
+// a retry runs the step again in the same run, so the last entry of a step id is its result
+function hasFailedLastAttempt(executedSteps: (Step | WorkflowExecutionResult)[]): boolean {
+  return executedSteps.some((entry, index) => {
+    const isRetriedLater =
+      entry.stepId !== undefined &&
+      executedSteps.findLastIndex((other) => other.stepId === entry.stepId) !== index;
+    if (isRetriedLater) {
+      return false;
+    }
+    if (isWorkflowExecutionResult(entry)) {
+      return hasFailedLastAttempt(entry.executedSteps);
+    }
+    return entry.checks.some((check) => !check.passed && check.severity === 'error');
+  });
 }
