@@ -90,7 +90,6 @@ export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
 export type RunOptions = Omit<RespectOptions, 'files'> & {
   file: string;
-  /** Epoch milliseconds after which no step starts; none without `executionTimeout`. */
   executionDeadline?: number;
   testDescription?: TestDescription;
   input?: string | string[];
