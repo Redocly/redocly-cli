@@ -40,12 +40,12 @@ function isWorkflowResult(entry: Step | WorkflowExecutionResult): entry is Workf
   return 'type' in entry && entry.type === 'workflow';
 }
 
-function checkNames([result]: RunFileResult[]): string[] {
+function checkNames(results: RunFileResult[]): string[] {
   const stepsOf = (entries: (Step | WorkflowExecutionResult)[]): Step[] =>
     entries.flatMap((entry) => (isWorkflowResult(entry) ? stepsOf(entry.executedSteps) : [entry]));
-  return stepsOf(result?.executedWorkflows ?? []).flatMap((step) =>
-    step.checks.map((check) => check.name)
-  );
+  return results
+    .flatMap((result) => stepsOf(result.executedWorkflows))
+    .flatMap((step) => step.checks.map((check) => check.name));
 }
 
 const failingFetch = async () => new Response('unavailable', { status: 503 });
@@ -77,6 +77,6 @@ describe('run with an execution timeout', () => {
     const longResult = await longRun;
 
     expect(checkNames(shortResult)).toContain(CHECKS.GLOBAL_TIMEOUT_ERROR);
-    expect(checkNames(longResult)).not.toContain(CHECKS.GLOBAL_TIMEOUT_ERROR);
+    expect(longResult).toMatchObject([{ hasProblems: false, globalTimeoutError: false }]);
   });
 });
