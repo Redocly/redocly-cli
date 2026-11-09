@@ -23,7 +23,7 @@ import {
   printRequiredWorkflowSeparator,
   printUnknownStep,
 } from '../logger-output/helpers.js';
-import { calculateTotals, flattenNestedSteps } from '../logger-output/index.js';
+import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { createTestContext } from './context/create-test-context.js';
 import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
@@ -276,9 +276,7 @@ export async function runWorkflow({
       workflowId,
     });
 
-    const hasFailedSteps = flattenNestedSteps(runCtx.executedSteps).some((step) =>
-      step.checks.some((check) => !check.passed && check.severity === 'error')
-    );
+    const hasFailedSteps = hasFailedLastAttempt(runCtx.executedSteps);
     const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
@@ -456,4 +454,20 @@ function calculateWorkflowTotalTimeMs(executedSteps: (Step | WorkflowExecutionRe
   }
 
   return totalTime;
+}
+
+// a retry runs the step again in the same run, so the last entry of a step id is its result
+function hasFailedLastAttempt(executedSteps: (Step | WorkflowExecutionResult)[]): boolean {
+  return executedSteps.some((entry, index) => {
+    const isRetriedLater =
+      entry.stepId !== undefined &&
+      executedSteps.findLastIndex((other) => other.stepId === entry.stepId) !== index;
+    if (isRetriedLater) {
+      return false;
+    }
+    if (isWorkflowExecutionResult(entry)) {
+      return hasFailedLastAttempt(entry.executedSteps);
+    }
+    return entry.checks.some((check) => !check.passed && check.severity === 'error');
+  });
 }

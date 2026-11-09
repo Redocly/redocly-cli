@@ -80,7 +80,7 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
   };
 }
 
-export function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
+function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
   return steps.flatMap((step) => {
     if ('executedSteps' in step) {
       return flattenNestedSteps((step as WorkflowExecutionResult).executedSteps);

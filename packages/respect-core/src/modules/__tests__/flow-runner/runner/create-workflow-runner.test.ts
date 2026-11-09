@@ -302,6 +302,60 @@ describe('runWorkflow', () => {
     ]);
   });
 
+  it.each([
+    ['a passed step', [200]],
+    ['a step that a retry fixed', [500, 200]],
+  ])('should fail on an unresolved output after %s', async (_, statusCodes) => {
+    const apiClient = {
+      fetchResult: vi.fn(),
+      getVerboseResponseLogs: vi.fn(),
+    } as unknown as ApiFetcher;
+
+    for (const statusCode of statusCodes) {
+      vi.mocked(apiClient.fetchResult).mockResolvedValueOnce({
+        statusCode,
+        body: { state: 'open' },
+      } as ResponseContext);
+    }
+
+    const step = {
+      stepId: 'read',
+      'x-operation': {
+        url: 'http://localhost:3000/test',
+        method: 'GET',
+      },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onFailure: [{ name: 'retry', type: 'retry', retryLimit: 1 }],
+      outputs: { state: '$response.body#/state' },
+    };
+    const workflow = {
+      workflowId: 'test',
+      outputs: { state: '$steps.raed.outputs.state' },
+      steps: [step],
+    } as unknown as Workflow;
+
+    const ctx = {
+      apiClient,
+      workflows: [workflow],
+      executedSteps: [],
+      $workflows: { test: { outputs: {}, inputs: {}, steps: {} } },
+      $steps: {},
+      sourceDescriptions: [],
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+      options: {
+        verbose: false,
+        filePath: fileName,
+        logger,
+      },
+      $outputs: {},
+    } as unknown as TestContext;
+
+    await expect(
+      runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } })
+    ).rejects.toThrow('Failed to resolve output "state" in workflow "test"');
+    expect(apiClient.fetchResult).toHaveBeenCalledTimes(statusCodes.length);
+  });
+
   it('should return if workflow does not have steps', async () => {
     const apiClient = {
       fetchResult: vi.fn(),
