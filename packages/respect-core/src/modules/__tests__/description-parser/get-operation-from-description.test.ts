@@ -268,7 +268,7 @@ describe('getOperationFromDescriptionBySource', () => {
       );
     });
 
-    it('should return undefined if no path details available', () => {
+    it('should throw an error if the operation does not exist and a path item is empty', () => {
       const context = {
         $sourceDescriptions: {
           cats: {
@@ -286,14 +286,9 @@ describe('getOperationFromDescriptionBySource', () => {
         ],
       } as unknown as TestContext;
 
-      const operation = getOperationFromDescriptionBySource(
-        {
-          operationId: 'cats.create',
-        },
-        context
-      );
-
-      expect(operation).toEqual(undefined);
+      expect(() =>
+        getOperationFromDescriptionBySource({ operationId: 'cats.create' }, context)
+      ).toThrow(`Unknown operationId ${red('create')} at ${red('cats.create')}.`);
     });
 
     it('should return operation if it exists from single description when operationId is like $sourceDescriptions.DESCRIPTION_NAME.OPERATION_ID', () => {

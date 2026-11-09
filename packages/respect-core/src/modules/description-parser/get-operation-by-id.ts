@@ -52,12 +52,8 @@ export function getOperationById(
   for (const [path, pathDetails] of Object.entries<Oas3PathItem>(
     descriptions[descriptionName].paths
   )) {
-    if (!pathDetails) {
-      return undefined;
-    }
-
-    for (const [method, operationDetails] of Object.entries(pathDetails)) {
-      if (operationDetails.operationId === operationId) {
+    for (const [method, operationDetails] of Object.entries(pathDetails || {})) {
+      if (operationDetails?.operationId === operationId) {
         return {
           servers: pathDetails.servers || rootServers,
           ...operationDetails,
