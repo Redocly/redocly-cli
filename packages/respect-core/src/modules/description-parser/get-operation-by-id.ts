@@ -33,7 +33,7 @@ export function getOperationById(
     sourceDescriptions?.some(({ name, type }) => name === descriptionName && type === 'asyncapi')
   ) {
     throw new Error(
-      `Source description ${red(descriptionName)} is an AsyncAPI description, which respect does not support yet.`
+      `Source description ${red(descriptionName)} is an AsyncAPI description, which Respect does not support yet. Upvote or open an issue: https://github.com/Redocly/redocly-cli/issues.`
     );
   }
 

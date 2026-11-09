@@ -1,7 +1,8 @@
 ---
-'@redocly/cli': minor
+'@redocly/cli': patch
 '@redocly/respect-core': patch
 ---
 
-Added a notice to `respect` for Arazzo descriptions with an AsyncAPI source description, which the command does not support yet.
-A step that uses such a source now fails with a message that says so, instead of `Unknown description name`.
+Fixed the error for a `respect` step that uses an AsyncAPI source description, which the command does not support yet.
+The step now says so and links the Redocly CLI repository to upvote or open an issue, instead of failing with `Unknown description name`.
+The other workflows in the file still run.

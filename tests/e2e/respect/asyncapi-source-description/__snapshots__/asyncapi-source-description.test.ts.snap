@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`should run the other workflows and show a notice when a source description has the asyncapi type 1`] = `
+exports[`should fail only the step that uses an asyncapi source description 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow asyncapi-source-description.arazzo.yaml / list-menu 
@@ -25,7 +25,7 @@ exports[`should run the other workflows and show a notice when a source descript
  
     stepId - order-created 
     ✗ unexpected error 
-    Reason: Source description cafe-events is an AsyncAPI description, which respect does not support yet. 
+    Reason: Source description cafe-events is an AsyncAPI description, which Respect does not support yet. Upvote or open an issue: https://github.com/Redocly/redocly-cli/issues. 
   Summary for asyncapi-source-description.arazzo.yaml
   
   Workflows: 1 passed, 1 failed, 2 total
@@ -40,14 +40,6 @@ exports[`should run the other workflows and show a notice when a source descript
 │ x asyncapi-source-description.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
 └─────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
-
-
-    ╔═════════════════════════════════════════════════════════════════════════════════════╗
-    ║                                                                                     ║
-    ║  AsyncAPI source descriptions are not supported by respect yet.                     ║
-    ║  Need them? Upvote or open an issue: https://github.com/Redocly/redocly-cli/issues  ║
-    ║                                                                                     ║
-    ╚═════════════════════════════════════════════════════════════════════════════════════╝
 
  Tests exited with error 
 

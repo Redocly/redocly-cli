@@ -5,7 +5,7 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-test('should run the other workflows and show a notice when a source description has the asyncapi type', () => {
+test('should fail only the step that uses an asyncapi source description', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'asyncapi-source-description.arazzo.yaml');
   const args = getParams(indexEntryPoint, ['respect', fixturesPath]);
