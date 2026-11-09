@@ -5,6 +5,7 @@ import { homedir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { bundledSkills } from '../utils/package.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type SkillsArgv = {
@@ -38,8 +39,6 @@ const OWN_FOLDER_AGENTS: OwnFolderAgent[] = [
   { name: 'augment', projectDir: '.augment', homeDir: join(home, '.augment') },
 ];
 
-const SKILLS = ['recheck-config', 'recheck-lint', 'redocly-cli', 'redocly-lint-rules'];
-
 export const SKILLS_AGENTS: string[] = [
   ...SHARED_FOLDER_AGENTS,
   ...OWN_FOLDER_AGENTS.map((agent) => agent.name),
@@ -67,7 +66,7 @@ export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
 
   let changed = 0;
   for (const targetDir of targetDirs) {
-    for (const skillName of SKILLS) {
+    for (const skillName of bundledSkills) {
       const bundled = readSkill(skillName);
       const targetFile = join(targetDir, skillName, 'SKILL.md');
       const shownPath = argv.global ? targetFile : relative(cwd, targetFile);
@@ -112,7 +111,7 @@ function readSkill(skillName: string): string {
 
 function listSkills() {
   const width = Math.min(process.stdout.columns || 80, 100) - 4;
-  for (const skillName of SKILLS) {
+  for (const skillName of bundledSkills) {
     const content = readSkill(skillName);
     const description = content.match(/^description: (.*)$/m);
     logger.output(`${bold(cyan(skillName))}\n`);
