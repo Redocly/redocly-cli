@@ -10,7 +10,7 @@ import type { PreviewProjectArgv, Product } from './types.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) => {
   const { plan, port } = argv;
-  const projectDir = argv['project-dir'];
+  const projectDir = resolveProjectDir(argv['project-dir']);
 
   if (argv.product) {
     logger.warn(
@@ -33,7 +33,15 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
 
   const child = spawn(
     npxExecutableName,
-    ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
+    [
+      '-y',
+      packageName,
+      'preview',
+      `--plan=${plan}`,
+      `--port=${port || 4000}`,
+      // The Windows spawn goes through a shell, where a path with spaces needs quotes.
+      `--project-dir=${shell ? `"${projectDir}"` : projectDir}`,
+    ],
     {
       stdio: 'inherit',
       cwd: projectDir,
@@ -47,6 +55,14 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
   });
 };
 
+/**
+ * The absolute project directory. `npx` and `npm run` start the command in the nearest
+ * directory with a `package.json` and leave the real invocation directory in `INIT_CWD`.
+ */
+export const resolveProjectDir = (projectDir: string, env = process.env): string => {
+  return path.resolve(env.INIT_CWD || process.cwd(), projectDir);
+};
+
 const isValidProduct = (product: string | undefined): product is Product => {
   if (!product) {
     return false;
@@ -57,7 +73,7 @@ const isValidProduct = (product: string | undefined): product is Product => {
 
 /** The product package listed in the project's package.json, or the framework when none is. */
 const tryGetProductFromPackageJson = (projectDir: string): Product => {
-  const packageJsonPath = path.join(process.cwd(), projectDir, 'package.json');
+  const packageJsonPath = path.join(projectDir, 'package.json');
 
   if (existsSync(packageJsonPath)) {
     try {
