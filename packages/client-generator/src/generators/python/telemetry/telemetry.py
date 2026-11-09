@@ -23,6 +23,8 @@ _DEFAULT_ENDPOINT = "https://otel.cloud.redocly.com/v1/traces"
 _EVENT_TYPE = "com.redocly.sdkUsage.aggregated"
 _SEND_TIMEOUT_S = 3.0
 _SERVICE_NAME = "redocly-sdk"
+_SDK_URN_PREFIX = "urn:redocly:cli:sdk:python:"
+_CROCKFORD_BASE32 = "0123456789abcdefghjkmnpqrstvwxyz"
 _STATUS_CLASSES = ["2xx", "3xx", "4xx", "5xx", "network_error", "timeout", "aborted"]
 _LATENCY_BUCKETS = [
     ("lt_100ms", 100),
@@ -33,6 +35,8 @@ _LATENCY_BUCKETS = [
     ("gte_10s", math.inf),
 ]
 
+# A com.redocly.sdkUsage.aggregated CloudEvent. Its "data" holds the operation, then the SDK.
+# The OpenTelemetry collector sets the "env" of the event.
 SdkUsageEvent = Dict[str, Any]
 Sink = Callable[[List[SdkUsageEvent]], None]
 
@@ -54,7 +58,7 @@ def _empty_counts() -> Dict[str, Any]:
 class UsageTelemetry:
     """The middleware that `telemetry()` returns. Safe to share across threads and clients."""
 
-    def __init__(self, sdk: Dict[str, str], sink: Sink, flush_interval_ms: int, enabled: bool) -> None:
+    def __init__(self, sdk: Dict[str, Any], sink: Sink, flush_interval_ms: int, enabled: bool) -> None:
         self._enabled = enabled
         self._sdk = sdk
         self._sink = sink
@@ -150,8 +154,10 @@ def telemetry(
 ) -> UsageTelemetry:
     """The usage telemetry middleware. REDOCLY_SDK_TELEMETRY=off or DO_NOT_TRACK=1 makes it record nothing."""
     target = endpoint or _DEFAULT_ENDPOINT
-    sdk = {
-        "name": sdk_name,
+    sdk: Dict[str, Any] = {
+        "id": sdk_name,
+        "object": "sdk",
+        "uri": f"{_SDK_URN_PREFIX}{sdk_name}",
         "version": sdk_version,
         "generator_version": GENERATOR_VERSION,
         "language": "python",
@@ -205,13 +211,15 @@ def _keep_after(error: Exception) -> bool:
 
 
 def _to_events(
-    counts: Dict[str, Dict[str, Any]], window_start: float, window_s: float, sdk: Dict[str, str]
+    counts: Dict[str, Dict[str, Any]], window_start: float, window_s: float, sdk: Dict[str, Any]
 ) -> List[SdkUsageEvent]:
     started = datetime.fromtimestamp(window_start, tz=timezone.utc)
     events: List[SdkUsageEvent] = []
     for operation_id, operation in counts.items():
-        usage: Dict[str, Any] = {
-            "operation_id": operation_id,
+        operation_item: Dict[str, Any] = {
+            "id": operation_id,
+            "object": "operation",
+            "uri": f"{sdk['uri']}:operation:{operation_id}",
             "window_ms": int(window_s * 1000),
             "calls": operation["calls"],
             "attempts": operation["attempts"],
@@ -219,20 +227,39 @@ def _to_events(
         }
         for status in _STATUS_CLASSES:
             if status in operation["status"]:
-                usage[f"status_{status}"] = operation["status"][status]
+                operation_item[f"status_{status}"] = operation["status"][status]
         for bucket, _ in _LATENCY_BUCKETS:
             if bucket in operation["latency"]:
-                usage[f"latency_{bucket}"] = operation["latency"][bucket]
+                operation_item[f"latency_{bucket}"] = operation["latency"][bucket]
         events.append(
             {
-                "id": f"evt_{secrets.token_hex(16)}",
+                "id": _event_id(),
+                "object": "event",
+                "specversion": "1.0",
+                "datacontenttype": "application/json; charset=utf-8",
                 "type": _EVENT_TYPE,
-                "source": sdk["name"],
+                "source": "urn:redocly:cli",
                 "time": started.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
-                "data": {"usage": usage, "sdk": sdk},
+                "origin": "redocly-sdk",
+                "category": "product",
+                "signal": "metric",
+                "data": [operation_item, sdk],
             }
         )
     return events
+
+
+def _event_id() -> str:
+    """evt_ and a lowercase ULID: 10 characters of the time in milliseconds, then 16 random ones."""
+    millis = time.time_ns() // 1_000_000
+    time_part = ""
+    for _ in range(10):
+        time_part = _CROCKFORD_BASE32[millis % 32] + time_part
+        millis //= 32
+    random_part = ""
+    for byte in secrets.token_bytes(16):
+        random_part += _CROCKFORD_BASE32[byte % 32]
+    return f"evt_{time_part}{random_part}"
 
 
 def _send_otlp(endpoint: str, events: List[SdkUsageEvent]) -> None:
@@ -252,23 +279,27 @@ def _to_otlp_request(events: List[SdkUsageEvent]) -> Dict[str, Any]:
     for event in events:
         started = datetime.fromisoformat(event["time"].replace("Z", "+00:00"))
         time_unix_nano = f"{int(started.timestamp() * 1000)}000000"
+        # The attributes that processCloudEventAttributes of @redocly/cli-otel gives for the event.
         attributes = [
             _attribute("cloudevents.event_id", event["id"]),
             _attribute("cloudevents.event_type", event["type"]),
             _attribute("cloudevents.event_source", event["source"]),
-            _attribute("cloudevents.event_spec_version", "1.0"),
-            _attribute("cloudevents.event_data_content_type", "application/json; charset=utf-8"),
+            _attribute("cloudevents.event_spec_version", event["specversion"]),
+            _attribute("cloudevents.event_data_content_type", event["datacontenttype"]),
             _attribute("cloudevents.event_time", event["time"]),
-            _attribute("cloudevents.event_subject", ""),
-            _attribute("cloudevents.event_origin", _SERVICE_NAME),
-            _attribute("cloudevents.event_object", "event"),
-            _attribute("cloudevents.event_category", "product"),
-            _attribute("cloudevents.event_signal", "metric"),
+            _attribute("cloudevents.event_subject", event["data"][0]["id"]),
+            _attribute("cloudevents.event_origin", event["origin"]),
+            _attribute("cloudevents.event_object", event["object"]),
+            _attribute("cloudevents.event_category", event["category"]),
+            _attribute("cloudevents.event_signal", event["signal"]),
+            _attribute("cloudevents.event_request_id", ""),
         ]
-        for key, value in event["data"]["usage"].items():
-            attributes.append(_attribute(f"cloudevents.event_data.usage.{key}", value))
-        for key, value in event["data"]["sdk"].items():
-            attributes.append(_attribute(f"cloudevents.event_data.sdk.{key}", value))
+        for item in event["data"]:
+            for key, value in item.items():
+                attributes.append(_attribute(f"cloudevents.event_data.{item['object']}.{key}", value))
+        for item in event["data"]:
+            for key in ("id", "object", "uri"):
+                attributes.append(_attribute(f"cloudevents.event_subjects.{item['object']}.{key}", item[key]))
         spans.append(
             {
                 "traceId": secrets.token_hex(16),

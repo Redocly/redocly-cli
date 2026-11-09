@@ -252,6 +252,8 @@ Then `UsageTelemetry::flushRegistered()` sends the open windows, for example bef
 By default, the events go to the Redocly OpenTelemetry endpoint.
 Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
 Pass a `sink` function to receive the events yourself instead.
+Each event is a CloudEvent of type `com.redocly.sdkUsage.aggregated`.
+Its `data` holds two items: the operation with its counts, then the SDK.
 
 If the connection fails or the endpoint answers `408`, `429`, or `5xx`, the module adds the counts to the next window.
 After a timeout or any other failed send, it drops the counts.
