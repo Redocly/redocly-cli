@@ -71,6 +71,7 @@ export type DeploymentStatusResponse = {
     status: DeploymentStatus;
   };
   scorecard: ScorecardItem[];
+  linkCheck?: ScorecardItem;
 };
 
 export type PushStatusResponse = {
