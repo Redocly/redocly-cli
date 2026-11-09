@@ -1560,29 +1560,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name": {
         "enum": [
           "supportConversations",
-          "followUpOnPullRequest",
-          "updateFromCodeChanges",
-        ],
-        "type": "string",
-      },
-    },
-    "required": [
-      "name",
-    ],
-  },
-  "Platform.agent.duties_items_4": {
-    "additionalProperties": undefined,
-    "deprecatedProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "disabled": {
-        "type": "boolean",
-      },
-      "name": {
-        "enum": [
-          "review",
         ],
         "type": "string",
       },
@@ -1590,22 +1567,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "sourceRepositories": [Function],
-      "specialists": "Platform.agent.duties_items_4.specialists",
+      "trigger": [Function],
     },
     "required": [
       "name",
     ],
   },
-  "Platform.agent.duties_items_4.sourceRepositories_1": {
+  "Platform.agent.duties_items_3.sourceRepositories_1": {
     "additionalProperties": undefined,
     "deprecatedProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "Platform.agent.duties_items_4.sourceRepositories_1_items",
+    "items": "Platform.agent.duties_items_3.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "Platform.agent.duties_items_4.sourceRepositories_1_items": {
+  "Platform.agent.duties_items_3.sourceRepositories_1_items": {
     "additionalProperties": undefined,
     "deprecatedProperties": undefined,
     "description": undefined,
@@ -1633,16 +1610,142 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "repository",
     ],
   },
-  "Platform.agent.duties_items_4.specialists": {
+  "Platform.agent.duties_items_3.trigger_0": {
     "additionalProperties": undefined,
     "deprecatedProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
-    "items": "Platform.agent.duties_items_4.specialists_items",
+    "items": undefined,
+    "properties": {
+      "event": {
+        "enum": [
+          "conversationResolved",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+    ],
+  },
+  "Platform.agent.duties_items_3.trigger_1": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "cron": {
+        "pattern": "^[0-5]?\\d\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+$",
+        "type": "string",
+      },
+      "event": {
+        "enum": [
+          "schedule",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "event",
+      "cron",
+    ],
+  },
+  "Platform.agent.duties_items_4": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "disabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "Platform.agent.duties_items_5": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "disabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "Platform.agent.duties_items_5.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "Platform.agent.duties_items_5.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "Platform.agent.duties_items_5.sourceRepositories_1_items",
     "properties": {},
     "required": undefined,
   },
-  "Platform.agent.duties_items_4.specialists_items": {
+  "Platform.agent.duties_items_5.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "Platform.agent.duties_items_5.specialists": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "Platform.agent.duties_items_5.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "Platform.agent.duties_items_5.specialists_items": {
     "additionalProperties": undefined,
     "deprecatedProperties": undefined,
     "description": undefined,
