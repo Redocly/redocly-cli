@@ -1,6 +1,6 @@
 arazzo: 1.1.0
 info:
-  title: Test that respect runs the workflows and shows a notice for an AsyncAPI source description
+  title: Test that Respect fails only the step that uses an AsyncAPI source description
   description: Testing functionality based on the Redocly Cafe API example
   version: 1.0.0
 
