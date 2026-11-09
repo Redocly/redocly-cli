@@ -127,7 +127,7 @@ describe('spec ruleset', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/components/schemas/streamHeaders/Etag",
+              "pointer": "#/components/schemas/KitchenHeaders/Etag",
               "reportOnKey": true,
               "source": "../../../../../resources/async.yaml",
             },
@@ -141,12 +141,12 @@ describe('spec ruleset', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/components/schemas/streamHeaders/Cache-Control",
+              "pointer": "#/components/schemas/KitchenHeaders/Idempotency-Key",
               "reportOnKey": true,
               "source": "../../../../../resources/async.yaml",
             },
           ],
-          "message": "Property \`Cache-Control\` is not expected here.",
+          "message": "Property \`Idempotency-Key\` is not expected here.",
           "ruleId": "struct",
           "severity": "error",
           "suggest": [],

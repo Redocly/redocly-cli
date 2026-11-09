@@ -1,71 +1,71 @@
 asyncapi: '2.6.0'
-id: 'urn:com:smartylighting:streetlights:server'
+id: 'urn:com:redocly:cafe:kitchen'
 info:
-  title: Streetlights API
+  title: Redocly Cafe Kitchen
   version: '1.0.0'
   description: |
-    The Smartylighting Streetlights API allows you to remotely manage the city lights.
+    Demo event-driven API for cafe operators (not customers) to follow orders and run the kitchen in real time.
 
-    ### Check out its awesome features:
+    ### Check out its features:
 
-    * Turn a specific streetlight on/off 🌃
-    * Dim a specific streetlight 😎
-    * Receive real-time information about environmental lighting conditions 📈
+    * Start or cancel the preparation of a specific order ☕
+    * Report how much of a specific order is ready 🍰
+    * Receive real-time estimates of the wait time for an order 📈
 
-  termsOfService: http://asyncapi.org/terms/
+  termsOfService: https://redocly.com/subscription-agreement
   contact:
     name: API Support
-    url: http://www.asyncapi.org/support
-    email: support@asyncapi.org
+    url: https://redocly.com/contact-us/
+    email: team@redocly.com
   license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 tags:
-  - name: root-tag1
+  - name: Authorization
     externalDocs:
-      description: External docs description 1
-      url: https://www.asyncapi.com/
-  - name: root-tag2
-    description: Description 2
+      description: Create a client to demo the API.
+      url: https://cafe.redocly.com/openapi/cafe
+  - name: Kitchen
+    description: Order preparation operations.
     externalDocs:
-      url: 'https://www.asyncapi.com/'
-  - name: root-tag3
-  - name: root-tag4
-    description: Description 4
-  - name: root-tag5
+      url: 'https://cafe.redocly.com/openapi/cafe'
+  - name: Orders
+  - name: Products
+    description: Operations related to products.
+  - name: Statistics
     externalDocs:
-      url: 'https://www.asyncapi.com/'
+      url: 'https://cafe.redocly.com/openapi/cafe'
 externalDocs:
-  description: Find more info here
-  url: https://example.com
+  description: Redocly Cafe REST API reference
+  url: https://cafe.redocly.com/openapi/cafe
 defaultContentType: application/json
 
 servers:
   production:
-    url: api.streetlights.smartylighting.com:{port}
+    url: events.cafe.redocly.com:{port}
     protocol: mqtt
     description: |
       Private server that requires authorization.
-      Once the socket is open you can subscribe to private-data channels by sending an authenticated subscribe request message.
+      Once the socket is open you can subscribe to private order channels by sending an authenticated subscribe request message.
 
-      The API client must request an authentication "token" via the following REST API endpoint "GetWebSocketsToken" to connect to WebSockets Private endpoints. For more details read https://support.kraken.com/hc/en-us/articles/360034437672-How-to-retrieve-a-WebSocket-authentication-token-Example-code-in-Python-3
+      The API client must request an access token from the Redocly Cafe token endpoint (`https://api.cafe.redocly.com/oauth2/token`) to connect to private channels. For more details read https://cafe.redocly.com/openapi/cafe
 
-      The resulting token must be provided in the "token" field of any new private WebSocket feed subscription:
+      The resulting token must be provided in the "token" field of any new private channel subscription:
       ```json
       {
         "event": "subscribe",
         "subscription":
         {
-          "name": "ownTrades",
+          "name": "orders",
           "token": "WW91ciBhdXRoZW50aWNhdGlvbiB0b2tlbiBnb2VzIGhlcmUu"
         }
       }
       ```
 
       ```elixir
-      defmodule Hello do
-        def world do
-          IO.puts("hello")
+      defmodule Kitchen do
+        def order_up do
+          IO.puts("Order up!")
         end
       end
       ```
@@ -79,82 +79,82 @@ servers:
     tags:
       - name: 'env:production'
     security:
-      - apiKey: []
-      - supportedOauthFlows:
-          - streetlights:on
-          - streetlights:off
-          - streetlights:dim
-      - openIdConnectWellKnown: []
-  dummy-mqtt:
+      - ApiKey: []
+      - OAuth2:
+          - orders:read
+          - orders:write
+          - kitchen:write
+      - OpenIdConnect: []
+  local-mqtt:
     url: mqtt://localhost
     protocol: mqtt
     description: |
-      Private server
+      Local kitchen broker
 
       ```csharp
       using System;
 
-      namespace HelloWorld
+      namespace Kitchen
       {
         class Program
         {
           static void Main(string[] args)
           {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Order up!");
           }
         }
       }
       ```
     bindings:
       mqtt:
-        clientId: guest
+        clientId: kitchen-display
         cleanSession: false
         keepAlive: 60
         bindingVersion: 0.1.0
         lastWill:
-          topic: smartylighting/streetlights/1/0/lastwill
+          topic: cafe/kitchen/lastwill
           qos: 1
-          message: so long and thanks for all the fish
+          message: The kitchen display went offline.
           retain: false
-  dummy-amqp:
+  local-amqp:
     url: amqp://localhost:{port}
     protocol: amqp
-    description: dummy AMQP broker
+    description: Local AMQP broker for order commands.
     protocolVersion: '0.9.1'
     variables:
       port:
         enum:
           - '15672'
           - '5672'
-  dommy-kafka:
-    url: http://localhost:{port}
+  local-kafka:
+    url: localhost:{port}
     protocol: kafka
-    description: dummy Kafka broker
+    description: Local Kafka broker for order events.
     variables:
       port:
         default: '9092'
 
 channels:
-  smartylighting/streetlights/1/0/event/{streetlightId}/lighting/measured:
+  cafe/orders/{orderId}/wait-time/measured:
     x-security:
-      $ref: '#/components/securitySchemes/supportedOauthFlows/flows/clientCredentials'
-    description: The topic on which measured values may be produced and consumed.
+      $ref: '#/components/securitySchemes/OAuth2/flows/clientCredentials'
+    description: The topic on which estimated wait times may be produced and consumed.
     parameters:
-      streetlightId:
-        $ref: '#/components/parameters/streetlightId'
+      orderId:
+        $ref: '#/components/parameters/OrderId'
     servers:
       - production
-      - dommy-kafka
+      - local-kafka
     subscribe:
-      summary: Receive information about environmental lighting conditions of a particular streetlight.
-      operationId: receiveLightMeasurement
+      summary: Receive the estimated wait time for a particular order.
+      operationId: receiveWaitTimeMeasurement
       externalDocs:
         description: Find more info here
-        url: https://example.com
+        url: https://cafe.redocly.com/openapi/cafe
       traits:
-        - $ref: '#/components/operationTraits/kafka'
+        - $ref: '#/components/operationTraits/Kafka'
       message:
-        $ref: '#/components/messages/lightMeasured'
+        $ref: '#/components/messages/WaitTimeMeasured'
       bindings:
         mqtt:
           qos: 1
@@ -165,153 +165,156 @@ channels:
           query:
             type: object
             required:
-              - companyId
+              - locationId
             properties:
-              companyId:
+              locationId:
                 type: number
                 minimum: 1
-                description: The Id of the company.
+                description: ID of the cafe location.
             additionalProperties: false
 
-  smartylighting/streetlights/1/0/action/{streetlightId}/turn/on/:
+  cafe/orders/{orderId}/preparation/start/:
     parameters:
-      streetlightId:
-        $ref: '#/components/parameters/streetlightId'
+      orderId:
+        $ref: '#/components/parameters/OrderId'
     servers:
       - production
-      - dummy-amqp
+      - local-amqp
     publish:
-      operationId: turnOn
+      operationId: startPreparation
       security:
-        - supportedOauthFlows:
-            - streetlights:on
+        - OAuth2:
+            - orders:write
       externalDocs:
         description: Find more info here
-        url: https://example.com
+        url: https://cafe.redocly.com/openapi/cafe
       traits:
-        - $ref: '#/components/operationTraits/kafka'
+        - $ref: '#/components/operationTraits/Kafka'
       message:
-        $ref: '#/components/messages/turnOnOff'
+        $ref: '#/components/messages/PreparationCommand'
 
-  smartylighting/streetlights/1/0/action/{streetlightId}/turn/off:
+  cafe/orders/{orderId}/preparation/cancel:
     parameters:
-      streetlightId:
-        $ref: '#/components/parameters/streetlightId'
+      orderId:
+        $ref: '#/components/parameters/OrderId'
     publish:
       traits:
-        - $ref: '#/components/operationTraits/kafka'
+        - $ref: '#/components/operationTraits/Kafka'
       message:
-        $ref: '#/components/messages/turnOnOff'
+        $ref: '#/components/messages/PreparationCommand'
 
-  smartylighting/streetlights/1/0/action/{streetlightId}/dim:
+  cafe/orders/{orderId}/progress:
     parameters:
-      streetlightId:
-        $ref: '#/components/parameters/streetlightId'
+      orderId:
+        $ref: '#/components/parameters/OrderId'
     servers:
       - production
-      - dummy-amqp
+      - local-amqp
     publish:
-      operationId: dimLight
+      operationId: reportOrderProgress
       traits:
-        - $ref: '#/components/operationTraits/kafka'
+        - $ref: '#/components/operationTraits/Kafka'
       message:
-        $ref: '#/components/messages/dimLight'
+        $ref: '#/components/messages/OrderProgress'
 
 components:
   messages:
-    lightMeasured:
-      messageId: lightMeasured Message ID
-      name: lightMeasured
-      title: Light measured
-      summary: Inform about environmental lighting conditions for a particular streetlight.
+    WaitTimeMeasured:
+      messageId: waitTimeMeasured
+      name: waitTimeMeasured
+      title: Wait time measured
+      summary: Inform about the estimated wait time for a particular order.
       contentType: application/json
       correlationId:
-        $ref: '#/components/correlationIds/sentAtCorrelator'
+        $ref: '#/components/correlationIds/SentAtCorrelator'
       externalDocs:
-        url: 'https://www.asyncapi.com/'
+        url: 'https://cafe.redocly.com/openapi/cafe'
       traits:
-        - $ref: '#/components/messageTraits/commonHeaders'
+        - $ref: '#/components/messageTraits/CommonHeaders'
       payload:
-        $ref: '#/components/schemas/lightMeasuredPayload'
+        $ref: '#/components/schemas/WaitTimeMeasuredPayload'
       bindings:
         mqtt:
           bindingVersion: 0.1.0
       examples:
         - headers:
-            my-app-header: 12
+            kitchen-station: 12
           payload:
-            lumens: 1
+            waitMinutes: 1
             sentAt: '2020-01-31T13:24:53Z'
         - headers:
-            my-app-header: 13
+            kitchen-station: 13
         - payload:
-            lumens: 3
+            waitMinutes: 3
             sentAt: '2020-10-31T13:24:53Z'
-      x-schema-extensions-as-object:
+      x-kitchen-display:
         type: object
         properties:
-          prop1:
+          station:
             type: string
-          prop2:
+          priority:
             type: integer
             minimum: 0
-      x-schema-extensions-as-primitive: dummy
-      x-schema-extensions-as-array:
-        - 'item1'
-        - 'item2'
-    LwM2mOjbects:
+      x-kitchen-area: bar
+      x-kitchen-counters:
+        - 'espresso-bar'
+        - 'pastry-counter'
+    MenuSync:
       payload:
         type: object
         properties:
-          objectLinks:
+          menuItemIds:
             type: string
         example:
-          objectLinks: 'lwm2m=1.1, </0/0>, </1/1>;ssid=1, </2>, </3/0>'
-    turnOnOff:
-      # name: turnOnOff
-      title: Turn on/off
-      summary: Command a particular streetlight to turn the lights on or off.
+          menuItemIds: 'prd_01h1s5z6vf2mm1mz3hevnn9va7, prd_01h1s5z6vf2mm1mz3hevnn9va8'
+    PreparationCommand:
+      title: Start or cancel preparation
+      summary: Command the kitchen to start or cancel preparing a particular order.
       payload:
-        $ref: '#/components/schemas/turnOnOffPayload'
+        $ref: '#/components/schemas/PreparationCommandPayload'
       headers:
         type: object
         properties:
-          $ref: '#/components/schemas/streamHeaders'
-    dimLight:
-      name: dimLight
-      title: Dim light
-      summary: Command a particular streetlight to dim the lights.
+          $ref: '#/components/schemas/KitchenHeaders'
+    OrderProgress:
+      name: orderProgress
+      title: Order progress
+      summary: Report how much of a particular order is ready.
       correlationId:
-        $ref: '#/components/correlationIds/sentAtCorrelator'
+        $ref: '#/components/correlationIds/SentAtCorrelator'
       externalDocs:
-        url: 'https://www.asyncapi.com/'
+        url: 'https://cafe.redocly.com/openapi/cafe'
       tags:
-        - name: oparation-tag1
+        - name: Beverages
           externalDocs:
-            description: External docs description 1
-            url: https://www.asyncapi.com/
-        - name: oparation-tag2
-          description: Description 2
+            description: Drinks on the menu.
+            url: https://cafe.redocly.com/openapi/cafe
+        - name: Desserts
+          description: Desserts on the menu.
           externalDocs:
-            url: 'https://www.asyncapi.com/'
-        - name: oparation-tag3
-        - name: oparation-tag4
-          description: Description 4
-        - name: oparation-tag5
+            url: 'https://cafe.redocly.com/openapi/cafe'
+        - name: Pastries
+        - name: Preparation
+          description: Order preparation steps.
+        - name: Progress
           externalDocs:
-            url: 'https://www.asyncapi.com/'
+            url: 'https://cafe.redocly.com/openapi/cafe'
       traits:
-        - $ref: '#/components/messageTraits/commonHeaders'
+        - $ref: '#/components/messageTraits/CommonHeaders'
       payload:
-        $ref: '#/components/schemas/dimLightPayload'
+        $ref: '#/components/schemas/OrderProgressPayload'
 
   schemas:
-    lightMeasuredPayload:
+    WaitTimeMeasuredPayload:
       type: object
       properties:
-        lumens:
+        orderId:
+          type: string
+          description: Order ID. Unique identifier prefixed with `ord_`.
+          pattern: ^ord_[0-9abcdefghjkmnpqrstvwxyz]{26}$
+        waitMinutes:
           type: integer
-          description: Light intensity measured in lumens.
+          description: Estimated wait time in minutes.
           writeOnly: true
           oneOf:
             - minimum: 0
@@ -319,11 +322,12 @@ components:
             - minimum: 10
               maximum: 20
           externalDocs:
-            url: 'https://www.asyncapi.com/'
+            url: 'https://cafe.redocly.com/openapi/cafe'
         sentAt:
-          $ref: '#/components/schemas/sentAt'
-        ifElseThen:
+          $ref: '#/components/schemas/SentAt'
+        loyaltyPoints:
           type: integer
+          description: Loyalty points the customer earns for the order.
           minimum: 1
           maximum: 1000
           if:
@@ -335,139 +339,139 @@ components:
               minimum: 10
             then:
               multipleOf: 10
-        dependencies:
-          $ref: '#/components/schemas/dependenciesObject'
-        anySchema: true
-        cannotBeDefined: false
-        restrictedAny:
+        payment:
+          $ref: '#/components/schemas/Payment'
+        notes: true
+        internalNotes: false
+        tableNumber:
           minimum: 1
-          maximum: 1000
+          maximum: 100
       required:
-        - lumens
-      x-schema-extensions-as-object:
+        - waitMinutes
+      x-kitchen-display:
         type: object
         properties:
-          prop1:
+          station:
             type: string
-          prop2:
+          priority:
             type: integer
             minimum: 0
-      x-schema-extensions-as-primitive: dummy
-      x-schema-extensions-as-array:
-        - 'item1'
-        - 'item2'
-    turnOnOffPayload:
+      x-kitchen-area: bar
+      x-kitchen-counters:
+        - 'espresso-bar'
+        - 'pastry-counter'
+    PreparationCommandPayload:
       type: object
       properties:
         command:
           type: string
           enum:
-            - on
-            - off
-          description: Whether to turn on or off the light.
+            - start
+            - cancel
+          description: Whether to start or cancel preparing the order.
         sentAt:
-          $ref: '#/components/schemas/sentAt'
-        arrayRank:
-          $ref: '#/components/schemas/arrayRank'
+          $ref: '#/components/schemas/SentAt'
+        trayLayout:
+          $ref: '#/components/schemas/TrayLayout'
       additionalProperties:
         type: string
 
-    dimLightPayload:
+    OrderProgressPayload:
       type: object
       properties:
         percentage:
           type: integer
-          description: Percentage to which the light should be dimmed to.
+          description: Percentage of the order that is ready.
           minimum: 0
           maximum: 100
           readOnly: true
         sentAt:
-          $ref: '#/components/schemas/sentAt'
-        key:
+          $ref: '#/components/schemas/SentAt'
+        priority:
           type: integer
           not:
             minimum: 3
       patternProperties:
-        ^S_:
+        ^note_:
           type: string
-        ^I_:
+        ^count_:
           type: integer
       additionalProperties: false
-    sentAt:
+    SentAt:
       type: string
       format: date-time
       description: Date and time when the message was sent.
-    union:
+    MenuItemPrice:
       type: [string, number]
-    objectWithKey:
+    Customer:
       type: object
       propertyNames:
         format: email
       properties:
-        key:
+        customerName:
           type: string
-    objectWithKey2:
+    PickupSlot:
       type: object
       properties:
-        key2:
+        pickupTime:
           type: string
           format: time
-    oneOfSchema:
+    OrderPickup:
       oneOf:
-        - $ref: '#/components/schemas/objectWithKey'
-        - $ref: '#/components/schemas/objectWithKey2'
-    anyOfSchema:
+        - $ref: '#/components/schemas/Customer'
+        - $ref: '#/components/schemas/PickupSlot'
+    OrderHandoff:
       anyOf:
-        - $ref: '#/components/schemas/objectWithKey'
-        - $ref: '#/components/schemas/objectWithKey2'
-    allOfSchema:
+        - $ref: '#/components/schemas/Customer'
+        - $ref: '#/components/schemas/PickupSlot'
+    OrderReceipt:
       allOf:
-        - $ref: '#/components/schemas/objectWithKey'
-        - $ref: '#/components/schemas/objectWithKey2'
-    arrayContains:
+        - $ref: '#/components/schemas/Customer'
+        - $ref: '#/components/schemas/PickupSlot'
+    MenuItemPrices:
       type: array
       contains:
         type: integer
-    dependenciesObject:
+    Payment:
       type: object
       properties:
-        name:
+        customerName:
           type: string
-        credit_card:
+        cardNumber:
           type: integer
-        billing_address:
+        billingAddress:
           type: string
-        schema_dependency:
+        receiptEmail:
           type: string
       required:
-        - name
+        - customerName
       dependencies:
-        credit_card:
+        cardNumber:
           properties:
-            billing_address:
+            billingAddress:
               type: string
-            billing_address2:
+            billingAddress2:
               type: string
           required:
-            - billing_address
+            - billingAddress
           dependencies:
-            billing_address2:
+            billingAddress2:
               properties:
-                billing_address3:
+                billingAddress3:
                   type: string
               required:
-                - billing_address3
+                - billingAddress3
 
-    subscriptionStatus:
+    SubscriptionStatus:
       type: object
       oneOf:
         - properties:
             channelID:
               type: integer
-              description: ChannelID on successful subscription, applicable to public messages only.
+              description: Channel ID on successful subscription, applicable to public messages only.
             channelName:
               type: string
-              description: Channel Name on successful subscription. For payloads 'ohlc' and 'book', respective interval or depth will be added as suffix.
+              description: Channel name on successful subscription. For 'orders' and 'progress' payloads, the order ID is added as a suffix.
         - properties:
             errorMessage:
               type: string
@@ -478,7 +482,7 @@ components:
         subscription:
           type: object
           properties:
-            depth:
+            orderId:
               type: string
             interval:
               type: string
@@ -487,33 +491,33 @@ components:
       required:
         - event
 
-    arrayRank:
+    TrayLayout:
       type: object
       properties:
-        valueRank:
-          $ref: '#/components/schemas/arrayValueRank'
-        arrayDimensions:
-          $ref: '#/components/schemas/arrayArrayDimensions'
+        levels:
+          $ref: '#/components/schemas/TrayLevels'
+        slotsPerLevel:
+          $ref: '#/components/schemas/TraySlots'
 
-    arrayValueRank:
+    TrayLevels:
       description: >
-        This Attribute indicates whether the val Attribute of the datapoint is an
-        array and how many dimensions the array has.
+        This attribute indicates whether the order is served on a tray and how
+        many levels the tray has.
       type: integer
       default: -1
       examples:
         - 2
       oneOf:
         - const: -1
-          description: 'Scalar: The value is not an array.'
+          description: 'NoTray: The order is served without a tray.'
         - const: 0
-          description: 'OneOrMoreDimensions: The value is an array with one or more dimensions.'
+          description: 'OneOrMoreLevels: The tray has one or more levels.'
         - const: 1
-          description: 'OneDimension: The value is an array with one dimension.'
+          description: 'OneLevel: The tray has one level.'
         - const: 2
-          description: 'The value is an array with two dimensions.'
+          description: 'The tray has two levels.'
 
-    arrayArrayDimensions:
+    TraySlots:
       type: array
       items:
         type: integer
@@ -521,89 +525,89 @@ components:
       examples:
         - [3, 5]
 
-    streamHeaders:
+    KitchenHeaders:
       Etag:
         type: string
         description: |
-          The RFC7232 ETag header field in a response provides the current entity-
-          tag for the selected resource. An entity-tag is an opaque identifier for
-          different versions of a resource over time, regardless whether multiple
-          versions are valid at the same time. An entity-tag consists of an opaque
-          quoted string, possibly prefixed by a weakness indicator.
+          Version of the order that the command applies to.
+          The kitchen ignores a command whose ETag does not match the current
+          version of the order, so two operators cannot change the same order
+          at the same time.
         example: 411a
-      Cache-Control:
-        description: The Cache-Control HTTP header holds directives (instructions) for caching in request.
+      Idempotency-Key:
+        description: Unique key that prevents the kitchen from processing the same command twice.
         type: string
-        example: no-cache, no-store, must-revalidate
+        example: 5f0c6b2e-7c1a-4b8e-9d2f-1a3e4c5b6d7f
 
   securitySchemes:
-    apiKey:
+    ApiKey:
       type: apiKey
       in: user
       description: Provide your API key as the user and leave the password empty.
-    supportedOauthFlows:
+    OAuth2:
       type: oauth2
-      description: Flows to support OAuth 2.0
+      description: OAuth2 authorization for kitchen access.
       flows:
         implicit:
-          authorizationUrl: 'https://authserver.example/auth'
+          authorizationUrl: 'https://api.cafe.redocly.com/oauth2/authorize'
           scopes:
-            'streetlights:on': Ability to switch lights on
-            'streetlights:off': Ability to switch lights off
-            'streetlights:dim': Ability to dim the lights
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
         password:
-          tokenUrl: 'https://authserver.example/token'
+          tokenUrl: 'https://api.cafe.redocly.com/oauth2/token'
           scopes:
-            'streetlights:on': Ability to switch lights on
-            'streetlights:off': Ability to switch lights off
-            'streetlights:dim': Ability to dim the lights
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
         clientCredentials:
-          tokenUrl: 'https://authserver.example/token'
+          tokenUrl: 'https://api.cafe.redocly.com/oauth2/token'
           scopes:
-            'streetlights:on': Ability to switch lights on
-            'streetlights:off': Ability to switch lights off
-            'streetlights:dim': Ability to dim the lights
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
         authorizationCode:
-          authorizationUrl: 'https://authserver.example/auth'
-          tokenUrl: 'https://authserver.example/token'
-          refreshUrl: 'https://authserver.example/refresh'
+          authorizationUrl: 'https://api.cafe.redocly.com/oauth2/authorize'
+          tokenUrl: 'https://api.cafe.redocly.com/oauth2/token'
+          refreshUrl: 'https://api.cafe.redocly.com/oauth2/refresh'
           scopes:
-            'streetlights:on': Ability to switch lights on
-            'streetlights:off': Ability to switch lights off
-            'streetlights:dim': Ability to dim the lights
-    openIdConnectWellKnown:
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
+    OpenIdConnect:
       type: openIdConnect
-      openIdConnectUrl: 'https://authserver.example/.well-known'
+      openIdConnectUrl: 'https://api.cafe.redocly.com/.well-known/openid-configuration'
 
   parameters:
-    streetlightId:
-      description: The ID of the streetlight.
+    OrderId:
+      description: Order ID. Unique identifier prefixed with `ord_`.
       schema:
         type: string
-      location: '$message.payload#/user/id'
+      location: '$message.payload#/orderId'
 
   correlationIds:
-    sentAtCorrelator:
+    SentAtCorrelator:
       description: Data from message payload used as correlation ID
       location: $message.payload#/sentAt
 
   messageTraits:
-    commonHeaders:
+    CommonHeaders:
       headers:
         type: object
         properties:
-          my-app-header:
+          kitchen-station:
             type: integer
             minimum: 0
             maximum: 100
+            description: Number of the kitchen station that sent the message.
         required:
-          - my-app-header
+          - kitchen-station
 
   operationTraits:
-    kafka:
+    Kafka:
       bindings:
         kafka:
           clientId:
             type: string
             enum:
-              - my-app-id
+              - cafe-kitchen
