@@ -1,3 +1,5 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 import type { Workflow, PublicWorkflow, InputSchema } from '../../../types.js';
 import { resolveInputValuesToSchema } from '../inputs/index.js';
 import { getPublicSteps } from './set-public-steps.js';
@@ -43,25 +45,34 @@ export function mergeWorkflowInputs({
     return {};
   }
 
-  const envSchema = workflowInputSchema.properties?.env as InputSchema | undefined;
-  if (!envSchema) {
-    return resolveInputValuesToSchema(inputs, workflowInputSchema, onInvalidInputs);
-  }
+  const envProperty = workflowInputSchema.properties?.env;
+  // A boolean `env` schema declares no variables.
+  const envSchema = isPlainObject<InputSchema>(envProperty) ? envProperty : undefined;
+  const resolvedDotEnvInputs = envSchema ? resolveInputValuesToSchema(env || {}, envSchema) : {};
+  const hasEnvVariables = Object.keys(resolvedDotEnvInputs).length > 0;
 
-  const resolvedDotEnvInputs = resolveInputValuesToSchema(env || {}, envSchema);
-  if (Object.keys(resolvedDotEnvInputs).length > 0) {
-    return resolveInputValuesToSchema(
-      { ...inputs, env: resolvedDotEnvInputs },
-      workflowInputSchema,
-      onInvalidInputs
+  const problems: string[] = [];
+  const collectProblems = (text: string) => problems.push(text);
+  const result = resolveInputValuesToSchema(
+    hasEnvVariables ? { ...inputs, env: resolvedDotEnvInputs } : inputs,
+    workflowInputSchema,
+    collectProblems
+  );
+
+  // An absent `env` passes the check above, so when no declared variable is set, no `env` input
+  // is given, and no `env` default applies, an empty `env` is checked on its own to report a
+  // required variable that is not set.
+  if (envSchema && !hasEnvVariables && inputs?.env === undefined && !('default' in envSchema)) {
+    resolveInputValuesToSchema(
+      { env: {} },
+      { type: 'object', properties: { env: envSchema } },
+      collectProblems
     );
   }
 
-  // Without a declared variable set, an `env` input is kept, the `env` default applies,
-  // or an empty `env` is checked, so a required variable that is not set is reported.
-  return resolveInputValuesToSchema(
-    'default' in envSchema ? inputs : { env: {}, ...inputs },
-    workflowInputSchema,
-    onInvalidInputs
-  );
+  if (problems.length > 0) {
+    onInvalidInputs?.(problems.join(', '));
+  }
+
+  return result;
 }
