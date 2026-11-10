@@ -131,7 +131,63 @@ Read the [`generate-client` docs](https://redocly.com/docs/cli/commands/generate
 [`diff`](https://redocly.com/docs/cli/commands/diff) lists the changes between two versions of a description.
 [`drift`](https://redocly.com/docs/cli/commands/drift) compares recorded HTTP traffic with the description.
 
-See [all commands](https://redocly.com/docs/cli/commands).
+## All commands
+
+**Lint and govern**
+
+- [`lint`](https://redocly.com/docs/cli/commands/lint): Lint an API or Arazzo description.
+- [`check-config`](https://redocly.com/docs/cli/commands/check-config): Lint the Redocly configuration file.
+- [`score`](https://redocly.com/docs/cli/commands/score): Score an API description for integration simplicity and AI agent readiness (experimental).
+- [`scorecard-classic`](https://redocly.com/docs/cli/commands/scorecard-classic): Evaluate an API against the scorecard configuration of a Redocly project.
+- [`stats`](https://redocly.com/docs/cli/commands/stats): Show statistics for an API description.
+- [`recheck`](https://redocly.com/docs/cli/commands/recheck): Lint Markdown prose and structure.
+- [`inspect-node-types`](https://redocly.com/docs/cli/commands/inspect-node-types): Show the node types of an API description, for configurable rules and custom plugins (experimental).
+
+**Manage files**
+
+- [`bundle`](https://redocly.com/docs/cli/commands/bundle): Bundle a multi-file API description into a single file.
+- [`split`](https://redocly.com/docs/cli/commands/split): Split an API description into a multi-file structure.
+- [`join`](https://redocly.com/docs/cli/commands/join): Join multiple API descriptions into one (experimental).
+
+**Test**
+
+- [`respect`](https://redocly.com/docs/cli/commands/respect): Run the API tests of an Arazzo description against a live API.
+- [`generate-arazzo`](https://redocly.com/docs/cli/commands/generate-arazzo): Generate an Arazzo description from an OpenAPI description.
+
+**Docs**
+
+- [`build-docs`](https://redocly.com/docs/cli/commands/build-docs): Build API reference docs from an API description into an HTML file.
+- [`preview`](https://redocly.com/docs/cli/commands/preview): Start a local preview of a Redocly project.
+- [`translate`](https://redocly.com/docs/cli/commands/translate): Generate translation keys for a Redocly project.
+- [`eject`](https://redocly.com/docs/cli/commands/eject): Eject components from the core theme of a Redocly project, to change them.
+
+**Generate**
+
+- [`generate-client`](https://redocly.com/docs/cli/commands/generate-client): Generate a typed TypeScript client or an SDK from an OpenAPI description (experimental).
+- [`eject-generator`](https://redocly.com/docs/cli/commands/eject-generator): Copy a built-in client generator into your repository as an editable file (experimental).
+- [`generate-spec`](https://redocly.com/docs/cli/commands/generate-spec): Infer an OpenAPI description from recorded HTTP traffic (experimental).
+- [`introspect-mcp`](https://redocly.com/docs/cli/commands/introspect-mcp): Record the capabilities of an MCP server in an OpenAPI description (experimental).
+
+**Compare**
+
+- [`diff`](https://redocly.com/docs/cli/commands/diff): Compare two API descriptions and rate each change by the semver bump it requires (experimental).
+- [`drift`](https://redocly.com/docs/cli/commands/drift): Detect drift between recorded HTTP traffic and an OpenAPI description (experimental).
+- [`proxy`](https://redocly.com/docs/cli/commands/proxy): Capture live HTTP traffic through a reverse proxy into a HAR file (experimental).
+
+**Redocly platform**
+
+- [`login`](https://redocly.com/docs/cli/commands/login): Log in to Redocly.
+- [`logout`](https://redocly.com/docs/cli/commands/logout): Clear your stored credentials.
+- [`push`](https://redocly.com/docs/cli/commands/push): Push an API description to the Redocly platform.
+- [`push-status`](https://redocly.com/docs/cli/commands/push-status): Track a push to the Redocly platform.
+- `project`: Work with a Redocly-hosted project (early access).
+
+**Tooling**
+
+- [`skills`](https://redocly.com/docs/cli/commands/skills): Install the Redocly CLI agent skills for AI coding agents.
+- [`completion`](https://redocly.com/docs/cli/commands/completion): Generate the autocomplete script for your shell.
+
+For the options and examples of each command, see the [commands reference](https://redocly.com/docs/cli/commands).
 
 ## Use with AI assistants
 
