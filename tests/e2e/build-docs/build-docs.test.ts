@@ -16,6 +16,17 @@ const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 describe('build-docs', () => {
   const folderPath = __dirname;
 
+  test('build docs reports a missing template file without a stack trace', async () => {
+    const testPath = join(folderPath, 'simple-build-docs');
+    const args = getParams(indexEntryPoint, ['build-docs', 'pets.yaml', '--template=missing.hbs']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'missing-template-snapshot.txt')
+    );
+    expect(result).toContain('Cannot read the template file');
+    expect(result).not.toContain('An unexpected error occurred');
+  });
+
   test('build docs for an AsyncAPI description', async () => {
     const testPath = join(folderPath, 'asyncapi-build-docs');
     const args = getParams(indexEntryPoint, ['build-docs', 'asyncapi.yaml']);

@@ -45,51 +45,38 @@ export const handlerBuildCommand = async ({
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const { path: pathToApi, alias } = apis[0];
 
-  try {
-    const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
-    const aliasConfig = config.forAlias(alias);
-    const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
-    for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
-      if (optionsKey !== specType && argv[optionsKey] !== undefined) {
-        logger.warn(
-          `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
-        );
-      }
+  const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
+  const aliasConfig = config.forAlias(alias);
+  const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
+  for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
+    if (optionsKey !== specType && argv[optionsKey] !== undefined) {
+      logger.warn(
+        `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
+      );
     }
-    const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
-
-    const options = {
-      output: argv.o,
-      title: argv.title,
-      templateFileName: argv.template,
-      templateOptions: argv.templateOptions || {},
-      redocOptions,
-      redocVersion,
-      disableTelemetry: !isTelemetryEnabled(config),
-      inlineBundle: argv.inlineBundle,
-    };
-
-    const pageHTML = await getPageHTML(definition, options, argv.config);
-
-    mkdirSync(dirname(options.output), { recursive: true });
-    writeFileSync(options.output, pageHTML);
-    const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
-    const elapsed = getExecutionTime(startedAt);
-    logger.info(
-      `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
-    );
-  } catch (error) {
-    // A bug in the renderer (for example `TypeError: x.match is not a function`)
-    // keeps its stack trace so it can be reported and located.
-    if (
-      error instanceof TypeError ||
-      error instanceof ReferenceError ||
-      error instanceof RangeError
-    ) {
-      throw error;
-    }
-    throw new HandledError(error instanceof Error ? error.message : String(error));
   }
+  const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
+
+  const options = {
+    output: argv.o,
+    title: argv.title,
+    templateFileName: argv.template,
+    templateOptions: argv.templateOptions || {},
+    redocOptions,
+    redocVersion,
+    disableTelemetry: !isTelemetryEnabled(config),
+    inlineBundle: argv.inlineBundle,
+  };
+
+  const pageHTML = await getPageHTML(definition, options, argv.config);
+
+  mkdirSync(dirname(options.output), { recursive: true });
+  writeFileSync(options.output, pageHTML);
+  const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
+  const elapsed = getExecutionTime(startedAt);
+  logger.info(
+    `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
+  );
 };
 
 const unsupportedSpecNames: Partial<Record<SpecMajorVersion, string>> = {
