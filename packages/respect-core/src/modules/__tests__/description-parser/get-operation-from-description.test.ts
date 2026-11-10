@@ -291,6 +291,25 @@ describe('getOperationFromDescriptionBySource', () => {
       ).toThrow(`Unknown operationId ${red('create')} at ${red('cats.create')}.`);
     });
 
+    it('should throw an error if the operation does not exist and the description has no paths', () => {
+      const context = {
+        $sourceDescriptions: {
+          cats: {},
+        },
+        sourceDescriptions: [
+          {
+            name: 'cats',
+            type: 'openapi',
+            url: 'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml',
+          },
+        ],
+      } as unknown as TestContext;
+
+      expect(() =>
+        getOperationFromDescriptionBySource({ operationId: 'cats.create' }, context)
+      ).toThrow(`Unknown operationId ${red('create')} at ${red('cats.create')}.`);
+    });
+
     it('should return operation if it exists from single description when operationId is like $sourceDescriptions.DESCRIPTION_NAME.OPERATION_ID', () => {
       const operation = getOperationFromDescriptionBySource(
         {

@@ -50,7 +50,7 @@ export function getOperationById(
   const rootServers = description.servers;
 
   for (const [path, pathDetails] of Object.entries<Oas3PathItem>(
-    descriptions[descriptionName].paths
+    descriptions[descriptionName].paths || {}
   )) {
     for (const [method, operationDetails] of Object.entries(pathDetails || {})) {
       if (operationDetails?.operationId === operationId) {
