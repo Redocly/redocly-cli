@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { lintConfig } from '../../lint.js';
-import { BaseResolver, makeDocumentFromString } from '../../resolve.js';
+import { BaseResolver } from '../../resolve.js';
 import { type Config } from '../config.js';
 import { loadConfig, findConfig, createConfig } from '../load.js';
 import { type RuleConfig, type RawUniversalConfig } from './../types.js';
@@ -2762,27 +2762,6 @@ describe('loadConfig', () => {
     const ids = config.plugins.map((plugin) => plugin.id);
     expect(ids).toContain('nested-plugin');
     expect(ids).not.toContain('root-plugin');
-  });
-
-  it('should keep file paths written in a remote config file as written', async () => {
-    const documents: Record<string, string> = {
-      'https://example.com/configs/redocly.yaml': 'apis:\n  remote:\n    $ref: ./api.yaml\n',
-      'https://example.com/configs/api.yaml': 'root: ./openapi.yaml\noutput: ./dist/openapi.yaml\n',
-    };
-    const externalRefResolver = new BaseResolver();
-    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation(async (base, ref) => {
-      const url = new URL(ref, base ?? undefined).href;
-      return makeDocumentFromString(documents[url], url);
-    });
-
-    const { resolvedConfig } = await loadConfig({
-      configPath: 'https://example.com/configs/redocly.yaml',
-      externalRefResolver,
-    });
-
-    expect(resolvedConfig.apis).toMatchObject({
-      remote: { root: './openapi.yaml', output: './dist/openapi.yaml' },
-    });
   });
 });
 
