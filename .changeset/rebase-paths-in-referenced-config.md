@@ -1,8 +1,8 @@
 ---
-'@redocly/openapi-core': patch
-'@redocly/cli': patch
+'@redocly/openapi-core': minor
+'@redocly/cli': minor
 ---
 
-Fixed an issue where relative file paths in a config file included with `$ref` were resolved against the root `redocly.yaml` instead of the file they were written in.
+Relative file paths in a config file included with `$ref` are now resolved from that file instead of from the root `redocly.yaml`.
 
-**Note:** a `$ref`-ed config that relied on paths being relative to the root `redocly.yaml` now resolves them from its own folder.
+**Note:** if a referenced config file has paths written relative to the root `redocly.yaml`, rewrite them relative to that file.
