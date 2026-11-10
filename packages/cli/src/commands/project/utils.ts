@@ -7,9 +7,9 @@ import * as path from 'node:path';
 const TEMPORARY_INSTALL_DIR = /[\\/](_npx|dlx)[\\/]/;
 
 // Git config entries that make `redocly project git-credentials` the only credential helper
-// for the Reunite host. The empty entry clears the helpers configured for all hosts.
-export function getCredentialHelperConfig(reuniteUrl: string, version: string): string[] {
-  const key = `credential.${reuniteUrl}/.helper`;
+// for the Redocly platform host. The empty entry clears the helpers configured for all hosts.
+export function getCredentialHelperConfig(platformUrl: string, version: string): string[] {
+  const key = `credential.${platformUrl}/.helper`;
   const ranFromTemporaryInstall = TEMPORARY_INSTALL_DIR.test(process.argv[1] ?? '');
   const cli =
     !ranFromTemporaryInstall && isOnPath('redocly')

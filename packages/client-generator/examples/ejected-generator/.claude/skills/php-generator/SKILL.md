@@ -25,7 +25,8 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   base class. A property or response typed as a DISCRIMINATED union hydrates through the
   union's `unmarshalX` dispatcher, so consumers can narrow with `instanceof`; its type
   includes `array`, because a value with an unknown discriminator stays the raw array.
-  Undiscriminated unions stay raw arrays.
+  Any other union stays the decoded JSON, so its type is that of the JSON: a class member
+  is `array`, an enum member is its backing scalar, and a date member is `string`.
 - **The file passes PHPStan level 5.** It lands in the user's own project, so their
   analyser reads it. The operations table is a constant PHPStan knows exactly, so a method
   reads `$op['security']` only when the table has that entry, and passes `[]` otherwise.
@@ -53,7 +54,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   target with no class of its own (a plain `oneOf`) stays a raw array;
   **allOf** is flattened.
 - **Unions keep their types where PHP 8.1 can express them.** A union of scalars, enums,
-  classes, or arrays becomes a native union type (`int|string`, `PromotionType|array`)
+  classes, or arrays becomes a native union type (`int|string`, `string|array`)
   rather than collapsing to `mixed` — rich list filters are the common case and losing
   their types loses the point of a typed SDK. It falls back to `mixed` only when a member
   has no PHP type of its own (an inline object, an intersection, `unknown`), because

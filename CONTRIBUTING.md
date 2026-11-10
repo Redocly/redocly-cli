@@ -451,7 +451,7 @@ To add an entry:
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. It consists of six packages - CLI, core, respect-core, reunite-integration, client-generator, and recheck. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of six packages - CLI, core, respect-core, platform-integration, client-generator, and recheck. The codebase is written in Typescript.
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [in the README](./README.md) file.
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
@@ -468,7 +468,7 @@ To add an entry:
 
   - **`packages/respect-core`**: contains the Respect core package.
 
-  - **`packages/reunite-integration`**: contains everything that talks to the Redocly platform (Reunite) - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+  - **`packages/platform-integration`**: contains everything that talks to the Redocly platform - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 
   - **`packages/client-generator`**: contains the client and SDK generators.
 

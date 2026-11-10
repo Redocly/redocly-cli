@@ -1,5 +1,5 @@
 import { getLineColLocation, logger, xmlEscape } from '@redocly/openapi-core';
-import type { ScorecardProblem } from '@redocly/reunite-integration';
+import type { ScorecardProblem } from '@redocly/platform-integration';
 
 import { stripAnsiCodes } from '../../../utils/strip-ansi-codes.js';
 

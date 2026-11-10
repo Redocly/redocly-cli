@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import { RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { RedoclyOAuthClient } from '@redocly/platform-integration';
 
 export async function handleLogout({ version }: { version: string }) {
   const oauthClient = new RedoclyOAuthClient(version);

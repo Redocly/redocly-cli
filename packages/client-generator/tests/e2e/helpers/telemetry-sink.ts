@@ -1,7 +1,8 @@
 // An OTLP/HTTP traces endpoint for the usage telemetry tests. It answers the n-th request
 // with the n-th status of its list (the last one repeats), and keeps every request body.
-// The test decodes each body back into the events the TypeScript telemetry module would
-// hand a sink.
+// The test decodes each span into its attributes and compares them with what
+// @redocly/cli-otel, the owner of the event schema, gives for the expected event.
+import { CloudEvents, processCloudEventAttributes } from '@redocly/cli-otel';
 import { GENERATOR_VERSION } from '@redocly/client-generator';
 import * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -13,13 +14,8 @@ import { MockServer } from './mock-server.js';
 
 const fixture = join(dirname(fileURLToPath(import.meta.url)), '../fixtures/base.yaml');
 
-type UsageEvent = {
-  type: string;
-  source: string;
-  time: string;
-  usage: Record<string, string | number>;
-  sdk: Record<string, string>;
-};
+/** The attributes of one span, by key. */
+type SpanAttributes = Record<string, string | number>;
 
 type OtlpValue = { stringValue?: string; intValue?: number };
 type OtlpRequest = {
@@ -30,30 +26,7 @@ type OtlpRequest = {
   }>;
 };
 
-// The keys every event carries in every language, in the TypeScript module's order.
-const EVENT_ATTRIBUTE_KEYS = [
-  'cloudevents.event_id',
-  'cloudevents.event_type',
-  'cloudevents.event_source',
-  'cloudevents.event_spec_version',
-  'cloudevents.event_data_content_type',
-  'cloudevents.event_time',
-  'cloudevents.event_subject',
-  'cloudevents.event_origin',
-  'cloudevents.event_object',
-  'cloudevents.event_category',
-  'cloudevents.event_signal',
-];
-const USAGE_KEYS = ['operation_id', 'window_ms', 'calls', 'attempts', 'duration_sum_ms'];
-const SDK_KEYS = [
-  'name',
-  'version',
-  'generator_version',
-  'language',
-  'runtime',
-  'runtime_version',
-  'client',
-];
+const OPERATION_PREFIX = 'cloudevents.event_data.operation.';
 
 class TelemetrySink {
   /** The body of each request, in arrival order. */
@@ -90,67 +63,78 @@ class TelemetrySink {
   }
 }
 
-function decode(body: OtlpRequest): UsageEvent[] {
-  const events: UsageEvent[] = [];
+function decode(body: OtlpRequest): SpanAttributes[] {
+  const events: SpanAttributes[] = [];
   for (const span of body.resourceSpans[0].scopeSpans[0].spans) {
-    const keys: string[] = [];
-    const event: UsageEvent = { type: '', source: '', time: '', usage: {}, sdk: {} };
+    const attributes: SpanAttributes = {};
     for (const { key, value } of span.attributes) {
-      const decoded = value.stringValue ?? value.intValue ?? '';
-      if (key.startsWith('cloudevents.event_data.usage.')) {
-        event.usage[key.slice('cloudevents.event_data.usage.'.length)] = decoded;
-      } else if (key.startsWith('cloudevents.event_data.sdk.')) {
-        event.sdk[key.slice('cloudevents.event_data.sdk.'.length)] = String(decoded);
-      } else {
-        keys.push(key);
-      }
-      if (key === 'cloudevents.event_type') event.type = String(decoded);
-      if (key === 'cloudevents.event_source') event.source = String(decoded);
-      if (key === 'cloudevents.event_time') event.time = String(decoded);
+      attributes[key] = value.stringValue ?? value.intValue ?? '';
     }
-    expect(keys.sort()).toEqual([...EVENT_ATTRIBUTE_KEYS].sort());
-    events.push(event);
+    events.push(attributes);
   }
   return events;
 }
 
 /**
  * The event of two `listPets` calls, the first retried once after a `503`, registered as
- * `@acme/pets-sdk` 1.0.0 by `pets-worker/2.0.0`: the same shape in every language.
+ * `@acme/pets-sdk` 1.0.0 by `pets-worker/2.0.0`: the same attributes in every language.
  */
-function expectListPetsEvent(event: UsageEvent, language: string, runtime: string): void {
-  expect(event.type).toBe('com.redocly.sdkUsage.aggregated');
-  expect(event.source).toBe('@acme/pets-sdk');
-  expect(event.time).toMatch(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
+function expectListPetsEvent(sent: SpanAttributes, language: string, runtime: string): void {
+  expect(sent['cloudevents.event_id']).toMatch(/^evt_[0-9abcdefghjkmnpqrstvwxyz]{26}$/);
+  expect(sent['cloudevents.event_time']).toMatch(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
+  expect(typeof sent[`${OPERATION_PREFIX}window_ms`]).toBe('number');
+  expect(typeof sent[`${OPERATION_PREFIX}duration_sum_ms`]).toBe('number');
+  expect(sent['cloudevents.event_data.sdk.runtime_version']).not.toBe('');
 
-  const outcomeKeys = Object.keys(event.usage).filter(
-    (key) => key.startsWith('status_') || key.startsWith('latency_')
-  );
-  expect(Object.keys(event.usage).sort()).toEqual([...USAGE_KEYS, ...outcomeKeys].sort());
-  expect(event.usage).toMatchObject({
-    operation_id: 'listPets',
-    calls: 2,
-    attempts: 3,
-    status_2xx: 2,
-  });
+  // The run decides the window, the durations, and so the duration buckets of the calls.
+  const latency: SpanAttributes = {};
   let latencyCalls = 0;
-  for (const key of outcomeKeys) {
-    if (key.startsWith('latency_')) latencyCalls += Number(event.usage[key]);
+  for (const [key, value] of Object.entries(sent)) {
+    if (key.startsWith(`${OPERATION_PREFIX}latency_`)) {
+      latency[key.slice(OPERATION_PREFIX.length)] = value;
+      latencyCalls += Number(value);
+    }
   }
   expect(latencyCalls).toBe(2);
-  expect(typeof event.usage.window_ms).toBe('number');
-  expect(typeof event.usage.duration_sum_ms).toBe('number');
 
-  expect(Object.keys(event.sdk).sort()).toEqual([...SDK_KEYS].sort());
-  expect(event.sdk).toMatchObject({
-    name: '@acme/pets-sdk',
-    version: '1.0.0',
-    generator_version: GENERATOR_VERSION,
-    language,
-    runtime,
-    client: 'pets-worker/2.0.0',
+  const sdkUri = `urn:redocly:cli:sdk:${language}:@acme/pets-sdk`;
+  const event = CloudEvents.mapToCloudEvent({
+    type: 'com.redocly.sdkUsage.aggregated',
+    source: 'urn:redocly:cli',
+    origin: 'redocly-sdk',
+    category: 'product',
+    signal: 'metric',
+    data: [
+      {
+        id: 'listPets',
+        object: 'operation',
+        uri: `${sdkUri}:operation:listPets`,
+        window_ms: sent[`${OPERATION_PREFIX}window_ms`],
+        calls: 2,
+        attempts: 3,
+        duration_sum_ms: sent[`${OPERATION_PREFIX}duration_sum_ms`],
+        status_2xx: 2,
+        ...latency,
+      },
+      {
+        id: '@acme/pets-sdk',
+        object: 'sdk',
+        uri: sdkUri,
+        version: '1.0.0',
+        generator_version: GENERATOR_VERSION,
+        language,
+        runtime,
+        runtime_version: sent['cloudevents.event_data.sdk.runtime_version'],
+        client: 'pets-worker/2.0.0',
+      },
+    ],
   });
-  expect(event.sdk.runtime_version).not.toBe('');
+  const expected = processCloudEventAttributes(
+    { ...event, id: sent['cloudevents.event_id'] },
+    new Date(sent['cloudevents.event_time'])
+  );
+  // `toEqual` skips the attributes that the mapper leaves undefined, such as `env`.
+  expect(sent).toEqual(expected);
 }
 
 /**
@@ -163,7 +147,7 @@ export async function runTelemetryConsumer(
   args: (serverUrl: string, sinkUrl: string) => string[],
   statuses: number[],
   env: Record<string, string> = {}
-): Promise<UsageEvent[][]> {
+): Promise<SpanAttributes[][]> {
   let listPetsAttempts = 0;
   const server = await MockServer.start(fixture, {
     handlers: {
@@ -181,7 +165,7 @@ export async function runTelemetryConsumer(
     });
     expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
     expect(server.handlerErrors).toEqual([]);
-    const requests: UsageEvent[][] = [];
+    const requests: SpanAttributes[][] = [];
     for (const body of sink.requests) {
       requests.push(decode(JSON.parse(body)));
     }
@@ -194,7 +178,7 @@ export async function runTelemetryConsumer(
 
 /** The three runs every language test makes: a kept send, a dropped send, and the opt-out. */
 export function describeTelemetryRuns(
-  run: (statuses: number[], env?: Record<string, string>) => Promise<UsageEvent[][]>,
+  run: (statuses: number[], env?: Record<string, string>) => Promise<SpanAttributes[][]>,
   language: string,
   runtime: string
 ): void {
@@ -205,7 +189,7 @@ export function describeTelemetryRuns(
       expect(events).toHaveLength(1);
       expectListPetsEvent(events[0], language, runtime);
     }
-    expect(requests[1][0].time).toBe(requests[0][0].time);
+    expect(requests[1][0]['cloudevents.event_time']).toBe(requests[0][0]['cloudevents.event_time']);
   });
 
   it('drops the counts of a send answered 400', async () => {

@@ -16,10 +16,12 @@ export const SpecStrictRefs: Oas3Rule | Oas2Rule = () => {
   ];
 
   return {
-    any(_node, { report, rawNode, rawLocation, type }) {
-      const shouldCheck = !nodesToSkip.includes(type.name);
+    any(_node, { report, rawNode, rawLocation, type, specVersion }) {
+      // OAS 3.2 allows a Reference Object as a `content` entry
+      const isRefAllowed =
+        nodesToSkip.includes(type.name) || (type.name === 'MediaType' && specVersion === 'oas3_2');
 
-      if (shouldCheck && isRef(rawNode)) {
+      if (!isRefAllowed && isRef(rawNode)) {
         report({
           message: 'Field $ref is not expected here.',
           location: rawLocation.child('$ref').key(),

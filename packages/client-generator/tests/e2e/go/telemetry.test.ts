@@ -46,7 +46,11 @@ describe("generate-client go generator, telemetry: 'on' against a local OTLP sin
       [503, 200]
     );
     expect(requests).toHaveLength(2);
-    expect(requests[1][0].usage).toMatchObject({ operation_id: 'listPets', calls: 2, attempts: 3 });
+    expect(requests[1][0]).toMatchObject({
+      'cloudevents.event_data.operation.id': 'listPets',
+      'cloudevents.event_data.operation.calls': 2,
+      'cloudevents.event_data.operation.attempts': 3,
+    });
   });
 
   describeTelemetryRuns(

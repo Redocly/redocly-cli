@@ -105,7 +105,8 @@ these files). Naming and string escaping live in the TypeScript printer
 (`@redocly/client-generator/printers/typescript`).
 The telemetry middleware ships the same way, as `TELEMETRY_RUNTIME_SOURCE` (in this repo
 it lives in `telemetry/`); `index.ts` writes it with the contract import pointed at the
-client entry and the generator version baked in.
+client entry and the generator version baked in. The prepare script replaces its type import
+from `@redocly/cli-otel` with the declarations of the event type (ADR 0024).
 
 ## Ejecting it
 

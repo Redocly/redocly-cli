@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.24 (2026-11-05)
+
+### Patch Changes
+
+- Updated the new version notifier to request the latest Redocly CLI version from the npm registry over HTTPS.
+- Updated @redocly/openapi-core to v1.34.24.
+
 ## 1.34.23 (2026-11-02)
 
 ### Patch Changes

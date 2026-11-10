@@ -1,11 +1,11 @@
 import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
-import { fetchRemoteScorecardAndPlugins, validateScorecard } from '@redocly/reunite-integration';
+import { fetchRemoteScorecardAndPlugins, validateScorecard } from '@redocly/platform-integration';
 
 import { getAliasOrPath, getFallbackApisOrExit } from '../../../utils/miscellaneous.js';
 import { handleScorecardClassic } from '../index.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, fetchRemoteScorecardAndPlugins: vi.fn(), validateScorecard: vi.fn() };
 });
 vi.mock('../../../utils/miscellaneous.js', async () => {

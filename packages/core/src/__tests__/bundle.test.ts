@@ -338,6 +338,19 @@ describe('bundle', () => {
                       Test:
                         value:
                           id: 1
+              '201':
+                description: Created
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                    examples:
+                      Test:
+                        value:
+                          id: 1
       components: {}
     `);
   });

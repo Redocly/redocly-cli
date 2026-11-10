@@ -1,5 +1,5 @@
 import * as openapiCore from '@redocly/openapi-core';
-import type { ScorecardProblem } from '@redocly/reunite-integration';
+import type { ScorecardProblem } from '@redocly/platform-integration';
 
 import { printScorecardResults } from '../stylish-formatter.js';
 

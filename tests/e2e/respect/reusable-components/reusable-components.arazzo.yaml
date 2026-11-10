@@ -115,8 +115,11 @@ workflows:
 components:
   inputs:
     reusable-test:
-      type: string
+      type: object
       description: This is a reusable input component
+      properties:
+        reusable-test:
+          type: string
     buy_available_pet_input:
       type: object
       properties:

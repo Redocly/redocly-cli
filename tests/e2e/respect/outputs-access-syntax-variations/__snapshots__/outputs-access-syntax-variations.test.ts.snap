@@ -62,9 +62,92 @@ exports[`should resolve outputs access syntax variations 1`] = `
     ✓ content-type check
     ✓ schema check
     ✗ unexpected error
+ 
+ 
+  ✗ search-menu 
+    ✗ unexpected error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / order-attempt 
+ 
+  ✓ GET /menu - step list-menu-items 
 
-Failed to resolve output "itemsCount" in workflow "get-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.itemsCount'. 
-This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✗ create-order 
+    ✗ unexpected error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-menu-items-by-submitted-order 
+ 
+  ✗ get-menu-items-by-submitted-order 
+    ✗ unexpected error
+ 
+
+  Failed tests info:
+
+  Workflow name: get-menu-items
+ 
+    stepId - search-menu 
+    ✗ unexpected error 
+    Reason: Error in resolving runtime expression '$response.body#/page/total': JSON Pointer "/page/total" reaches no value. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
+    stepId - search-menu 
+    ✗ unexpected error 
+    Reason: Error in resolving runtime expression '$outputs.stepFullBody#/page/total': JSON Pointer "/page/total" reaches no value. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
+  Workflow name: order-attempt
+ 
+    stepId - create-order 
+    ✗ unexpected error 
+    Reason: Error in resolving runtime expression '$steps.list-menu-items.outputs.menuItems#/page/total': JSON Pointer "/page/total" reaches no value. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
+  Workflow name: get-menu-items-by-submitted-order
+ 
+    stepId - get-menu-items-by-submitted-order 
+    ✗ unexpected error 
+    Reason: Error in resolving runtime expression '$workflows.order-attempt.outputs.submittedOrder#/orderItems/0/comment': JSON Pointer "/orderItems/0/comment" reaches no value. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
+  Summary for outputs-access-syntax-variations.arazzo.yaml
+  
+  Workflows: 3 failed, 3 total
+  Steps: 2 passed, 4 failed, 6 total
+  Checks: 11 passed, 4 failed, 15 total
+  Time: <test>ms 
+ 
+ 
+┌──────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x outputs-access-syntax-variations.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
+└──────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
 
 
 Exit code: 1"

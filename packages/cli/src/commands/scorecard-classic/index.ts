@@ -15,7 +15,7 @@ import {
   type FetchRemoteScorecardAndPluginsParams,
   type RemoteScorecardAndPlugins,
   type ScorecardValidationResult,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import { blue, bold, cyan, gray, green, white } from 'colorette';
 import { dirname } from 'node:path';
 

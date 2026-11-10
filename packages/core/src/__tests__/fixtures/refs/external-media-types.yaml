@@ -8,3 +8,8 @@ paths:
           content:
             application/json:
               $ref: ./testMediaType.yaml
+        '201':
+          description: Created
+          content:
+            application/json:
+              $ref: ./openapi-with-media-types.yaml#/components/mediaTypes/Test

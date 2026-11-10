@@ -1,33 +1,7 @@
+import { CloudEvents, processCloudEventAttributes } from '@redocly/cli-otel';
+
 import type { Middleware, RequestContext, SettledCall } from '../../../../runtime-contract.js';
 import type { SdkUsageEvent } from '../telemetry.js';
-
-const CLI_ATTRIBUTE_NAMES = [
-  'cloudevents.event_id',
-  'cloudevents.event_type',
-  'cloudevents.event_source',
-  'cloudevents.event_spec_version',
-  'cloudevents.event_data_content_type',
-  'cloudevents.event_time',
-  'cloudevents.event_subject',
-  'cloudevents.event_origin',
-  'cloudevents.event_object',
-  'cloudevents.event_category',
-  'cloudevents.event_signal',
-  'cloudevents.event_data.usage.operation_id',
-  'cloudevents.event_data.usage.window_ms',
-  'cloudevents.event_data.usage.calls',
-  'cloudevents.event_data.usage.attempts',
-  'cloudevents.event_data.usage.duration_sum_ms',
-  'cloudevents.event_data.usage.status_2xx',
-  'cloudevents.event_data.usage.latency_lt_100ms',
-  'cloudevents.event_data.sdk.name',
-  'cloudevents.event_data.sdk.version',
-  'cloudevents.event_data.sdk.generator_version',
-  'cloudevents.event_data.sdk.language',
-  'cloudevents.event_data.sdk.runtime',
-  'cloudevents.event_data.sdk.runtime_version',
-  'cloudevents.event_data.sdk.client',
-];
 
 type OtlpSpan = {
   traceId: string;
@@ -98,7 +72,7 @@ describe('telemetry', () => {
     const abort = new DOMException('The operation was aborted.', 'AbortError');
     await settle(middleware, 'getOrder', { error: abort, attempts: 0, durationMs: 0 });
     await flush();
-    expect(windows[0][0].data.usage).toMatchObject({
+    expect(windows[0][0].data[0]).toMatchObject({
       calls: 3,
       attempts: 4,
       status_network_error: 1,
@@ -121,7 +95,7 @@ describe('telemetry', () => {
     const abort = new DOMException('The operation was aborted.', 'AbortError');
     await settle(middleware, 'getOrder', { error: abort, attempts: 0, durationMs: 0 });
     await flush();
-    expect(windows[0][0].data.usage).toMatchObject({
+    expect(windows[0][0].data[0]).toMatchObject({
       calls: 2,
       attempts: 2,
       status_2xx: 1,
@@ -140,17 +114,15 @@ describe('telemetry', () => {
     await vi.advanceTimersByTimeAsync(60_000);
     expect(windows).toHaveLength(1);
     expect(windows[0][0].time).toBe('2026-10-20T09:14:00.000Z');
-    expect(windows[0][0].data.usage.window_ms).toBe(60_000);
-    expect(
-      windows[0].map((event) => [event.data.usage.operation_id, event.data.usage.calls])
-    ).toEqual([
+    expect(windows[0][0].data[0].window_ms).toBe(60_000);
+    expect(windows[0].map((event) => [event.data[0].id, event.data[0].calls])).toEqual([
       ['getOrder', 2],
       ['listOrders', 1],
     ]);
 
     await settle(middleware, 'getOrder', ok);
     await vi.advanceTimersByTimeAsync(60_000);
-    expect(windows[1].map((event) => event.data.usage.calls)).toEqual([1]);
+    expect(windows[1].map((event) => event.data[0].calls)).toEqual([1]);
   });
 
   it('sends nothing for an empty window and starts no timer while idle', async () => {
@@ -259,7 +231,7 @@ describe('telemetry failed send', () => {
     return bodies;
   }
 
-  const USAGE_PREFIX = 'cloudevents.event_data.usage.';
+  const OPERATION_PREFIX = 'cloudevents.event_data.operation.';
 
   function sentUsage(body: OtlpRequest): Array<Record<string, unknown>> {
     const usages: Array<Record<string, unknown>> = [];
@@ -268,8 +240,8 @@ describe('telemetry failed send', () => {
       for (const attribute of span.attributes) {
         if (attribute.key === 'cloudevents.event_time') {
           usage.time = attribute.value.stringValue;
-        } else if (attribute.key.startsWith(USAGE_PREFIX)) {
-          const name = attribute.key.slice(USAGE_PREFIX.length);
+        } else if (attribute.key.startsWith(OPERATION_PREFIX)) {
+          const name = attribute.key.slice(OPERATION_PREFIX.length);
           usage[name] = attribute.value.intValue ?? attribute.value.stringValue;
         }
       }
@@ -303,7 +275,9 @@ describe('telemetry failed send', () => {
     expect(sentUsage(bodies[1])).toEqual([
       {
         time: '2026-10-20T09:14:00.000Z',
-        operation_id: 'getInvoice',
+        id: 'getInvoice',
+        object: 'operation',
+        uri: 'urn:redocly:cli:sdk:typescript:@acme/billing-sdk:operation:getInvoice',
         window_ms: 120_000,
         calls: 3,
         attempts: 4,
@@ -449,8 +423,8 @@ describe('telemetry failed send', () => {
       expect(body.resourceSpans[0].scopeSpans[0].spans).toHaveLength(2);
     }
     expect(sentUsage(bodies[10])).toMatchObject([
-      { operation_id: 'getOrder', calls: 10, window_ms: 660_000 },
-      { operation_id: 'listOrders', calls: 10, window_ms: 660_000 },
+      { id: 'getOrder', calls: 10, window_ms: 660_000 },
+      { id: 'listOrders', calls: 10, window_ms: 660_000 },
     ]);
   });
 });
@@ -474,7 +448,7 @@ describe('telemetry default sink', () => {
     return { bodies, urls };
   }
 
-  it('posts OTLP/JSON spans with the collector attribute names under service.name redocly-sdk', async () => {
+  it('posts OTLP/JSON spans with the attributes that @redocly/cli-otel gives for the event', async () => {
     const { bodies, urls } = fetchSpy();
     const { telemetry, flush } = await loadTelemetry();
     const middleware = telemetry(identity);
@@ -495,15 +469,49 @@ describe('telemetry default sink', () => {
     expect(spans).toHaveLength(1);
     expect(spans[0].name).toBe('event.com.redocly.sdkUsage.aggregated');
     expect(spans[0].startTimeUnixNano).toBe(spans[0].endTimeUnixNano);
-    expect(spans[0].attributes.map((attribute) => attribute.key)).toEqual(CLI_ATTRIBUTE_NAMES);
-    const values = new Map<string, unknown>();
-    for (const attribute of spans[0].attributes) values.set(attribute.key, attribute.value);
-    expect(values.get('cloudevents.event_data_content_type')).toEqual({
-      stringValue: 'application/json; charset=utf-8',
+    const sent: Record<string, unknown> = {};
+    for (const attribute of spans[0].attributes) {
+      sent[attribute.key] = attribute.value.stringValue ?? attribute.value.intValue;
+    }
+    expect(sent['cloudevents.event_id']).toMatch(/^evt_[0-9abcdefghjkmnpqrstvwxyz]{26}$/);
+    const sdkUri = 'urn:redocly:cli:sdk:typescript:@acme/billing-sdk';
+    const event = CloudEvents.mapToCloudEvent({
+      type: 'com.redocly.sdkUsage.aggregated',
+      source: 'urn:redocly:cli',
+      origin: 'redocly-sdk',
+      category: 'product',
+      signal: 'metric',
+      data: [
+        {
+          id: 'getOrder',
+          object: 'operation',
+          uri: `${sdkUri}:operation:getOrder`,
+          window_ms: sent['cloudevents.event_data.operation.window_ms'],
+          calls: 1,
+          attempts: 1,
+          duration_sum_ms: 10,
+          status_2xx: 1,
+          latency_lt_100ms: 1,
+        },
+        {
+          id: '@acme/billing-sdk',
+          object: 'sdk',
+          uri: sdkUri,
+          version: '3.2.0',
+          generator_version: 'dev',
+          language: 'typescript',
+          runtime: 'node',
+          runtime_version: process.versions.node,
+          client: 'worker/1.8.4',
+        },
+      ],
     });
-    expect(values.get('cloudevents.event_origin')).toEqual({ stringValue: 'redocly-sdk' });
-    expect(values.get('cloudevents.event_category')).toEqual({ stringValue: 'product' });
-    expect(values.get('cloudevents.event_signal')).toEqual({ stringValue: 'metric' });
+    const expected = processCloudEventAttributes(
+      { ...event, id: sent['cloudevents.event_id'] },
+      new Date(String(sent['cloudevents.event_time']))
+    );
+    // `toEqual` skips the attributes that the mapper leaves undefined, such as `env`.
+    expect(sent).toEqual(expected);
     expect(JSON.stringify(spans[0])).not.toContain('api.example.com');
   });
 

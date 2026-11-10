@@ -1,6 +1,6 @@
 import { md5 } from '@noble/hashes/legacy.js';
 import { sha256 } from '@noble/hashes/sha2.js';
-import { bytesToHex } from '@noble/hashes/utils';
+import { bytesToHex, randomBytes } from '@noble/hashes/utils';
 
 const DEFAULT_ALGORITHM = 'MD5';
 const DEFAULT_NC = '00000001';
@@ -25,7 +25,6 @@ type RequiredDigestAuthParams = {
   realm: string;
   nonce: string;
   qop: string;
-  opaque: string;
   uri: string;
   method: string;
 };
@@ -35,7 +34,7 @@ export function generateDigestAuthHeader({
   password,
   nonce,
   realm,
-  cnonce,
+  cnonce = bytesToHex(randomBytes(16)),
   algorithm = DEFAULT_ALGORITHM,
   qop,
   nc = DEFAULT_NC,
@@ -44,13 +43,16 @@ export function generateDigestAuthHeader({
   method,
   bodyContent = '',
 }: DigestAuthType & { uri: string; method: string; bodyContent?: string }) {
+  // The server can offer several qop values, the client answers with one of them
+  const qopOptions = qop?.split(',').map((option) => option.trim()) ?? [];
+  const selectedQop = qopOptions.includes('auth') ? 'auth' : qopOptions[0];
+
   const requiredParams = {
     username,
     password,
     realm,
     nonce,
-    qop,
-    opaque,
+    qop: selectedQop,
     uri,
     method,
   };
@@ -76,7 +78,7 @@ export function generateDigestAuthHeader({
     `realm="${realm}"`,
     `nonce="${nonce}"`,
     `uri="${uri}"`,
-    `qop=${qop}`,
+    `qop=${selectedQop}`,
     `nc=${nc}`,
     `cnonce="${cnonce}"`,
     `response="${response}"`,
