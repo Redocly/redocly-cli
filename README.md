@@ -46,7 +46,10 @@ For more options, see [Install Redocly CLI](https://redocly.com/docs/cli/install
 
 Lint, design tests with AI, and test the live API:
 
-![Redocly CLI lints a multi-file API description, designs test workflows with AI, and tests a live API.](./media/demo.gif)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./media/demo-dark.gif">
+  <img alt="Redocly CLI lints a multi-file API description, designs test workflows with AI, and tests a live API." src="./media/demo-light.gif" width="100%">
+</picture>
 
 ### Lint to your API style guide
 
