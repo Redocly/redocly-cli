@@ -57,6 +57,7 @@ function makeTestMetrics(overrides: Partial<OperationMetrics> = {}): OperationMe
     constraintCount: 0,
     requestExamplePresent: false,
     responseExamplePresent: true,
+    responseBodyPresent: true,
     structuredErrorResponseCount: 0,
     totalErrorResponses: 0,
     ambiguousIdentifierCount: 0,

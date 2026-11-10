@@ -5,6 +5,7 @@ import type { ScoreResult } from '../types.js';
 export function printScoreJson(result: ScoreResult): void {
   const output = {
     agentReadiness: result.agentReadiness,
+    reachableScore: result.reachableScore,
     discoverability: Math.round(result.discoverability * 100),
     subscores: result.subscores,
     rawMetrics: {
@@ -19,6 +20,8 @@ export function printScoreJson(result: ScoreResult): void {
     operationScores: Object.fromEntries(result.operationScores),
     dependencyDepths: Object.fromEntries(result.dependencyDepths),
     hotspots: result.hotspots,
+    recommendations: result.recommendations,
+    designFindings: result.designFindings,
   };
 
   logger.output(JSON.stringify(output, null, 2));

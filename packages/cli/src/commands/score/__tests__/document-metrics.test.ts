@@ -191,6 +191,36 @@ describe('collectDocumentMetrics', () => {
     expect(op.structuredErrorResponseCount).toBe(3);
   });
 
+  it('records whether any response of an operation declares a body', async () => {
+    const { metrics } = await collectDocumentMetrics(
+      yaml(outdent`
+        openapi: 3.1.0
+        info:
+          title: Redocly Cafe
+          version: 1.0.0
+        paths:
+          /orders/{orderId}:
+            get:
+              operationId: getOrder
+              responses:
+                '200':
+                  description: Order details.
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+            delete:
+              operationId: cancelOrder
+              responses:
+                '204':
+                  description: Order cancelled.
+      `)
+    );
+
+    expect(metrics.operations.get('getOrder')!.responseBodyPresent).toBe(true);
+    expect(metrics.operations.get('cancelOrder')!.responseBodyPresent).toBe(false);
+  });
+
   it('treats OpenAPI 3.1 wildcard error codes 4XX and 5XX as errors', async () => {
     const { metrics } = await collectDocumentMetrics(
       yaml(outdent`

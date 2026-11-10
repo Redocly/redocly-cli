@@ -1,8 +1,18 @@
-import { logger } from '@redocly/openapi-core';
+import { logger, pluralize } from '@redocly/openapi-core';
 import { bold, cyan, green, red, white, yellow } from 'colorette';
 
-import type { DebugMediaTypeLog, ScoreResult } from '../types.js';
+import type { DebugMediaTypeLog, RecommendationKind, ScoreResult } from '../types.js';
 import { median } from '../utils.js';
+
+const RECOMMENDATION_LABELS: Record<RecommendationKind, string> = {
+  constraint: 'Add constraints to schema properties',
+  'operation-description': 'Add descriptions to operations',
+  'parameter-description': 'Add descriptions to parameters',
+  'property-description': 'Add descriptions to schema properties',
+  'request-example': 'Add request body examples',
+  'response-example': 'Add response examples',
+  'structured-error': 'Add structured error responses',
+};
 
 export function printScoreStylish(result: ScoreResult, operationDetails = false): void {
   printScores(result);
@@ -10,6 +20,7 @@ export function printScoreStylish(result: ScoreResult, operationDetails = false)
   printRawMetricsSummary(result);
   if (operationDetails) printOperationDetails(result);
   printHotspots(result);
+  printRecommendations(result);
 }
 
 function scoreColor(score: number): (text: string) => string {
@@ -31,6 +42,9 @@ function printScores(result: ScoreResult): void {
   out(bold(white('  Scores')));
   out('');
   out(`  Agent Readiness:  ${formatScore(result.agentReadiness)}/100`);
+  if (result.reachableScore !== undefined) {
+    out(`  Reachable:        ${formatScore(result.reachableScore)}/100 with every safe edit`);
+  }
   out('');
 }
 
@@ -274,4 +288,29 @@ function printHotspots(result: ScoreResult): void {
     }
     out('');
   }
+}
+
+function printRecommendations({ recommendations, designFindings }: ScoreResult): void {
+  if (!recommendations || !designFindings) return;
+
+  out(bold(white('  Recommendations')));
+  out('');
+  if (recommendations.length === 0) out('  No edits to recommend.');
+  for (const recommendation of recommendations) {
+    const impact = green(`+${recommendation.impact.toFixed(1)}`.padStart(5));
+    const operations = pluralize('operation', recommendation.operations.length, true);
+    out(`  ${impact}  ${RECOMMENDATION_LABELS[recommendation.kind]} (${operations})`);
+    if (!recommendation.safe) {
+      out(yellow('         Contract risk: add only the constraints the API already enforces.'));
+    }
+  }
+  out('');
+
+  out(bold(white('  Design findings')));
+  out('');
+  if (designFindings.length === 0) out('  No design findings.');
+  for (const finding of designFindings) {
+    out(`  ${finding.reason} (${pluralize('operation', finding.operations.length, true)})`);
+  }
+  out('');
 }

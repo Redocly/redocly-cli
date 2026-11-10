@@ -203,6 +203,6 @@ export function aggregateSubscores(
   return result;
 }
 
-function round(value: number): number {
+export function round(value: number): number {
   return Math.round(value * 10) / 10;
 }

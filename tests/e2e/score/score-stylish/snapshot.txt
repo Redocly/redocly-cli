@@ -38,5 +38,6 @@ Document: museum.yaml score:
 
 museum.yaml: score processed in <test>ms
 
+Learn how to improve the score: https://redocly.com/docs/cli/commands/score?source=cli
 
 Exit code: 0

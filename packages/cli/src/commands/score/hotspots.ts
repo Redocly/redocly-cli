@@ -2,6 +2,7 @@ import { DEFAULT_SCORING_CONSTANTS } from './constants.js';
 import type {
   DocumentMetrics,
   HotspotOperation,
+  HotspotReason,
   OperationMetrics,
   OperationScores,
   ScoringConstants,
@@ -27,7 +28,7 @@ export function selectTopHotspots(
       method: metrics.method,
       operationId: metrics.operationId,
       agentReadinessScore: scores.agentReadiness,
-      reasons,
+      reasons: reasons.map(({ reason, detail }) => (detail ? `${reason} (${detail})` : reason)),
     });
   }
 
@@ -39,58 +40,82 @@ export function selectTopHotspots(
   return entries.slice(0, constants.hotspotLimit);
 }
 
-function getHotspotReasons(
+export function getHotspotReasons(
   metrics: OperationMetrics,
   dependencyDepth: number,
-  constants: ScoringConstants
-): string[] {
+  constants: ScoringConstants = DEFAULT_SCORING_CONSTANTS
+): HotspotReason[] {
   const { thresholds } = constants;
-  const reasons: string[] = [];
+  const reasons: HotspotReason[] = [];
 
   if (metrics.parameterCount > thresholds.maxParamsGood) {
-    reasons.push(`High parameter count (${metrics.parameterCount})`);
+    reasons.push({
+      subscore: 'parameterSimplicity',
+      reason: 'High parameter count',
+      detail: `${metrics.parameterCount}`,
+    });
   }
 
   const maxDepth = Math.max(metrics.maxRequestSchemaDepth, metrics.maxResponseSchemaDepth);
   if (maxDepth > thresholds.maxDepthGood) {
-    reasons.push(`Deep schema nesting (depth ${maxDepth})`);
+    reasons.push({
+      subscore: 'schemaSimplicity',
+      reason: 'Deep schema nesting',
+      detail: `depth ${maxDepth}`,
+    });
   }
 
   if (metrics.anyOfCount > 0 && !metrics.hasDiscriminator) {
-    reasons.push(`Polymorphism (anyOf) without discriminator (${metrics.anyOfCount} anyOf)`);
+    reasons.push({
+      subscore: 'polymorphismClarity',
+      reason: 'Polymorphism (anyOf) without discriminator',
+      detail: `${metrics.anyOfCount} anyOf`,
+    });
   } else if (metrics.polymorphismCount > thresholds.maxPolymorphismGood) {
-    reasons.push(`High polymorphism count (${metrics.polymorphismCount})`);
+    reasons.push({
+      subscore: 'polymorphismClarity',
+      reason: 'High polymorphism count',
+      detail: `${metrics.polymorphismCount}`,
+    });
   }
 
   const missingReqExample = metrics.requestBodyPresent && !metrics.requestExamplePresent;
   const missingResExample = !metrics.responseExamplePresent;
 
   if (missingReqExample && missingResExample) {
-    reasons.push('Missing request and response examples');
+    reasons.push({ subscore: 'exampleCoverage', reason: 'Missing request and response examples' });
   } else if (missingReqExample) {
-    reasons.push('Missing request body examples');
+    reasons.push({ subscore: 'exampleCoverage', reason: 'Missing request body examples' });
   } else if (missingResExample) {
-    reasons.push('Missing response examples');
+    reasons.push({ subscore: 'exampleCoverage', reason: 'Missing response examples' });
   }
 
   if (metrics.totalErrorResponses > 0 && metrics.structuredErrorResponseCount === 0) {
-    reasons.push('No structured error responses (4xx/5xx)');
+    reasons.push({ subscore: 'errorClarity', reason: 'No structured error responses (4xx/5xx)' });
   }
 
   if (!metrics.operationDescriptionPresent) {
-    reasons.push('Missing operation description');
+    reasons.push({ subscore: 'documentationQuality', reason: 'Missing operation description' });
   }
 
   if (metrics.parameterCount > 0 && metrics.paramsWithDescription === 0) {
-    reasons.push('No parameter descriptions');
+    reasons.push({ subscore: 'documentationQuality', reason: 'No parameter descriptions' });
   }
 
   if (dependencyDepth > thresholds.maxDependencyDepthGood) {
-    reasons.push(`High dependency depth (${dependencyDepth})`);
+    reasons.push({
+      subscore: 'dependencyClarity',
+      reason: 'High dependency depth',
+      detail: `${dependencyDepth}`,
+    });
   }
 
   if (metrics.ambiguousIdentifierCount > thresholds.maxAmbiguousGood) {
-    reasons.push(`Ambiguous identifiers (${metrics.ambiguousIdentifierCount})`);
+    reasons.push({
+      subscore: 'identifierClarity',
+      reason: 'Ambiguous identifiers',
+      detail: `${metrics.ambiguousIdentifierCount}`,
+    });
   }
 
   return reasons;

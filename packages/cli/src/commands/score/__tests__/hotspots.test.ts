@@ -22,6 +22,7 @@ function makeMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetric
     constraintCount: 0,
     requestExamplePresent: false,
     responseExamplePresent: true,
+    responseBodyPresent: true,
     structuredErrorResponseCount: 0,
     totalErrorResponses: 0,
     ambiguousIdentifierCount: 0,

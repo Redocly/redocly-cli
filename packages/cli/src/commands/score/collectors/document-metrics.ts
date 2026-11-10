@@ -207,6 +207,7 @@ interface CurrentOperationContext {
   requestBodyPresent: boolean;
   requestExamplePresent: boolean;
   responseExamplePresent: boolean;
+  responseBodyPresent: boolean;
   structuredErrorResponseCount: number;
   totalErrorResponses: number;
 
@@ -280,6 +281,7 @@ function createOperationContext(
     requestBodyPresent: false,
     requestExamplePresent: false,
     responseExamplePresent: false,
+    responseBodyPresent: false,
     structuredErrorResponseCount: 0,
     totalErrorResponses: 0,
 
@@ -329,6 +331,7 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
         current.inResponse = true;
         current.currentResponseCode = code;
         current.errorStructuredCounted = false;
+        if (isNotEmptyObject(response.content)) current.responseBodyPresent = true;
 
         if (isErrorCode(code)) {
           current.totalErrorResponses++;

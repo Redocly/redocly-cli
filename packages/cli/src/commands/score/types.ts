@@ -24,6 +24,7 @@ export interface OperationMetrics {
 
   requestExamplePresent: boolean;
   responseExamplePresent: boolean;
+  responseBodyPresent: boolean;
 
   structuredErrorResponseCount: number;
   totalErrorResponses: number;
@@ -63,6 +64,43 @@ export interface HotspotOperation {
   reasons: string[];
 }
 
+export interface HotspotReason {
+  subscore: keyof Subscores;
+  reason: string;
+  detail?: string;
+}
+
+export type RecommendationKind =
+  | 'constraint'
+  | 'operation-description'
+  | 'parameter-description'
+  | 'property-description'
+  | 'request-example'
+  | 'response-example'
+  | 'structured-error';
+
+export interface OperationRef {
+  method: string;
+  path: string;
+  operationId?: string;
+}
+
+export interface Recommendation {
+  id: string;
+  kind: RecommendationKind;
+  subscore: keyof Subscores;
+  impact: number;
+  count: number;
+  operations: OperationRef[];
+  safe: boolean;
+}
+
+export interface DesignFinding {
+  subscore: keyof Subscores;
+  reason: string;
+  operations: OperationRef[];
+}
+
 export interface ScoreResult {
   agentReadiness: number;
   discoverability: number;
@@ -71,6 +109,9 @@ export interface ScoreResult {
   hotspots: HotspotOperation[];
   operationScores: Map<string, OperationScores>;
   dependencyDepths: Map<string, number>;
+  reachableScore?: number;
+  recommendations?: Recommendation[];
+  designFindings?: DesignFinding[];
 }
 
 export interface ScoringThresholds {

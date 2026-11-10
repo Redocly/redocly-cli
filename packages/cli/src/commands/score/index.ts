@@ -20,6 +20,7 @@ import { computeDependencyDepths } from './collectors/dependency-graph.js';
 import { printScoreJson } from './formatters/json.js';
 import { printDebugOperation, printScoreStylish } from './formatters/stylish.js';
 import { selectTopHotspots } from './hotspots.js';
+import { getRecommendations } from './recommendations.js';
 import {
   aggregateSubscores,
   computeAllOperationScores,
@@ -28,11 +29,14 @@ import {
 } from './scoring.js';
 import type { DebugMediaTypeLog, ScoreResult } from './types.js';
 
+const SCORE_DOCS_URL = 'https://redocly.com/docs/cli/commands/score?source=cli';
+
 export type ScoreArgv = {
   api?: string;
   format: OutputFormat;
   'operation-details'?: boolean;
   'debug-operation-id'?: string;
+  recommendations?: boolean;
 };
 
 export async function handleScore({ argv, config, collectSpecData }: CommandArgs<ScoreArgv>) {
@@ -83,6 +87,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
     hotspots,
     operationScores,
     dependencyDepths,
+    ...(argv.recommendations ? getRecommendations(rawMetrics, dependencyDepths) : {}),
   };
 
   printScore(
@@ -120,4 +125,8 @@ function printScore(
   }
 
   printExecutionTime('score', startedAt, api);
+
+  if (format !== 'json') {
+    logger.info(`Learn how to improve the score: ${SCORE_DOCS_URL}\n`);
+  }
 }

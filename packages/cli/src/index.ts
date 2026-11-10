@@ -220,6 +220,11 @@ yargs(hideBin(process.argv))
             description: 'Print detailed schema breakdown for a specific operation.',
             type: 'string' as const,
           },
+          recommendations: {
+            description: 'Rank the edits that raise the score by their simulated impact.',
+            type: 'boolean' as const,
+            default: false,
+          },
         }),
     async (argv) => {
       const { handleScore } = await import('./commands/score/index.js');

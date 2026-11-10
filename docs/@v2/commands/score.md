@@ -52,11 +52,36 @@ The command identifies the operations with the lowest scores and provides reason
 - "No structured error responses (4xx/5xx)"
 - "Missing operation description"
 
+### Recommendations
+
+With `--recommendations`, the command ranks the edits that raise the score by their simulated impact.
+Each recommendation names one kind of edit, the subscore it moves, the number of places it fixes, and the operations it touches.
+
+| Kind                    | Edit                                                                                        | Subscore               |
+| ----------------------- | ------------------------------------------------------------------------------------------- | ---------------------- |
+| `operation-description` | Add a description to each operation.                                                        | `documentationQuality` |
+| `parameter-description` | Add a description to each parameter. A parameter with a description is no longer ambiguous. | `documentationQuality` |
+| `property-description`  | Add a description to each schema property.                                                  | `documentationQuality` |
+| `request-example`       | Add an example to each request body.                                                        | `exampleCoverage`      |
+| `response-example`      | Add an example to the responses of each operation that declares a response body.            | `exampleCoverage`      |
+| `structured-error`      | Add a schema or a description to each 4xx and 5xx response.                                 | `errorClarity`         |
+| `constraint`            | Add constraints, such as `enum`, `format`, or `maxLength`, to schema properties.            | `constraintClarity`    |
+
+The impact of a recommendation is the score change from that edit alone, so the impacts don't add up.
+The **reachable** score is the score with every safe edit made together.
+A constraint is not a safe edit: a constraint that the API doesn't enforce narrows its contract.
+Add only the constraints that the API already enforces; the reachable score leaves them out.
+
+The command simulates the edits on the collected metrics and never changes your files.
+
+**Design findings** list the structural problems that no documentation edit fixes, such as a high parameter count, deep schema nesting, polymorphism, or a high dependency depth.
+Each finding names the operations it affects.
+
 ## Usage
 
 ```bash
 redocly score <api>
-redocly score <api> [--format=<option>]
+redocly score <api> [--format=<option>] [--recommendations]
 ```
 
 ## Options
@@ -68,6 +93,7 @@ redocly score <api> [--format=<option>]
 | --format             | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                |
 | --operation-details  | boolean | Print a per-operation metrics table sorted by property count.                                                                                  |
 | --debug-operation-id | string  | Print a detailed schema breakdown for a specific operation (by `operationId` or `METHOD /path`).                                               |
+| --recommendations    | boolean | Rank the edits that raise the score by their simulated impact. Refer to [Recommendations](#recommendations).                                   |
 | --help               | boolean | Show help.                                                                                                                                     |
 | --lint-config        | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.             |
 
@@ -85,7 +111,8 @@ redocly score openapi/openapi.yaml
 
 #### Stylish output (default)
 
-The default output format shows a human-readable summary in your terminal:
+The default output format shows a human-readable summary in your terminal.
+It ends with a link to this page.
 
 ```sh
   Scores
@@ -128,5 +155,38 @@ redocly score openapi.yaml --format=json
 ```
 
 The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, dependency depths, and hotspot details with reasoning.
+It leaves out the link to this page, so the output stays valid JSON.
 
 The JSON format is suitable for CI pipelines, quality gates, or feeding results into dashboards.
+
+### Rank the edits that raise the score
+
+```bash
+redocly score openapi.yaml --recommendations
+```
+
+The output adds the reachable score below the Agent Readiness score, and the recommendations and design findings after the hotspots:
+
+```sh
+  Agent Readiness:  75.6/100
+  Reachable:        81.8/100 with every safe edit
+
+  ...
+
+  Recommendations
+
+   +3.7  Add descriptions to operations (10 operations)
+   +3.0  Add constraints to schema properties (13 operations)
+         Contract risk: add only the constraints the API already enforces.
+   +2.0  Add descriptions to schema properties (12 operations)
+   +1.3  Add request body examples (3 operations)
+   +1.3  Add response examples (3 operations)
+   +0.8  Add descriptions to parameters (1 operation)
+
+  Design findings
+
+  Deep schema nesting (8 operations)
+  High polymorphism count (8 operations)
+```
+
+With `--format=json`, the output adds three fields: `reachableScore`, `recommendations` sorted by impact, and `designFindings`.
