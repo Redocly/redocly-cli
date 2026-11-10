@@ -74,7 +74,13 @@ Add only the constraints that the API already enforces; the reachable score leav
 
 The command simulates the edits on the collected metrics and never changes your files.
 
-**Design findings** list the structural problems that no documentation edit fixes, such as a high parameter count, deep schema nesting, polymorphism, or a high dependency depth.
+**Design findings** list the structural problems that no documentation edit fixes, such as:
+
+- high parameter count
+- deep schema nesting
+- polymorphism
+- high dependency depth
+
 Each finding names the operations it affects.
 
 ## Usage
