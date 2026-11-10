@@ -8,6 +8,19 @@
     "openapi": "bin/cli.js"
   },
   "type": "module",
+  "imports": {
+    "#eject-assets/*": "./lib/eject-assets/*",
+    "#redoc.standalone.js": "./lib/chunks/redoc.standalone.js",
+    "#skills/*": "./lib/skills/*"
+  },
+  "redocly": {
+    "bundledSkills": [
+      "recheck-config",
+      "recheck-lint",
+      "redocly-cli",
+      "redocly-lint-rules"
+    ]
+  },
   "engines": {
     "node": ">=22.12.0 || >=20.19.0 <21.0.0",
     "npm": ">=10"
