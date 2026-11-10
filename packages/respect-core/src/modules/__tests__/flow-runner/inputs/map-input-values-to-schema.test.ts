@@ -1,6 +1,29 @@
 import { resolveInputValuesToSchema } from '../../../flow-runner/index.js';
 
 describe('resolveInputValuesToSchema', () => {
+  it('should report the problems left after defaults, coercion and removal of extra values', () => {
+    const schema = {
+      type: 'object',
+      required: ['search', 'customerName', 'limit'],
+      properties: {
+        search: { type: 'string', default: 'latte' },
+        customerName: { type: 'string' },
+        limit: { type: 'integer', maximum: 10 },
+      },
+    };
+    const onInvalid = vi.fn();
+
+    expect(
+      resolveInputValuesToSchema({ limit: '20', extra: 'ignored' }, schema, onInvalid)
+    ).toEqual({
+      search: 'latte',
+      limit: 20,
+    });
+    expect(onInvalid).toHaveBeenCalledWith(
+      "inputs must have required property 'customerName', inputs/limit must be <= 10"
+    );
+  });
+
   it('should return empty object if values is empty', () => {
     const schema = {
       type: 'object',
