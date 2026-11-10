@@ -159,7 +159,7 @@ To install every skill that Redocly publishes, use `npx skills add https://redoc
 <a href="https://redocly.com/pricing">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./media/platform-dark.svg">
-    <img alt="Redocly Platform: publish what you lint. Interactive API docs, a mock server, and an API catalog, published from your Git repository. Start a free trial." src="./media/platform-light.svg" width="100%">
+    <img alt="Redocly Platform: publish what you lint. Interactive API docs, a mock server, and an API catalog, published from your Git repository. Start a 30-day free trial." src="./media/platform-light.svg" width="100%">
   </picture>
 </a>
 
