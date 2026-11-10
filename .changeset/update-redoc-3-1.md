@@ -2,4 +2,4 @@
 '@redocly/cli': minor
 ---
 
-Updated the `build-docs` command to Redoc 3.1.
+Updated redoc to v3.1.0.
