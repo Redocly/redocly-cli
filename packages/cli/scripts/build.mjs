@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const { redocly } = JSON.parse(readFileSync(path.join(packageDir, 'package.json'), 'utf-8'));
 
 rmSync(path.join(packageDir, 'lib'), { recursive: true, force: true });
 
@@ -117,7 +118,7 @@ cpSync(
   path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js')
 );
 
-for (const skill of ['redocly-cli', 'redocly-lint-rules', 'recheck-lint', 'recheck-config']) {
+for (const skill of redocly.bundledSkills) {
   cpSync(
     path.join(packageDir, '..', '..', '.claude', 'skills', skill, 'SKILL.md'),
     path.join(packageDir, 'lib', 'skills', skill, 'SKILL.md')

@@ -197,7 +197,7 @@ describe('build-docs', () => {
       Found nested/redocly.yaml and using 'openapi' options
       Prerendering docs
 
-      🎉 bundled successfully in: nested/redoc-static.html (244 KiB) [⏱ <test>ms].
+      🎉 bundled successfully in: nested/redoc-static.html (265 KiB) [⏱ <test>ms].
 
       Exit code: 0"
     `);
@@ -234,7 +234,7 @@ describe('build-docs', () => {
 
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
 
         Exit code: 0"
       `);
@@ -266,7 +266,7 @@ describe('build-docs', () => {
         Found config.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
 
         Exit code: 0"
       `);
@@ -297,7 +297,7 @@ describe('build-docs', () => {
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
 
         Exit code: 0"
       `);
@@ -328,7 +328,7 @@ describe('build-docs', () => {
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
 
         Exit code: 0"
       `);
@@ -359,7 +359,7 @@ describe('build-docs', () => {
         Found config-with-apis-and-root-option.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
 
         Exit code: 0"
       `);

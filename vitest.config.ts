@@ -1,5 +1,8 @@
 import { defineConfig } from 'vitest/config';
 
+// The unit tests expect colors, and a `NO_COLOR` from the shell would win over `FORCE_COLOR`.
+delete process.env.NO_COLOR;
+
 export default defineConfig({
   test: {
     globals: true,

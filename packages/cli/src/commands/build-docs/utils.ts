@@ -154,7 +154,7 @@ function readTemplate(templatePath: string): string {
   }
 }
 
-const redocStandalonePath = fileURLToPath(new URL('./redoc.standalone.js', import.meta.url));
+const redocStandalonePath = fileURLToPath(import.meta.resolve('#redoc.standalone.js'));
 
 function getRedocStandaloneSri(): string {
   const hash = createHash('sha384').update(readFileSync(redocStandalonePath)).digest('base64');

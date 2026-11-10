@@ -89,7 +89,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
             'Response',
             'Example',
             'RequestBody',
-            'MediaTypesMap',
+            'MediaType',
             'SecurityScheme',
           ].includes(type.name)
         ) {
@@ -154,7 +154,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       },
     },
     NamedMediaTypes: {
-      MediaTypesMap(_mediaTypesMap, { key }) {
+      MediaType(_mediaType, { key }) {
         registerComponent('mediaTypes', key.toString());
       },
     },

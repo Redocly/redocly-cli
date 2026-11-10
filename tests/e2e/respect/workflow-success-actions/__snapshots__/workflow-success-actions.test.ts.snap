@@ -21,6 +21,7 @@ exports[`should execute successActions for each workflow step if it does not hav
     ✓ schema check
     ✗ unexpected error
  
+ 
 ──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow workflow-success-actions.arazzo.yaml / client-registration 
@@ -40,37 +41,27 @@ exports[`should execute successActions for each workflow step if it does not hav
     ✓ schema check
     ✗ unexpected error
  
-  ✗ POST /oauth2/register - step create-client 
-    ✓ success criteria check - $statusCode == 201
-    ✗ success criteria check - $[?@.name == 'respect-e2e-client']
-    ✓ status code check - $statusCode in [201, 400, 500]
-    ✓ content-type check
-    ✓ schema check
  
 
   Failed tests info:
 
   Workflow name: get-menu-items
  
-    stepId - get-menu-items 
+    stepId - search-menu 
     ✗ unexpected error 
-    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    Reason: Error in resolving runtime expression '$response.body#/page/total': JSON Pointer "/page/total" reaches no value. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
   Workflow name: client-registration
  
-    stepId - list-menu-items 
+    stepId - search-menu 
     ✗ unexpected error 
-    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    Reason: Error in resolving runtime expression '$response.body#/page/total': JSON Pointer "/page/total" reaches no value. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
-    stepId - create-client 
-    ✗ success criteria check 
-      Checking jsonpath criteria: $[?@.name == 'respect-e2e-client']
-       
   Summary for workflow-success-actions.arazzo.yaml
   
   Workflows: 2 failed, 2 total
-  Steps: 2 passed, 3 failed, 5 total
-  Checks: 11 passed, 3 failed, 14 total
+  Steps: 2 passed, 2 failed, 4 total
+  Checks: 15 passed, 2 failed, 17 total
   Time: <test>ms 
  
  

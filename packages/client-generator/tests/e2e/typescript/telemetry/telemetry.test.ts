@@ -27,20 +27,28 @@ describe("telemetry: 'on'", () => {
     const result = (await runConsumer(join(dir, 'sink.ts'))) as {
       received: Array<{
         type: string;
-        data: { usage: Record<string, unknown>; sdk: Record<string, unknown> };
+        source: string;
+        origin: string;
+        data: [Record<string, unknown>, Record<string, unknown>];
       }>;
     };
 
     expect(result.received).toHaveLength(1);
-    expect(result.received[0].type).toBe('com.redocly.sdkUsage.aggregated');
-    expect(result.received[0].data.usage).toMatchObject({
-      operation_id: 'listPets',
+    expect(result.received[0]).toMatchObject({
+      type: 'com.redocly.sdkUsage.aggregated',
+      source: 'urn:redocly:cli',
+      origin: 'redocly-sdk',
+    });
+    expect(result.received[0].data[0]).toMatchObject({
+      id: 'listPets',
+      object: 'operation',
       calls: 2,
       attempts: 2,
       status_2xx: 2,
     });
-    expect(result.received[0].data.sdk).toMatchObject({
-      name: '@acme/pets-sdk',
+    expect(result.received[0].data[1]).toMatchObject({
+      id: '@acme/pets-sdk',
+      object: 'sdk',
       client: 'pets-worker/2.0.0',
       language: 'typescript',
     });

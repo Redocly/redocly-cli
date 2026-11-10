@@ -11,6 +11,6 @@
 
 Prerendering docs
 
-🎉 bundled successfully in: redoc-static.html (250 KiB) [⏱ <test>ms].
+🎉 bundled successfully in: redoc-static.html (270 KiB) [⏱ <test>ms].
 
 Exit code: 0

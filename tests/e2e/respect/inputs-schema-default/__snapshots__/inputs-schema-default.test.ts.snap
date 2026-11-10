@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should run a workflow whose inputs schema has a default at its top level and at the top of env 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow inputs-schema-default.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $inputs.env.CAFE_MENU_TAG == "from-env-default"
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for inputs-schema-default.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ inputs-schema-default.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;

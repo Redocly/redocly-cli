@@ -3,12 +3,8 @@ import { outdent } from 'outdent';
 import { replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { createConfig } from '../../../config/index.js';
 import { lintFromString } from '../../../lint.js';
-import { colorOptions } from '../../../logger.js';
 
 describe('GraphQL configurable rules (rule/*)', () => {
-  beforeAll(() => {
-    colorOptions.enabled = false;
-  });
   it('reports a casing violation on the type name via a configurable rule while ignoring a correct one (when no property is specified)', async () => {
     const config = await createConfig(
       outdent`

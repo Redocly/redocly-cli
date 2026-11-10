@@ -1,6 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
 import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
+import { reportFinding } from '../../../findings.js';
 import { renderSwrModule } from '../render.js';
 
 const SDK = './client.js';
@@ -8,7 +9,7 @@ const SDK = './client.js';
 function render(ops: Parameters<typeof operation>[0][]) {
   return renderSwrModule(
     apiModel({ services: [{ name: 'Default', operations: ops.map(operation) }] }),
-    { sdkModule: SDK }
+    { reportFinding, sdkModule: SDK }
   );
 }
 
@@ -18,7 +19,7 @@ describe('renderSwrModule', () => {
   });
 
   it('returns empty string when the model has no operations', () => {
-    expect(renderSwrModule(apiModel(), { sdkModule: SDK })).toBe('');
+    expect(renderSwrModule(apiModel(), { reportFinding, sdkModule: SDK })).toBe('');
   });
 
   it('skips SSE operations (not exported by the sdk) and wraps only the regular ones', () => {
@@ -62,7 +63,7 @@ describe('renderSwrModule', () => {
           },
         ],
       }),
-      { sdkModule: SDK }
+      { reportFinding, sdkModule: SDK }
     );
     expect(out).not.toContain('useGetUser');
     expect(out).toContain('useListUsers');

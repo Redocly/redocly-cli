@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import type { DeviceCode } from '@redocly/reunite-integration';
+import type { DeviceCode } from '@redocly/platform-integration';
 import { blue } from 'colorette';
 
 export function printDeviceCode({ verificationUri, userCode }: DeviceCode): void {
