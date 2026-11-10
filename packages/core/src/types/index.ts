@@ -42,7 +42,7 @@ export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
-  // the schema of the value given to a `scalar` visitor
+  // the schema of a `$ref`-ed value that has no node type
   scalar?: NormalizedScalarSchema;
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;

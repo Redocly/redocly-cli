@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import * as url from 'node:url';
 
 import { isAbsoluteUrl, isFileUrl, replaceRef } from '../ref-utils.js';
+import { isNamedType, type NormalizedNodeType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -86,25 +87,62 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-function resolvePath(value: unknown, sourceRef: string) {
+function resolvePath(value: unknown, dir: string) {
   if (!isString(value) || !value || isAbsoluteUrl(value) || path.isAbsolute(value)) {
     return value;
   }
-  return path.resolve(path.dirname(sourceRef), value);
+  return path.resolve(dir, value);
+}
+
+function resolvePaths(value: unknown, dir: string) {
+  return Array.isArray(value)
+    ? value.map((item) => resolvePath(item, dir))
+    : resolvePath(value, dir);
+}
+
+// the folder of a local referenced config file; undefined for the root config and for remote files
+function getReferencedLocalDir(sourceRef: string, ctx: UserContext): string | undefined {
+  const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const sourcePath = isFileUrl(sourceRef) ? url.fileURLToPath(sourceRef) : sourceRef;
+  if (sourceRef === rootRef || isAbsoluteUrl(sourcePath)) {
+    return undefined;
+  }
+  return path.dirname(sourcePath);
+}
+
+function isUriReference(schema: NormalizedNodeType['properties'][string] | undefined) {
+  if (typeof schema === 'function' || !schema || isNamedType(schema)) {
+    return false;
+  }
+  return (schema.format ?? schema.items?.format) === 'uri-reference';
 }
 
 // commands resolve paths from the root config folder, so a path from a referenced file is made absolute
-function resolveUriReference(value: unknown, ctx: UserContext) {
-  if (ctx.type.scalar?.format !== 'uri-reference') {
+function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
+  const sourceDir = getReferencedLocalDir(ctx.location.source.absoluteRef, ctx);
+  if (!isPlainObject(node) || sourceDir === undefined) {
     return;
   }
-  const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
-  const sourceRef = ctx.location.source.absoluteRef;
-  const sourcePath = isFileUrl(sourceRef) ? url.fileURLToPath(sourceRef) : sourceRef;
-  if (sourceRef === rootRef || isAbsoluteUrl(sourcePath)) {
-    return;
+  for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    if (node[field] !== undefined && isUriReference(schema)) {
+      node[field] = resolvePaths(node[field], sourceDir);
+    }
   }
-  ctx.parent[ctx.key] = resolvePath(value, sourcePath);
+}
+
+// a `$ref` on the path field itself: the value is written in the referenced file
+function resolveUriReferenceValue(
+  ctx: UserContext,
+  resolved: ResolveResult<any>
+): ResolveResult<any> {
+  if (!resolved.location || !isUriReference(ctx.type.scalar)) {
+    return resolved;
+  }
+  const sourceDir = getReferencedLocalDir(resolved.location.source.absoluteRef, ctx);
+  if (sourceDir === undefined) {
+    return resolved;
+  }
+  return { ...resolved, node: resolvePaths(resolved.node, sourceDir) };
 }
 
 export const configBundlerVisitor = normalizeVisitors(
@@ -115,10 +153,16 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-            replaceRef(node, resolved, ctx);
+            // the fields written next to the `$ref` belong to the file of the `$ref`
+            resolveUriReferenceProperties(node, ctx);
+            replaceRef(node, resolveUriReferenceValue(ctx, resolved), ctx);
           },
         },
-        scalar: resolveUriReference,
+        any: {
+          leave(node: unknown, ctx: UserContext) {
+            resolveUriReferenceProperties(node, ctx);
+          },
+        },
         ConfigGovernance: {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
