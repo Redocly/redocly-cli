@@ -27,7 +27,6 @@ import {
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { hasExecutionTimedOut, retryWaitSeconds } from '../timeout-timer/execution-deadline.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { resolveActionInputs } from './resolve-action-inputs.js';
@@ -59,15 +58,9 @@ export async function runStep({
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
 
-  if (hasExecutionTimedOut(ctx.options.executionDeadline)) {
-    step.checks.push({
-      name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-      message: `Global Respect timer reached`,
-      passed: false,
-      severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
-    });
-    ctx.executedSteps.push(step);
-    return { shouldEnd: true };
+  const { executionDeadline } = ctx.options;
+  if (executionDeadline !== undefined && Date.now() >= executionDeadline) {
+    return endStepAtExecutionTimeout(step, ctx);
   }
 
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
@@ -389,7 +382,17 @@ export async function runStep({
           }
 
           if (retryAfter) {
-            await delay(retryWaitSeconds(retryAfter, ctx.options.executionDeadline));
+            const retryWait =
+              executionDeadline === undefined
+                ? retryAfter
+                : Math.min(retryAfter, Math.max(executionDeadline - Date.now(), 0) / 1000);
+            await delay(retryWait);
+            if (retryWait < retryAfter) {
+              return {
+                stepResult: endStepAtExecutionTimeout({ ...step, retriesLeft }, ctx),
+                retriesLeft: actionRetriesLeft,
+              };
+            }
           }
 
           if (targetWorkflow || targetStep) {
@@ -500,4 +503,20 @@ export async function runStep({
       return { shouldEnd: true };
     }
   }
+}
+
+function endStepAtExecutionTimeout(step: Step, ctx: TestContext): { shouldEnd: boolean } {
+  ctx.executedSteps.push({
+    ...step,
+    checks: [
+      ...step.checks,
+      {
+        name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+        message: `Global Respect timer reached`,
+        passed: false,
+        severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
+      },
+    ],
+  });
+  return { shouldEnd: true };
 }

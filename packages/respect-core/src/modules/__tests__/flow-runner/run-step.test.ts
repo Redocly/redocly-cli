@@ -4302,14 +4302,19 @@ describe('runStep', () => {
     });
 
     expect(result).toEqual({ shouldEnd: true });
-    expect(checks).toEqual([
+    expect(timedOutCTX.executedSteps).toMatchObject([
       {
-        name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-        passed: false,
-        message: 'Global Respect timer reached',
-        severity: 'error',
+        checks: [
+          {
+            name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+            passed: false,
+            message: 'Global Respect timer reached',
+            severity: 'error',
+          },
+        ],
       },
     ]);
+    expect(checks).toEqual([]);
   });
 
   it('should report global timeout error before a step runs its workflow', async () => {
@@ -4334,7 +4339,8 @@ describe('runStep', () => {
 
     expect(result).toEqual({ shouldEnd: true });
     expect(runWorkflow).not.toHaveBeenCalled();
-    expect(timedOutCTX.executedSteps).toHaveLength(1);
-    expect(checks.map((check) => check.name)).toEqual([CHECKS.GLOBAL_TIMEOUT_ERROR]);
+    expect(timedOutCTX.executedSteps).toMatchObject([
+      { checks: [{ name: CHECKS.GLOBAL_TIMEOUT_ERROR }] },
+    ]);
   });
 });

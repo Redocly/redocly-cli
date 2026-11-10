@@ -32,7 +32,6 @@ async function runOptions(
     requestFileLoader: { getFileBody: async () => new Blob() },
     logger: SILENT_LOGGER,
     fetch,
-    skipLint: true,
   };
 }
 
@@ -48,6 +47,10 @@ function checkNames(results: RunFileResult[]): string[] {
     .flatMap((step) => step.checks.map((check) => check.name));
 }
 
+function timeoutCheckCount(results: RunFileResult[]): number {
+  return checkNames(results).filter((name) => name === CHECKS.GLOBAL_TIMEOUT_ERROR).length;
+}
+
 const failingFetch = async () => new Response('unavailable', { status: 503 });
 
 describe('run with an execution timeout', () => {
@@ -59,7 +62,33 @@ describe('run with an execution timeout', () => {
 
     expect(Date.now() - startedAt).toBeLessThan(4_000);
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(checkNames(result)).toContain(CHECKS.GLOBAL_TIMEOUT_ERROR);
+    expect(timeoutCheckCount(result)).toBe(1);
+    expect(result).toMatchObject([{ globalTimeoutError: true }]);
+  });
+
+  it('ends a shortened retry wait without another request when the timer fires early', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    try {
+      const fetch = vi.fn(failingFetch);
+      const resultPromise = run(await runOptions('retry-after-a-minute', 30_000, fetch));
+      await vi.waitFor(() => expect(vi.getTimerCount()).toBe(1));
+
+      await vi.runAllTimersAsync();
+      const result = await resultPromise;
+
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(result).toMatchObject([{ globalTimeoutError: true }]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reports the timeout of a sub-workflow on the parent workflow', async () => {
+    const result = await run(await runOptions('run-retry-after-a-minute', 1_000, failingFetch));
+
+    expect(result).toMatchObject([
+      { globalTimeoutError: true, executedWorkflows: [{ globalTimeoutError: true }] },
+    ]);
   });
 
   it('times out each run on its own deadline when runs overlap', async () => {

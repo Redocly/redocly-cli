@@ -2,14 +2,15 @@ arazzo: 1.0.1
 info:
   title: Execution timeout
   version: 1.0.0
-sourceDescriptions: []
+sourceDescriptions:
+  - name: status-api
+    type: openapi
+    url: ./execution-timeout.openapi.yaml
 workflows:
   - workflowId: retry-after-a-minute
     steps:
       - stepId: get-status
-        x-operation:
-          url: http://api.test/status
-          method: get
+        operationId: getStatus
         successCriteria:
           - condition: $statusCode == 200
         onFailure:
@@ -17,12 +18,14 @@ workflows:
             type: retry
             retryAfter: 60
             retryLimit: 3
+  - workflowId: run-retry-after-a-minute
+    steps:
+      - stepId: run-retry-workflow
+        workflowId: retry-after-a-minute
   - workflowId: retry-often
     steps:
       - stepId: get-status
-        x-operation:
-          url: http://api.test/status
-          method: get
+        operationId: getStatus
         successCriteria:
           - condition: $statusCode == 200
         onFailure:
@@ -33,8 +36,6 @@ workflows:
   - workflowId: single-call
     steps:
       - stepId: get-status
-        x-operation:
-          url: http://api.test/status
-          method: get
+        operationId: getStatus
         successCriteria:
           - condition: $statusCode == 200

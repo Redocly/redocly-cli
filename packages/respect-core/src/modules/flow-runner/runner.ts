@@ -261,8 +261,10 @@ export async function runWorkflow({
     }
   }
 
-  const hasFailedTimeoutSteps = workflow.steps.some((step) =>
-    step.checks?.some((check) => !check.passed && check.name == CHECKS.GLOBAL_TIMEOUT_ERROR)
+  const hasFailedTimeoutSteps = runCtx.executedSteps.some((entry) =>
+    isWorkflowExecutionResult(entry)
+      ? entry.globalTimeoutError
+      : entry.checks.some((check) => !check.passed && check.name === CHECKS.GLOBAL_TIMEOUT_ERROR)
   );
 
   // workflow level outputs
