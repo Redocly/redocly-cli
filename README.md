@@ -53,7 +53,8 @@ Lint, design tests with AI, and test the live API:
 
 ### Lint to your API style guide
 
-Mix and match the [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules) to set your API guidelines.
+Start with a built-in ruleset: [`recommended`](https://redocly.com/docs/cli/rules/recommended), [`minimal`](https://redocly.com/docs/cli/rules/minimal), or [`spec`](https://redocly.com/docs/cli/rules/spec).
+Then mix and match the [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules) to set your own API guidelines.
 When you need a rule of your own, write it in `redocly.yaml`.
 [Configurable rules](https://redocly.com/docs/cli/rules/configurable-rules) use simple expressions that know the structure of the API description, not complex JSONPath selectors.
 For full control, [build your own plugin](https://redocly.com/docs/cli/custom-plugins).
