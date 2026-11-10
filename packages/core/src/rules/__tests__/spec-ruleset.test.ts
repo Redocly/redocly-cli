@@ -115,7 +115,7 @@ describe('spec ruleset', () => {
 
   it('should apply the spec ruleset to async2', async () => {
     const results = await lint({
-      ref: './resources/async.yaml',
+      ref: './resources/asyncapi2.yaml',
       config: await createConfig({
         extends: ['spec'],
       }),
@@ -129,7 +129,7 @@ describe('spec ruleset', () => {
             {
               "pointer": "#/components/schemas/KitchenHeaders/Etag",
               "reportOnKey": true,
-              "source": "../../../../../resources/async.yaml",
+              "source": "../../../../../resources/asyncapi2.yaml",
             },
           ],
           "message": "Property \`Etag\` is not expected here.",
@@ -143,7 +143,7 @@ describe('spec ruleset', () => {
             {
               "pointer": "#/components/schemas/KitchenHeaders/Idempotency-Key",
               "reportOnKey": true,
-              "source": "../../../../../resources/async.yaml",
+              "source": "../../../../../resources/asyncapi2.yaml",
             },
           ],
           "message": "Property \`Idempotency-Key\` is not expected here.",
