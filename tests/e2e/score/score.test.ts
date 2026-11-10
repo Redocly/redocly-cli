@@ -32,7 +32,7 @@ describe('score', () => {
 
   test('score should rank recommendations in stylish output', async () => {
     const testPath = join(folderPath, 'score-recommendations-stylish');
-    const args = getParams(indexEntryPoint, ['score', 'museum.yaml', '--recommendations']);
+    const args = getParams(indexEntryPoint, ['score', 'cafe.yaml', '--recommendations']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
@@ -41,7 +41,7 @@ describe('score', () => {
     const testPath = join(folderPath, 'score-recommendations-json');
     const args = getParams(indexEntryPoint, [
       'score',
-      'museum.yaml',
+      'cafe.yaml',
       '--recommendations',
       '--format=json',
     ]);
