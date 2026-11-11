@@ -1,0 +1,45 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe with a querystring parameter
+  description: >
+    Part of the Redocly Cafe API description where the menu filters are
+    described as one `querystring` parameter.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /menu:
+    get:
+      summary: List all menu items
+      operationId: listMenuItems
+      security: []
+      parameters:
+        - name: filters
+          in: querystring
+          required: true
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  search:
+                    type: string
+                  limit:
+                    type: integer
+              example:
+                search: mermaid treasure latte
+                limit: 2
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                  page:
+                    type: object
+                  items:
+                    type: array

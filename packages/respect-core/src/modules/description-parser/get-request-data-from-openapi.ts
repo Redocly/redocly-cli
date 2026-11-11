@@ -70,7 +70,10 @@ function transformParameters(params: Parameter[], logger: LoggerInterface): Para
         return {
           name: parameter.name,
           in: parameter.in,
-          value: generateExampleValue(parameter, logger),
+          value:
+            parameter.in === 'querystring'
+              ? generateQuerystringValue(parameter, logger)
+              : generateExampleValue(parameter, logger),
           ...(parameter.allowReserved && { allowReserved: parameter.allowReserved }),
         } as ParameterWithIn;
       }
@@ -78,6 +81,24 @@ function transformParameters(params: Parameter[], logger: LoggerInterface): Para
       return undefined;
     })
     .filter((parameter): parameter is ParameterWithIn => parameter !== undefined);
+}
+
+// A querystring parameter describes the whole query string with `content`, the same way as a request body.
+function generateQuerystringValue(parameter: Parameter, logger: LoggerInterface) {
+  const [mediaType, mediaTypeObject] = Object.entries(parameter.content || {})[0] || [];
+  const example =
+    mediaTypeObject?.example ??
+    extractFirstExample(mediaTypeObject?.examples) ??
+    generateTestDataFromJsonSchema(mediaTypeObject?.schema, logger);
+
+  if (mediaType === 'application/x-www-form-urlencoded' && isPlainObject(example)) {
+    return new URLSearchParams(
+      Object.entries(example).map(([name, value]) => [name, String(value)])
+    ).toString();
+  }
+
+  // Any other structured example is sent as JSON.
+  return typeof example === 'string' || example === undefined ? example : JSON.stringify(example);
 }
 
 function getUniqueParameters(parameters: ParameterWithIn[]): ParameterWithIn[] {

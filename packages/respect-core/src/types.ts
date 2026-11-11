@@ -60,12 +60,16 @@ export type AdditionalParameterProperties = {
   schema?: Record<string, any>;
   example?: unknown;
   examples?: Record<string, Oas3Example>;
+  content?: Record<
+    string,
+    { schema?: unknown; example?: unknown; examples?: Record<string, Oas3Example> }
+  >;
   allowReserved?: boolean;
 };
 type ExtendedParameter<T> = T & AdditionalParameterProperties;
 export type Parameter = ExtendedParameter<ArazzoParameter>;
 export type ResolvedParameter = Parameter & {
-  in?: 'header' | 'query' | 'path' | 'cookie';
+  in?: 'header' | 'query' | 'querystring' | 'path' | 'cookie';
   name: string;
 };
 export type VerboseLog = {

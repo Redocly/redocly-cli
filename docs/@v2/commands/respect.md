@@ -12,8 +12,11 @@ Use this command to execute API tests described in an Arazzo description.
 
 {% admonition type="warning" name="Important" %}
 The `respect` command supports Arazzo 1.0.1 descriptions.
-Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions.
+Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions and the `querystring` parameter location.
 When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
+A parameter with `in: querystring` sets the whole query string of the request.
+Its value must be a string, and a request cannot combine it with `query` parameters or with another `querystring` parameter.
+`respect` sends the value as written, unless the OpenAPI description declares a media type other than `application/x-www-form-urlencoded` for the parameter: then it percent-encodes the whole value.
 AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
 

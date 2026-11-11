@@ -1,0 +1,34 @@
+arazzo: 1.1.0
+info:
+  title: Test the querystring parameter location
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ./cafe-with-querystring.yaml
+
+workflows:
+  - workflowId: querystring-from-step
+    inputs:
+      type: object
+      properties:
+        search:
+          type: string
+          default: mermaid-treasure-latte
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        parameters:
+          - in: querystring
+            name: filters
+            value: 'search={$inputs.search}&limit=1'
+        successCriteria:
+          - condition: $statusCode == 200
+  - workflowId: querystring-from-description
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200

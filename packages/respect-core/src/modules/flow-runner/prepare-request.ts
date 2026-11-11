@@ -1,6 +1,7 @@
 import {
   isPlainObject,
   type ExtendedSecurity,
+  type Oas3Parameter,
   type Oas3SecurityScheme,
 } from '@redocly/openapi-core';
 
@@ -38,7 +39,11 @@ export type RequestData = {
   method: OperationMethod;
   parameters: ParameterWithIn[];
   requestBody: any;
-  openapiOperation?: OperationDetails & { securitySchemes?: Record<string, Oas3SecurityScheme> };
+  openapiOperation?: OperationDetails & {
+    securitySchemes?: Record<string, Oas3SecurityScheme>;
+    parameters?: Oas3Parameter[];
+    pathParameters?: Oas3Parameter[];
+  };
 };
 
 export async function prepareRequest(
@@ -178,6 +183,8 @@ export async function prepareRequest(
     };
   });
 
+  validateQuerystringParameter(evaluatedParameters, stepId);
+
   for (const param of openapiOperation?.parameters || []) {
     const { schema, name } = param;
     collectSecretValues(ctx, schema, groupParametersValuesByName(parameters, param.in), [name]);
@@ -239,6 +246,33 @@ function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   );
 
   return Object.values(parameterMap);
+}
+
+// A querystring parameter is the whole query string, so a request takes only one and no query parameters.
+function validateQuerystringParameter(parameters: ParameterWithIn[], stepId: string) {
+  const querystringParameters = parameters.filter((parameter) => parameter.in === 'querystring');
+  const [querystringParameter] = querystringParameters;
+
+  if (!querystringParameter) {
+    return;
+  }
+  if (querystringParameters.length > 1) {
+    throw new Error(
+      `A request accepts only one "querystring" parameter, but step ${stepId} has ${querystringParameters.length}: ${querystringParameters
+        .map((parameter) => parameter.name)
+        .join(', ')}.`
+    );
+  }
+  if (parameters.some((parameter) => parameter.in === 'query')) {
+    throw new Error(
+      `The "querystring" parameter ${querystringParameter.name} of step ${stepId} cannot be combined with "query" parameters, because it sets the whole query string.`
+    );
+  }
+  if (typeof querystringParameter.value !== 'string') {
+    throw new Error(
+      `The value of the "querystring" parameter ${querystringParameter.name} of step ${stepId} must be a string with the whole query string.`
+    );
+  }
 }
 
 function groupParametersValuesByName(

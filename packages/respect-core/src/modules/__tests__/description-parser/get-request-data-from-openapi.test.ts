@@ -38,4 +38,33 @@ describe('getRequestDataFromOpenApi', () => {
     expect(pageParam).toBeDefined();
     expect(pageParam?.allowReserved).toBeUndefined();
   });
+
+  it('should serialize the example of a required querystring parameter by its media type', () => {
+    const getQuerystringParameter = (mediaType: string) =>
+      getRequestDataFromOpenApi(
+        {
+          method: 'get',
+          path: '/menu',
+          descriptionName: 'cafe',
+          pathParameters: [],
+          parameters: [
+            {
+              name: 'filters',
+              in: 'querystring',
+              required: true,
+              content: { [mediaType]: { example: { search: 'iced latte', limit: 2 } } },
+            },
+          ],
+          responses: {},
+        } as OperationDetails,
+        logger
+      ).parameters;
+
+    expect(getQuerystringParameter('application/x-www-form-urlencoded')).toEqual([
+      { name: 'filters', in: 'querystring', value: 'search=iced+latte&limit=2' },
+    ]);
+    expect(getQuerystringParameter('application/json')).toEqual([
+      { name: 'filters', in: 'querystring', value: '{"search":"iced latte","limit":2}' },
+    ]);
+  });
 });

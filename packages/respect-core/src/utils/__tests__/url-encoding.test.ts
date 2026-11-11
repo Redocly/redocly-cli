@@ -1,4 +1,4 @@
-import { encodeURIValue, buildQueryString } from '../url-encoding.js';
+import { encodeURIValue, buildQueryString, encodeQuerystring } from '../url-encoding.js';
 
 describe('encodeURIValue', () => {
   it('should encode reserved chars when x-allowReserved is false (default)', () => {
@@ -29,5 +29,20 @@ describe('buildQueryString', () => {
     ]);
     expect(query).toContain(`raw=${raw}`);
     expect(query).toContain(`encoded=${encodeURIValue(raw, false)}`);
+  });
+});
+
+describe('encodeQuerystring', () => {
+  it('should keep a form-urlencoded query string as it is', () => {
+    const querystring = 'foo=a+%2B+b&bar=true';
+    expect(encodeQuerystring(querystring)).toBe(querystring);
+    expect(encodeQuerystring(querystring, 'application/x-www-form-urlencoded')).toBe(querystring);
+  });
+
+  it('should percent-encode a query string of any other media type as a whole', () => {
+    expect(encodeQuerystring('{"numbers":[1,2],"flag":null}', 'application/json')).toBe(
+      '%7B%22numbers%22%3A%5B1%2C2%5D%2C%22flag%22%3Anull%7D'
+    );
+    expect(encodeQuerystring('$.a.b[1:1]', 'application/jsonpath')).toBe('%24.a.b%5B1%3A1%5D');
   });
 });

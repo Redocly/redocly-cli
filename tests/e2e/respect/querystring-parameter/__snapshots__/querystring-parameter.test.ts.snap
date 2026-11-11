@@ -1,0 +1,145 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should fail a step with an invalid querystring parameter 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow querystring-parameter-invalid.arazzo.yaml / querystring-with-query 
+ 
+  ✗ list-menu-items 
+    ✗ unexpected error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow querystring-parameter-invalid.arazzo.yaml / two-querystrings 
+ 
+  ✗ list-menu-items 
+    ✗ unexpected error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow querystring-parameter-invalid.arazzo.yaml / querystring-not-a-string 
+ 
+  ✗ list-menu-items 
+    ✗ unexpected error
+ 
+
+  Failed tests info:
+
+  Workflow name: querystring-with-query
+ 
+    stepId - list-menu-items 
+    ✗ unexpected error 
+    Reason: The "querystring" parameter filters of step list-menu-items cannot be combined with "query" parameters, because it sets the whole query string.
+  Workflow name: two-querystrings
+ 
+    stepId - list-menu-items 
+    ✗ unexpected error 
+    Reason: A request accepts only one "querystring" parameter, but step list-menu-items has 2: paging, filters.
+  Workflow name: querystring-not-a-string
+ 
+    stepId - list-menu-items 
+    ✗ unexpected error 
+    Reason: The value of the "querystring" parameter filters of step list-menu-items must be a string with the whole query string. 
+  Summary for querystring-parameter-invalid.arazzo.yaml
+  
+  Workflows: 3 failed, 3 total
+  Steps: 3 failed, 3 total
+  Checks: 3 failed, 3 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                          │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x querystring-parameter-invalid.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
+└───────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;
+
+exports[`should send a querystring parameter from the step and from the API description 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow querystring-parameter.arazzo.yaml / querystring-from-step 
+ 
+  ✓ GET /menu - step list-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte&limit=1
+    Request Headers:
+      accept: application/json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 1
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow querystring-parameter.arazzo.yaml / querystring-from-description 
+ 
+  ✓ GET /menu - step list-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid+treasure+latte&limit=2
+    Request Headers:
+      accept: application/json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 2
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for querystring-parameter.arazzo.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ querystring-parameter.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;

@@ -170,7 +170,7 @@ export const parameter = {
     {
       type: 'object',
       properties: {
-        in: { type: 'string', enum: ['header', 'query', 'path', 'cookie'] },
+        in: { type: 'string', enum: ['header', 'query', 'querystring', 'path', 'cookie'] },
         name: { type: 'string' },
         value: {
           oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],

@@ -22,7 +22,7 @@ import { isBinaryContentType } from './binary-content-type-checker.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { isEmpty } from './is-empty.js';
-import { buildQueryString } from './url-encoding.js';
+import { buildQueryString, encodeQuerystring } from './url-encoding.js';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -146,6 +146,7 @@ export class ApiFetcher implements IFetcher {
     const searchParams = [];
     const pathParams: Record<string, string | number | boolean> = {};
     const cookies: Record<string, string> = {};
+    let querystring: string | undefined;
 
     for (const param of parameters) {
       switch (param.in) {
@@ -159,6 +160,9 @@ export class ApiFetcher implements IFetcher {
             allowReserved: param.allowReserved,
           });
           break;
+        case 'querystring':
+          querystring = String(param.value);
+          break;
         case 'path':
           pathParams[param.name] = String(param.value);
           break;
@@ -168,7 +172,15 @@ export class ApiFetcher implements IFetcher {
       }
     }
 
-    const queryString = buildQueryString(searchParams);
+    const describedQuerystring = [
+      ...(openapiOperation?.parameters || []),
+      ...(openapiOperation?.pathParameters || []),
+    ].find((parameter) => parameter.in === 'querystring');
+    const [querystringMediaType] = Object.keys(describedQuerystring?.content || {});
+    const queryString =
+      querystring === undefined
+        ? buildQueryString(searchParams)
+        : encodeQuerystring(querystring, querystringMediaType);
 
     if ((isPlainObject(requestBody) || Array.isArray(requestBody)) && !headers['content-type']) {
       headers['content-type'] = 'application/json';

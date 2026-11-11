@@ -39,3 +39,15 @@ export function buildQueryString(
     )
     .join('&');
 }
+
+/**
+ * Prepares the value of a `querystring` parameter for the URL.
+ * @param mediaType – the media type the API description gives to the query string.
+ * `application/x-www-form-urlencoded` is a ready query string; any other media type is percent-encoded as a whole.
+ */
+export function encodeQuerystring(
+  value: string,
+  mediaType = 'application/x-www-form-urlencoded'
+): string {
+  return mediaType === 'application/x-www-form-urlencoded' ? value : encodeURIValue(value);
+}
