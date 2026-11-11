@@ -145,10 +145,17 @@ export async function handleGenerateClient({
   const optedIn = Object.keys(apis).filter(
     (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
   );
-  if (argv.api === undefined && optedIn.length === 0) {
-    throw new HandledError(
-      `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
-    );
+  if (argv.api === undefined) {
+    if (argv.output) {
+      throw new HandledError(
+        `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
+      );
+    }
+    if (optedIn.length === 0) {
+      throw new HandledError(
+        `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
+      );
+    }
   }
   const entrypoints = await getFallbackApisOrExit(
     argv.api === undefined ? optedIn : [argv.api],

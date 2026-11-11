@@ -277,7 +277,7 @@ const cases: ConfigCase[] = [
     stderr: ['Property `cursor_param` is not expected here.', 'Your config has 1 warning'],
   },
   {
-    name: 'writes to --output in fan-out mode for an api without clientOutput',
+    name: 'rejects --output in fan-out mode',
     config: outdent`
       apis:
         cafe:
@@ -286,8 +286,8 @@ const cases: ConfigCase[] = [
             generators: [typescript]
     `,
     args: ['--output', './out.ts'],
-    status: 0,
-    files: ['out.ts'],
+    status: 1,
+    stderr: ["--output can't target multiple APIs"],
   },
   {
     name: 'warns that --output is ignored for an alias with clientOutput',
