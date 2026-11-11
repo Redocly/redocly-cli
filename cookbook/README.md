@@ -75,6 +75,7 @@ Rather than including the whole plugin, there are also sections for individual r
 - [Swap summary and description](./custom-plugin-decorators/swap-summary-description/) - swap the contents of summary and description fields if they are the wrong way round.
 - [Apply root-level security](./custom-plugin-decorators/apply-root-security/) - re-apply root-level `security` to operations that lose it after `redocly join`.
 - [Set servers URLs](./custom-plugin-decorators/set-servers-urls/) - set or overwrite the API `servers` URLs, even when the source description has none.
+- [Inline images](./custom-plugin-decorators/inline-images/) - replace the image paths in descriptions with `data:` URIs, so the bundle needs no image files.
 
 #### Rules (for custom plugins)
 
