@@ -101,7 +101,7 @@ redocly bundle openapi.yaml -o dist/openapi.yaml
 
 ### Test the live API
 
-[Respect](https://redocly.com/docs/respect/get-started) sends real requests to your API and checks each response against your OpenAPI description and Arazzo workflows.
+[`respect`](https://redocly.com/docs/respect/get-started) sends real requests to your API and checks each response against your OpenAPI description and Arazzo workflows.
 With `--with-ai`, your local AI CLI (Claude, Codex, or Cursor) designs multi-step workflows from the OpenAPI description.
 
 ```sh
