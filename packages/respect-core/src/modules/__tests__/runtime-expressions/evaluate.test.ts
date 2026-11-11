@@ -430,6 +430,16 @@ describe('evaluateRuntimeExpressionPayload', () => {
         </Travelerinformation>`);
   });
 
+  it('should evaluate runtime expressions nested in a JSON string', () => {
+    const payload =
+      '{"limit":1,"filter":{"name":"{$steps.step-three.response.body.name}","code":"{$steps.step-three.outputs.hardcoded}"}}';
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual(
+      '{"limit":1,"filter":{"name":"Mermaid Treasure Identification and Analysis","code":"125"}}'
+    );
+  });
+
   it('should evaluate x-www-form-urlencoded string with runtime expression values', () => {
     const payload =
       'client_id={$steps.step-three.response.body.location}&grant_type={$steps.step-three.response.body.location}';

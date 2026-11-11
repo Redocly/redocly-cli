@@ -138,7 +138,10 @@ function evaluateExpressionsInString(
     const exprToEvaluate = match.trim();
 
     if (!isValidRuntimeExpression(exprToEvaluate) && !exprToEvaluate.includes('$faker.')) {
-      return match;
+      // Braces that are not an expression, such as a JSON object, can still hold expressions.
+      return match.startsWith('{')
+        ? `{${evaluateExpressionsInString(match.slice(1, -1), context, logger)}}`
+        : match;
     }
 
     // For dollar expressions, include the leading $ when passing to evaluateRuntimeExpression
