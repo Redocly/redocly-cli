@@ -45,9 +45,9 @@ describe('bundle', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
-  test('bundle fails when --output goes to several APIs of the config', async () => {
+  test('bundle should NOT be invoked IF no positional apis provided AND --output specified', async () => {
     const testPath = join(folderPath, 'bundle-no-output-without-inline-apis');
-    const args = getParams(indexEntryPoint, ['bundle', '--output=output/dist']);
+    const args = getParams(indexEntryPoint, ['bundle', '--output=dist']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
