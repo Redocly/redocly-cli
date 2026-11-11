@@ -334,7 +334,7 @@ export class ApiFetcher implements IFetcher {
         this.initVerboseResponseLogs({
           body: body401,
           method,
-          host: serverUrl.url,
+          host: resolvedServerUrl,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
@@ -349,7 +349,7 @@ export class ApiFetcher implements IFetcher {
         this.initVerboseResponseLogs({
           body: body401,
           method,
-          host: serverUrl.url,
+          host: resolvedServerUrl,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
@@ -477,7 +477,7 @@ export class ApiFetcher implements IFetcher {
         ? JSON.stringify(maskedResponseBody)
         : maskedResponseBody,
       method,
-      host: serverUrl.url,
+      host: resolvedServerUrl,
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,
       responseTime,
