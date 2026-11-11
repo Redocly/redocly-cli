@@ -15,6 +15,7 @@ import {
   renderReferencePage,
   type SampleContext,
   securityRequirements,
+  operationIdOf,
 } from '@redocly/client-generator';
 import { PythonPrinter } from '@redocly/client-generator/printers/python';
 import {
@@ -143,7 +144,7 @@ export const pythonGenerator: Generator = ({
   printer.indent(() => {
     for (const { op, ident } of operationIdents(model)) {
       const descriptor = {
-        id: op.specName ?? op.name,
+        id: operationIdOf(op),
         method: op.method.toUpperCase(),
         path: op.path,
         ...(securityRequirements(op, model).length > 0

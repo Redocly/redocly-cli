@@ -4,11 +4,12 @@
 // drift from it the first time either side changed. Part of the authoring toolkit, so a
 // generator ejected as source (python, go, php) reaches it the same way we do.
 
-import type {
-  ApiModel,
-  OperationModel,
-  ParamModel,
-  SchemaModel,
+import {
+  type ApiModel,
+  type OperationModel,
+  type ParamModel,
+  type SchemaModel,
+  operationIdOf,
 } from '../intermediate-representation/model.js';
 import { isBinaryContentType } from './operation.js';
 import { paginationRuleFor } from './pagination.js';
@@ -105,7 +106,7 @@ function writeOperation(
   op: OperationModel,
   options: ReferencePageOptions
 ): void {
-  printer.line(`### \`${op.specName ?? op.name}\``);
+  printer.line(`### \`${operationIdOf(op)}\``);
   printer.blank();
   if (op.summary !== undefined) {
     printer.line(cell(op.summary));

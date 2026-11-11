@@ -13,6 +13,7 @@ import {
   type ParamModel,
   sseResponse,
   uniqueIdentifiers,
+  operationIdOf,
 } from '@redocly/client-generator';
 import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
 
@@ -148,7 +149,7 @@ export function writeGoMethod(
     () => {
       if (sse === undefined && returnType !== undefined) printer.line(`var out ${returnType}`);
       if (envelope) printer.line(`var headers ${ident}Headers`);
-      printer.line(`op := operations[${naming.string(op.specName ?? op.name)}]`);
+      printer.line(`op := operations[${naming.string(operationIdOf(op))}]`);
       printer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
       if (hasParams) {
         printer.block(

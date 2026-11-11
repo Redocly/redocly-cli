@@ -28,7 +28,11 @@ import type {
   OutputMode,
 } from './generators/types.js';
 import { buildApiModel } from './intermediate-representation/build.js';
-import { allOperations, type ApiModel } from './intermediate-representation/model.js';
+import {
+  allOperations,
+  type ApiModel,
+  operationIdOf,
+} from './intermediate-representation/model.js';
 import { normalizeSwagger2 } from './intermediate-representation/normalize-swagger2.js';
 import { loadSpec } from './loader.js';
 import { resolveModelPagination, type ModelPagination } from './pagination.js';
@@ -158,12 +162,12 @@ function warnRepeatedParamNames(model: ApiModel): void {
       if (repeated.size === 0) continue;
       reportFinding({
         kind: 'name-changed',
-        message: `operation "${op.specName ?? op.name}" uses ${[...repeated]
+        message: `operation "${operationIdOf(op)}" uses ${[...repeated]
           .map((name) => `"${name}"`)
           .join(
             ', '
           )} in more than one parameter location. Every SDK sends both, and the SDKs whose methods take one argument per parameter give the later one a suffixed name — rename it in the description to choose the name yourself.`,
-        operations: [op.specName ?? op.name],
+        operations: [operationIdOf(op)],
       });
     }
   }
@@ -339,7 +343,7 @@ async function generate(options: GenerateClientOptions): Promise<GenerateClientR
   }
 
   const operations = allOperations(model.services).map((operation) => ({
-    id: operation.specName ?? operation.name,
+    id: operationIdOf(operation),
     name: operation.name,
   }));
 
