@@ -362,7 +362,14 @@ The [`valibot-generator` example](https://github.com/Redocly/redocly-cli/tree/ma
 **A framework wrapper.**
 The built-in `tanstack-query` and `swr` generators forward to the client's operation functions.
 A wrapper for another framework is the same job: read the operations, emit one function or hook per operation, and forward to the generated call.
-Declare `requires: ['typescript']` so the client it wraps is always there, and `errorModes: ['throw']` if the wrapper expects a thrown error.
+Declare `requires: ['typescript']` so the client it wraps is always there.
+If the framework expects a thrown error, choose one of these options:
+
+- Read `emit.errorMode`.
+  When the value is `result`, emit code that throws the `error` of the `{ data, error, response }` result and returns its `data`.
+  The built-in wrappers do this.
+- Declare `errorModes: ['throw']`.
+  Generation then stops with an error when the error mode is `result`.
 
 **A shape your codebase already uses.**
 A resource facade, a permissions matrix, a route map, a fixtures file.

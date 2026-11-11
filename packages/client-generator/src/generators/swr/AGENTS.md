@@ -13,8 +13,11 @@ React SWR hooks over the sdk's exported operation functions: `use<Op>()` with a
 
 ## Design decisions that must hold
 
-- **Wraps the sdk's functions** — it never re-implements requests, so it requires `typescript`
-  and is throw-mode only.
+- **Wraps the sdk's functions** — it never re-implements requests, so it requires `typescript`.
+- **A failed request throws in either error mode** — SWR needs a fetcher that throws, so
+  over a result-mode sdk every call goes through the emitted `unwrapResult`: it returns the
+  body and throws `ApiError` for a failed response. The wrapper never restricts the error
+  mode the sdk itself is generated with.
 - **Keys are exported factories** so consumers can invalidate precisely.
 - **`envelope` is excluded** from hook options (`Omit<RequestOptions, "envelope">`) and
   stripped from the forwarded call: cached data is always the plain body.
