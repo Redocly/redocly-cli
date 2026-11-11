@@ -1,5 +1,4 @@
 import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
-import type { Oas3Responses } from '@redocly/openapi-core';
 import { blue, dim, red, yellow, green } from 'colorette';
 
 import {
@@ -11,6 +10,7 @@ import {
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
 import { CHECKS } from '../../checks/index.js';
+import { contentTypeMatchesPattern, getResponseSchema } from '../../description-parser/index.js';
 
 const ajvStrict = new (Ajv as any)({
   schemaId: '$id',
@@ -66,12 +66,12 @@ function checkSchemaFromDescription({
   ajvContext,
 }: DescriptionChecks & { ctx: TestContext; ajvContext?: AjvContext }): void {
   const { body: resultBody } = $response;
-  const descriptionResponseByCode =
-    descriptionOperation?.responses[String($response?.statusCode)] ||
-    descriptionOperation?.responses['default'];
-
   const schemaFromDescription = $response?.contentType
-    ? resolveContentByType(descriptionResponseByCode?.content, $response.contentType)?.schema
+    ? getResponseSchema({
+        statusCode: $response.statusCode,
+        contentType: $response.contentType,
+        descriptionResponses: descriptionOperation?.responses,
+      })
     : undefined;
   const isSchemaWithCircularRef = checkCircularRefsInSchema(schemaFromDescription);
 
@@ -138,44 +138,6 @@ function checkStatusCodeFromDescription({
     }),
     severity: ctx.severity['STATUS_CODE_CHECK'],
   });
-}
-
-function contentTypeMatchesPattern(contentType: string, pattern: string): boolean {
-  const normalizedPattern = pattern.toLowerCase();
-  const normalizedContentType = contentType.toLowerCase();
-
-  if (normalizedPattern === '*/*') return true;
-  if (normalizedPattern === normalizedContentType) return true;
-
-  const [patternType, patternSubtype] = normalizedPattern.split('/');
-  const [actualType, actualSubtype] = normalizedContentType.split('/');
-
-  if (patternType === '*') {
-    return patternSubtype === '*' || patternSubtype === actualSubtype;
-  }
-
-  if (patternSubtype === '*') {
-    return patternType === actualType;
-  }
-
-  return false;
-}
-
-type ResponseContent = NonNullable<Oas3Responses[string]['content']>;
-
-export function resolveContentByType(
-  content: ResponseContent | undefined,
-  contentType: string
-): ResponseContent[string] | undefined {
-  if (!content) return undefined;
-  if (content[contentType]) return content[contentType];
-
-  for (const pattern of Object.keys(content)) {
-    if (contentTypeMatchesPattern(contentType, pattern)) {
-      return content[pattern];
-    }
-  }
-  return undefined;
 }
 
 function checkContentTypeFromDescription({
