@@ -2,4 +2,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed the `preview` command previewing the package root instead of the current directory when it was run through an `npm run` or `pnpm run` script from a subdirectory of the project.
+Fixed the `preview` command previewing the whole workspace package instead of the directory it was run from, when launched with `npx` from a subdirectory of an npm workspace.
