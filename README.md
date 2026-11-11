@@ -76,7 +76,7 @@ rules:
 
 **Multiple files supported.**
 You do not need to bundle your API description to lint it.
-Point Redocly CLI at the entry point, for example `openapi.yaml`, and it follows every `$ref`.
+Point [`lint`](https://redocly.com/docs/cli/commands/lint) at the entry point, for example `openapi.yaml`, and it follows every `$ref`.
 
 ```sh
 redocly lint openapi.yaml
@@ -92,7 +92,7 @@ For ready-made rules and plugins, see the [Cookbook](./cookbook/README.md).
 
 ### Bundle, split, and join
 
-Keep a large description in many files, and bundle it into one file for tools that need it.
+Keep a large description in many files, and [`bundle`](https://redocly.com/docs/cli/commands/bundle) it into one file for tools that need it.
 Use [decorators](https://redocly.com/docs/cli/decorators) to remove internal endpoints or change server URLs as you bundle.
 
 ```sh
@@ -136,7 +136,7 @@ redocly generate-client openapi.yaml --output src/client.ts
 redocly generate-client openapi.yaml --output src/client.ts --generator cli
 ```
 
-Read the [`generate-client` docs](https://redocly.com/docs/cli/commands/generate-client).
+For all generators and options, see [`generate-client`](https://redocly.com/docs/cli/commands/generate-client).
 
 ### Compare versions and traffic (experimental)
 
