@@ -10,7 +10,11 @@ import {
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
 import { CHECKS } from '../../checks/index.js';
-import { contentTypeMatchesPattern, getResponseSchema } from '../../description-parser/index.js';
+import {
+  contentTypeMatchesPattern,
+  getResponseKeyByStatusCode,
+  getResponseSchema,
+} from '../../description-parser/index.js';
 
 const ajvStrict = new (Ajv as any)({
   schemaId: '$id',
@@ -113,21 +117,17 @@ function checkStatusCodeFromDescription({
   ctx,
 }: DescriptionChecks & { ctx: TestContext }): void {
   const responseStatusCode = $response?.statusCode;
-  const responseCodesFromDescription = Object.keys(descriptionOperation?.responses || {});
-  const matchesCodeFromDescription =
-    responseStatusCode &&
-    responseCodesFromDescription
-      .map((item) => item.toString())
-      .includes(responseStatusCode.toString());
+  const descriptionResponses = descriptionOperation?.responses || {};
+  const responseCodesFromDescription = Object.keys(descriptionResponses);
+  const matchedResponseKey = getResponseKeyByStatusCode(descriptionResponses, responseStatusCode);
 
-  const matchesDefaultResponse = responseCodesFromDescription.includes('default');
+  const message =
+    matchedResponseKey === String(responseStatusCode)
+      ? dim(`List of valid response codes are inferred from description \n\n`) +
+        statusCodeDiff(`${responseStatusCode}`, responseCodesFromDescription.map(String))
+      : ''; // NOTE: we don't show any diff if response code hits a range or the default response
 
-  const message = matchesCodeFromDescription
-    ? dim(`List of valid response codes are inferred from description \n\n`) +
-      statusCodeDiff(`${responseStatusCode}`, responseCodesFromDescription.map(String))
-    : ''; // NOTE: we don't show any diff if response code hits default response
-
-  const passed = matchesCodeFromDescription || matchesDefaultResponse;
+  const passed = matchedResponseKey !== undefined;
 
   checks.push({
     name: CHECKS.STATUS_CODE_CHECK,
@@ -148,8 +148,10 @@ function checkContentTypeFromDescription({
 }: DescriptionChecks & { ctx: TestContext }): void {
   const statusCode = $response?.statusCode;
   const responseContentType = $response?.contentType;
+  const descriptionResponses = descriptionOperation?.responses || {};
+  const responseKey = getResponseKeyByStatusCode(descriptionResponses, statusCode);
   const possibleContentTypesFromDescription = Object.keys(
-    descriptionOperation?.responses[statusCode]?.content || {}
+    (responseKey && descriptionResponses[responseKey]?.content) || {}
   );
 
   if (!possibleContentTypesFromDescription.length) {

@@ -28,10 +28,10 @@ export function resolveContentByType(
   if (!content) return undefined;
   if (content[contentType]) return content[contentType];
 
-  for (const pattern of Object.keys(content)) {
-    if (contentTypeMatchesPattern(contentType, pattern)) {
-      return content[pattern];
-    }
-  }
-  return undefined;
+  // The most specific media type applies: `application/*` wins over `*/*`.
+  const [mostSpecificPattern] = Object.keys(content)
+    .filter((pattern) => contentTypeMatchesPattern(contentType, pattern))
+    .sort((left, right) => left.split('*').length - right.split('*').length);
+
+  return content[mostSpecificPattern];
 }

@@ -1,0 +1,22 @@
+arazzo: 1.0.1
+info:
+  title: Test the content type of a response described by the default response
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ./cafe-with-default-response.yaml
+
+workflows:
+  - workflowId: list-menu
+    steps:
+      - stepId: list-menu-items-with-invalid-limit
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 400
