@@ -121,6 +121,8 @@ export class AjvValidator {
         discriminator: true,
         allowUnionTypes: true,
         validateFormats: true,
+        // Without it, `98.8` fails `multipleOf: 0.1` because of floating point division.
+        multipleOfPrecision: 6,
         passContext: true,
         logger: false,
         loadSchemaSync(base: string, $ref: string, $id: string) {
