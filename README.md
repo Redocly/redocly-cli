@@ -119,11 +119,13 @@ redocly build-docs openapi.yaml
 
 ### Generate typed clients (experimental)
 
-Generate a TypeScript client with zero runtime dependencies, or SDKs for Python, Go, PHP, and Java.
-Flags, output, and configuration can change in any minor release until the feature is stable.
+Generate typed SDKs for TypeScript, Python, Go, PHP, and Java from one OpenAPI description, or a ready-to-use CLI for your API.
+The TypeScript client has zero runtime dependencies.
+Its add-ons give you Zod schemas, MSW mocks, TanStack Query hooks, and SWR hooks.
 
 ```sh
 redocly generate-client openapi.yaml --output src/client.ts
+redocly generate-client openapi.yaml --output src/client.ts --generator cli
 ```
 
 Read the [`generate-client` docs](https://redocly.com/docs/cli/commands/generate-client).
@@ -165,7 +167,7 @@ Read the [`generate-client` docs](https://redocly.com/docs/cli/commands/generate
 
 **Generate**
 
-- [`generate-client`](https://redocly.com/docs/cli/commands/generate-client): Generate a typed TypeScript client or an SDK from an OpenAPI description (experimental).
+- [`generate-client`](https://redocly.com/docs/cli/commands/generate-client): Generate typed SDKs and a CLI from an OpenAPI description (experimental).
 - [`eject-generator`](https://redocly.com/docs/cli/commands/eject-generator): Copy a built-in client generator into your repository as an editable file (experimental).
 - [`generate-spec`](https://redocly.com/docs/cli/commands/generate-spec): Infer an OpenAPI description from recorded HTTP traffic (experimental).
 - [`introspect-mcp`](https://redocly.com/docs/cli/commands/introspect-mcp): Record the capabilities of an MCP server in an OpenAPI description (experimental).
