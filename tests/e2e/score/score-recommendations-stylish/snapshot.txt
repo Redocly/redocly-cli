@@ -1,18 +1,18 @@
 
   Scores
 
-  Agent Readiness:  82.3/100
-  Reachable:        88.4/100 with every safe edit
+  Agent Readiness:  90.7/100
+  Reachable:        91.6/100 with every safe edit
 
   Subscores
 
   Parameter Simplicity     [█████████████████░░░] 83%
-  Schema Simplicity        [██████████░░░░░░░░░░] 52%
+  Schema Simplicity        [██████████░░░░░░░░░░] 50%
   Documentation Quality    [███████████████████░] 95%
   Constraint Clarity       [██████████████████░░] 92%
-  Example Coverage         [█████████████░░░░░░░] 67%
+  Example Coverage         [███████████████████░] 96%
   Error Clarity            [████████████████████] 100%
-  Dependency Clarity       [██████████████░░░░░░] 69%
+  Dependency Clarity       [█████████████████░░░] 83%
   Identifier Clarity       [████████████████████] 100%
   Polymorphism Clarity     [███████████████░░░░░] 74%
   Discoverability          [████████████████████] 99%
@@ -21,62 +21,42 @@
 
   Total operations: 12
   Parameters/operation:      avg    1.8  median    1.0  min     0  max     6
-  Schema depth:              avg    2.5  median    2.5  min     0  max     6
+  Schema depth:              avg    2.7  median    2.5  min     1  max     6
   Polymorphism/operation:    avg    1.8  median    1.0  min     0  max     7
-  Properties/operation:      avg   11.3  median   12.0  min     0  max    23
+  Properties/operation:      avg   12.1  median   12.0  min     5  max    23
   Operations with request examples: 3/12 (25%)
-  Operations with response examples: 8/12 (67%)
+  Operations with response examples: 12/12 (100%)
   Operations with description: 12/12 (100%)
 
-  Top 9 Hotspot Operations
+  Top 5 Hotspot Operations
 
   GET /menu (listMenuItems)
-    Agent Readiness: 72.0
+    Agent Readiness: 73.7
     - High parameter count (6)
     - Deep schema nesting (depth 5)
     - High polymorphism count (6)
 
-  GET /order-items (listOrderItems)
-    Agent Readiness: 76.9
-    - Deep schema nesting (depth 6)
-    - High polymorphism count (7)
-
   GET /orders (listOrders)
-    Agent Readiness: 78.4
+    Agent Readiness: 80.1
     - High parameter count (6)
     - Deep schema nesting (depth 5)
 
+  GET /order-items (listOrderItems)
+    Agent Readiness: 80.2
+    - Deep schema nesting (depth 6)
+    - High polymorphism count (7)
+
   PATCH /orders/{orderId} (updateOrder)
-    Agent Readiness: 77.0
+    Agent Readiness: 80.4
     - Missing request body examples
 
-  GET /revenue (getRevenue)
-    Agent Readiness: 78.8
-    - Missing response examples
-
-  GET /menu-item-images/{menuItemId} (getMenuItemPhoto)
-    Agent Readiness: 80.0
-    - Missing response examples
-
-  DELETE /orders/{orderId} (deleteOrder)
-    Agent Readiness: 81.0
-    - Missing response examples
-
   POST /menu (createMenuItem)
-    Agent Readiness: 82.2
+    Agent Readiness: 85.5
     - High polymorphism count (4)
-
-  POST /oauth2/register (registerOAuth2Client)
-    Agent Readiness: 83.7
-    - Missing response examples
 
   Recommendations
 
-   +3.3  Add response examples (3 operations)
-   +1.0  Add request body examples (1 operation)
-   +0.2  Add descriptions to schema properties (7 operations)
-   +0.0  Add constraints to schema properties (5 operations)
-         Contract risk: add only the constraints the API already enforces.
+   +0.9  Add descriptions to schema properties (7 operations)
 
   Design findings
 

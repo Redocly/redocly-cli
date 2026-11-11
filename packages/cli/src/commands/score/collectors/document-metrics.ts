@@ -309,124 +309,87 @@ function buildOperationMetrics(ctx: CurrentOperationContext): OperationMetrics {
 }
 
 export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
-  return {
-    RequestBody: {
-      enter() {
-        if (!accumulator.current) return;
-        accumulator.current.requestBodyPresent = true;
-        accumulator.current.inRequestBody = true;
-      },
-      leave() {
-        if (accumulator.current) accumulator.current.inRequestBody = false;
-      },
-    },
-    Response: {
-      enter(
-        response: { description?: string; content?: Record<string, unknown> },
-        ctx: UserContext
+  const MediaType = {
+    enter(mediaType: Oas3MediaType) {
+      const current = accumulator.current;
+      if (!current) return;
+
+      if (hasExample(mediaType)) {
+        if (current.inRequestBody) current.requestExamplePresent = true;
+        if (current.inResponse) current.responseExamplePresent = true;
+      }
+
+      if (
+        current.inResponse &&
+        isErrorCode(current.currentResponseCode) &&
+        !current.errorStructuredCounted
       ) {
-        const current = accumulator.current;
-        if (!current) return;
-        const code = String(ctx.key);
-        current.inResponse = true;
-        current.currentResponseCode = code;
-        current.errorStructuredCounted = false;
-        if (isNotEmptyObject(response.content)) current.responseBodyPresent = true;
+        current.structuredErrorResponseCount++;
+        current.errorStructuredCounted = true;
+      }
 
-        if (isErrorCode(code)) {
-          current.totalErrorResponses++;
-          if (!response.content && response.description) {
-            current.structuredErrorResponseCount++;
-            current.errorStructuredCounted = true;
-          }
+      if (mediaType.schema) {
+        const isDebugTarget =
+          !!accumulator.debugOperationId &&
+          (current.operationId === accumulator.debugOperationId ||
+            `${current.method.toUpperCase()} ${current.path}` === accumulator.debugOperationId);
+
+        const stats = accumulator.walkSchema(mediaType.schema, isDebugTarget);
+
+        if (shouldReplacePropertyMetrics(current, stats)) {
+          current.totalSchemaProperties = stats.totalSchemaProperties;
+          current.schemaPropertiesWithDescription = stats.schemaPropertiesWithDescription;
+          current.constraintCount = stats.constraintCount;
         }
-      },
-      leave() {
-        if (accumulator.current) accumulator.current.inResponse = false;
-      },
-    },
-    MediaType: {
-      enter(mediaType) {
-        const current = accumulator.current;
-        if (!current) return;
 
-        if (hasExample(mediaType)) {
+        const effective = effectivePolymorphismFromCounts(
+          stats.polymorphismCount,
+          stats.anyOfCount,
+          accumulator.anyOfPenaltyMultiplier
+        );
+        if (effective > current.maxEffectivePolymorphism) {
+          current.maxEffectivePolymorphism = effective;
+          current.polymorphismCount = stats.polymorphismCount;
+          current.anyOfCount = stats.anyOfCount;
+        }
+        if (stats.hasDiscriminator) current.hasDiscriminator = true;
+
+        for (const ref of stats.refsUsed) current.refsUsed.add(ref);
+
+        if (stats.hasPropertyExamples) {
           if (current.inRequestBody) current.requestExamplePresent = true;
           if (current.inResponse) current.responseExamplePresent = true;
         }
 
-        if (
-          current.inResponse &&
-          isErrorCode(current.currentResponseCode) &&
-          !current.errorStructuredCounted
-        ) {
-          current.structuredErrorResponseCount++;
-          current.errorStructuredCounted = true;
-        }
-
-        if (mediaType.schema) {
-          const isDebugTarget =
-            !!accumulator.debugOperationId &&
-            (current.operationId === accumulator.debugOperationId ||
-              `${current.method.toUpperCase()} ${current.path}` === accumulator.debugOperationId);
-
-          const stats = accumulator.walkSchema(mediaType.schema, isDebugTarget);
-
-          if (shouldReplacePropertyMetrics(current, stats)) {
-            current.totalSchemaProperties = stats.totalSchemaProperties;
-            current.schemaPropertiesWithDescription = stats.schemaPropertiesWithDescription;
-            current.constraintCount = stats.constraintCount;
-          }
-
-          const effective = effectivePolymorphismFromCounts(
-            stats.polymorphismCount,
-            stats.anyOfCount,
-            accumulator.anyOfPenaltyMultiplier
+        if (current.inRequestBody) {
+          current.maxRequestSchemaDepth = Math.max(current.maxRequestSchemaDepth, stats.maxDepth);
+          current.topLevelWritableFieldCount = Math.max(
+            current.topLevelWritableFieldCount,
+            stats.writableTopLevelFields
           );
-          if (effective > current.maxEffectivePolymorphism) {
-            current.maxEffectivePolymorphism = effective;
-            current.polymorphismCount = stats.polymorphismCount;
-            current.anyOfCount = stats.anyOfCount;
-          }
-          if (stats.hasDiscriminator) current.hasDiscriminator = true;
-
-          for (const ref of stats.refsUsed) current.refsUsed.add(ref);
-
-          if (stats.hasPropertyExamples) {
-            if (current.inRequestBody) current.requestExamplePresent = true;
-            if (current.inResponse) current.responseExamplePresent = true;
-          }
-
-          if (current.inRequestBody) {
-            current.maxRequestSchemaDepth = Math.max(current.maxRequestSchemaDepth, stats.maxDepth);
-            current.topLevelWritableFieldCount = Math.max(
-              current.topLevelWritableFieldCount,
-              stats.writableTopLevelFields
-            );
-          }
-          if (current.inResponse) {
-            current.maxResponseSchemaDepth = Math.max(
-              current.maxResponseSchemaDepth,
-              stats.maxDepth
-            );
-          }
-
-          if (isDebugTarget && stats.debugEntries) {
-            const context = current.inRequestBody
-              ? 'REQUEST BODY'
-              : `RESPONSE ${current.currentResponseCode}`;
-            accumulator.debugLogs.push({
-              context,
-              entries: stats.debugEntries,
-              totalProperties: stats.totalSchemaProperties,
-              totalPolymorphism: stats.polymorphismCount,
-              totalConstraints: stats.constraintCount,
-              maxDepth: stats.maxDepth,
-            });
-          }
         }
-      },
+        if (current.inResponse) {
+          current.maxResponseSchemaDepth = Math.max(current.maxResponseSchemaDepth, stats.maxDepth);
+        }
+
+        if (isDebugTarget && stats.debugEntries) {
+          const context = current.inRequestBody
+            ? 'REQUEST BODY'
+            : `RESPONSE ${current.currentResponseCode}`;
+          accumulator.debugLogs.push({
+            context,
+            entries: stats.debugEntries,
+            totalProperties: stats.totalSchemaProperties,
+            totalPolymorphism: stats.polymorphismCount,
+            totalConstraints: stats.constraintCount,
+            maxDepth: stats.maxDepth,
+          });
+        }
+      }
     },
+  };
+
+  return {
     Paths: {
       PathItem: {
         enter(pathItem: Oas3PathItem, ctx: UserContext) {
@@ -458,6 +421,43 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
               operation.operationId ?? `${current.method.toUpperCase()} ${current.path}`;
             accumulator.operations.set(opKey, buildOperationMetrics(current));
             accumulator.current = null;
+          },
+          RequestBody: {
+            enter() {
+              if (!accumulator.current) return;
+              accumulator.current.requestBodyPresent = true;
+              accumulator.current.inRequestBody = true;
+            },
+            leave() {
+              if (accumulator.current) accumulator.current.inRequestBody = false;
+            },
+            MediaType,
+          },
+          Response: {
+            enter(
+              response: { description?: string; content?: Record<string, unknown> },
+              ctx: UserContext
+            ) {
+              const current = accumulator.current;
+              if (!current) return;
+              const code = String(ctx.key);
+              current.inResponse = true;
+              current.currentResponseCode = code;
+              current.errorStructuredCounted = false;
+              if (isNotEmptyObject(response.content)) current.responseBodyPresent = true;
+
+              if (isErrorCode(code)) {
+                current.totalErrorResponses++;
+                if (!response.content && response.description) {
+                  current.structuredErrorResponseCount++;
+                  current.errorStructuredCounted = true;
+                }
+              }
+            },
+            leave() {
+              if (accumulator.current) accumulator.current.inResponse = false;
+            },
+            MediaType,
           },
         },
       },

@@ -7,6 +7,7 @@ import type { DocumentMetrics, OperationMetrics, RecommendationKind, Subscores }
 
 type Edit = {
   subscore: keyof Subscores;
+  safe: boolean;
   missing: (metrics: OperationMetrics) => number;
   fix: (metrics: OperationMetrics) => Partial<OperationMetrics>;
 };
@@ -14,16 +15,20 @@ type Edit = {
 export const EDITS: Record<RecommendationKind, Edit> = {
   constraint: {
     subscore: 'constraintClarity',
+    // Constraints the API does not enforce narrow its contract.
+    safe: false,
     missing: (metrics) => Math.max(0, metrics.totalSchemaProperties - metrics.constraintCount),
     fix: (metrics) => ({ constraintCount: metrics.totalSchemaProperties }),
   },
   'operation-description': {
     subscore: 'documentationQuality',
+    safe: true,
     missing: (metrics) => (metrics.operationDescriptionPresent ? 0 : 1),
     fix: () => ({ operationDescriptionPresent: true }),
   },
   'parameter-description': {
     subscore: 'documentationQuality',
+    safe: true,
     missing: (metrics) => metrics.parameterCount - metrics.paramsWithDescription,
     // A parameter with a description no longer counts as an ambiguous identifier.
     fix: (metrics) => ({
@@ -33,21 +38,25 @@ export const EDITS: Record<RecommendationKind, Edit> = {
   },
   'property-description': {
     subscore: 'documentationQuality',
+    safe: true,
     missing: (metrics) => metrics.totalSchemaProperties - metrics.schemaPropertiesWithDescription,
     fix: (metrics) => ({ schemaPropertiesWithDescription: metrics.totalSchemaProperties }),
   },
   'request-example': {
     subscore: 'exampleCoverage',
+    safe: true,
     missing: (metrics) => (metrics.requestBodyPresent && !metrics.requestExamplePresent ? 1 : 0),
     fix: () => ({ requestExamplePresent: true }),
   },
   'response-example': {
     subscore: 'exampleCoverage',
+    safe: true,
     missing: (metrics) => (metrics.responseBodyPresent && !metrics.responseExamplePresent ? 1 : 0),
     fix: () => ({ responseExamplePresent: true }),
   },
   'structured-error': {
     subscore: 'errorClarity',
+    safe: true,
     missing: (metrics) => metrics.totalErrorResponses - metrics.structuredErrorResponseCount,
     fix: (metrics) => ({ structuredErrorResponseCount: metrics.totalErrorResponses }),
   },

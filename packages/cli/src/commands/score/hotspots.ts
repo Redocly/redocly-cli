@@ -80,7 +80,7 @@ export function getHotspotReasons(
   }
 
   const missingReqExample = metrics.requestBodyPresent && !metrics.requestExamplePresent;
-  const missingResExample = !metrics.responseExamplePresent;
+  const missingResExample = metrics.responseBodyPresent && !metrics.responseExamplePresent;
 
   if (missingReqExample && missingResExample) {
     reasons.push({ subscore: 'exampleCoverage', reason: 'Missing request and response examples' });

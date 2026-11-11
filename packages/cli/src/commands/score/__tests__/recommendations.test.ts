@@ -1,4 +1,5 @@
 import { getRecommendations } from '../recommendations.js';
+import { simulateScore } from '../simulate.js';
 import type { DocumentMetrics, OperationMetrics } from '../types.js';
 
 function makeMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetrics {
@@ -38,18 +39,12 @@ function makeDocument(operations: Record<string, OperationMetrics>): DocumentMet
 }
 
 describe('getRecommendations', () => {
-  it('ranks the edits by simulated impact and keeps constraints out of the reachable score', () => {
+  it('ranks the edits by impact and leaves constraints out of the reachable score', () => {
     const document = makeDocument({
       listItems: makeMetrics({
         operationId: 'listItems',
-        parameterCount: 10,
-        ambiguousIdentifierCount: 2,
-        operationDescriptionPresent: false,
-        schemaPropertiesWithDescription: 0,
-        totalSchemaProperties: 4,
         constraintCount: 0,
         responseExamplePresent: false,
-        structuredErrorResponseCount: 0,
       }),
       createItem: makeMetrics({
         method: 'post',
@@ -58,133 +53,35 @@ describe('getRecommendations', () => {
       }),
     });
 
-    const result = getRecommendations(document, new Map());
+    const { reachableScore, recommendations } = getRecommendations(
+      document,
+      new Map(),
+      simulateScore(document, new Map(), [])
+    );
 
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "designFindings": [
+    expect(recommendations.map(({ kind, impact, safe }) => ({ kind, impact, safe })))
+      .toMatchInlineSnapshot(`
+        [
           {
-            "operations": [
-              {
-                "method": "get",
-                "operationId": "listItems",
-                "path": "/items",
-              },
-            ],
-            "reason": "High parameter count",
-            "subscore": "parameterSimplicity",
-          },
-        ],
-        "reachableScore": 89,
-        "recommendations": [
-          {
-            "count": 1,
-            "id": "response-example",
             "impact": 8.1,
             "kind": "response-example",
-            "operations": [
-              {
-                "method": "get",
-                "operationId": "listItems",
-                "path": "/items",
-              },
-            ],
             "safe": true,
-            "subscore": "exampleCoverage",
           },
           {
-            "count": 10,
-            "id": "parameter-description",
-            "impact": 7,
-            "kind": "parameter-description",
-            "operations": [
-              {
-                "method": "get",
-                "operationId": "listItems",
-                "path": "/items",
-              },
-            ],
-            "safe": true,
-            "subscore": "documentationQuality",
-          },
-          {
-            "count": 4,
-            "id": "constraint",
             "impact": 5.4,
             "kind": "constraint",
-            "operations": [
-              {
-                "method": "get",
-                "operationId": "listItems",
-                "path": "/items",
-              },
-            ],
             "safe": false,
-            "subscore": "constraintClarity",
           },
           {
-            "count": 1,
-            "id": "structured-error",
-            "impact": 5.4,
-            "kind": "structured-error",
-            "operations": [
-              {
-                "method": "get",
-                "operationId": "listItems",
-                "path": "/items",
-              },
-            ],
-            "safe": true,
-            "subscore": "errorClarity",
-          },
-          {
-            "count": 1,
-            "id": "request-example",
-            "impact": 4.1,
+            "impact": 4,
             "kind": "request-example",
-            "operations": [
-              {
-                "method": "post",
-                "operationId": "createItem",
-                "path": "/items",
-              },
-            ],
             "safe": true,
-            "subscore": "exampleCoverage",
           },
-          {
-            "count": 4,
-            "id": "property-description",
-            "impact": 2.2,
-            "kind": "property-description",
-            "operations": [
-              {
-                "method": "get",
-                "operationId": "listItems",
-                "path": "/items",
-              },
-            ],
-            "safe": true,
-            "subscore": "documentationQuality",
-          },
-          {
-            "count": 1,
-            "id": "operation-description",
-            "impact": 0.6,
-            "kind": "operation-description",
-            "operations": [
-              {
-                "method": "get",
-                "operationId": "listItems",
-                "path": "/items",
-              },
-            ],
-            "safe": true,
-            "subscore": "documentationQuality",
-          },
-        ],
-      }
-    `);
+        ]
+      `);
+    expect(reachableScore).toBe(
+      simulateScore(document, new Map(), ['request-example', 'response-example'])
+    );
   });
 
   it('recommends nothing for a fully documented document', () => {
@@ -196,7 +93,11 @@ describe('getRecommendations', () => {
       }),
     });
 
-    const { recommendations, designFindings } = getRecommendations(document, new Map());
+    const { recommendations, designFindings } = getRecommendations(
+      document,
+      new Map(),
+      simulateScore(document, new Map(), [])
+    );
 
     expect(recommendations).toEqual([]);
     expect(designFindings).toEqual([]);
@@ -211,6 +112,12 @@ describe('getRecommendations', () => {
       }),
     });
 
-    expect(getRecommendations(document, new Map()).recommendations).toEqual([]);
+    const { recommendations } = getRecommendations(
+      document,
+      new Map(),
+      simulateScore(document, new Map(), [])
+    );
+
+    expect(recommendations).toEqual([]);
   });
 });

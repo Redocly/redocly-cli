@@ -221,6 +221,54 @@ describe('collectDocumentMetrics', () => {
     expect(metrics.operations.get('cancelOrder')!.responseBodyPresent).toBe(false);
   });
 
+  it('counts a shared response for every operation that references it', async () => {
+    const { metrics } = await collectDocumentMetrics(
+      yaml(outdent`
+        openapi: 3.1.0
+        info:
+          title: Redocly Cafe
+          version: 1.0.0
+        paths:
+          /orders/{orderId}:
+            get:
+              operationId: getOrder
+              responses:
+                '404':
+                  $ref: '#/components/responses/NotFound'
+            delete:
+              operationId: deleteOrder
+              responses:
+                '204':
+                  description: Order deleted successfully.
+                '404':
+                  $ref: '#/components/responses/NotFound'
+        components:
+          responses:
+            NotFound:
+              description: Not found.
+              content:
+                application/problem+json:
+                  schema:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                  example:
+                    title: Not found
+      `)
+    );
+
+    for (const operationId of ['getOrder', 'deleteOrder']) {
+      expect(metrics.operations.get(operationId)).toMatchObject({
+        responseBodyPresent: true,
+        responseExamplePresent: true,
+        totalErrorResponses: 1,
+        structuredErrorResponseCount: 1,
+        totalSchemaProperties: 1,
+      });
+    }
+  });
+
   it('treats OpenAPI 3.1 wildcard error codes 4XX and 5XX as errors', async () => {
     const { metrics } = await collectDocumentMetrics(
       yaml(outdent`

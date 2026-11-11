@@ -1,14 +1,14 @@
 {
-  "agentReadiness": 88.2,
+  "agentReadiness": 89.7,
   "discoverability": 99,
   "subscores": {
     "parameterSimplicity": 0.8625,
-    "schemaSimplicity": 0.796875,
-    "documentationQuality": 0.9017857142857143,
-    "constraintClarity": 0.5625,
-    "exampleCoverage": 0.875,
+    "schemaSimplicity": 0.78125,
+    "documentationQuality": 0.8392857142857143,
+    "constraintClarity": 0.4375,
+    "exampleCoverage": 1,
     "errorClarity": 1,
-    "dependencyClarity": 0.7291666666666669,
+    "dependencyClarity": 0.8333333333333333,
     "identifierClarity": 1,
     "polymorphismClarity": 1
   },
@@ -62,8 +62,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 2,
+        "totalErrorResponses": 2
       },
       "createSpecialEvent": {
         "path": "/special-events",
@@ -87,8 +87,8 @@
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 2,
+        "totalErrorResponses": 2
       },
       "getSpecialEvent": {
         "path": "/special-events/{eventId}",
@@ -112,8 +112,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 2,
+        "totalErrorResponses": 2
       },
       "deleteSpecialEvent": {
         "path": "/special-events/{eventId}",
@@ -137,8 +137,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 1,
-        "totalErrorResponses": 1
+        "structuredErrorResponseCount": 3,
+        "totalErrorResponses": 3
       },
       "updateSpecialEvent": {
         "path": "/special-events/{eventId}",
@@ -162,8 +162,8 @@
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 2,
+        "totalErrorResponses": 2
       },
       "buyMuseumTickets": {
         "path": "/tickets",
@@ -187,8 +187,8 @@
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 2,
+        "totalErrorResponses": 2
       },
       "getTicketCode": {
         "path": "/tickets/{ticketId}/qr",
@@ -200,20 +200,20 @@
         "paramsWithDescription": 1,
         "ambiguousIdentifierCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 0,
-        "totalSchemaProperties": 0,
+        "maxResponseSchemaDepth": 1,
+        "totalSchemaProperties": 2,
         "schemaPropertiesWithDescription": 0,
-        "constraintCount": 1,
+        "constraintCount": 0,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
         "topLevelWritableFieldCount": 0,
         "requestBodyPresent": false,
         "requestExamplePresent": false,
-        "responseExamplePresent": false,
+        "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 2,
+        "totalErrorResponses": 2
       }
     }
   },
@@ -233,7 +233,7 @@
       }
     },
     "listSpecialEvents": {
-      "agentReadiness": 82.9,
+      "agentReadiness": 84.6,
       "subscores": {
         "parameterSimplicity": 0.6,
         "schemaSimplicity": 0.625,
@@ -241,13 +241,13 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "createSpecialEvent": {
-      "agentReadiness": 88.2,
+      "agentReadiness": 89.8,
       "subscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.75,
@@ -255,13 +255,13 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "getSpecialEvent": {
-      "agentReadiness": 87.2,
+      "agentReadiness": 88.8,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.75,
@@ -269,13 +269,13 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "deleteSpecialEvent": {
-      "agentReadiness": 73.4,
+      "agentReadiness": 75.1,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.875,
@@ -283,13 +283,13 @@
         "constraintClarity": 0,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "updateSpecialEvent": {
-      "agentReadiness": 87.2,
+      "agentReadiness": 88.8,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.75,
@@ -297,13 +297,13 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "buyMuseumTickets": {
-      "agentReadiness": 86.8,
+      "agentReadiness": 88.5,
       "subscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.875,
@@ -311,21 +311,21 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "getTicketCode": {
-      "agentReadiness": 81,
+      "agentReadiness": 75.1,
       "subscores": {
         "parameterSimplicity": 0.9,
-        "schemaSimplicity": 1,
-        "documentationQuality": 1,
-        "constraintClarity": 1,
-        "exampleCoverage": 0,
+        "schemaSimplicity": 0.875,
+        "documentationQuality": 0.5,
+        "constraintClarity": 0,
+        "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 1,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
@@ -333,29 +333,20 @@
   },
   "dependencyDepths": {
     "getMuseumHours": 1,
-    "listSpecialEvents": 2,
-    "createSpecialEvent": 2,
-    "getSpecialEvent": 2,
-    "deleteSpecialEvent": 2,
-    "updateSpecialEvent": 2,
-    "buyMuseumTickets": 2,
-    "getTicketCode": 0
+    "listSpecialEvents": 1,
+    "createSpecialEvent": 1,
+    "getSpecialEvent": 1,
+    "deleteSpecialEvent": 1,
+    "updateSpecialEvent": 1,
+    "buyMuseumTickets": 1,
+    "getTicketCode": 1
   },
-  "hotspots": [
-    {
-      "path": "/tickets/{ticketId}/qr",
-      "method": "get",
-      "operationId": "getTicketCode",
-      "agentReadinessScore": 81,
-      "reasons": [
-        "Missing response examples"
-      ]
-    }
-  ]
+  "hotspots": []
 }
 Document: museum.yaml score:
 
 museum.yaml: score processed in <test>ms
 
+Learn how to improve the score: https://redocly.com/docs/cli/commands/score?source=cli
 
 Exit code: 0

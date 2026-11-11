@@ -38,7 +38,7 @@
 
   POST /items (createItem)
     Agent Readiness: 50.7
-    - Missing request and response examples
+    - Missing request body examples
     - Missing operation description
 
 

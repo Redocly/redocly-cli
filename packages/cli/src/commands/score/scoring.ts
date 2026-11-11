@@ -38,8 +38,8 @@ export function computeOperationSubscores(
 
   const examplePoints =
     (metrics.requestExamplePresent ? 1 : 0) + (metrics.responseExamplePresent ? 1 : 0);
-  const exampleTotal = (metrics.requestBodyPresent ? 1 : 0) + 1;
-  const exampleCoverage = clamp01(examplePoints / exampleTotal);
+  const exampleTotal = (metrics.requestBodyPresent ? 1 : 0) + (metrics.responseBodyPresent ? 1 : 0);
+  const exampleCoverage = exampleTotal > 0 ? clamp01(examplePoints / exampleTotal) : 1;
 
   const errorClarity =
     metrics.totalErrorResponses > 0

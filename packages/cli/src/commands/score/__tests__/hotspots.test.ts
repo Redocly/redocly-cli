@@ -183,6 +183,18 @@ describe('selectTopHotspots', () => {
     expect(result[0].reasons).toContain('Missing response examples');
   });
 
+  it('does NOT flag missing response example when no response has a body', () => {
+    const docMetrics: DocumentMetrics = {
+      operationCount: 1,
+      operations: new Map([
+        ['op1', makeMetrics({ responseBodyPresent: false, responseExamplePresent: false })],
+      ]),
+    };
+    const opScores = new Map([['op1', makeScores()]]);
+    const result = selectTopHotspots(docMetrics, opScores, new Map([['op1', 0]]));
+    expect(result).toEqual([]);
+  });
+
   it('detects no structured error responses', () => {
     const docMetrics: DocumentMetrics = {
       operationCount: 1,

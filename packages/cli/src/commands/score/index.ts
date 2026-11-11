@@ -87,7 +87,9 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
     hotspots,
     operationScores,
     dependencyDepths,
-    ...(argv.recommendations ? getRecommendations(rawMetrics, dependencyDepths) : {}),
+    ...(argv.recommendations
+      ? getRecommendations(rawMetrics, dependencyDepths, agentReadiness)
+      : {}),
   };
 
   printScore(
@@ -126,7 +128,5 @@ function printScore(
 
   printExecutionTime('score', startedAt, api);
 
-  if (format !== 'json') {
-    logger.info(`Learn how to improve the score: ${SCORE_DOCS_URL}\n`);
-  }
+  logger.info(`Learn how to improve the score: ${SCORE_DOCS_URL}\n`);
 }

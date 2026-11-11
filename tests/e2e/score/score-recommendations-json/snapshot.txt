@@ -1,15 +1,15 @@
 {
-  "agentReadiness": 82.3,
-  "reachableScore": 88.4,
+  "agentReadiness": 90.7,
+  "reachableScore": 91.6,
   "discoverability": 99,
   "subscores": {
     "parameterSimplicity": 0.8250000000000002,
-    "schemaSimplicity": 0.5243055555555556,
+    "schemaSimplicity": 0.5034722222222222,
     "documentationQuality": 0.9540445665445666,
     "constraintClarity": 0.9168886891140896,
-    "exampleCoverage": 0.6666666666666666,
+    "exampleCoverage": 0.9583333333333334,
     "errorClarity": 1,
-    "dependencyClarity": 0.6944444444444445,
+    "dependencyClarity": 0.8333333333333334,
     "identifierClarity": 1,
     "polymorphismClarity": 0.7395833333333334
   },
@@ -63,8 +63,8 @@
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 3,
-        "totalErrorResponses": 3
+        "structuredErrorResponseCount": 5,
+        "totalErrorResponses": 5
       },
       "deleteMenuItem": {
         "path": "/menu/{menuItemId}",
@@ -88,8 +88,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 1,
-        "totalErrorResponses": 1
+        "structuredErrorResponseCount": 5,
+        "totalErrorResponses": 5
       },
       "getMenuItemPhoto": {
         "path": "/menu-item-images/{menuItemId}",
@@ -101,20 +101,20 @@
         "paramsWithDescription": 2,
         "ambiguousIdentifierCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 0,
-        "totalSchemaProperties": 0,
-        "schemaPropertiesWithDescription": 0,
-        "constraintCount": 1,
+        "maxResponseSchemaDepth": 1,
+        "totalSchemaProperties": 5,
+        "schemaPropertiesWithDescription": 5,
+        "constraintCount": 5,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
         "topLevelWritableFieldCount": 0,
         "requestBodyPresent": false,
         "requestExamplePresent": false,
-        "responseExamplePresent": false,
+        "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 2,
+        "totalErrorResponses": 2
       },
       "listOrders": {
         "path": "/orders",
@@ -138,8 +138,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 4,
+        "totalErrorResponses": 4
       },
       "createOrder": {
         "path": "/orders",
@@ -163,8 +163,8 @@
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 4,
+        "totalErrorResponses": 4
       },
       "getOrderById": {
         "path": "/orders/{orderId}",
@@ -188,8 +188,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 5,
+        "totalErrorResponses": 5
       },
       "deleteOrder": {
         "path": "/orders/{orderId}",
@@ -201,20 +201,20 @@
         "paramsWithDescription": 1,
         "ambiguousIdentifierCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 0,
-        "totalSchemaProperties": 0,
-        "schemaPropertiesWithDescription": 0,
-        "constraintCount": 0,
+        "maxResponseSchemaDepth": 1,
+        "totalSchemaProperties": 5,
+        "schemaPropertiesWithDescription": 5,
+        "constraintCount": 5,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
         "topLevelWritableFieldCount": 0,
         "requestBodyPresent": false,
         "requestExamplePresent": false,
-        "responseExamplePresent": false,
-        "responseBodyPresent": false,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "responseExamplePresent": true,
+        "responseBodyPresent": true,
+        "structuredErrorResponseCount": 5,
+        "totalErrorResponses": 5
       },
       "updateOrder": {
         "path": "/orders/{orderId}",
@@ -238,8 +238,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 5,
+        "totalErrorResponses": 5
       },
       "listOrderItems": {
         "path": "/order-items",
@@ -263,8 +263,8 @@
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 5,
+        "totalErrorResponses": 5
       },
       "getRevenue": {
         "path": "/revenue",
@@ -286,10 +286,10 @@
         "topLevelWritableFieldCount": 0,
         "requestBodyPresent": false,
         "requestExamplePresent": false,
-        "responseExamplePresent": false,
+        "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 4,
+        "totalErrorResponses": 4
       },
       "registerOAuth2Client": {
         "path": "/oauth2/register",
@@ -311,16 +311,16 @@
         "topLevelWritableFieldCount": 4,
         "requestBodyPresent": true,
         "requestExamplePresent": true,
-        "responseExamplePresent": false,
+        "responseExamplePresent": true,
         "responseBodyPresent": true,
-        "structuredErrorResponseCount": 0,
-        "totalErrorResponses": 0
+        "structuredErrorResponseCount": 3,
+        "totalErrorResponses": 3
       }
     }
   },
   "operationScores": {
     "listMenuItems": {
-      "agentReadiness": 72,
+      "agentReadiness": 73.7,
       "subscores": {
         "parameterSimplicity": 0.4,
         "schemaSimplicity": 0,
@@ -328,13 +328,13 @@
         "constraintClarity": 0.7391304347826086,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 0.25
       }
     },
     "createMenuItem": {
-      "agentReadiness": 82.2,
+      "agentReadiness": 85.5,
       "subscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.20833333333333337,
@@ -342,13 +342,13 @@
         "constraintClarity": 0.9166666666666666,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.5,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 0.5
       }
     },
     "deleteMenuItem": {
-      "agentReadiness": 92.8,
+      "agentReadiness": 96.1,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.875,
@@ -356,27 +356,27 @@
         "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.5,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "getMenuItemPhoto": {
-      "agentReadiness": 80,
+      "agentReadiness": 95.1,
       "subscores": {
         "parameterSimplicity": 0.8,
-        "schemaSimplicity": 1,
+        "schemaSimplicity": 0.875,
         "documentationQuality": 1,
         "constraintClarity": 1,
-        "exampleCoverage": 0,
+        "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 1,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "listOrders": {
-      "agentReadiness": 78.4,
+      "agentReadiness": 80.1,
       "subscores": {
         "parameterSimplicity": 0.4,
         "schemaSimplicity": 0.20833333333333334,
@@ -384,13 +384,13 @@
         "constraintClarity": 0.9047619047619048,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 0.75
       }
     },
     "createOrder": {
-      "agentReadiness": 86.9,
+      "agentReadiness": 90.3,
       "subscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.45833333333333337,
@@ -398,13 +398,13 @@
         "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.5,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 0.75
       }
     },
     "getOrderById": {
-      "agentReadiness": 86,
+      "agentReadiness": 89.4,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.45833333333333337,
@@ -412,27 +412,27 @@
         "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.5,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 0.75
       }
     },
     "deleteOrder": {
-      "agentReadiness": 81,
+      "agentReadiness": 96.1,
       "subscores": {
         "parameterSimplicity": 0.9,
-        "schemaSimplicity": 1,
+        "schemaSimplicity": 0.875,
         "documentationQuality": 1,
         "constraintClarity": 1,
-        "exampleCoverage": 0,
+        "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 1,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "updateOrder": {
-      "agentReadiness": 77,
+      "agentReadiness": 80.4,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.45833333333333337,
@@ -440,13 +440,13 @@
         "constraintClarity": 1,
         "exampleCoverage": 0.5,
         "errorClarity": 1,
-        "dependencyClarity": 0.5,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 0.75
       }
     },
     "listOrderItems": {
-      "agentReadiness": 76.9,
+      "agentReadiness": 80.2,
       "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0,
@@ -454,60 +454,60 @@
         "constraintClarity": 0.8421052631578947,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.5,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 0.125
       }
     },
     "getRevenue": {
-      "agentReadiness": 78.8,
+      "agentReadiness": 95.1,
       "subscores": {
         "parameterSimplicity": 0.8,
         "schemaSimplicity": 0.875,
         "documentationQuality": 1,
         "constraintClarity": 1,
-        "exampleCoverage": 0,
+        "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 1,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "registerOAuth2Client": {
-      "agentReadiness": 83.7,
+      "agentReadiness": 91,
       "subscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.75,
         "documentationQuality": 1,
         "constraintClarity": 0.6,
-        "exampleCoverage": 0.5,
+        "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 1,
+        "dependencyClarity": 0.8333333333333334,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     }
   },
   "dependencyDepths": {
-    "listMenuItems": 2,
-    "createMenuItem": 3,
-    "deleteMenuItem": 3,
-    "getMenuItemPhoto": 0,
-    "listOrders": 2,
-    "createOrder": 3,
-    "getOrderById": 3,
-    "deleteOrder": 0,
-    "updateOrder": 3,
-    "listOrderItems": 3,
-    "getRevenue": 0,
-    "registerOAuth2Client": 0
+    "listMenuItems": 1,
+    "createMenuItem": 1,
+    "deleteMenuItem": 1,
+    "getMenuItemPhoto": 1,
+    "listOrders": 1,
+    "createOrder": 1,
+    "getOrderById": 1,
+    "deleteOrder": 1,
+    "updateOrder": 1,
+    "listOrderItems": 1,
+    "getRevenue": 1,
+    "registerOAuth2Client": 1
   },
   "hotspots": [
     {
       "path": "/menu",
       "method": "get",
       "operationId": "listMenuItems",
-      "agentReadinessScore": 72,
+      "agentReadinessScore": 73.7,
       "reasons": [
         "High parameter count (6)",
         "Deep schema nesting (depth 5)",
@@ -515,126 +515,50 @@
       ]
     },
     {
-      "path": "/order-items",
-      "method": "get",
-      "operationId": "listOrderItems",
-      "agentReadinessScore": 76.9,
-      "reasons": [
-        "Deep schema nesting (depth 6)",
-        "High polymorphism count (7)"
-      ]
-    },
-    {
       "path": "/orders",
       "method": "get",
       "operationId": "listOrders",
-      "agentReadinessScore": 78.4,
+      "agentReadinessScore": 80.1,
       "reasons": [
         "High parameter count (6)",
         "Deep schema nesting (depth 5)"
       ]
     },
     {
+      "path": "/order-items",
+      "method": "get",
+      "operationId": "listOrderItems",
+      "agentReadinessScore": 80.2,
+      "reasons": [
+        "Deep schema nesting (depth 6)",
+        "High polymorphism count (7)"
+      ]
+    },
+    {
       "path": "/orders/{orderId}",
       "method": "patch",
       "operationId": "updateOrder",
-      "agentReadinessScore": 77,
+      "agentReadinessScore": 80.4,
       "reasons": [
         "Missing request body examples"
-      ]
-    },
-    {
-      "path": "/revenue",
-      "method": "get",
-      "operationId": "getRevenue",
-      "agentReadinessScore": 78.8,
-      "reasons": [
-        "Missing response examples"
-      ]
-    },
-    {
-      "path": "/menu-item-images/{menuItemId}",
-      "method": "get",
-      "operationId": "getMenuItemPhoto",
-      "agentReadinessScore": 80,
-      "reasons": [
-        "Missing response examples"
-      ]
-    },
-    {
-      "path": "/orders/{orderId}",
-      "method": "delete",
-      "operationId": "deleteOrder",
-      "agentReadinessScore": 81,
-      "reasons": [
-        "Missing response examples"
       ]
     },
     {
       "path": "/menu",
       "method": "post",
       "operationId": "createMenuItem",
-      "agentReadinessScore": 82.2,
+      "agentReadinessScore": 85.5,
       "reasons": [
         "High polymorphism count (4)"
-      ]
-    },
-    {
-      "path": "/oauth2/register",
-      "method": "post",
-      "operationId": "registerOAuth2Client",
-      "agentReadinessScore": 83.7,
-      "reasons": [
-        "Missing response examples"
       ]
     }
   ],
   "recommendations": [
     {
-      "id": "response-example",
-      "kind": "response-example",
-      "subscore": "exampleCoverage",
-      "impact": 3.3,
-      "count": 3,
-      "operations": [
-        {
-          "method": "get",
-          "path": "/menu-item-images/{menuItemId}",
-          "operationId": "getMenuItemPhoto"
-        },
-        {
-          "method": "get",
-          "path": "/revenue",
-          "operationId": "getRevenue"
-        },
-        {
-          "method": "post",
-          "path": "/oauth2/register",
-          "operationId": "registerOAuth2Client"
-        }
-      ],
-      "safe": true
-    },
-    {
-      "id": "request-example",
-      "kind": "request-example",
-      "subscore": "exampleCoverage",
-      "impact": 1,
-      "count": 1,
-      "operations": [
-        {
-          "method": "patch",
-          "path": "/orders/{orderId}",
-          "operationId": "updateOrder"
-        }
-      ],
-      "safe": true
-    },
-    {
       "id": "property-description",
       "kind": "property-description",
       "subscore": "documentationQuality",
-      "impact": 0.2,
+      "impact": 0.9,
       "count": 11,
       "operations": [
         {
@@ -674,41 +598,6 @@
         }
       ],
       "safe": true
-    },
-    {
-      "id": "constraint",
-      "kind": "constraint",
-      "subscore": "constraintClarity",
-      "impact": 0,
-      "count": 16,
-      "operations": [
-        {
-          "method": "get",
-          "path": "/menu",
-          "operationId": "listMenuItems"
-        },
-        {
-          "method": "post",
-          "path": "/menu",
-          "operationId": "createMenuItem"
-        },
-        {
-          "method": "get",
-          "path": "/orders",
-          "operationId": "listOrders"
-        },
-        {
-          "method": "get",
-          "path": "/order-items",
-          "operationId": "listOrderItems"
-        },
-        {
-          "method": "post",
-          "path": "/oauth2/register",
-          "operationId": "registerOAuth2Client"
-        }
-      ],
-      "safe": false
     }
   ],
   "designFindings": [
@@ -776,5 +665,6 @@ Document: cafe.yaml score:
 
 cafe.yaml: score processed in <test>ms
 
+Learn how to improve the score: https://redocly.com/docs/cli/commands/score?source=cli
 
 Exit code: 0

@@ -13,8 +13,6 @@ import type {
 
 // Object.keys types the keys as string.
 const KINDS = Object.keys(EDITS) as RecommendationKind[];
-// Constraints the API does not enforce narrow its contract, so they are never a safe edit.
-const SAFE_KINDS: RecommendationKind[] = KINDS.filter((kind) => kind !== 'constraint');
 const DESIGN_SUBSCORES: ReadonlyArray<keyof Subscores> = [
   'parameterSimplicity',
   'schemaSimplicity',
@@ -24,26 +22,28 @@ const DESIGN_SUBSCORES: ReadonlyArray<keyof Subscores> = [
 
 export function getRecommendations(
   documentMetrics: DocumentMetrics,
-  dependencyDepths: Map<string, number>
+  dependencyDepths: Map<string, number>,
+  agentReadiness: number
 ): { reachableScore: number; recommendations: Recommendation[]; designFindings: DesignFinding[] } {
-  const score = simulateScore(documentMetrics, dependencyDepths, []);
   const recommendations: Recommendation[] = [];
 
   for (const kind of KINDS) {
-    const { subscore, missing } = EDITS[kind];
+    const impact = round(simulateScore(documentMetrics, dependencyDepths, [kind]) - agentReadiness);
+    if (impact <= 0) continue;
+
+    const { subscore, safe, missing } = EDITS[kind];
     const touched = [...documentMetrics.operations.values()].filter(
       (metrics) => missing(metrics) > 0
     );
-    if (touched.length === 0) continue;
 
     recommendations.push({
       id: kind,
       kind,
       subscore,
-      impact: round(simulateScore(documentMetrics, dependencyDepths, [kind]) - score),
+      impact,
       count: touched.reduce((sum, metrics) => sum + missing(metrics), 0),
       operations: touched.map(toOperationRef),
-      safe: SAFE_KINDS.includes(kind),
+      safe,
     });
   }
 
@@ -55,7 +55,11 @@ export function getRecommendations(
   );
 
   return {
-    reachableScore: simulateScore(documentMetrics, dependencyDepths, SAFE_KINDS),
+    reachableScore: simulateScore(
+      documentMetrics,
+      dependencyDepths,
+      recommendations.filter(({ safe }) => safe).map(({ kind }) => kind)
+    ),
     recommendations,
     designFindings: getDesignFindings(documentMetrics, dependencyDepths),
   };
