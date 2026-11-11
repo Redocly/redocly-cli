@@ -273,11 +273,16 @@ export class ApiFetcher implements IFetcher {
       noSecretsMasking: ctx.noSecretsMasking,
       secretsSet: ctx.secretsSet,
     });
+    const maskedServerUrl = conditionallyMaskSecrets({
+      value: resolvedServerUrl,
+      noSecretsMasking: ctx.noSecretsMasking,
+      secretsSet: ctx.secretsSet,
+    });
 
     // Start of the verbose logs
     this.initVerboseLogs({
       headerParams: maskedHeaderParams,
-      host: resolvedServerUrl,
+      host: maskedServerUrl,
       method: method.toUpperCase() as OperationMethod,
       path: maskedPathParams || '',
       body: maskedBody,
@@ -334,7 +339,7 @@ export class ApiFetcher implements IFetcher {
         this.initVerboseResponseLogs({
           body: body401,
           method,
-          host: resolvedServerUrl,
+          host: maskedServerUrl,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
@@ -349,7 +354,7 @@ export class ApiFetcher implements IFetcher {
         this.initVerboseResponseLogs({
           body: body401,
           method,
-          host: resolvedServerUrl,
+          host: maskedServerUrl,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
@@ -477,7 +482,7 @@ export class ApiFetcher implements IFetcher {
         ? JSON.stringify(maskedResponseBody)
         : maskedResponseBody,
       method,
-      host: resolvedServerUrl,
+      host: maskedServerUrl,
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,
       responseTime,
