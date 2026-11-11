@@ -412,6 +412,28 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual({ type: 'string' });
   });
 
+  it('should resolve an external ref with percent-encoded characters in the file name', async () => {
+    const cwd = path.join(__dirname, 'fixtures/resolve');
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          $ref: "./users_%7Bid%7D.yaml"
+      `,
+      path.join(cwd, 'foobar.yaml')
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const resolved = Array.from(resolvedRefs.values()).pop()!;
+    expect(resolved.error).toBeUndefined();
+    expect(resolved.node).toEqual({ type: 'string' });
+  });
+
   it('should record a $ref with sibling keys as a chain hop while following transitive refs', async () => {
     const rootDocument = parseYamlToDocument(
       outdent`

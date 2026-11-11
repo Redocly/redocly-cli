@@ -99,6 +99,15 @@ export function makeDocumentFromString<T = unknown>(
   }
 }
 
+// A `$ref` is a URI, so `paths/users_%7Bid%7D.yaml` points to the file `paths/users_{id}.yaml`.
+function decodeRefPath(ref: string): string {
+  try {
+    return decodeURIComponent(ref);
+  } catch {
+    return ref;
+  }
+}
+
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
   // Local files that overlays add to a remote API description. Any other `file:` URL is followed
@@ -120,7 +129,7 @@ export class BaseResolver {
       return new URL(ref, base).href;
     }
 
-    return path.resolve(base ? path.dirname(base) : process.cwd(), ref);
+    return path.resolve(base ? path.dirname(base) : process.cwd(), decodeRefPath(ref));
   }
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
