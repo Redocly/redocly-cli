@@ -1,0 +1,5 @@
+apis:
+  menu:
+    root: ../build-docs-for-multiple-apis/menu.yaml
+  orders:
+    root: ../build-docs-for-multiple-apis/orders.yaml

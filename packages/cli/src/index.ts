@@ -715,6 +715,12 @@ cli
             choices: ['basename', 'title'] as ReadonlyArray<ComponentNamesStrategy>,
             default: 'basename' as ComponentNamesStrategy,
           },
+        })
+        .check((argv) => {
+          if (argv.output && (!argv.apis || argv.apis.length === 0)) {
+            throw new Error('At least one inline API must be specified when using --output.');
+          }
+          return true;
         }),
     async (argv) => {
       const { handleBundle } = await import('./commands/bundle.js');
@@ -995,6 +1001,12 @@ cli
           // Remove these options and the check below in the first release after January 31, 2027.
           theme: { hidden: true },
           disableGoogleFont: { hidden: true, type: 'boolean' },
+        })
+        .check((argv) => {
+          if (argv.o && !argv.api) {
+            throw new Error('At least one inline API must be specified when using --output.');
+          }
+          return true;
         })
         .check((argv) => {
           if (argv.theme !== undefined) {

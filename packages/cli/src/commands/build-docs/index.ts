@@ -46,21 +46,19 @@ export const handlerBuildCommand = async ({
   );
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-  const apisWithDocsOutput = apis.filter(({ docsOutput }) => docsOutput);
-  const apisToBuild = argv.api || apisWithDocsOutput.length === 0 ? [apis[0]] : apisWithDocsOutput;
-  exitOnRepeatedOutput(
-    apisToBuild.map(({ docsOutput }) => docsOutput),
-    'docsOutput'
+  const outputs = apis.map(({ docsOutput }) =>
+    docsOutput ? formatPath(docsOutput) : (argv.o ?? 'redoc-static.html')
   );
+  exitOnRepeatedOutput(outputs, 'docsOutput');
 
-  for (const { path: pathToApi, alias, docsOutput } of apisToBuild) {
+  for (const [index, { path: pathToApi, alias, docsOutput }] of apis.entries()) {
     const startedAt = performance.now();
     if (docsOutput && argv.o) {
       logger.warn(
         `Ignoring --output because the configuration file sets \`docsOutput\` for this API.\n`
       );
     }
-    const output = docsOutput ? formatPath(docsOutput) : (argv.o ?? 'redoc-static.html');
+    const output = outputs[index];
 
     try {
       const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);

@@ -5,5 +5,3 @@ apis:
       no-invalid-media-type-examples:
         severity: error
         allowAdditionalProperties: false
-  other:
-    root: ./test.yaml
