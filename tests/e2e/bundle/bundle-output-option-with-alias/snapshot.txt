@@ -1,6 +1,5 @@
 
 bundling menu.yaml using configuration for api 'menu'...
-Ignoring --output because the configuration file sets `output` for this API.
-📦 Created a bundle for menu.yaml at ./tests/e2e/bundle/bundle-output-option-with-alias/output/menu.yaml <test>ms.
+📦 Created a bundle for menu.yaml at output/option.yaml <test>ms.
 
 Exit code: 0

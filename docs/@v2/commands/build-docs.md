@@ -47,7 +47,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --inlineBundle    | boolean | Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN. The default value is `false`.                                            |
 | --lint-config     | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                            |
 | --openapi         | string  | Customize your output with [Redoc OpenAPI options](https://redocly.com/docs/realm/config/openapi). Use dot notation, for example `--openapi.hideDownloadButtons`.   |
-| --output, -o      | string  | Set the path and name of the output file. The default value is `redoc-static.html`. The `docsOutput` of an API in the configuration file takes precedence.          |
+| --output, -o      | string  | Set the path and name of the output file. The default value is `redoc-static.html`. It takes precedence over the `docsOutput` of the API in the configuration file. |
 | --template, -t    | string  | Use custom [Handlebars](https://handlebarsjs.com/) templates to render your API description.                                                                        |
 | --templateOptions | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                         |
 | --title           | string  | Set the page title.                                                                                                                                                 |
@@ -110,7 +110,7 @@ redocly build-docs
 
 In this case, `build-docs` builds every API of the `apis` object, and saves each build to its `docsOutput`, relative to the configuration file.
 An API without `docsOutput` is saved to `redoc-static.html`, so the command fails when two APIs have no `docsOutput`.
-The `--output` option works only with an API in the command line, and the command ignores it with a warning when that API has `docsOutput`.
+The `--output` option works only with an API in the command line, and takes precedence over the `docsOutput` of that API.
 
 ### Use an alternative configuration file
 

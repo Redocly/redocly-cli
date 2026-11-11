@@ -18,12 +18,7 @@ import { performance } from 'node:perf_hooks';
 import { convertSwagger2OpenAPI } from 'redoc';
 
 import { renderBanner } from '../../utils/banner.js';
-import {
-  exitOnRepeatedOutput,
-  formatPath,
-  getExecutionTime,
-  getFallbackApisOrExit,
-} from '../../utils/miscellaneous.js';
+import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import { isTelemetryEnabled } from '../../utils/telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -46,18 +41,18 @@ export const handlerBuildCommand = async ({
   );
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-  const outputs = apis.map(({ docsOutput }) =>
-    docsOutput ? formatPath(docsOutput) : (argv.o ?? 'redoc-static.html')
+  const outputs = apis.map(
+    ({ docsOutput }) => argv.o ?? (docsOutput ? formatPath(docsOutput) : 'redoc-static.html')
   );
-  exitOnRepeatedOutput(outputs, 'docsOutput');
+  const repeatedOutput = outputs.find((output, index) => outputs.indexOf(output) !== index);
+  if (repeatedOutput) {
+    throw new HandledError(
+      `Two APIs write to the same path: ${repeatedOutput}. Give each API a distinct \`docsOutput\`.`
+    );
+  }
 
-  for (const [index, { path: pathToApi, alias, docsOutput }] of apis.entries()) {
+  for (const [index, { path: pathToApi, alias }] of apis.entries()) {
     const startedAt = performance.now();
-    if (docsOutput && argv.o) {
-      logger.warn(
-        `Ignoring --output because the configuration file sets \`docsOutput\` for this API.\n`
-      );
-    }
     const output = outputs[index];
 
     try {

@@ -21,7 +21,6 @@ import { type OutputExtension, type Totals } from '../types.js';
 import {
   dumpBundle,
   getExecutionTime,
-  exitOnRepeatedOutput,
   getConfigDirectory,
   getFallbackApisOrExit,
   getOutputFileName,
@@ -29,6 +28,7 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeys,
+  warnOnRepeatedOutput,
   formatPath,
 } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
@@ -115,7 +115,7 @@ export async function handleBundle({
         entries: argv?.apis?.length || 0,
       });
       outputFiles.push(outputFile);
-      exitOnRepeatedOutput(outputFiles, 'output');
+      warnOnRepeatedOutput(outputFiles);
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
