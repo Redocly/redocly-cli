@@ -14,7 +14,6 @@ export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample' | 'docs'> &
 function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): BuiltinMeta {
   return {
     requires: ['typescript'],
-    errorModes: ['throw'],
     load: () =>
       import('./tanstack-query/index.js').then((m) => ({
         run: m.tanstackQueryGenerator(framework),
@@ -53,17 +52,18 @@ export const BUILTIN_META: Record<GeneratorName, BuiltinMeta> = {
     dateTypes: ['Date'],
     load: () => import('./transformers/index.js').then((m) => ({ run: m.transformersGenerator })),
   },
-  // tanstack-query wraps the client's exported, throw-mode operation functions — present in
-  // both runtime distributions, so no runtime restriction. The framework variants differ
-  // only in the `@tanstack/<framework>-query` import; the bare name means React.
+  // tanstack-query wraps the client's exported operation functions — present in both runtime
+  // distributions, so no runtime restriction — and unwraps a result-mode client's calls
+  // itself, so no error-mode restriction either. The framework variants differ only in the
+  // `@tanstack/<framework>-query` import; the bare name means React.
   'tanstack-query': tanstackQuery('react'),
   'tanstack-query-vue': tanstackQuery('vue'),
   'tanstack-query-svelte': tanstackQuery('svelte'),
   'tanstack-query-solid': tanstackQuery('solid'),
-  // swr wraps the client's exported, throw-mode operation functions as SWR hooks.
+  // swr wraps the client's exported operation functions as SWR hooks, unwrapping a
+  // result-mode client's calls itself.
   swr: {
     requires: ['typescript'],
-    errorModes: ['throw'],
     load: () => import('./swr/index.js').then((m) => ({ run: m.swrGenerator })),
   },
   // mock emits a standalone MSW handlers/factories module referencing the client's types.

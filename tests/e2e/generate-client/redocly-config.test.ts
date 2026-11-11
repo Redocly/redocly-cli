@@ -212,6 +212,30 @@ const cases: ConfigCase[] = [
     files: ['out/client.ts', 'out/client.schemas.ts', 'out/client.zod.ts'],
   },
   {
+    // The client returns results, and the wrapper beside it throws: one error mode per
+    // `client` block no longer blocks the pair.
+    name: 'a result-mode client generates beside its tanstack-query wrapper',
+    config: outdent`
+      client:
+        generators:
+          - typescript
+          - tanstack-query
+        outputMode: split
+        errorMode: result
+      apis:
+        cafe:
+          root: ./openapi.yaml
+          clientOutput: ./src/openapi.ts
+    `,
+    args: [],
+    status: 0,
+    files: ['src/openapi.ts', 'src/openapi.schemas.ts'],
+    contains: [
+      { file: 'src/openapi.ts', text: 'errorMode: "result"' },
+      { file: 'src/openapi.tanstack.ts', text: 'unwrapResult(instance.' },
+    ],
+  },
+  {
     // The client is generated from the api's resolved config, so a per-api `remove-x-internal`
     // decorator strips the x-internal operation before the client is built.
     name: "applies the api's per-alias decorators to the input before generating",

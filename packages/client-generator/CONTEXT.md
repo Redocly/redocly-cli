@@ -122,6 +122,7 @@ _Avoid_: param style, calling convention.
 The client's error-handling shape: `throw` (default — operations throw `ApiError` on non-2xx) or `result` (operations return a discriminated `Result<TData, TError>` = `{ data, error, response }`, with `error` typed from the spec's 4xx/5xx response bodies as the `<Op>Error` union).
 Selected by `--error-mode`.
 Transport/abort failures still throw in both modes; `onError` is a throw-mode hook.
+The mode shapes the client only: the `swr` and `tanstack-query` wrappers throw `ApiError` in both modes, unwrapping a result-mode client's calls.
 _Avoid_: throwOnError, errorHandling, result shape (in code identifiers).
 
 **dateType**:

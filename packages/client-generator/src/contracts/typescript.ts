@@ -4,7 +4,7 @@
 // answers in each wrapper would put the SDK's calling convention in several places,
 // which is exactly the drift this module exists to prevent.
 
-import type { GeneratorInput } from '../generators/types.js';
+import type { ErrorMode, GeneratorInput } from '../generators/types.js';
 import { operationSignature } from '../generators/typescript/operation-signature.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 
@@ -87,16 +87,42 @@ export function sdkCallText(op: OperationModel, source: string, withInit: boolea
   return `${op.name}(${args.join(', ')})`;
 }
 
-/** The named import from the sdk module: wrapped opFns, then the referenced
- * `<Op>Variables` types + `RequestOptions` (when any query op) as `type` specifiers. */
+/**
+ * The declaration a wrapper module carries to call a result-mode sdk as a throwing
+ * fetcher, which is what TanStack Query and SWR expect: `unwrapResult(call)` resolves
+ * with the body and throws the same `ApiError` a throw-mode sdk would. The module must
+ * import `ApiError` and `type Result` from the sdk.
+ */
+export const UNWRAP_RESULT_SOURCE =
+  '/** Resolve with the response body, or throw ApiError when the request failed. */\n' +
+  'async function unwrapResult<TData>(call: Promise<Result<TData, unknown>>): Promise<TData> {\n' +
+  '    const { data, error, response } = await call;\n' +
+  '    if (!response.ok) throw new ApiError(response.url, response.status, response.statusText, error);\n' +
+  '    // The status decides success, not the data: a bodyless success has no data either.\n' +
+  '    return data as TData;\n' +
+  '}';
+
+/** An sdk call that throws on a failed request in either error mode. */
+export function throwingCallText(callText: string, errorMode: ErrorMode = 'throw'): string {
+  return errorMode === 'result' ? `unwrapResult(${callText})` : callText;
+}
+
+/** The named import from the sdk module: wrapped opFns (plus `ApiError` in result mode,
+ * for `unwrapResult`), then the referenced `<Op>Variables` types, `RequestOptions` (when
+ * any query op), and `Result` (result mode) as `type` specifiers. */
 export function sdkNamedImportText(
   ops: OperationModel[],
   sdkModule: string,
-  hasQuery: boolean
+  hasQuery: boolean,
+  errorMode: ErrorMode = 'throw'
 ): string {
   const values = ops.map((op) => op.name).sort();
   const types = ops.filter(hasInputs).map(variablesName).sort();
   if (hasQuery) types.push('RequestOptions');
+  if (errorMode === 'result') {
+    values.unshift('ApiError');
+    types.push('Result');
+  }
   const specifiers = [...values, ...types.map((name) => `type ${name}`)].join(', ');
   return `import { ${specifiers} } from ${JSON.stringify(sdkModule)};`;
 }

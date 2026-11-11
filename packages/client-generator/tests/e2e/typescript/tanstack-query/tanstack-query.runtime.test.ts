@@ -48,6 +48,12 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
       output: join(consumerDir, 'client.ts'),
       generators: ['typescript', 'tanstack-query'],
     });
+    await generateClient({
+      api: join(__dirname, '../../fixtures', 'base.yaml'),
+      output: join(consumerDir, 'result-client.ts'),
+      generators: ['typescript', 'tanstack-query'],
+      errorMode: 'result',
+    });
   });
 
   afterAll(() => {
@@ -107,5 +113,25 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
       body: { name: 'rex', status: 'available' },
     });
     expect(created).toEqual(PET);
+  });
+
+  it('over a result-mode sdk, a failed request rejects the query with ApiError', async () => {
+    const sdk = await import(join(consumerDir, 'result-client.ts'));
+    const mod = await import(join(consumerDir, 'result-client.tanstack.ts'));
+
+    sdk.configure({
+      fetch: () =>
+        Promise.resolve(
+          new Response(JSON.stringify({ title: 'Not found' }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        ),
+    });
+
+    const query = newClient().fetchQuery(mod.getPetByIdOptions({ path: { id: 1 } }));
+
+    await expect(query).rejects.toBeInstanceOf(sdk.ApiError);
+    await expect(query).rejects.toMatchObject({ status: 404, body: { title: 'Not found' } });
   });
 });

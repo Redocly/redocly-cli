@@ -1,5 +1,7 @@
 # ADR 0011: Data-fetching wrapper generators (`swr`, `tanstack-query`)
 
+> **Note (2026-11):** The throw-only requirement below is lifted — over a result-mode sdk the wrappers unwrap the result themselves; see [ADR-0025](./0025-wrappers-unwrap-result-mode.md).
+
 - Status: Accepted
 - Date: 2026-06-13
 

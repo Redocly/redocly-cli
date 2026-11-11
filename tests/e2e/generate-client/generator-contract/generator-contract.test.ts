@@ -51,7 +51,7 @@ describe('generate-client generator compatibility contract', () => {
         '--generator',
         'typescript',
         '--generator',
-        'tanstack-query',
+        'cli',
         '--error-mode',
         'result',
       ],

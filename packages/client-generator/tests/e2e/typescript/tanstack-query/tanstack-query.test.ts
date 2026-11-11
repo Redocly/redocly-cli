@@ -25,6 +25,12 @@ describe('generate-client tanstack-query generator', () => {
       output: join(consumerDir, 'pagination.ts'),
       generators,
     });
+    await generateClient({
+      api: join(__dirname, '../../fixtures', 'base.yaml'),
+      output: join(consumerDir, 'result-client.ts'),
+      generators,
+      errorMode: 'result',
+    });
   });
 
   afterAll(() => {
@@ -54,8 +60,9 @@ describe('generate-client tanstack-query generator', () => {
   });
 
   it('strict-tsc-checks the emitted modules against real @tanstack/react-query and composes them with the sdk', () => {
-    // `check.ts` uses useQuery/useMutation, `check-pagination.ts` useInfiniteQuery: the
-    // emitted factories type-check against the actual adapter surface, not in isolation.
+    // `check.ts` uses useQuery/useMutation, `check-pagination.ts` useInfiniteQuery, and
+    // `check-result.ts` the factories over a result-mode sdk: the emitted factories
+    // type-check against the actual adapter surface, not in isolation.
     expectTscPasses(['--noEmit', '-p', consumerDir]);
   });
 

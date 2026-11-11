@@ -37,7 +37,9 @@ redocly generate-client openapi.yaml --output src/client.ts --generator typescri
 
 Some generators need specific options:
 
-- `tanstack-query`, `swr`, `cli`, `go`, `php`, and `java` work only with `--error-mode throw` (the default).
+- `cli`, `go`, `php`, and `java` work only with `--error-mode throw` (the default).
+- `tanstack-query` and `swr` work with both error modes.
+  See [Error mode with TanStack Query and SWR](#error-mode-with-tanstack-query-and-swr).
 - `transformers` works only with `--date-type Date`.
 
 For sample output, see the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/mock) examples.
@@ -641,6 +643,30 @@ else console.log(data.id);
 
 Transport and abort failures still throw in both modes.
 The choice is fixed at generate time.
+
+### Error mode with TanStack Query and SWR
+
+The error mode changes the client only.
+The `tanstack-query` and `swr` output throws `ApiError` for a failed request in both modes, because the two libraries expect a thrown error.
+Thus you can use the result shape in server code, and TanStack Query or SWR in browser code, from one configuration:
+
+```yaml
+client:
+  generators:
+    - typescript
+    - tanstack-query
+  errorMode: result
+```
+
+```ts
+// The client returns a result.
+const { data, error } = await getOrderById({ path: { orderId: 'ord_123' } });
+
+// The query throws. `query.data` is the body, and `query.error` is the `ApiError`.
+const query = useQuery(getOrderByIdOptions({ path: { orderId: 'ord_123' } }));
+```
+
+With `--error-mode result`, the `onError` middleware hook does not run, also for the requests of a query or a hook.
 
 ## Middleware
 
