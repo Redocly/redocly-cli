@@ -52,6 +52,15 @@ describe('markdoc-attributes', () => {
     ).toHaveLength(1);
   });
 
+  it('accepts the prompt tag attributes in the Realm schema', async () => {
+    expect(
+      await realm.lint(
+        '{% prompt title="Ask" icon="sparkles" actions="copy" hidePrompt=true singleLine=true buttonOnly=false rawContent="x" iconRawContent="y" %}\n{% /prompt %}\n'
+      )
+    ).toEqual([]);
+    expect(await realm.lint('{% prompt bogus="x" %}\n{% /prompt %}\n')).toHaveLength(1);
+  });
+
   it('no-ops cleanly when the markdoc flag is off (ctx.markdoc absent)', async () => {
     const off = tokenRuleHarness('markdoc-attributes');
     expect(await off.lint('{% t req="x" /%}\n')).toEqual([]);

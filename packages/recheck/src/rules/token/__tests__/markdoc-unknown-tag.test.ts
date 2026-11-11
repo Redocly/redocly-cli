@@ -28,6 +28,10 @@ describe('markdoc-unknown-tag', () => {
     expect(await noSchema.lint('{% widget %}\ntext\n{% /widget %}\n')).toEqual([]);
   });
 
+  it('knows the prompt tag in the Realm schema', async () => {
+    expect(await realm.lint('{% prompt title="Ask" %}\ntext\n{% /prompt %}\n')).toEqual([]);
+  });
+
   it('reports nothing for a tag declared in the schema', async () => {
     expect(await h.lint('{% admonition %}\ntext\n{% /admonition %}\n')).toEqual([]);
   });
