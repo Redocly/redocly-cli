@@ -434,6 +434,16 @@ describe('collect refs', () => {
     expect(resolved.node).toEqual({ type: 'string' });
   });
 
+  it('should not decode a root document path', () => {
+    const resolver = new BaseResolver();
+    expect(resolver.resolveExternalRef(null, 'my%20api.yaml')).toBe(
+      path.resolve(process.cwd(), 'my%20api.yaml')
+    );
+    expect(resolver.resolveExternalRef('/specs/openapi.yaml', 'my%20api.yaml')).toBe(
+      path.resolve('/specs', 'my api.yaml')
+    );
+  });
+
   it('should record a $ref with sibling keys as a chain hop while following transitive refs', async () => {
     const rootDocument = parseYamlToDocument(
       outdent`

@@ -129,7 +129,12 @@ export class BaseResolver {
       return new URL(ref, base).href;
     }
 
-    return path.resolve(base ? path.dirname(base) : process.cwd(), decodeRefPath(ref));
+    if (!base) {
+      // A root document or config file path comes from the file system, not from a `$ref`.
+      return path.resolve(process.cwd(), ref);
+    }
+
+    return path.resolve(path.dirname(base), decodeRefPath(ref));
   }
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
