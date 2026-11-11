@@ -60,6 +60,14 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 ---
 
+- docsOutput
+- Output file path
+- When running `build-docs` without specifying an API, the docs of this API are saved to this location.
+  The path is relative to the configuration file.
+  See [Build docs for several APIs](../../commands/build-docs.md#build-docs-for-several-apis).
+
+---
+
 - overlays
 - [string]
 - Paths or URLs of [Overlay](https://spec.openapis.org/overlay/latest.html) files that the `bundle` command applies to this API, in order.

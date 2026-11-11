@@ -47,7 +47,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --inlineBundle    | boolean | Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN. The default value is `false`.                                            |
 | --lint-config     | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                            |
 | --openapi         | string  | Customize your output with [Redoc OpenAPI options](https://redocly.com/docs/realm/config/openapi). Use dot notation, for example `--openapi.hideDownloadButtons`.   |
-| --output, -o      | string  | Set the path and name of the output file. The default value is `redoc-static.html`.                                                                                 |
+| --output, -o      | string  | Set the path and name of the output file. The default value is `redoc-static.html`. The `docsOutput` of an API in the configuration file takes precedence.          |
 | --template, -t    | string  | Use custom [Handlebars](https://handlebarsjs.com/) templates to render your API description.                                                                        |
 | --templateOptions | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                         |
 | --title           | string  | Set the page title.                                                                                                                                                 |
@@ -87,6 +87,31 @@ redocly build-docs games@v1
 In this case, after resolving the path behind the `games@v1` name, `build-docs` generates a build of the `api-description.json` file.
 For this approach, the Redocly configuration file is mandatory.
 Any additional configurations provided in the file are also used by the command.
+
+#### Build docs for several APIs
+
+Set `docsOutput` for each API in the `apis` object of your Redocly configuration file:
+
+```yaml Configuration file
+apis:
+  games@v1:
+    root: ./openapi/games.yaml
+    docsOutput: ./docs/games.html
+  users@v1:
+    root: ./openapi/users.yaml
+    docsOutput: ./docs/users.html
+```
+
+Then run the command without an API:
+
+```bash Command
+redocly build-docs
+```
+
+In this case, `build-docs` builds every API that has `docsOutput`, and saves each build to that path, relative to the configuration file.
+The command-line options apply to every build, except `--output`, which the command ignores with a warning for an API that has `docsOutput`.
+The same applies when you pass the alias of such an API.
+When no API has `docsOutput`, the command builds the first API of the `apis` object.
 
 ### Use an alternative configuration file
 

@@ -14,6 +14,7 @@ describe('bundle', () => {
     'bundle-remove-unused-components-from-api-config',
     'bundle-arazzo-valid-test-description',
     'bundle-no-output-without-inline-apis',
+    'bundle-output-option-with-alias',
     'bundle-use-titles-for-component-names-collision',
     'bundle-overlays',
   ];
@@ -44,9 +45,16 @@ describe('bundle', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
-  test('bundle should NOT be invoked IF no positional apis provided AND --output specified', async () => {
+  test('bundle fails when --output goes to several APIs of the config', async () => {
     const testPath = join(folderPath, 'bundle-no-output-without-inline-apis');
-    const args = getParams(indexEntryPoint, ['bundle', '--output=dist']);
+    const args = getParams(indexEntryPoint, ['bundle', '--output=output/dist']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('bundle warns that --output is ignored for an alias with output in the config', async () => {
+    const testPath = join(folderPath, 'bundle-output-option-with-alias');
+    const args = getParams(indexEntryPoint, ['bundle', 'menu', '--output=output/option.yaml']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
