@@ -58,10 +58,10 @@ describe('resolveContentByType', () => {
     expect(resolveContentByType(content, 'image/png')).toBeUndefined();
   });
 
-  it('should return first matching wildcard when multiple wildcards match', () => {
+  it('should return the most specific wildcard when multiple wildcards match', () => {
     const content = {
-      'application/*': { schema: { type: 'object' } },
       '*/*': { schema: { type: 'string' } },
+      'application/*': { schema: { type: 'object' } },
     };
     const result = resolveContentByType(content, 'application/json');
     expect(result).toEqual({ schema: { type: 'object' } });
