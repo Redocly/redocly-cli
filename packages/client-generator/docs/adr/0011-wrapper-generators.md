@@ -1,7 +1,5 @@
 # ADR 0011: Data-fetching wrapper generators (`swr`, `tanstack-query`)
 
-> **Note (2026-11):** The throw-only requirement below is lifted — over a result-mode sdk the wrappers unwrap the result themselves; see [ADR-0025](./0025-wrappers-unwrap-result-mode.md).
-
 - Status: Accepted
 - Date: 2026-06-13
 
@@ -23,6 +21,7 @@ For TanStack's multiple frameworks, the **emitted factory module is byte-identic
 **Superseded (2026-07-23):** the flag was replaced by variant generator names (`tanstack-query` = React, `tanstack-query-vue`/`-svelte`/`-solid`) — the selection now lives in `generators`, where the artifact choice already is; the single-emitter/byte-identical-body design is unchanged.
 
 Wrappers wrap the **throw-mode** sdk (TanStack/SWR expect the fetcher to throw), so they require `--error-mode throw` and the `functions` facade; the generator contract fails fast otherwise.
+**Superseded (2026-11-11):** the wrappers accept both error modes — over a result-mode sdk they unwrap the `{ data, error, response }` result and throw `ApiError` themselves, so they no longer require `--error-mode throw`.
 
 ## Consequences
 

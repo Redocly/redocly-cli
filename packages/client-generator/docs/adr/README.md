@@ -21,7 +21,7 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0008](./0008-redocly-yaml-config.md)                  | `generate-client` config via `redocly.yaml` `x-client-generator`         | Superseded by 0019      |
 | [0009](./0009-per-instance-auth.md)                    | Per-instance auth via `ClientConfig.auth`                                | Amended by 0017         |
 | [0010](./0010-mock-data-baked-vs-faker.md)             | Mock data: baked literals by default, faker opt-in                       | Accepted                |
-| [0011](./0011-wrapper-generators.md)                   | Data-fetching wrapper generators (`swr`, `tanstack-query`)               | Amended by 0025         |
+| [0011](./0011-wrapper-generators.md)                   | Data-fetching wrapper generators (`swr`, `tanstack-query`)               | Accepted                |
 | [0012](./0012-plugin-api.md)                           | Experimental custom-generator (plugin) API                               | Accepted (experimental) |
 | [0013](./0013-experimental-status.md)                  | Experimental release status & stabilization criteria                     | Accepted                |
 | [0014](./0014-request-response-customization.md)       | Request/response customization as a runtime contract                     | Accepted                |
@@ -35,7 +35,6 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0022](./0022-runtime-inline-or-module.md)             | Runtime is inline or a sibling module; package mode removed              | Accepted                |
 | [0023](./0023-usage-telemetry-across-languages.md)     | One usage telemetry event for every SDK language, through a settled hook | Amended by 0024         |
 | [0024](./0024-usage-event-follows-cli-otel-schema.md)  | The usage telemetry event follows the CloudEvent schema of cli-otel      | Accepted                |
-| [0025](./0025-wrappers-unwrap-result-mode.md)          | Wrapper generators unwrap a result-mode sdk instead of forbidding it     | Accepted                |
 
 ## Template
 
