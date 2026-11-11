@@ -1,15 +1,15 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import type {
-  Implementation,
-  Prompt,
-  Resource,
-  ServerCapabilities,
-  Tool,
-} from '@modelcontextprotocol/sdk/types.js';
+import {
+  Client,
+  SSEClientTransport,
+  StreamableHTTPClientTransport,
+  type Implementation,
+  type Prompt,
+  type Resource,
+  type ServerCapabilities,
+  type Tool,
+  type Transport,
+} from '@modelcontextprotocol/client';
+import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { logger, HandledError } from '@redocly/openapi-core';
 import { gray } from 'colorette';
 
@@ -40,18 +40,6 @@ async function collectAllPages<Item>(
   return items;
 }
 
-// Only the Streamable HTTP transport exposes the negotiated protocol version itself,
-// but the client reports it to any transport that listens - so listen on all of them.
-function captureProtocolVersion(transport: Transport): () => string | undefined {
-  let negotiatedVersion: string | undefined;
-  const originalSetProtocolVersion = transport.setProtocolVersion?.bind(transport);
-  transport.setProtocolVersion = (protocolVersion: string) => {
-    negotiatedVersion = protocolVersion;
-    originalSetProtocolVersion?.(protocolVersion);
-  };
-  return () => negotiatedVersion;
-}
-
 // The spawned server inherits the full environment, like running the command in the same
 // shell would - stdio servers commonly read their API keys from environment variables.
 function inheritedEnvironment(): Record<string, string> {
@@ -70,10 +58,7 @@ function targetLabel(target: McpTarget): string {
     : `"${[target.command, ...target.args].join(' ')}"`;
 }
 
-async function connectClient(
-  target: McpTarget,
-  version: string
-): Promise<{ mcpClient: Client; getProtocolVersion: () => string | undefined }> {
+async function connectClient(target: McpTarget, version: string): Promise<Client> {
   // For HTTP, try Streamable HTTP first and fall back to the legacy HTTP+SSE transport,
   // as the MCP specification recommends for clients supporting both.
   const transportAttempts: (() => Transport)[] =
@@ -99,12 +84,15 @@ async function connectClient(
     if (attemptIndex > 0) {
       logger.info(gray('  Retrying with the legacy HTTP+SSE transport... \n'));
     }
-    const transport = createTransport();
-    const getProtocolVersion = captureProtocolVersion(transport);
-    const mcpClient = new Client({ name: 'redocly-cli', version });
+    // Protocol 2026-07-28 replaced the `initialize` handshake with `server/discover`.
+    // In the `auto` mode the client tries `server/discover` first and falls back to `initialize`.
+    const mcpClient = new Client(
+      { name: 'redocly-cli', version },
+      { versionNegotiation: { mode: 'auto' } }
+    );
     try {
-      await mcpClient.connect(transport);
-      return { mcpClient, getProtocolVersion };
+      await mcpClient.connect(createTransport());
+      return mcpClient;
     } catch (error) {
       firstError ??= error;
       await mcpClient.close().catch(() => undefined);
@@ -121,7 +109,7 @@ export async function introspectMcpServer(
   target: McpTarget,
   version: string
 ): Promise<McpServerSnapshot> {
-  const { mcpClient, getProtocolVersion } = await connectClient(target, version);
+  const mcpClient = await connectClient(target, version);
 
   try {
     const capabilities = mcpClient.getServerCapabilities();
@@ -145,7 +133,7 @@ export async function introspectMcpServer(
       : [];
 
     return {
-      protocolVersion: getProtocolVersion(),
+      protocolVersion: mcpClient.getNegotiatedProtocolVersion(),
       capabilities,
       serverInfo: mcpClient.getServerVersion(),
       instructions: mcpClient.getInstructions(),

@@ -8,7 +8,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { parseYaml, AbortFlowError } from '@redocly/openapi-core';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { createServer, type Server as HttpServer } from 'node:http';
+import { createServer, type Server as HttpServer, type ServerResponse } from 'node:http';
 import { type AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -430,6 +430,90 @@ describe('handleIntrospectMcp', () => {
       rmSync(outputDir, { recursive: true, force: true });
       await Promise.all([...sseTransports.values()].map((transport) => transport.close()));
       await new Promise((resolve) => sseHttpServer.close(resolve));
+    }
+  });
+
+  it('introspects a server that supports only the 2026-07-28 protocol, which has no initialize handshake', async () => {
+    const cacheHints = { resultType: 'complete', ttlMs: 0, cacheScope: 'private' };
+    const respond = (response: ServerResponse, status: number, message: object) => {
+      response.writeHead(status, { 'content-type': 'application/json' });
+      response.end(JSON.stringify({ jsonrpc: '2.0', ...message }));
+    };
+    const discoverOnlyServer = createServer((request, response) => {
+      if (request.method !== 'POST') {
+        response.writeHead(405).end();
+        return;
+      }
+      let body = '';
+      request.on('data', (chunk) => (body += chunk));
+      request.on('end', () => {
+        const { id, method, params } = JSON.parse(body);
+        if (method === 'server/discover') {
+          respond(response, 200, {
+            id,
+            result: {
+              supportedVersions: ['2026-07-28'],
+              capabilities: { tools: {} },
+              instructions: 'Manage the cafe menu.',
+              ...cacheHints,
+              _meta: {
+                'io.modelcontextprotocol/serverInfo': {
+                  name: 'discover-cafe-mcp',
+                  version: '4.0.0',
+                },
+              },
+            },
+          });
+        } else if (method === 'tools/list') {
+          respond(response, 200, { id, result: { tools: [LIST_MENU_TOOL], ...cacheHints } });
+        } else {
+          respond(response, 400, {
+            id,
+            error: {
+              code: -32022,
+              message: 'Unsupported protocol version',
+              data: { supported: ['2026-07-28'], requested: params?.protocolVersion },
+            },
+          });
+        }
+      });
+    });
+    await new Promise<void>((resolve) => discoverOnlyServer.listen(0, '127.0.0.1', resolve));
+    const discoverOnlyServerUrl = `http://127.0.0.1:${
+      (discoverOnlyServer.address() as AddressInfo).port
+    }/mcp`;
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    const outputFile = join(outputDir, 'openapi.yaml');
+    try {
+      await runIntrospectMcp({ 'server-url': discoverOnlyServerUrl, output: outputFile });
+
+      const written = readFileSync(outputFile, 'utf-8').replaceAll(
+        discoverOnlyServerUrl,
+        '<server-url>'
+      );
+      expect(written).toMatchInlineSnapshot(`
+        "openapi: 3.1.0
+        info:
+          title: discover-cafe-mcp
+          description: Manage the cafe menu.
+          version: 4.0.0
+        paths: {}
+        x-mcp:
+          protocolVersion: '2026-07-28'
+          servers:
+            - url: <server-url>
+          capabilities:
+            tools: {}
+          tools:
+            - name: menu/list
+              description: List the menu items.
+              inputSchema:
+                type: object
+        "
+      `);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+      await new Promise((resolve) => discoverOnlyServer.close(resolve));
     }
   });
 });

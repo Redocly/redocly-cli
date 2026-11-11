@@ -53,6 +53,7 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "devDependencies": {
+    "@modelcontextprotocol/client": "^2.4.0",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@opentelemetry/exporter-trace-otlp-http": "0.219.0",
     "@opentelemetry/resources": "2.8.0",
@@ -61,9 +62,9 @@
     "@redocly/cli-otel": "0.4.0",
     "@redocly/client-generator": "0.10.0",
     "@redocly/openapi-core": "2.77.0",
+    "@redocly/platform-integration": "2.77.0",
     "@redocly/recheck": "2.77.0",
     "@redocly/respect-core": "2.77.0",
-    "@redocly/platform-integration": "2.77.0",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",
