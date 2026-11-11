@@ -115,6 +115,29 @@ describe('Oas3 assertions', () => {
           }
         `);
       });
+
+      it('should name the rule and the where item when an assertion is misused', () => {
+        const where = [
+          {
+            subject: { type: 'Operation', property: 'tags' },
+            assertions: { disallowed: ['get'] },
+          },
+        ] as AssertionDefinition[];
+
+        expect(() =>
+          buildVisitorObject(
+            {
+              assertionId: 'rule/test',
+              subject: { type: 'MediaTypesMap' },
+              where,
+              assertions: {},
+            } as Assertion,
+            () => {}
+          )
+        ).toThrow(
+          "rule/test -> where -> [0]: The 'disallowed' assertion can't be used on properties. Please remove the 'property' key."
+        );
+      });
     });
 
     describe('runAssertion', () => {
