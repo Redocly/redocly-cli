@@ -210,7 +210,7 @@ describe('build-docs', () => {
     );
   });
 
-  test('build docs warns that --output is ignored for an alias with docsOutput', async () => {
+  test('build docs writes to --output for an alias with docsOutput', async () => {
     const testPath = join(folderPath, 'build-docs-for-multiple-apis');
     const args = getParams(indexEntryPoint, ['build-docs', 'menu', '--output=output/option.html']);
     const result = getCommandOutput(args, { testPath });

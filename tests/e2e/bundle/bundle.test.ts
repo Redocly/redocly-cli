@@ -54,7 +54,7 @@ describe('bundle', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
-  test('bundle warns that --output is ignored for an alias with output in the config', async () => {
+  test('bundle writes to --output for an alias with output in the config', async () => {
     const testPath = join(folderPath, 'bundle-output-option-with-alias');
     const args = getParams(indexEntryPoint, ['bundle', 'menu', '--output=output/option.yaml']);
     const result = getCommandOutput(args, { testPath });
@@ -87,6 +87,15 @@ describe('bundle', () => {
     } finally {
       rmSync(outputDir, { recursive: true, force: true });
     }
+  });
+
+  test('bundle warns when two APIs write to the same path', async () => {
+    const testPath = join(folderPath, 'bundle-output-option-with-alias');
+    const args = getParams(indexEntryPoint, ['bundle', 'menu', 'menu']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'repeated-output-snapshot.txt')
+    );
   });
 });
 
