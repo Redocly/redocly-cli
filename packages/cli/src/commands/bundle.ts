@@ -21,6 +21,7 @@ import { type OutputExtension, type Totals } from '../types.js';
 import {
   dumpBundle,
   getExecutionTime,
+  exitOnRepeatedOutput,
   getConfigDirectory,
   getFallbackApisOrExit,
   getOutputFileName,
@@ -68,6 +69,7 @@ export async function handleBundle({
       `[WARNING] "--metafile" works with one API only, so the metafile is not written. Bundle one API to write it.\n`
     );
   }
+  const outputFiles: (string | undefined)[] = [];
 
   for (const { path, alias, output } of apis) {
     try {
@@ -117,6 +119,8 @@ export async function handleBundle({
         ext: argv.ext,
         entries: argv?.apis?.length || 0,
       });
+      outputFiles.push(outputFile);
+      exitOnRepeatedOutput(outputFiles, 'output');
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
