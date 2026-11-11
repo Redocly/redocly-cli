@@ -56,11 +56,16 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
 };
 
 /**
- * The absolute project directory. `npx` and `npm run` start the command in the nearest
- * directory with a `package.json` and leave the real invocation directory in `INIT_CWD`.
+ * The absolute project directory. `npm run` and `pnpm run` start the command in the package
+ * root and leave the invocation directory in `INIT_CWD`. It is used only when it sits inside
+ * the current directory: a launcher moved the command up. Otherwise (`npm run -w`,
+ * `pnpm --filter`, a script that runs `cd`) the current directory is the project.
  */
 export const resolveProjectDir = (projectDir: string, env = process.env): string => {
-  return path.resolve(env.INIT_CWD || process.cwd(), projectDir);
+  const cwd = process.cwd();
+  const initCwd = path.resolve(env.INIT_CWD || cwd);
+  const base = initCwd.startsWith(cwd + path.sep) ? initCwd : cwd;
+  return path.resolve(base, projectDir);
 };
 
 const isValidProduct = (product: string | undefined): product is Product => {
