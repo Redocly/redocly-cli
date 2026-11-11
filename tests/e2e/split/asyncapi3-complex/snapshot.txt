@@ -77,10 +77,7 @@ asyncapi: 3.0.0
 info:
   title: Complex AsyncAPI 3 Example
   version: 1.0.0
-  description: >-
-    A complex AsyncAPI 3 example testing split with multiple channels,
-    operations, schemas, messageTraits, correlationIds, securitySchemes and
-    replies
+  description: A complex AsyncAPI 3 example testing split with multiple channels, operations, schemas, messageTraits, correlationIds, securitySchemes and replies
 channels:
   userSignedUp:
     $ref: channels/userSignedUp.yaml
