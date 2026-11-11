@@ -1,3 +1,5 @@
+import type { Oas3MediaType } from '@redocly/openapi-core';
+
 export function contentTypeMatchesPattern(contentType: string, pattern: string): boolean {
   const normalizedPattern = pattern.toLowerCase();
   const normalizedContentType = contentType.toLowerCase();
@@ -20,9 +22,9 @@ export function contentTypeMatchesPattern(contentType: string, pattern: string):
 }
 
 export function resolveContentByType(
-  content: Record<string, any> | undefined,
+  content: Record<string, Oas3MediaType> | undefined,
   contentType: string
-) {
+): Oas3MediaType | undefined {
   if (!content) return undefined;
   if (content[contentType]) return content[contentType];
 
