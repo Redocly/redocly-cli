@@ -12,13 +12,8 @@ Use this command to execute API tests described in an Arazzo description.
 
 {% admonition type="warning" name="Important" %}
 The `respect` command supports Arazzo 1.0.1 descriptions.
-Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions and the `querystring` parameter location.
+Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions and the [`querystring` parameter location](#parameters-with-in-querystring).
 When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
-A parameter with `in: querystring` sets the whole query string of the request.
-Its value must be a string, and a request cannot combine it with `query` parameters or with another `querystring` parameter.
-The parameters that a workflow or a step sets take priority: `respect` does not take a `querystring` parameter from the OpenAPI description for a request that has `query` parameters, or `query` parameters for a request that has a `querystring` parameter.
-`respect` sends the value as written, except for `#`, which it percent-encodes.
-If the OpenAPI description declares a media type other than `application/x-www-form-urlencoded` for the parameter, `respect` percent-encodes the whole value.
 AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
 
@@ -237,6 +232,30 @@ steps:
 A step that lists any `parameters` takes no parameters from the description.
 List every required parameter in that step.
 {% /admonition %}
+
+## Parameters with `in: querystring`
+
+A parameter with `in: querystring` sets the whole query string of the request.
+It needs an Arazzo 1.1.0 description.
+Its value must be a string, and a request cannot combine it with `query` parameters or with another `querystring` parameter.
+
+```yaml
+steps:
+  - stepId: list-menu-items
+    operationId: listMenuItems
+    parameters:
+      - in: querystring
+        name: filters
+        value: search={$inputs.search}&limit=5
+```
+
+`respect` sends the value as written, except for `#`, which it percent-encodes.
+If the OpenAPI description declares a media type other than `application/x-www-form-urlencoded` for the parameter, `respect` percent-encodes the whole value.
+
+A step without `parameters` takes a required `querystring` parameter from the OpenAPI description.
+The parameters that a workflow or a step sets take priority.
+`respect` does not take a `querystring` parameter from the OpenAPI description when the workflow or the step sets `query` or `querystring` parameters.
+It does not take `query` parameters from the OpenAPI description when the workflow or the step sets a `querystring` parameter.
 
 ## Examples
 

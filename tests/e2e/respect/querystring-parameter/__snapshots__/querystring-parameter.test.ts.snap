@@ -49,7 +49,7 @@ exports[`should fail a step with an invalid querystring parameter 1`] = `
 Exit code: 1"
 `;
 
-exports[`should send a querystring parameter from the step or from the API description, unless the workflow sets query parameters 1`] = `
+exports[`should send a querystring parameter from the step or from the API description, unless the workflow sets the query 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow querystring-parameter.arazzo.yaml / querystring-from-step 
@@ -114,6 +114,37 @@ exports[`should send a querystring parameter from the step or from the API descr
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
+  Running workflow querystring-parameter.arazzo.yaml / workflow-querystring-instead-of-described-querystring 
+ 
+  ✓ GET /menu - step list-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte&limit=3
+    Request Headers:
+      accept: application/json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 3
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
   Running workflow querystring-parameter.arazzo.yaml / query-instead-of-described-querystring 
  
   ✓ GET /menu - step list-menu-items 
@@ -146,16 +177,16 @@ exports[`should send a querystring parameter from the step or from the API descr
  
   Summary for querystring-parameter.arazzo.yaml
   
-  Workflows: 3 passed, 3 total
-  Steps: 3 passed, 3 total
-  Checks: 12 passed, 12 total
+  Workflows: 4 passed, 4 total
+  Steps: 4 passed, 4 total
+  Checks: 16 passed, 16 total
   Time: <test>ms 
  
  
 ┌───────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├───────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ querystring-parameter.arazzo.yaml                                       │ 3          │ 3       │ -       │ -        │
+│ ✓ querystring-parameter.arazzo.yaml                                       │ 4          │ 4       │ -       │ -        │
 └───────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 

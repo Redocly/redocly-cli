@@ -269,7 +269,7 @@ function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   return Object.values(parameterMap);
 }
 
-// A query string and query parameters cannot be sent together, so the parameters generated
+// A request has one query string, so the query and querystring parameters generated
 // from the API description give way to the ones the Arazzo description sets.
 function dropGeneratedQueryConflicts(
   parameters: ParameterWithIn[],
@@ -280,13 +280,15 @@ function dropGeneratedQueryConflicts(
       .filter((parameter) => !generatedParameters.includes(parameter))
       .map((parameter) => parameter.in)
   );
+  const hasExplicitQuery = explicitLocations.has('query');
+  const hasExplicitQuerystring = explicitLocations.has('querystring');
 
   return parameters.filter(
     (parameter) =>
       !generatedParameters.includes(parameter) ||
       !(
-        (parameter.in === 'querystring' && explicitLocations.has('query')) ||
-        (parameter.in === 'query' && explicitLocations.has('querystring'))
+        (parameter.in === 'querystring' && (hasExplicitQuery || hasExplicitQuerystring)) ||
+        (parameter.in === 'query' && hasExplicitQuerystring)
       )
   );
 }
