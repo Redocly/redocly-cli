@@ -106,15 +106,6 @@ redocly build-docs openapi.yaml
 redocly preview
 ```
 
-### Bundle, split, and join
-
-Keep a large description in many files, and [`bundle`](https://redocly.com/docs/cli/commands/bundle) it into one file for tools that need it.
-Use [decorators](https://redocly.com/docs/cli/decorators) to remove internal endpoints or change server URLs as you bundle.
-
-```sh
-redocly bundle openapi.yaml -o dist/openapi.yaml
-```
-
 ### Test the live API
 
 [`respect`](https://redocly.com/docs/respect/get-started) sends real requests to your API and checks each response against your OpenAPI description and Arazzo workflows.
@@ -123,6 +114,15 @@ With `--with-ai`, your local AI CLI (Claude, Codex, or Cursor) designs multi-ste
 ```sh
 redocly generate-arazzo openapi.yaml --with-ai
 redocly respect auto-generated.arazzo.yaml
+```
+
+### Bundle, split, and join
+
+Keep a large description in many files, and [`bundle`](https://redocly.com/docs/cli/commands/bundle) it into one file for tools that need it.
+Use [decorators](https://redocly.com/docs/cli/decorators) to remove internal endpoints or change server URLs as you bundle.
+
+```sh
+redocly bundle openapi.yaml -o dist/openapi.yaml
 ```
 
 ### Generate typed clients (experimental)
