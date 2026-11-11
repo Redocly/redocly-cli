@@ -21,6 +21,7 @@ import {
   renderReferencePage,
   type SampleContext,
   sseResponse,
+  operationIdOf,
 } from '@redocly/client-generator';
 import { exported, GoPrinter } from '@redocly/client-generator/printers/go';
 import { GO_RUNTIME_SOURCE, GO_TELEMETRY_SOURCE } from '@redocly/client-generator/runtime-sources';
@@ -113,7 +114,7 @@ function writeGoBody(
     'var operations = map[string]operationMeta{',
     () => {
       for (const { op, ident } of goOperationIdents(model)) {
-        const id = op.specName ?? op.name;
+        const id = operationIdOf(op);
         const security = goSecurityLiteral(op, model);
         const rule = paginationRules.get(ident);
         const fields = [
