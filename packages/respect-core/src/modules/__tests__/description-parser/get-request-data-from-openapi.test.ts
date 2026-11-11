@@ -54,7 +54,7 @@ describe('getRequestDataFromOpenApi', () => {
               required: true,
               content: {
                 [mediaType]: {
-                  example: { search: 'iced latte', tags: ['hot'], page: { limit: 2 } },
+                  example: { search: 'iced latte', tags: ['hot', 'iced'], page: { limit: 2 } },
                 },
               },
             },
@@ -68,14 +68,14 @@ describe('getRequestDataFromOpenApi', () => {
       {
         name: 'filters',
         in: 'querystring',
-        value: 'search=iced+latte&tags=%5B%22hot%22%5D&page=%7B%22limit%22%3A2%7D',
+        value: 'search=iced+latte&tags=hot&tags=iced&page=%7B%22limit%22%3A2%7D',
       },
     ]);
     expect(getQuerystringParameter('application/json')).toEqual([
       {
         name: 'filters',
         in: 'querystring',
-        value: '{"search":"iced latte","tags":["hot"],"page":{"limit":2}}',
+        value: '{"search":"iced latte","tags":["hot","iced"],"page":{"limit":2}}',
       },
     ]);
   });

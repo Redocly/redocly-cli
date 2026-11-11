@@ -93,12 +93,15 @@ function generateQuerystringValue(parameter: Parameter, logger: LoggerInterface)
     generateTestDataFromJsonSchema(mediaTypeObject?.schema, logger);
 
   if (mediaType && isFormUrlencoded(mediaType) && isPlainObject(example)) {
+    // Without an Encoding Object, OpenAPI repeats the name of an array property for each item,
+    // and serializes an object, or an array inside an array, as JSON.
     return new URLSearchParams(
-      Object.entries(example).map(([name, value]) => [
-        name,
-        // Without an Encoding Object, OpenAPI serializes an array or an object property as JSON.
-        isPlainObject(value) || Array.isArray(value) ? JSON.stringify(value) : String(value),
-      ])
+      Object.entries(example).flatMap(([name, value]) =>
+        (Array.isArray(value) ? value : [value]).map((item) => [
+          name,
+          isPlainObject(item) || Array.isArray(item) ? JSON.stringify(item) : String(item),
+        ])
+      )
     ).toString();
   }
 
