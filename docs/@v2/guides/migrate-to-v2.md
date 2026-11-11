@@ -191,6 +191,9 @@ Read [what's new in Redoc 3](https://redocly.com/blog/redoc-3-whats-new) for det
 
 To keep the Redoc 2 output, pin `@redocly/cli` to the version you used before, or use Redocly CLI v1: `npx @redocly/cli@v1-archive build-docs openapi.yaml`.
 
+Without an API in the command line, `build-docs` builds every API of the `apis` object, where it built the first one before.
+Pass the API to the command, or set `docsOutput` for each API, as [Build docs for several APIs](../commands/build-docs.md#build-docs-for-several-apis) describes.
+
 ### Changes in `bundle` component naming (since v2.27.1)
 
 When two referenced components share a name but have different content, the [`bundle`](../commands/bundle.md) command renames one of them.
