@@ -115,6 +115,7 @@ Check that the Redocly rule supports the specification version you lint: `no-inv
 |                                        | `array-parameter-serialization`                                  |
 |                                        | `boolean-parameter-prefixes`                                     |
 |                                        | `component-name-unique`                                          |
+|                                        | `no-ambiguous-component-names`                                   |
 |                                        | `no-ambiguous-paths`                                             |
 |                                        | `no-http-verbs-in-paths`                                         |
 |                                        | `no-identical-paths`                                             |
