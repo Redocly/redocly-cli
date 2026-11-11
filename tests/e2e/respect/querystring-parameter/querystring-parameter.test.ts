@@ -6,7 +6,7 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 
-test('should send a querystring parameter from the step and from the API description', () => {
+test('should send a querystring parameter from the step or from the API description, unless the workflow sets query parameters', () => {
   const fixturesPath = join(__dirname, 'querystring-parameter.arazzo.yaml');
   const args = getParams(indexEntryPoint, ['respect', fixturesPath, '--verbose']);
 

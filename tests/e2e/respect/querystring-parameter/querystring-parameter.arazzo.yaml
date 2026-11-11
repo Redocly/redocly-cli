@@ -32,3 +32,13 @@ workflows:
         operationId: listMenuItems
         successCriteria:
           - condition: $statusCode == 200
+  - workflowId: query-instead-of-described-querystring
+    parameters:
+      - in: query
+        name: search
+        value: mermaid-treasure-latte
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200

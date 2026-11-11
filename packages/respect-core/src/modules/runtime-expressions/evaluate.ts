@@ -130,17 +130,25 @@ function evaluateExpressionString(
 function evaluateExpressionsInString(
   expression: string,
   context: RuntimeExpressionContext,
-  logger: LoggerInterface
+  logger: LoggerInterface,
+  insideBraces = false
 ): string {
-  const regex = /\{(?:[^{}]|\{[^{}]*\})*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
+  // Inside braces that are not an expression, such as a JSON object, only an {expression}
+  // and a $faker call are evaluated.
+  const regex = insideBraces
+    ? /\{(?:[^{}]|\{[^{}]*\})*\}|\$faker\.[a-zA-Z0-9._-]+(?:\([^()]*\))?/g
+    : /\{(?:[^{}]|\{[^{}]*\})*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
 
   return expression.replace(regex, (match) => {
     const exprToEvaluate = match.trim();
 
-    if (!isValidRuntimeExpression(exprToEvaluate) && !exprToEvaluate.includes('$faker.')) {
-      // Braces that are not an expression, such as a JSON object, can still hold expressions.
+    // `{"id": "$faker.string.uuid()"}` only holds a $faker call, `{$faker.string.uuid()}` is one
+    const isFakerExpression =
+      /^\{?\s*\$/.test(exprToEvaluate) && exprToEvaluate.includes('$faker.');
+
+    if (!isValidRuntimeExpression(exprToEvaluate) && !isFakerExpression) {
       return match.startsWith('{')
-        ? `{${evaluateExpressionsInString(match.slice(1, -1), context, logger)}}`
+        ? `{${evaluateExpressionsInString(match.slice(1, -1), context, logger, true)}}`
         : match;
     }
 

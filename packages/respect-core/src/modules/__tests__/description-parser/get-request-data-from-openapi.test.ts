@@ -52,7 +52,11 @@ describe('getRequestDataFromOpenApi', () => {
               name: 'filters',
               in: 'querystring',
               required: true,
-              content: { [mediaType]: { example: { search: 'iced latte', limit: 2 } } },
+              content: {
+                [mediaType]: {
+                  example: { search: 'iced latte', tags: ['hot'], page: { limit: 2 } },
+                },
+              },
             },
           ],
           responses: {},
@@ -60,11 +64,19 @@ describe('getRequestDataFromOpenApi', () => {
         logger
       ).parameters;
 
-    expect(getQuerystringParameter('application/x-www-form-urlencoded')).toEqual([
-      { name: 'filters', in: 'querystring', value: 'search=iced+latte&limit=2' },
+    expect(getQuerystringParameter('application/x-www-form-urlencoded; charset=utf-8')).toEqual([
+      {
+        name: 'filters',
+        in: 'querystring',
+        value: 'search=iced+latte&tags=%5B%22hot%22%5D&page=%7B%22limit%22%3A2%7D',
+      },
     ]);
     expect(getQuerystringParameter('application/json')).toEqual([
-      { name: 'filters', in: 'querystring', value: '{"search":"iced latte","limit":2}' },
+      {
+        name: 'filters',
+        in: 'querystring',
+        value: '{"search":"iced latte","tags":["hot"],"page":{"limit":2}}',
+      },
     ]);
   });
 });

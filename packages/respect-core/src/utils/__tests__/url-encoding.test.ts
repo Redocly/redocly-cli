@@ -37,6 +37,13 @@ describe('encodeQuerystring', () => {
     const querystring = 'foo=a+%2B+b&bar=true';
     expect(encodeQuerystring(querystring)).toBe(querystring);
     expect(encodeQuerystring(querystring, 'application/x-www-form-urlencoded')).toBe(querystring);
+    expect(encodeQuerystring(querystring, 'Application/X-WWW-Form-Urlencoded; charset=utf-8')).toBe(
+      querystring
+    );
+  });
+
+  it('should encode # in a ready query string, so it does not start the URL fragment', () => {
+    expect(encodeQuerystring('search=a#b&limit=1')).toBe('search=a%23b&limit=1');
   });
 
   it('should percent-encode a query string of any other media type as a whole', () => {

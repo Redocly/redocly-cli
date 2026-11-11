@@ -40,14 +40,20 @@ export function buildQueryString(
     .join('&');
 }
 
+/** Matches the media type without its parameters, such as `; charset=utf-8`. */
+export function isFormUrlencoded(mediaType: string): boolean {
+  return mediaType.split(';')[0].trim().toLowerCase() === 'application/x-www-form-urlencoded';
+}
+
 /**
  * Prepares the value of a `querystring` parameter for the URL.
  * @param mediaType – the media type the API description gives to the query string.
- * `application/x-www-form-urlencoded` is a ready query string; any other media type is percent-encoded as a whole.
+ * A value without a described media type, or in `application/x-www-form-urlencoded`, is a ready query string:
+ * only `#` is encoded, because it would start the URL fragment and cut the query short.
+ * Any other media type is percent-encoded as a whole.
  */
-export function encodeQuerystring(
-  value: string,
-  mediaType = 'application/x-www-form-urlencoded'
-): string {
-  return mediaType === 'application/x-www-form-urlencoded' ? value : encodeURIValue(value);
+export function encodeQuerystring(value: string, mediaType?: string): string {
+  return !mediaType || isFormUrlencoded(mediaType)
+    ? value.replaceAll('#', '%23')
+    : encodeURIValue(value);
 }

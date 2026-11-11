@@ -136,7 +136,15 @@ export class ApiFetcher implements IFetcher {
     workflowId: string;
     // oxlint-disable-next-line sonarjs/cognitive-complexity
   }): Promise<ResponseContext | never> => {
-    const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
+    const {
+      serverUrl,
+      path,
+      method,
+      parameters,
+      requestBody,
+      openapiOperation,
+      querystringMediaType,
+    } = requestData;
     if (!serverUrl?.url) {
       ctx.options.logger.error(bgRed(` No server url provided `));
       throw new Error('No server url provided');
@@ -146,7 +154,6 @@ export class ApiFetcher implements IFetcher {
     const searchParams = [];
     const pathParams: Record<string, string | number | boolean> = {};
     const cookies: Record<string, string> = {};
-    let querystring: string | undefined;
 
     for (const param of parameters) {
       switch (param.in) {
@@ -160,9 +167,6 @@ export class ApiFetcher implements IFetcher {
             allowReserved: param.allowReserved,
           });
           break;
-        case 'querystring':
-          querystring = String(param.value);
-          break;
         case 'path':
           pathParams[param.name] = String(param.value);
           break;
@@ -172,15 +176,12 @@ export class ApiFetcher implements IFetcher {
       }
     }
 
-    const describedQuerystring = [
-      ...(openapiOperation?.parameters || []),
-      ...(openapiOperation?.pathParameters || []),
-    ].find((parameter) => parameter.in === 'querystring');
-    const [querystringMediaType] = Object.keys(describedQuerystring?.content || {});
+    // prepareRequest lets through one querystring parameter at most, with a string value and no query parameters
+    const querystring = parameters.find((parameter) => parameter.in === 'querystring')?.value;
     const queryString =
-      querystring === undefined
-        ? buildQueryString(searchParams)
-        : encodeQuerystring(querystring, querystringMediaType);
+      typeof querystring === 'string'
+        ? encodeQuerystring(querystring, querystringMediaType)
+        : buildQueryString(searchParams);
 
     if ((isPlainObject(requestBody) || Array.isArray(requestBody)) && !headers['content-type']) {
       headers['content-type'] = 'application/json';

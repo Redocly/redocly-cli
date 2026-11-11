@@ -10,7 +10,7 @@ sourceDescriptions:
     url: ./cafe-with-querystring.yaml
 
 workflows:
-  - workflowId: querystring-with-query
+  - workflowId: querystring-with-query-api-key
     steps:
       - stepId: list-menu-items
         operationId: listMenuItems
@@ -18,21 +18,13 @@ workflows:
           - in: querystring
             name: filters
             value: search=mermaid-treasure-latte
-          - in: query
-            name: limit
-            value: 1
-  - workflowId: two-querystrings
-    parameters:
-      - in: querystring
-        name: paging
-        value: limit=1
-    steps:
-      - stepId: list-menu-items
-        operationId: listMenuItems
-        parameters:
-          - in: querystring
-            name: filters
-            value: search=mermaid-treasure-latte
+        x-security:
+          - scheme:
+              type: apiKey
+              name: api_key
+              in: query
+            values:
+              apiKey: mermaid-treasure-key
   - workflowId: querystring-not-a-string
     steps:
       - stepId: list-menu-items

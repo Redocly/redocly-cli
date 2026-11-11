@@ -440,6 +440,25 @@ describe('evaluateRuntimeExpressionPayload', () => {
     );
   });
 
+  it('should evaluate a $faker call and a runtime expression in the same JSON string', () => {
+    const payload =
+      '{"code":"{$steps.step-three.outputs.hardcoded}","id":"$faker.number.integer()"}';
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toMatch(/^\{"code":"125","id":"\d+"\}$/);
+  });
+
+  it('should keep an expression without braces inside braces that are not an expression', () => {
+    for (const payload of [
+      '{ "code": $steps.step-three.outputs.hardcoded }',
+      'query Menu($url: String) { menu(url: $url ) { name } }',
+    ]) {
+      expect(
+        evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+      ).toEqual(payload);
+    }
+  });
+
   it('should evaluate x-www-form-urlencoded string with runtime expression values', () => {
     const payload =
       'client_id={$steps.step-three.response.body.location}&grant_type={$steps.step-three.response.body.location}';

@@ -4,3 +4,4 @@
 ---
 
 Fixed an issue where `respect` did not evaluate a runtime expression embedded in a string value inside other braces, such as `'{"search":"{$inputs.search}"}'`.
+A `$faker` call in such a value no longer removes the surrounding braces.

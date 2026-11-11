@@ -16,7 +16,9 @@ Of the features added in Arazzo 1.1.0, it supports only the `parameters` field o
 When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
 A parameter with `in: querystring` sets the whole query string of the request.
 Its value must be a string, and a request cannot combine it with `query` parameters or with another `querystring` parameter.
-`respect` sends the value as written, unless the OpenAPI description declares a media type other than `application/x-www-form-urlencoded` for the parameter: then it percent-encodes the whole value.
+The parameters that a workflow or a step sets take priority: `respect` does not take a `querystring` parameter from the OpenAPI description for a request that has `query` parameters, or `query` parameters for a request that has a `querystring` parameter.
+`respect` sends the value as written, except for `#`, which it percent-encodes.
+If the OpenAPI description declares a media type other than `application/x-www-form-urlencoded` for the parameter, `respect` percent-encodes the whole value.
 AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
 

@@ -26,9 +26,13 @@ paths:
                     type: string
                   limit:
                     type: integer
+                  token:
+                    type: string
+                    format: password
               example:
                 search: mermaid treasure latte
                 limit: 2
+                token: mermaid-treasure-token
       responses:
         '200':
           description: Successful operation.
