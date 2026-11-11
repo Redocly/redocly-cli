@@ -1,3 +1,5 @@
+import { resolveContentByType } from './resolve-content-by-type.js';
+
 export function getResponseSchema({
   statusCode,
   contentType,
@@ -11,5 +13,5 @@ export function getResponseSchema({
 
   const response = descriptionResponses[statusCode] || descriptionResponses.default;
 
-  return response?.content?.[contentType]?.schema;
+  return resolveContentByType(response?.content, contentType)?.schema;
 }
