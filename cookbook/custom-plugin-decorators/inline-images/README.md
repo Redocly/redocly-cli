@@ -6,9 +6,11 @@ Authors:
 
 ## What this does and why
 
-`redocly bundle` collects the files of an API description into one file, but an image that a description shows stays a separate file, because its path is plain text inside the description.
-So the bundle is incomplete on its own, and the image files have to travel with it to every place it is sent or published.
-The path is relative to the file that the description was written in, so it points to the wrong place when the bundle is written to another folder, or when the description comes from a file in a subfolder.
+`redocly bundle` collects the files of an API description into one file.
+However, it leaves the images that `description` fields display as separate files, because image paths are plain text and not `$ref` references.
+The bundle is incomplete on its own, and the image files have to travel with it to every place it is sent or published.
+The paths are relative to the file that contains the `description` field.
+When `redocly bundle` writes the bundle to another folder, or when the field comes from a file in a subfolder, the paths point to the wrong place.
 A reader of the docs then sees a broken image, and nothing reports it.
 
 This decorator puts the images into the bundle itself.
@@ -40,10 +42,13 @@ const InlineDescriptionImages = () => ({
 });
 ```
 
-The `any` visitor runs for every node of the API description, so the decorator finds the `description` fields of all objects: the info, the tags, the operations, the schemas, and the others.
+The `any` visitor runs for every node of the API description.
+The decorator finds the `description` fields of all objects: the info, the tags, the operations, the schemas, and the others.
 `HTML_IMAGE_PATH` and `MARKDOWN_IMAGE_PATH` are regular expressions that find the image paths in the text of a description, one for `<img src="...">` and one for `![alt](...)`.
-Each path is relative to the file that holds the description, and `location.source.absoluteRef` is the path of that file, so an image path also works in a file that a `$ref` points to.
-The decorator then reads the image file, encodes it as base64, and writes it back in place of the path, with the MIME type that `MIME_TYPES` holds for the file extension.
+Each path is relative to the file that holds the description, and `location.source.absoluteRef` is the path of that file.
+An image path also works in a file that a `$ref` points to.
+The decorator then reads the image file and encodes it as base64.
+It replaces the path with a `data:` URI that holds the encoded image and the MIME type that `MIME_TYPES` holds for the file extension.
 
 Put the `inline-images.js` file alongside your `redocly.yaml` file, and add the following configuration to `redocly.yaml`:
 
