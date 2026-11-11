@@ -1,0 +1,9 @@
+apis:
+  menu:
+    root: menu.yaml
+    docsOutput: output/menu.html
+  orders:
+    root: orders.yaml
+    docsOutput: output/orders.html
+  statistics:
+    root: statistics.yaml

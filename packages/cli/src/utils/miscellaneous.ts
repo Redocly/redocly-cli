@@ -65,11 +65,14 @@ function isApiPathValid(apiPath: string): string | void {
 }
 
 function fallbackToAllDefinitions(config: Config): Entrypoint[] {
-  return Object.entries(config.resolvedConfig.apis || {}).map(([alias, { root, output }]) => ({
-    path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
-    alias,
-    output: output && resolve(getConfigDirectory(config), output),
-  }));
+  return Object.entries(config.resolvedConfig.apis || {}).map(
+    ([alias, { root, output, docsOutput }]) => ({
+      path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
+      alias,
+      output: output && resolve(getConfigDirectory(config), output),
+      docsOutput: docsOutput && resolve(getConfigDirectory(config), docsOutput),
+    })
+  );
 }
 
 export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
@@ -80,6 +83,7 @@ export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint 
         path: isAbsoluteUrl(aliasApi.root) ? aliasApi.root : resolve(configDir, aliasApi.root),
         alias: aliasOrPath,
         output: aliasApi.output && resolve(configDir, aliasApi.output),
+        docsOutput: aliasApi.docsOutput && resolve(configDir, aliasApi.docsOutput),
       }
     : {
         path: aliasOrPath,
@@ -342,6 +346,20 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   logger.info('\n');
 }
 
+export function exitOnRepeatedOutput(
+  outputs: (string | undefined)[],
+  optionName: 'output' | 'docsOutput'
+) {
+  const repeatedOutput = outputs.find(
+    (output, index) => output && outputs.indexOf(output) !== index
+  );
+  if (repeatedOutput) {
+    throw new HandledError(
+      `Two APIs write to the same path: ${formatPath(repeatedOutput)}. Give each API a distinct \`${optionName}\`.`
+    );
+  }
+}
+
 export function getOutputFileName({
   entrypoint,
   output,
@@ -355,6 +373,9 @@ export function getOutputFileName({
   ext?: OutputExtension;
   entries: number;
 }) {
+  if (output && argvOutput) {
+    logger.warn(`Ignoring --output because the configuration file sets \`output\` for this API.\n`);
+  }
   let outputFile = output || argvOutput;
   if (!outputFile) {
     return { ext: ext || 'yaml' };

@@ -419,6 +419,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "decorators": "Decorators",
+      "docsOutput": {
+        "type": "string",
+      },
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
         "documentationLink": "https://redocly.com/docs/cli/configuration/reference/extends#extends",
@@ -3814,6 +3817,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "decorators": {
         "type": "object",
       },
+      "docsOutput": {
+        "type": "string",
+      },
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
         "documentationLink": "https://redocly.com/docs/cli/configuration/reference/extends",
@@ -3953,6 +3959,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",
@@ -10538,6 +10547,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "jsonSamplesDepth": {
         "type": "number",
       },
@@ -13290,6 +13302,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "decorators": {
         "type": "object",
       },
+      "docsOutput": {
+        "type": "string",
+      },
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
         "documentationLink": "https://redocly.com/docs/cli/configuration/reference/extends",
@@ -13429,6 +13444,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",
@@ -20013,6 +20031,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",
@@ -28918,6 +28939,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.theme.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",

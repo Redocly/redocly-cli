@@ -1,0 +1,4 @@
+apis:
+  menu:
+    root: menu.yaml
+    output: output/menu.yaml

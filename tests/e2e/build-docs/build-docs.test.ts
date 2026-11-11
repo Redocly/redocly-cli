@@ -196,6 +196,29 @@ describe('build-docs', () => {
     await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('build docs for every API with docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+    expect(readFileSync(join(testPath, 'output/menu.html'), 'utf8')).toContain(
+      '<title>Redocly Cafe Menu</title>'
+    );
+    expect(readFileSync(join(testPath, 'output/orders.html'), 'utf8')).toContain(
+      '<title>Redocly Cafe Orders</title>'
+    );
+  });
+
+  test('build docs warns that --output is ignored for an alias with docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs', 'menu', '--output=output/option.html']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'output-option-snapshot.txt')
+    );
+  });
+
   describe('build docs with openapi options', () => {
     const expectedOptions =
       'const __redoc_options = {"hideDownloadButtons":true,"skipBundle":true,"disableTelemetry":true};';

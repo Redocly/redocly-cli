@@ -1,0 +1,12 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe Statistics
+  version: 1.0.0
+paths:
+  /statistics:
+    get:
+      summary: Get the statistics
+      operationId: getStatistics
+      responses:
+        '200':
+          description: OK

@@ -94,7 +94,8 @@ redocly bundle
 ```
 
 Please note, that providing an API to the `bundle` command results in the command bundling only the specified API.
-Additionally, the `--output` option is only meaningful when used with APIs specified in the command line.
+For an API that has `output` in the configuration file, the command ignores `--output` with a warning.
+Without an API in the command line, `--output` works when one API of the configuration file has no `output`.
 
 ### Create a fully dereferenced bundle
 

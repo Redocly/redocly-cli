@@ -705,12 +705,6 @@ yargs(hideBin(process.argv))
             choices: ['basename', 'title'] as ReadonlyArray<ComponentNamesStrategy>,
             default: 'basename' as ComponentNamesStrategy,
           },
-        })
-        .check((argv) => {
-          if (argv.output && (!argv.apis || argv.apis.length === 0)) {
-            throw new Error('At least one inline API must be specified when using --output.');
-          }
-          return true;
         }),
     async (argv) => {
       const { handleBundle } = await import('./commands/bundle.js');
@@ -946,10 +940,9 @@ yargs(hideBin(process.argv))
         .positional('api', { type: 'string' })
         .options({
           o: {
-            describe: 'Output destination file.',
+            describe: 'Output destination file. The default value is redoc-static.html.',
             alias: 'output',
             type: 'string',
-            default: 'redoc-static.html',
           },
           title: {
             describe: 'Page title.',
