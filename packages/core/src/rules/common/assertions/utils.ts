@@ -60,7 +60,10 @@ function getPredicatesFromLocators(
   return [matchKeysPredicate, filterInPredicate, filterOutPredicate].filter(isTruthy);
 }
 
-export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply[] {
+export function getAssertsToApply(
+  assertion: AssertionDefinition,
+  assertionId: string
+): AssertToApply[] {
   const assertsToApply = keysOf(asserts)
     .filter((assertName) => assertion.assertions[assertName] !== undefined)
     .map((assertName) => {
@@ -81,13 +84,13 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
 
   if (shouldRunOnValues && !assertion.subject.property) {
     throw new Error(
-      `The '${shouldRunOnValues.name}' assertion can't be used on all keys. Please provide a single property.`
+      `${assertionId}: The '${shouldRunOnValues.name}' assertion can't be used on all keys. Please provide a single property.`
     );
   }
 
   if (shouldRunOnKeys && assertion.subject.property) {
     throw new Error(
-      `The '${shouldRunOnKeys.name}' assertion can't be used on properties. Please remove the 'property' key.`
+      `${assertionId}: The '${shouldRunOnKeys.name}' assertion can't be used on properties. Please remove the 'property' key.`
     );
   }
 
@@ -172,7 +175,10 @@ export function buildVisitorObject(
     }
 
     const locatorPredicates = getPredicatesFromLocators(assertionDefinitionNode.subject);
-    const assertsToApply = getAssertsToApply(assertionDefinitionNode);
+    const assertsToApply = getAssertsToApply(
+      assertionDefinitionNode,
+      `${assertion.assertionId} -> where -> [${index}]`
+    );
 
     const skipFunction = (node: unknown, key: string | number, ctx: SkipFunctionContext): boolean =>
       !locatorPredicates.every((predicate) => predicate(key)) ||
@@ -218,7 +224,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
         ', '
       )} didn't meet the assertions: ${assertionMessageTemplates.problems}`.replace(/ +/g, ' ');
 
-    const problems = applyAssertions(assertion, getAssertsToApply(assertion), {
+    const problems = applyAssertions(assertion, getAssertsToApply(assertion, assertId), {
       ...ctx,
       node,
     });
