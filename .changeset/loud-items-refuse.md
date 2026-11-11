@@ -1,6 +1,6 @@
 ---
-'@redocly/client-generator': minor
-'@redocly/cli': minor
+'@redocly/client-generator': patch
+'@redocly/cli': patch
 ---
 
-Added support for `errorMode: result` to the `tanstack-query` and `swr` generators of the `generate-client` command, so that you can generate them together with a `typescript` client.
+Fixed an issue where the `generate-client` command failed when `errorMode: result` was set together with the `tanstack-query` or `swr` generator.
