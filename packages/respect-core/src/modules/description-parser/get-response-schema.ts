@@ -1,8 +1,10 @@
+import type { Oas3Responses } from '@redocly/openapi-core';
+
 import { resolveContentByType } from './resolve-content-by-type.js';
 
 // An explicit status code wins over its range, such as `2XX`, and the range wins over `default`.
 export function getResponseKeyByStatusCode(
-  descriptionResponses: Record<string, any>,
+  descriptionResponses: Oas3Responses,
   statusCode: number
 ): string | undefined {
   return [String(statusCode), `${Math.floor(statusCode / 100)}XX`, 'default'].find(
