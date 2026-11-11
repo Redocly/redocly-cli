@@ -90,6 +90,22 @@ Read [Migrate from Spectral](https://redocly.com/docs/cli/guides/migrate-from-sp
 [Learn more about API standards and how to configure rules](https://redocly.com/docs/cli/api-standards).
 For ready-made rules and plugins, see the [Cookbook](./cookbook/README.md).
 
+### Build API reference docs
+
+Render your API description with one command.
+
+[`build-docs`](https://redocly.com/docs/cli/commands/build-docs) writes a single HTML file with [Redoc CE](https://redocly.com/redoc-ce) that you can host anywhere.
+
+```sh
+redocly build-docs openapi.yaml
+```
+
+[`preview`](https://redocly.com/docs/cli/commands/preview) starts live docs on your machine, with a mock server, and updates the page each time you save the description.
+
+```sh
+redocly preview
+```
+
 ### Bundle, split, and join
 
 Keep a large description in many files, and [`bundle`](https://redocly.com/docs/cli/commands/bundle) it into one file for tools that need it.
@@ -107,22 +123,6 @@ With `--with-ai`, your local AI CLI (Claude, Codex, or Cursor) designs multi-ste
 ```sh
 redocly generate-arazzo openapi.yaml --with-ai
 redocly respect auto-generated.arazzo.yaml
-```
-
-### Build API reference docs
-
-Render your API description with one command.
-
-[`build-docs`](https://redocly.com/docs/cli/commands/build-docs) writes a single HTML file with [Redoc CE](https://redocly.com/redoc-ce) that you can host anywhere.
-
-```sh
-redocly build-docs openapi.yaml
-```
-
-[`preview`](https://redocly.com/docs/cli/commands/preview) starts live docs on your machine, with a mock server, and updates the page each time you save the description.
-
-```sh
-redocly preview
 ```
 
 ### Generate typed clients (experimental)
