@@ -9,10 +9,9 @@
     ║                                                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
 
-Ignoring --output because the configuration file sets `docsOutput` for this API.
 Found redocly.yaml and using 'openapi' options
 Prerendering docs
 
-🎉 bundled successfully in: output/menu.html (258 KiB) [⏱ <test>ms].
+🎉 bundled successfully in: output/option.html (258 KiB) [⏱ <test>ms].
 
 Exit code: 0
