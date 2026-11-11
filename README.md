@@ -111,10 +111,18 @@ redocly respect auto-generated.arazzo.yaml
 
 ### Build API reference docs
 
-Make a single HTML page of API reference docs with [Redoc CE](https://redocly.com/redoc-ce).
+Render your API description with one command.
+
+[`build-docs`](https://redocly.com/docs/cli/commands/build-docs) writes a single HTML file with [Redoc CE](https://redocly.com/redoc-ce) that you can host anywhere.
 
 ```sh
 redocly build-docs openapi.yaml
+```
+
+[`preview`](https://redocly.com/docs/cli/commands/preview) starts live docs on your machine, with a mock server, and updates the page each time you save the description.
+
+```sh
+redocly preview
 ```
 
 ### Generate typed clients (experimental)
