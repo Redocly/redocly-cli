@@ -78,7 +78,8 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - clientOutput
 - Output file path
-- The generated client is saved to this location unless `--output` overrides it.
+- The generated client is saved to this location.
+  The `generate-client` command ignores `--output` with a warning for an API that has this option.
 
 {% /table %}
 

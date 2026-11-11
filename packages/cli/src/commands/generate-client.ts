@@ -100,6 +100,7 @@ type GenerationRun = {
   collectSpecData: CommandArgs<GenerateClientCommandArgv>['collectSpecData'];
   configDir: string;
   cliFlags: GenerateClientConfig;
+  apiArgument: string | undefined;
   outputFlag: string | undefined;
   toolkit: ClientGeneratorToolkit;
   /** Every path this run wrote or will write — collision guard across apis and the composed entry. */
@@ -144,17 +145,10 @@ export async function handleGenerateClient({
   const optedIn = Object.keys(apis).filter(
     (name) => isPlainObject(apis[name].client) || apis[name].clientOutput !== undefined
   );
-  if (argv.api === undefined) {
-    if (argv.output) {
-      throw new HandledError(
-        `\n❌  --output can't target multiple APIs. Set \`clientOutput\` under each api in redocly.yaml, or pass a single <api>.\n`
-      );
-    }
-    if (optedIn.length === 0) {
-      throw new HandledError(
-        `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
-      );
-    }
+  if (argv.api === undefined && optedIn.length === 0) {
+    throw new HandledError(
+      `\n❌  No API to generate. Add a \`client\` block or \`clientOutput\` under an \`apis:\` entry, or pass <api> (a file/URL or an \`apis:\` alias).\n`
+    );
   }
   const entrypoints = await getFallbackApisOrExit(
     argv.api === undefined ? optedIn : [argv.api],
@@ -166,6 +160,7 @@ export async function handleGenerateClient({
     collectSpecData,
     configDir,
     cliFlags,
+    apiArgument: argv.api,
     outputFlag: argv.output,
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
@@ -212,6 +207,7 @@ async function generateApiClient(
     collectSpecData,
     configDir,
     cliFlags,
+    apiArgument,
     outputFlag,
     toolkit,
     seenOutputs,
@@ -222,7 +218,11 @@ async function generateApiClient(
   const { path, alias } = entry;
   const name = alias ?? basename(path, extname(path));
   const aliasConfig = config.forAlias(alias);
-  const { client, clientOutput } = aliasConfig.resolvedConfig;
+  const { client } = aliasConfig.resolvedConfig;
+  const clientOutput =
+    apiArgument === undefined || apiArgument === alias
+      ? aliasConfig.resolvedConfig.clientOutput
+      : undefined;
   const clientBlock = resolveSetup(
     (isPlainObject(client) ? client : {}) as GenerateClientConfig,
     configDir
@@ -230,11 +230,16 @@ async function generateApiClient(
   const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
   collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
 
+  if (clientOutput !== undefined && outputFlag !== undefined) {
+    logger.warn(
+      `Ignoring --output because the configuration file sets \`clientOutput\` for this API.\n`
+    );
+  }
   const outputPath =
-    outputFlag !== undefined
-      ? resolvePath(outputFlag)
-      : clientOutput !== undefined
-        ? resolvePath(configDir, clientOutput)
+    clientOutput !== undefined
+      ? resolvePath(configDir, clientOutput)
+      : outputFlag !== undefined
+        ? resolvePath(outputFlag)
         : resolvePath(configDir, fileNameFor(name));
 
   if (!outputPath.endsWith('.ts')) {
