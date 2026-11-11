@@ -57,6 +57,7 @@ Start with a built-in ruleset: [`recommended`](https://redocly.com/docs/cli/rule
 Then mix and match the [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules) to set your own API guidelines.
 When you need a rule of your own, write it in `redocly.yaml`.
 [Configurable rules](https://redocly.com/docs/cli/rules/configurable-rules) use simple expressions that know the structure of the API description, not complex JSONPath selectors.
+Build one in your browser with the [visual rules builder](https://redocly.com/config-rules-builder).
 For full control, [build your own plugin](https://redocly.com/docs/cli/custom-plugins).
 
 ```yaml
