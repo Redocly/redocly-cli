@@ -6,9 +6,10 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { createMcpHandler, Server as DiscoverMcpServer } from '@modelcontextprotocol/server';
 import { parseYaml, AbortFlowError } from '@redocly/openapi-core';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { createServer, type Server as HttpServer, type ServerResponse } from 'node:http';
+import { createServer, type Server as HttpServer } from 'node:http';
 import { type AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -434,62 +435,42 @@ describe('handleIntrospectMcp', () => {
   });
 
   it('introspects a server that supports only the 2026-07-28 protocol, which has no initialize handshake', async () => {
-    const cacheHints = { resultType: 'complete', ttlMs: 0, cacheScope: 'private' };
-    const respond = (response: ServerResponse, status: number, message: object) => {
-      response.writeHead(status, { 'content-type': 'application/json' });
-      response.end(JSON.stringify({ jsonrpc: '2.0', ...message }));
-    };
-    const discoverOnlyServer = createServer((request, response) => {
-      if (request.method !== 'POST') {
-        response.writeHead(405).end();
-        return;
+    const discoverOnlyHandler = createMcpHandler(
+      () => {
+        const mcpServer = new DiscoverMcpServer(
+          { name: 'discover-cafe-mcp', version: '4.0.0' },
+          {
+            capabilities: { tools: {}, prompts: {}, resources: {} },
+            instructions: 'Manage the cafe menu.',
+          }
+        );
+        mcpServer.setRequestHandler('tools/list', (listRequest) =>
+          listRequest.params?.cursor === 'page-2'
+            ? { tools: [LIST_MENU_TOOL] }
+            : { tools: [CREATE_ORDER_TOOL], nextCursor: 'page-2' }
+        );
+        mcpServer.setRequestHandler('prompts/list', () => ({ prompts: [DAILY_SPECIAL_PROMPT] }));
+        mcpServer.setRequestHandler('resources/list', () => ({ resources: [MENU_RESOURCE] }));
+        return mcpServer;
+      },
+      // Reject the `initialize` handshake of the earlier protocol versions.
+      { legacy: 'reject' }
+    );
+    // The handler takes a web Request, so the node:http request is converted to one.
+    const discoverOnlyServer = createServer(async (request, response) => {
+      const bodyChunks: Buffer[] = [];
+      for await (const chunk of request) {
+        bodyChunks.push(chunk);
       }
-      let body = '';
-      request.on('data', (chunk) => (body += chunk));
-      request.on('end', () => {
-        const { id, method, params } = JSON.parse(body);
-        if (method === 'server/discover') {
-          respond(response, 200, {
-            id,
-            result: {
-              supportedVersions: ['2026-07-28'],
-              capabilities: { tools: {}, prompts: {}, resources: {} },
-              instructions: 'Manage the cafe menu.',
-              ...cacheHints,
-              _meta: {
-                'io.modelcontextprotocol/serverInfo': {
-                  name: 'discover-cafe-mcp',
-                  version: '4.0.0',
-                },
-              },
-            },
-          });
-        } else if (method === 'tools/list') {
-          respond(response, 200, {
-            id,
-            result:
-              params.cursor === 'page-2'
-                ? { tools: [LIST_MENU_TOOL], ...cacheHints }
-                : { tools: [CREATE_ORDER_TOOL], nextCursor: 'page-2', ...cacheHints },
-          });
-        } else if (method === 'prompts/list') {
-          respond(response, 200, {
-            id,
-            result: { prompts: [DAILY_SPECIAL_PROMPT], ...cacheHints },
-          });
-        } else if (method === 'resources/list') {
-          respond(response, 200, { id, result: { resources: [MENU_RESOURCE], ...cacheHints } });
-        } else {
-          respond(response, 400, {
-            id,
-            error: {
-              code: -32022,
-              message: 'Unsupported protocol version',
-              data: { supported: ['2026-07-28'], requested: params?.protocolVersion },
-            },
-          });
-        }
-      });
+      const handlerResponse = await discoverOnlyHandler.fetch(
+        new Request(`http://${request.headers.host}${request.url}`, {
+          method: request.method,
+          headers: request.headers as Record<string, string>,
+          body: bodyChunks.length > 0 ? Buffer.concat(bodyChunks) : undefined,
+        })
+      );
+      response.writeHead(handlerResponse.status, Object.fromEntries(handlerResponse.headers));
+      response.end(Buffer.from(await handlerResponse.arrayBuffer()));
     });
     await new Promise<void>((resolve) => discoverOnlyServer.listen(0, '127.0.0.1', resolve));
     const discoverOnlyServerUrl = `http://127.0.0.1:${
