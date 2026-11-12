@@ -1,18 +1,12 @@
 import { type LoggerInterface } from '@redocly/openapi-core';
-import {
-  RESET_ESCAPE_CODE,
-  calculateTotals,
-  type WorkflowExecutionResult,
-} from '@redocly/respect-core';
+import { calculateTotals, type WorkflowExecutionResult } from '@redocly/respect-core';
 import { green, red, gray, yellow } from 'colorette';
 import * as path from 'node:path';
 
 export function displayFilesSummaryTable(
   filesResult: {
     file: string;
-    hasProblems: boolean;
     executedWorkflows: WorkflowExecutionResult[];
-    argv?: { workflow?: string[]; skip?: string[] };
   }[],
   logger: LoggerInterface
 ) {
@@ -41,20 +35,8 @@ export function displayFilesSummaryTable(
   output += `${gray(`├${columns.map((col) => '─'.repeat(col.width + 2)).join('┼')}┤`)}\n`;
 
   // Data rows
-  filesResult.forEach(({ file, executedWorkflows: workflows, argv }) => {
+  filesResult.forEach(({ file, executedWorkflows }) => {
     const fileName = path.basename(file);
-    const workflowArgv = argv?.workflow || [];
-    const skippedWorkflowArgv = argv?.skip || [];
-
-    let executedWorkflows =
-      workflowArgv && workflowArgv.length
-        ? workflows.filter(({ workflowId }) => workflowArgv.includes(workflowId))
-        : workflows;
-    executedWorkflows =
-      skippedWorkflowArgv && skippedWorkflowArgv.length
-        ? executedWorkflows.filter(({ workflowId }) => !skippedWorkflowArgv.includes(workflowId))
-        : executedWorkflows;
-
     const { workflows: testWorkflows } = calculateTotals(executedWorkflows);
     const total = gray(testWorkflows.total.toString().padEnd(11));
     const passed = green(testWorkflows.passed.toString().padEnd(8));
@@ -89,10 +71,7 @@ export function displayFilesSummaryTable(
   });
 
   // Bottom line
-  output += `${gray(
-    `└${columns.map((col) => '─'.repeat(col.width + 2)).join('┴')}┘`
-  )}${RESET_ESCAPE_CODE}\n`;
+  output += `${gray(`└${columns.map((col) => '─'.repeat(col.width + 2)).join('┴')}┘`)}\n`;
 
-  // Add a single reset at the very end
   logger.output(output);
 }

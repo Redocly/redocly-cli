@@ -1,27 +1,29 @@
-import {
-  calculateTotals,
-  conditionallyMaskSecrets,
-  type TestContext,
-  type JsonLogs,
-  type WorkflowExecutionResult,
-  type WorkflowExecutionResultJson,
-  type Step,
-  type StepExecutionResult,
-  type Check,
-  type PublicWorkflowStep,
-} from '@redocly/respect-core';
+import type {
+  Check,
+  JsonLogs,
+  PublicWorkflowStep,
+  RunFileResult,
+  Step,
+  StepExecutionResult,
+  TestContext,
+  WorkflowExecutionResult,
+  WorkflowExecutionResultJson,
+} from '../../types.js';
+import { calculateTotals } from './calculate-tests-passed.js';
+import { conditionallyMaskSecrets } from './mask-secrets.js';
 
-export function composeJsonLogsFiles(
-  filesResult: {
-    file: string;
-    totalRequests: number;
-    totalTimeMs: number;
-    executedWorkflows: WorkflowExecutionResult[];
-    ctx: TestContext;
-    globalTimeoutError: boolean;
-    secretValues?: string[];
-  }[]
-): JsonLogs['files'] {
+export function composeJsonLogs(filesResult: RunFileResult[], totalTime: number): JsonLogs {
+  const hasProblems = filesResult.some((result) => result.hasProblems);
+  const hasWarnings = filesResult.some((result) => result.hasWarnings);
+
+  return {
+    files: composeJsonLogsFiles(filesResult),
+    status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
+    totalTime,
+  };
+}
+
+function composeJsonLogsFiles(filesResult: RunFileResult[]): JsonLogs['files'] {
   const files: JsonLogs['files'] = {};
 
   for (const fileResult of filesResult) {

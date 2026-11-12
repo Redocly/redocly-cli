@@ -354,7 +354,6 @@ export type JsonLogs = {
   >;
   status: string;
   totalTime: number;
-  globalTimeoutError: boolean;
 };
 
 export type DescriptionChecks = {
