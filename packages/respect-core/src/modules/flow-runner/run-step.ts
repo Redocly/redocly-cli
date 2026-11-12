@@ -27,7 +27,6 @@ import {
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { Timer } from '../timeout-timer/timer.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { resolveActionInputs } from './resolve-action-inputs.js';
@@ -56,8 +55,14 @@ export async function runStep({
   retryingStepIds?: string[];
   executedStepsCount: ExecutedStepsCount;
 }): Promise<{ shouldEnd: boolean } | void> {
+  const { executionDeadline } = ctx.options;
+  if (executionDeadline !== undefined && Date.now() >= executionDeadline) {
+    return endStepAtExecutionTimeout(step, ctx, retriesLeft);
+  }
+
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
+
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
@@ -202,19 +207,6 @@ export async function runStep({
       message: `Max steps (${ctx.options.maxSteps}) reached`,
       passed: false,
       severity: ctx.severity['MAX_STEPS_REACHED_ERROR'],
-    });
-    return { shouldEnd: true };
-  }
-
-  if (
-    ctx.options.executionTimeout &&
-    Timer.getInstance(ctx.options.executionTimeout).isTimedOut()
-  ) {
-    step.checks.push({
-      name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-      message: `Global Respect timer reached`,
-      passed: false,
-      severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
     });
     return { shouldEnd: true };
   }
@@ -390,7 +382,17 @@ export async function runStep({
           }
 
           if (retryAfter) {
-            await delay(retryAfter);
+            const retryWait =
+              executionDeadline === undefined
+                ? retryAfter
+                : Math.min(retryAfter, Math.max(executionDeadline - Date.now(), 0) / 1000);
+            await delay(retryWait);
+            if (retryWait < retryAfter) {
+              return {
+                stepResult: endStepAtExecutionTimeout(step, ctx, retriesLeft),
+                retriesLeft: actionRetriesLeft,
+              };
+            }
           }
 
           if (targetWorkflow || targetStep) {
@@ -501,4 +503,28 @@ export async function runStep({
       return { shouldEnd: true };
     }
   }
+}
+
+function endStepAtExecutionTimeout(
+  step: Step,
+  ctx: TestContext,
+  retriesLeft: number | undefined
+): { shouldEnd: boolean } {
+  const timeoutCheck: Check = {
+    name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+    message: `Global Respect timer reached`,
+    passed: false,
+    severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
+  };
+  if (ctx.executedSteps.includes(step)) {
+    // the attempt that sent the request is registered and printed: it becomes the result of the step
+    step.retriesLeft = retriesLeft;
+    step.checks.push(timeoutCheck);
+    printUnknownStep({ ...step, checks: [timeoutCheck] }, ctx.options.logger);
+  } else {
+    const timedOutStep = { ...step, retriesLeft, checks: [...step.checks, timeoutCheck] };
+    ctx.executedSteps.push(timedOutStep);
+    printUnknownStep(timedOutStep, ctx.options.logger);
+  }
+  return { shouldEnd: true };
 }
