@@ -231,14 +231,6 @@ See [plans and pricing](https://redocly.com/pricing).
 To work on a Redocly Framework project locally, run [`redocly preview`](https://redocly.com/docs/cli/commands/preview).
 Add `--plan=pro`, `--plan=scale`, or `--plan=enterprise` to see the features of that plan.
 
-## Migrate
-
-Follow our official migration guides:
-
-- [From Redocly CLI v1 to v2](https://redocly.com/docs/cli/guides/migrate-to-v2)
-- [From Spectral](https://redocly.com/docs/cli/guides/migrate-from-spectral)
-- From [swagger-cli](https://redocly.com/docs/cli/guides/migrate-from-swagger-cli), [redoc-cli](https://redocly.com/docs/cli/guides/migrate-from-redoc-cli), or [openapi-cli](https://redocly.com/docs/cli/guides/migrate-from-openapi-cli)
-
 ## Data collection
 
 This tool [collects data](./docs/@v2/usage-data.md) to help Redocly improve our products and services.
@@ -261,3 +253,11 @@ Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https
 
 Contributions are welcome!
 All the information you need is in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Migrate
+
+Follow our official migration guides:
+
+- [From Redocly CLI v1 to v2](https://redocly.com/docs/cli/guides/migrate-to-v2)
+- [From Spectral](https://redocly.com/docs/cli/guides/migrate-from-spectral)
+- From [swagger-cli](https://redocly.com/docs/cli/guides/migrate-from-swagger-cli), [redoc-cli](https://redocly.com/docs/cli/guides/migrate-from-redoc-cli), or [openapi-cli](https://redocly.com/docs/cli/guides/migrate-from-openapi-cli)
