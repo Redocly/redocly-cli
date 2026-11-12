@@ -1,17 +1,17 @@
 
   Scores
 
-  Agent Readiness:  89.7/100
+  Agent Readiness:  89.8/100
 
   Subscores
 
   Parameter Simplicity     [█████████████████░░░] 86%
-  Schema Simplicity        [████████████████░░░░] 78%
-  Documentation Quality    [█████████████████░░░] 84%
-  Constraint Clarity       [█████████░░░░░░░░░░░] 44%
-  Example Coverage         [████████████████████] 100%
+  Schema Simplicity        [████████████████░░░░] 81%
+  Documentation Quality    [███████████████████░] 96%
+  Constraint Clarity       [██████████████░░░░░░] 69%
+  Example Coverage         [██████████████████░░] 88%
   Error Clarity            [████████████████████] 100%
-  Dependency Clarity       [█████████████████░░░] 83%
+  Dependency Clarity       [██████████████████░░] 88%
   Identifier Clarity       [████████████████████] 100%
   Polymorphism Clarity     [████████████████████] 100%
   Discoverability          [████████████████████] 99%
@@ -20,14 +20,18 @@
 
   Total operations: 8
   Parameters/operation:      avg    1.4  median    1.0  min     0  max     4
-  Schema depth:              avg    1.8  median    2.0  min     1  max     3
+  Schema depth:              avg    1.5  median    2.0  min     0  max     3
   Polymorphism/operation:    avg    0.0  median    0.0  min     0  max     0
-  Properties/operation:      avg    4.6  median    6.0  min     2  max     6
+  Properties/operation:      avg    4.1  median    6.0  min     0  max     6
   Operations with request examples: 3/8 (38%)
-  Operations with response examples: 8/8 (100%)
+  Operations with response examples: 6/8 (75%)
   Operations with description: 8/8 (100%)
 
-  No hotspot operations found.
+  Top 1 Hotspot Operations
+
+  GET /tickets/{ticketId}/qr (getTicketCode)
+    Agent Readiness: 81.0
+    - Missing response examples
 
 
 Document: museum.yaml score:

@@ -33,6 +33,9 @@ The following raw metrics are collected per operation and aggregated across the 
 | Security scheme coverage           | Whether operations reference documented security schemes with descriptions.                                                                                                                                         |
 | Cross-operation dependency depth   | Inferred from shared `$ref` usage across operations. Operations that share many schemas form a dependency graph; deeper graphs indicate tightly coupled multi-step interactions.                                    |
 
+The schema, example, and dependency metrics read request bodies and success responses.
+Error responses count only toward structured error coverage.
+
 ### Subscores
 
 The following subscores are normalized to 0–1 and combined into the composite Agent Readiness score:
@@ -64,7 +67,7 @@ Edits that don't change the score are left out.
 | `parameter-description` | Add a description to each parameter. A parameter with a description is no longer ambiguous. | `documentationQuality` |
 | `property-description`  | Add a description to each schema property.                                                  | `documentationQuality` |
 | `request-example`       | Add an example to each request body.                                                        | `exampleCoverage`      |
-| `response-example`      | Add an example to the responses of each operation that declares a response body.            | `exampleCoverage`      |
+| `response-example`      | Add an example to the success responses that declare a body.                                | `exampleCoverage`      |
 | `structured-error`      | Add a schema or a description to each 4xx and 5xx response.                                 | `errorClarity`         |
 | `constraint`            | Add constraints, such as `enum`, `format`, or `maxLength`, to schema properties.            | `constraintClarity`    |
 
@@ -183,8 +186,8 @@ The output adds the reachable score below the Agent Readiness score, and the rec
    +2.9  Add constraints to schema properties (14 operations)
          Contract risk: add only the constraints the API already enforces.
    +1.8  Add descriptions to schema properties (13 operations)
+   +0.3  Add response examples (4 operations)
    +0.3  Add request body examples (3 operations)
-   +0.3  Add response examples (3 operations)
 
   Design findings
 

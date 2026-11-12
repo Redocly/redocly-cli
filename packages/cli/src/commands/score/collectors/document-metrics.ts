@@ -314,18 +314,18 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
       const current = accumulator.current;
       if (!current) return;
 
+      if (current.inResponse && isErrorCode(current.currentResponseCode)) {
+        if (!current.errorStructuredCounted) {
+          current.structuredErrorResponseCount++;
+          current.errorStructuredCounted = true;
+        }
+        // Error responses count only toward error clarity.
+        return;
+      }
+
       if (hasExample(mediaType)) {
         if (current.inRequestBody) current.requestExamplePresent = true;
         if (current.inResponse) current.responseExamplePresent = true;
-      }
-
-      if (
-        current.inResponse &&
-        isErrorCode(current.currentResponseCode) &&
-        !current.errorStructuredCounted
-      ) {
-        current.structuredErrorResponseCount++;
-        current.errorStructuredCounted = true;
       }
 
       if (mediaType.schema) {
@@ -444,14 +444,14 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
               current.inResponse = true;
               current.currentResponseCode = code;
               current.errorStructuredCounted = false;
-              if (isNotEmptyObject(response.content)) current.responseBodyPresent = true;
-
               if (isErrorCode(code)) {
                 current.totalErrorResponses++;
                 if (!response.content && response.description) {
                   current.structuredErrorResponseCount++;
                   current.errorStructuredCounted = true;
                 }
+              } else if (isNotEmptyObject(response.content)) {
+                current.responseBodyPresent = true;
               }
             },
             leave() {

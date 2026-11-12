@@ -1,14 +1,14 @@
 {
-  "agentReadiness": 89.7,
+  "agentReadiness": 89.8,
   "discoverability": 99,
   "subscores": {
     "parameterSimplicity": 0.8625,
-    "schemaSimplicity": 0.78125,
-    "documentationQuality": 0.8392857142857143,
-    "constraintClarity": 0.4375,
-    "exampleCoverage": 1,
+    "schemaSimplicity": 0.8125,
+    "documentationQuality": 0.9642857142857143,
+    "constraintClarity": 0.6875,
+    "exampleCoverage": 0.875,
     "errorClarity": 1,
-    "dependencyClarity": 0.8333333333333333,
+    "dependencyClarity": 0.875,
     "identifierClarity": 1,
     "polymorphismClarity": 1
   },
@@ -125,8 +125,8 @@
         "paramsWithDescription": 1,
         "ambiguousIdentifierCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 1,
-        "totalSchemaProperties": 2,
+        "maxResponseSchemaDepth": 0,
+        "totalSchemaProperties": 0,
         "schemaPropertiesWithDescription": 0,
         "constraintCount": 0,
         "polymorphismCount": 0,
@@ -135,8 +135,8 @@
         "topLevelWritableFieldCount": 0,
         "requestBodyPresent": false,
         "requestExamplePresent": false,
-        "responseExamplePresent": true,
-        "responseBodyPresent": true,
+        "responseExamplePresent": false,
+        "responseBodyPresent": false,
         "structuredErrorResponseCount": 3,
         "totalErrorResponses": 3
       },
@@ -200,17 +200,17 @@
         "paramsWithDescription": 1,
         "ambiguousIdentifierCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 1,
-        "totalSchemaProperties": 2,
+        "maxResponseSchemaDepth": 0,
+        "totalSchemaProperties": 0,
         "schemaPropertiesWithDescription": 0,
-        "constraintCount": 0,
+        "constraintCount": 1,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
         "topLevelWritableFieldCount": 0,
         "requestBodyPresent": false,
         "requestExamplePresent": false,
-        "responseExamplePresent": true,
+        "responseExamplePresent": false,
         "responseBodyPresent": true,
         "structuredErrorResponseCount": 2,
         "totalErrorResponses": 2
@@ -275,15 +275,15 @@
       }
     },
     "deleteSpecialEvent": {
-      "agentReadiness": 75.1,
+      "agentReadiness": 99,
       "subscores": {
         "parameterSimplicity": 0.9,
-        "schemaSimplicity": 0.875,
-        "documentationQuality": 0.5,
-        "constraintClarity": 0,
+        "schemaSimplicity": 1,
+        "documentationQuality": 1,
+        "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.8333333333333334,
+        "dependencyClarity": 1,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
@@ -317,15 +317,15 @@
       }
     },
     "getTicketCode": {
-      "agentReadiness": 75.1,
+      "agentReadiness": 81,
       "subscores": {
         "parameterSimplicity": 0.9,
-        "schemaSimplicity": 0.875,
-        "documentationQuality": 0.5,
-        "constraintClarity": 0,
-        "exampleCoverage": 1,
+        "schemaSimplicity": 1,
+        "documentationQuality": 1,
+        "constraintClarity": 1,
+        "exampleCoverage": 0,
         "errorClarity": 1,
-        "dependencyClarity": 0.8333333333333334,
+        "dependencyClarity": 1,
         "identifierClarity": 1,
         "polymorphismClarity": 1
       }
@@ -336,12 +336,22 @@
     "listSpecialEvents": 1,
     "createSpecialEvent": 1,
     "getSpecialEvent": 1,
-    "deleteSpecialEvent": 1,
+    "deleteSpecialEvent": 0,
     "updateSpecialEvent": 1,
     "buyMuseumTickets": 1,
-    "getTicketCode": 1
+    "getTicketCode": 0
   },
-  "hotspots": []
+  "hotspots": [
+    {
+      "path": "/tickets/{ticketId}/qr",
+      "method": "get",
+      "operationId": "getTicketCode",
+      "agentReadinessScore": 81,
+      "reasons": [
+        "Missing response examples"
+      ]
+    }
+  ]
 }
 Document: museum.yaml score:
 
