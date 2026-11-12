@@ -67,7 +67,7 @@ export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
   let changed = 0;
   for (const targetDir of targetDirs) {
     const shownDir = argv.global ? targetDir : relative(cwd, targetDir);
-    // `lstatSync` finds a broken symbolic link too, `statSync` follows the link to its target.
+    // `lstatSync` sees a broken link, `statSync` follows a working link to its folder.
     const entry = lstatSync(targetDir, { throwIfNoEntry: false });
     const linkTarget = statSync(targetDir, { throwIfNoEntry: false });
     if (entry && !linkTarget?.isDirectory()) {
