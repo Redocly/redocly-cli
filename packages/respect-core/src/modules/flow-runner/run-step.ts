@@ -55,13 +55,13 @@ export async function runStep({
   retryingStepIds?: string[];
   executedStepsCount: ExecutedStepsCount;
 }): Promise<{ shouldEnd: boolean } | void> {
-  step = { ...step }; // shallow copy step to avoid mutating the original step
-  step.retriesLeft = retriesLeft;
-
   const { executionDeadline } = ctx.options;
   if (executionDeadline !== undefined && Date.now() >= executionDeadline) {
-    return endStepAtExecutionTimeout(step, ctx);
+    return endStepAtExecutionTimeout(step, ctx, retriesLeft);
   }
+
+  step = { ...step }; // shallow copy step to avoid mutating the original step
+  step.retriesLeft = retriesLeft;
 
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
@@ -389,7 +389,7 @@ export async function runStep({
             await delay(retryWait);
             if (retryWait < retryAfter) {
               return {
-                stepResult: endStepAtExecutionTimeout({ ...step, retriesLeft }, ctx),
+                stepResult: endStepAtExecutionTimeout(step, ctx, retriesLeft),
                 retriesLeft: actionRetriesLeft,
               };
             }
@@ -505,18 +505,26 @@ export async function runStep({
   }
 }
 
-function endStepAtExecutionTimeout(step: Step, ctx: TestContext): { shouldEnd: boolean } {
-  ctx.executedSteps.push({
-    ...step,
-    checks: [
-      ...step.checks,
-      {
-        name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-        message: `Global Respect timer reached`,
-        passed: false,
-        severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
-      },
-    ],
-  });
+function endStepAtExecutionTimeout(
+  step: Step,
+  ctx: TestContext,
+  retriesLeft: number | undefined
+): { shouldEnd: boolean } {
+  const timeoutCheck: Check = {
+    name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+    message: `Global Respect timer reached`,
+    passed: false,
+    severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
+  };
+  if (ctx.executedSteps.includes(step)) {
+    // the attempt that sent the request is registered and printed: it becomes the result of the step
+    step.retriesLeft = retriesLeft;
+    step.checks.push(timeoutCheck);
+    printUnknownStep({ ...step, checks: [timeoutCheck] }, ctx.options.logger);
+  } else {
+    const timedOutStep = { ...step, retriesLeft, checks: [...step.checks, timeoutCheck] };
+    ctx.executedSteps.push(timedOutStep);
+    printUnknownStep(timedOutStep, ctx.options.logger);
+  }
   return { shouldEnd: true };
 }

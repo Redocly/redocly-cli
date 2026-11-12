@@ -134,7 +134,6 @@ export type AppOptions = {
   severity?: string | string[];
   maxSteps: number;
   maxFetchTimeout: number;
-  executionTimeout?: number;
   executionDeadline?: number;
   config: Config;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };

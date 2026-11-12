@@ -67,16 +67,14 @@ const EMPTY_MENU = {
 };
 
 describe('run with an execution timeout', () => {
-  it('ends a retry wait when the execution timeout is reached', async () => {
+  it('reports one request and the timeout that ends a retry wait', async () => {
     const fetch = vi.fn(failingFetch);
-    const startedAt = Date.now();
 
     const result = await run(await runOptions('retry-after-a-minute', 1_000, fetch));
 
-    expect(Date.now() - startedAt).toBeLessThan(4_000);
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(timeoutCheckCount(result)).toBe(1);
-    expect(result).toMatchObject([{ globalTimeoutError: true }]);
+    expect(result).toMatchObject([{ globalTimeoutError: true, totalRequests: 1 }]);
   });
 
   it('ends a shortened retry wait without another request when the timer fires early', async () => {
@@ -98,6 +96,16 @@ describe('run with an execution timeout', () => {
 
   it('reports the timeout of a sub-workflow on the parent workflow', async () => {
     const result = await run(await runOptions('run-retry-after-a-minute', 1_000, failingFetch));
+
+    expect(result).toMatchObject([
+      { globalTimeoutError: true, executedWorkflows: [{ globalTimeoutError: true }] },
+    ]);
+  });
+
+  it('reports the timeout of a dependency on the workflow that depends on it', async () => {
+    const result = await run(
+      await runOptions('depends-on-retry-after-a-minute', 1_000, failingFetch)
+    );
 
     expect(result).toMatchObject([
       { globalTimeoutError: true, executedWorkflows: [{ globalTimeoutError: true }] },

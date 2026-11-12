@@ -22,6 +22,12 @@ workflows:
     steps:
       - stepId: run-retry-workflow
         workflowId: retry-after-a-minute
+  - workflowId: depends-on-retry-after-a-minute
+    dependsOn:
+      - retry-after-a-minute
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
   - workflowId: retry-often
     steps:
       - stepId: list-menu-items
