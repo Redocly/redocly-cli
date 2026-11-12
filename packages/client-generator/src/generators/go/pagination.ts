@@ -1,6 +1,6 @@
 // The `pagination` stage: the `<Op>Pages` / `<Op>Items` yield-func iterators.
 
-import { type DateType, type OperationModel, operationIdOf } from '@redocly/client-generator';
+import { type DateType, type OperationModel, getOperationId } from '@redocly/client-generator';
 import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
 
 import { naming } from './naming.ts';
@@ -25,7 +25,7 @@ export function writeGoPaginationWrappers(
   ].join(', ');
 
   const writeCallClosure = () => {
-    printer.line(`op := operations[${naming.string(operationIdOf(op))}]`);
+    printer.line(`op := operations[${naming.string(getOperationId(op))}]`);
     printer.line('base := url.Values{}');
     if (hasParams) {
       printer.block(

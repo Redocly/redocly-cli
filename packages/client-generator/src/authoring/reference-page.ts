@@ -9,7 +9,7 @@ import {
   type OperationModel,
   type ParamModel,
   type SchemaModel,
-  operationIdOf,
+  getOperationId,
 } from '../intermediate-representation/model.js';
 import { isBinaryContentType } from './operation.js';
 import { paginationRuleFor } from './pagination.js';
@@ -106,7 +106,7 @@ function writeOperation(
   op: OperationModel,
   options: ReferencePageOptions
 ): void {
-  printer.line(`### \`${operationIdOf(op)}\``);
+  printer.line(`### \`${getOperationId(op)}\``);
   printer.blank();
   if (op.summary !== undefined) {
     printer.line(cell(op.summary));
