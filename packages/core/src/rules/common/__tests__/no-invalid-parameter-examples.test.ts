@@ -360,4 +360,54 @@ describe('no-invalid-parameter-examples', () => {
       ]
     `);
   });
+
+  it('should report an invalid value next to a valid dataValue (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /users:
+            get:
+              parameters:
+                - name: age
+                  in: query
+                  schema:
+                    type: integer
+                  examples:
+                    mixed:
+                      dataValue: 30
+                      value: thirty
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-parameter-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1users/get/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1users/get/parameters/0/examples/mixed/value",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: type must be integer.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-parameter-examples",
+          "ruleId": "no-invalid-parameter-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

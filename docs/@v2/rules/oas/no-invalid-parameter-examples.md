@@ -104,6 +104,7 @@ paths:
 
 In OpenAPI 3.2, provide the structured example in `dataValue`, which is validated against the schema the same way `value` is.
 When `dataValue` is present, `value` must be absent (see [spec-example-values](./spec-example-values.md)).
+If an example has both fields, each of them is validated and reported at its own location.
 
 Example of an **incorrect** `dataValue`:
 
