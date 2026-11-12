@@ -57,7 +57,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
 
 /**
  * The absolute project directory. `npx` inside an npm workspace starts the command in the
- * workspace root and leaves the directory it was run from in `INIT_CWD`.
+ * workspace package and leaves the directory it was run from in `INIT_CWD`.
  */
 const resolveProjectDir = (projectDir: string): string => {
   const cwd = process.cwd();

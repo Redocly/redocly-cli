@@ -12,16 +12,16 @@ vi.mock('node:child_process', () => ({
 }));
 
 describe('previewProject', () => {
-  // The workspace root npx moves the command to, and the subdirectory it was run from.
-  let workspaceRoot: string;
+  // The workspace package npx moves the command to, and the subdirectory it was run from.
+  let packageDir: string;
   let invocationDir: string;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    workspaceRoot = mkdtempSync(join(tmpdir(), 'redocly-preview-'));
-    invocationDir = join(workspaceRoot, 'docs', 'sub');
+    packageDir = mkdtempSync(join(tmpdir(), 'redocly-preview-'));
+    invocationDir = join(packageDir, 'docs', 'sub');
     mkdirSync(invocationDir, { recursive: true });
-    vi.spyOn(process, 'cwd').mockReturnValue(workspaceRoot);
+    vi.spyOn(process, 'cwd').mockReturnValue(packageDir);
     vi.stubEnv('INIT_CWD', invocationDir);
     vi.stubEnv('npm_command', 'exec');
   });
@@ -29,16 +29,13 @@ describe('previewProject', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
-    rmSync(workspaceRoot, { recursive: true, force: true });
+    rmSync(packageDir, { recursive: true, force: true });
   });
 
-  const argv = (projectDir: string) =>
-    ({
-      argv: { plan: 'enterprise', 'project-dir': projectDir },
-    }) as CommandArgs<PreviewProjectArgv>;
-
   it('previews the directory npx was run from inside an npm workspace', async () => {
-    await previewProject(argv('.'));
+    await previewProject({
+      argv: { plan: 'enterprise', 'project-dir': '.' },
+    } as CommandArgs<PreviewProjectArgv>);
 
     const [, args, options] = vi.mocked(spawn).mock.calls[0];
     expect(args).toContainEqual(expect.stringContaining(`--project-dir=${invocationDir}`));
@@ -48,25 +45,31 @@ describe('previewProject', () => {
   it('keeps a relative directory relative to the package root in an npm script', async () => {
     vi.stubEnv('npm_command', 'run');
 
-    await previewProject(argv('api'));
+    await previewProject({
+      argv: { plan: 'enterprise', 'project-dir': 'api' },
+    } as CommandArgs<PreviewProjectArgv>);
 
     const [, args] = vi.mocked(spawn).mock.calls[0];
     expect(args).toContainEqual(
-      expect.stringContaining(`--project-dir=${join(workspaceRoot, 'api')}`)
+      expect.stringContaining(`--project-dir=${join(packageDir, 'api')}`)
     );
   });
 
   it('ignores INIT_CWD outside the current directory', async () => {
-    vi.stubEnv('INIT_CWD', resolve(workspaceRoot, '..'));
+    vi.stubEnv('INIT_CWD', resolve(packageDir, '..'));
 
-    await previewProject(argv('.'));
+    await previewProject({
+      argv: { plan: 'enterprise', 'project-dir': '.' },
+    } as CommandArgs<PreviewProjectArgv>);
 
     const [, args] = vi.mocked(spawn).mock.calls[0];
-    expect(args).toContainEqual(expect.stringContaining(`--project-dir=${workspaceRoot}`));
+    expect(args).toContainEqual(expect.stringContaining(`--project-dir=${packageDir}`));
   });
 
   it('keeps an absolute directory', async () => {
-    await previewProject(argv(resolve('/abs/docs')));
+    await previewProject({
+      argv: { plan: 'enterprise', 'project-dir': resolve('/abs/docs') },
+    } as CommandArgs<PreviewProjectArgv>);
 
     const [, args] = vi.mocked(spawn).mock.calls[0];
     expect(args).toContainEqual(expect.stringContaining(`--project-dir=${resolve('/abs/docs')}`));
@@ -78,7 +81,9 @@ describe('previewProject', () => {
       JSON.stringify({ dependencies: { '@redocly/realm': '1.0.0' } })
     );
 
-    await previewProject(argv('.'));
+    await previewProject({
+      argv: { plan: 'enterprise', 'project-dir': '.' },
+    } as CommandArgs<PreviewProjectArgv>);
 
     const [, args] = vi.mocked(spawn).mock.calls[0];
     expect(args).toContain('@redocly/realm');
