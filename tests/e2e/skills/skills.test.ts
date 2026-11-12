@@ -1,4 +1,12 @@
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -63,6 +71,18 @@ describe('skills', () => {
     expect(output).not.toContain('updated');
     expect(output).toContain('All skills are up to date.');
     expect(existsSync(teamSkill)).toBe(true);
+  });
+
+  test('skips an agent folder when its skills path is a file', () => {
+    // Git on Windows checks out the symbolic link `.claude/skills -> ../.agents/skills` as this file.
+    mkdirSync(join(project, '.claude'));
+    writeFileSync(join(project, '.claude/skills'), '../.agents/skills');
+
+    const output = runSkills(['--agent', 'claude']);
+    expect(output).toContain('Skipped .claude/skills because it is not a folder.');
+    expect(output).toContain('Exit code: 0');
+    expect(readFileSync(join(project, '.claude/skills'), 'utf-8')).toBe('../.agents/skills');
+    expect(existsSync(join(project, '.agents/skills/redocly-cli/SKILL.md'))).toBe(true);
   });
 
   test('creates the folder of an agent named with --agent', () => {

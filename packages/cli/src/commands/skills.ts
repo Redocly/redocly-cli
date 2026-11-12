@@ -1,6 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 import { bold, cyan, gray, green, yellow } from 'colorette';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,10 +66,19 @@ export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
 
   let changed = 0;
   for (const targetDir of targetDirs) {
+    const shownDir = argv.global ? targetDir : relative(cwd, targetDir);
+    // `lstatSync` finds a broken symbolic link too, `statSync` follows the link to its target.
+    const entry = lstatSync(targetDir, { throwIfNoEntry: false });
+    const linkTarget = statSync(targetDir, { throwIfNoEntry: false });
+    if (entry && !linkTarget?.isDirectory()) {
+      logger.warn(`Skipped ${shownDir} because it is not a folder.\n`);
+      continue;
+    }
+
     for (const skillName of bundledSkills) {
       const bundled = readSkill(skillName);
       const targetFile = join(targetDir, skillName, 'SKILL.md');
-      const shownPath = argv.global ? targetFile : relative(cwd, targetFile);
+      const shownPath = join(shownDir, skillName, 'SKILL.md');
 
       let status = 'created';
       let color = green;
