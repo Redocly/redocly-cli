@@ -1,5 +1,4 @@
 import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
-import type { Oas3Responses } from '@redocly/openapi-core';
 import { blue, dim, red, yellow, green } from 'colorette';
 
 import {
@@ -11,6 +10,11 @@ import {
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
 import { CHECKS } from '../../checks/index.js';
+import {
+  contentTypeMatchesPattern,
+  getResponseKeyByStatusCode,
+  getResponseSchema,
+} from '../../description-parser/index.js';
 
 const ajvStrict = new (Ajv as any)({
   schemaId: '$id',
@@ -66,12 +70,12 @@ function checkSchemaFromDescription({
   ajvContext,
 }: DescriptionChecks & { ctx: TestContext; ajvContext?: AjvContext }): void {
   const { body: resultBody } = $response;
-  const descriptionResponseByCode =
-    descriptionOperation?.responses[String($response?.statusCode)] ||
-    descriptionOperation?.responses['default'];
-
   const schemaFromDescription = $response?.contentType
-    ? resolveContentByType(descriptionResponseByCode?.content, $response.contentType)?.schema
+    ? getResponseSchema({
+        statusCode: $response.statusCode,
+        contentType: $response.contentType,
+        descriptionResponses: descriptionOperation?.responses,
+      })
     : undefined;
   const isSchemaWithCircularRef = checkCircularRefsInSchema(schemaFromDescription);
 
@@ -113,21 +117,17 @@ function checkStatusCodeFromDescription({
   ctx,
 }: DescriptionChecks & { ctx: TestContext }): void {
   const responseStatusCode = $response?.statusCode;
-  const responseCodesFromDescription = Object.keys(descriptionOperation?.responses || {});
-  const matchesCodeFromDescription =
-    responseStatusCode &&
-    responseCodesFromDescription
-      .map((item) => item.toString())
-      .includes(responseStatusCode.toString());
+  const descriptionResponses = descriptionOperation?.responses || {};
+  const responseCodesFromDescription = Object.keys(descriptionResponses);
+  const matchedResponseKey = getResponseKeyByStatusCode(descriptionResponses, responseStatusCode);
 
-  const matchesDefaultResponse = responseCodesFromDescription.includes('default');
+  const message =
+    matchedResponseKey === String(responseStatusCode)
+      ? dim(`List of valid response codes are inferred from description \n\n`) +
+        statusCodeDiff(`${responseStatusCode}`, responseCodesFromDescription.map(String))
+      : ''; // NOTE: we don't show any diff if response code hits a range or the default response
 
-  const message = matchesCodeFromDescription
-    ? dim(`List of valid response codes are inferred from description \n\n`) +
-      statusCodeDiff(`${responseStatusCode}`, responseCodesFromDescription.map(String))
-    : ''; // NOTE: we don't show any diff if response code hits default response
-
-  const passed = matchesCodeFromDescription || matchesDefaultResponse;
+  const passed = matchedResponseKey !== undefined;
 
   checks.push({
     name: CHECKS.STATUS_CODE_CHECK,
@@ -140,44 +140,6 @@ function checkStatusCodeFromDescription({
   });
 }
 
-function contentTypeMatchesPattern(contentType: string, pattern: string): boolean {
-  const normalizedPattern = pattern.toLowerCase();
-  const normalizedContentType = contentType.toLowerCase();
-
-  if (normalizedPattern === '*/*') return true;
-  if (normalizedPattern === normalizedContentType) return true;
-
-  const [patternType, patternSubtype] = normalizedPattern.split('/');
-  const [actualType, actualSubtype] = normalizedContentType.split('/');
-
-  if (patternType === '*') {
-    return patternSubtype === '*' || patternSubtype === actualSubtype;
-  }
-
-  if (patternSubtype === '*') {
-    return patternType === actualType;
-  }
-
-  return false;
-}
-
-type ResponseContent = NonNullable<Oas3Responses[string]['content']>;
-
-export function resolveContentByType(
-  content: ResponseContent | undefined,
-  contentType: string
-): ResponseContent[string] | undefined {
-  if (!content) return undefined;
-  if (content[contentType]) return content[contentType];
-
-  for (const pattern of Object.keys(content)) {
-    if (contentTypeMatchesPattern(contentType, pattern)) {
-      return content[pattern];
-    }
-  }
-  return undefined;
-}
-
 function checkContentTypeFromDescription({
   checks,
   descriptionOperation,
@@ -186,8 +148,10 @@ function checkContentTypeFromDescription({
 }: DescriptionChecks & { ctx: TestContext }): void {
   const statusCode = $response?.statusCode;
   const responseContentType = $response?.contentType;
+  const descriptionResponses = descriptionOperation?.responses || {};
+  const responseKey = getResponseKeyByStatusCode(descriptionResponses, statusCode);
   const possibleContentTypesFromDescription = Object.keys(
-    descriptionOperation?.responses[statusCode]?.content || {}
+    (responseKey && descriptionResponses[responseKey]?.content) || {}
   );
 
   if (!possibleContentTypesFromDescription.length) {

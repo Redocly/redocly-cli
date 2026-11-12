@@ -1,3 +1,4 @@
+import { isRef, type Oas3Schema, type Oas3_1Schema, type Referenced } from '@redocly/openapi-core';
 import { dirname, resolve } from 'node:path';
 
 import {
@@ -114,11 +115,11 @@ export async function createTestContext(
 
 export function collectSecretValues(
   ctx: TestContext,
-  schema: InputSchema | undefined,
+  schema: InputSchema | Referenced<Oas3Schema | Oas3_1Schema> | undefined,
   inputs: Record<string, any> | undefined,
   path: string[] = []
 ) {
-  if (!schema || !inputs) return;
+  if (!schema || isRef(schema) || !inputs) return;
 
   const inputValue = getNestedValue(inputs, path);
 
