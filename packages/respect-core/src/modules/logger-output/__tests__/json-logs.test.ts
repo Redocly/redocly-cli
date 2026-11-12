@@ -1,4 +1,4 @@
-import type { RunFileResult, Step, TestContext, WorkflowExecutionResult } from '../../../types.js';
+import type { Step, TestContext, WorkflowExecutionResult } from '../../../types.js';
 import { composeJsonLogs } from '../json-logs.js';
 
 describe('composeJsonLogs', () => {
@@ -47,7 +47,7 @@ describe('composeJsonLogs', () => {
           executedWorkflows: [executedWorkflow],
           ctx,
           globalTimeoutError: false,
-        } as RunFileResult,
+        },
       ],
       1
     );

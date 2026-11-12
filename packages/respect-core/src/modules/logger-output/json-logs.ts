@@ -12,7 +12,10 @@ import type {
 import { calculateTotals } from './calculate-tests-passed.js';
 import { conditionallyMaskSecrets } from './mask-secrets.js';
 
-export function composeJsonLogs(filesResult: RunFileResult[], totalTime: number): JsonLogs {
+export function composeJsonLogs(
+  filesResult: Omit<RunFileResult, 'options'>[],
+  totalTime: number
+): JsonLogs {
   const hasProblems = filesResult.some((result) => result.hasProblems);
   const hasWarnings = filesResult.some((result) => result.hasWarnings);
 
@@ -23,7 +26,7 @@ export function composeJsonLogs(filesResult: RunFileResult[], totalTime: number)
   };
 }
 
-function composeJsonLogsFiles(filesResult: RunFileResult[]): JsonLogs['files'] {
+function composeJsonLogsFiles(filesResult: Omit<RunFileResult, 'options'>[]): JsonLogs['files'] {
   const files: JsonLogs['files'] = {};
 
   for (const fileResult of filesResult) {
