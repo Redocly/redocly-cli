@@ -1,3 +1,9 @@
+---
+seo:
+  title: Custom rules in plugins for Redocly CLI
+  description: Write custom rules in JavaScript plugins using the visitor pattern to enforce specific API standards with Redocly CLI.
+---
+
 # Rules in plugins
 
 Rules are used to make sure that the API description is in the expected format and aligns with the expected API standards. Before you build any custom rules:

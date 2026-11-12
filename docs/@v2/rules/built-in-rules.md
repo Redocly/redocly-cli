@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/built-in-rules
+seo:
+  title: Built-in lint rules in Redocly CLI
+  description: Browse the built-in lint rules in Redocly CLI for OpenAPI, AsyncAPI, Arazzo, Open-RPC, and Overlay descriptions.
 ---
 
 # Built-in rules

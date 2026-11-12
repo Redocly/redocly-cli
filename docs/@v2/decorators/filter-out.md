@@ -1,3 +1,9 @@
+---
+seo:
+  title: filter-out decorator in Redocly CLI
+  description: Remove matching nodes by property and value from your API description while preserving others using the filter-out decorator.
+---
+
 # filter-out
 
 Removes nodes that have specific `property` set to the specific `value` and preserves others.

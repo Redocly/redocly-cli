@@ -1,3 +1,9 @@
+---
+seo:
+  title: Visitor pattern in Redocly CLI plugins
+  description: Use the visitor pattern in Redocly CLI custom plugins to traverse document nodes and evaluate rules and decorators.
+---
+
 # Visitor pattern
 
 _Visitor_ is a design pattern that allows operations to be performed on individual elements in a more complex structure. Redocly uses it as the basis for custom plugins where every node in a document must be evaluated, for example when applying rules or decorators.
