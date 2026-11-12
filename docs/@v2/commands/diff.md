@@ -22,17 +22,18 @@ Its behavior, options, rule names, and output formats can change in future relea
 redocly diff <base> <revision>
 redocly diff <base> <revision> [--fail-on=<impact>] [--check-version]
 redocly diff <base> <revision> [--format=<value>] [--output=<path>]
-redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
+redocly diff <base> <revision> [--config=<path>] [--extends=<ruleset>]... [--skip-rule=<rule>]...
 ```
 
 ## Options
 
 | Option          | Type     | Description                                                                                                                                                                                    |
 | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| base            | string   | **REQUIRED.** Path, URL, or [alias](../configuration/reference/apis.md) of the older API description.                                                                                          |
-| revision        | string   | **REQUIRED.** Path, URL, or alias of the newer API description.                                                                                                                                |
+| base            | string   | **REQUIRED.** Path, URL, [alias](../configuration/reference/apis.md), or [git revision file](#compare-with-a-git-revision) of the older API description.                                       |
+| revision        | string   | **REQUIRED.** Path, URL, alias, or git revision file of the newer API description.                                                                                                             |
 | --check-version | boolean  | Fail if `info.version` of the revision is lower than the version that the changes require. See [Check the version](#check-the-version). Default value is `false`.                              |
 | --config        | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                           |
+| --extends       | [string] | Use these rulesets in place of the `extends` list of the configuration file. See [Turn on the diff rules for one run](#turn-on-the-diff-rules-for-one-run).                                    |
 | --fail-on       | string   | Exit with code `1` if a change has this impact or a higher impact. <br /> **Possible values:** `major`, `minor`, `patch`, `none`. Default value is `major`.                                    |
 | --format        | string   | Format for the output. See [Output formats](#output-formats). <br /> **Possible values:** `stylish`, `json`, `markdown`, `html`, `github-actions`, `next-version`. Default value is `stylish`. |
 | --help          | boolean  | Show help.                                                                                                                                                                                     |
@@ -83,6 +84,42 @@ redocly diff main/openapi.yaml openapi.yaml
 
 To also fail on new features, use `--fail-on=minor`.
 To never fail, use `--fail-on=none`.
+
+### Compare with a git revision
+
+To read a description from git, write the revision, a colon, and the path of the file, as you do for `git show`:
+
+```bash
+redocly diff origin/main:openapi.yaml openapi.yaml
+```
+
+This command compares `openapi.yaml` on the `origin/main` branch with `openapi.yaml` in your working directory.
+
+The revision can be a branch, a tag, or a commit, for example `main`, `v1.0.0`, `HEAD~1`, or `4d6f1c5`.
+The two descriptions can come from git:
+
+```bash
+redocly diff v1.0.0:openapi.yaml v2.0.0:openapi.yaml
+```
+
+- The path starts at the root of the repository.
+  To start at the current directory, put `./` before the path, for example `main:./openapi.yaml`.
+- If the description has `$ref`s to other files, the command reads these files from the same revision.
+- The command uses the configuration file in your working directory for the two descriptions.
+- If a file or an API alias has the same name as the argument, the command uses the file or the alias.
+- The command reads only the revisions that are in your local repository.
+  It does not download revisions.
+
+In GitHub Actions, the default checkout has only the last commit.
+Get the full history, so that the base branch is in the local repository:
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+  - run: npx @redocly/cli diff origin/${{ github.base_ref }}:openapi.yaml openapi.yaml
+```
 
 ### Check the version
 
@@ -160,6 +197,20 @@ extends:
 diff:
   enum-values-added: minor
 ```
+
+### Turn on the diff rules for one run
+
+The diff rules come from the `diff-recommended` ruleset.
+Without a configuration file, the command uses this ruleset.
+If your configuration file does not have `diff-recommended` in its `extends` list, use the `--extends` option:
+
+```bash
+redocly diff main/openapi.yaml openapi.yaml --extends=diff-recommended
+```
+
+The option replaces the `extends` list of the configuration file for this run.
+The command keeps all other settings of the file, for example the `diff` section.
+To use more than one ruleset, use the option again for each ruleset.
 
 ## Resources
 

@@ -18,7 +18,7 @@ GET /menu
 
 0 major, 1 minor, 4 patch.
 
-⚠️  No diff rules are on, so the command cannot find breaking changes. Add diff-recommended to extends in your configuration file.
+⚠️  No diff rules are on, so the command cannot find breaking changes. Add diff-recommended to extends in your configuration file, or use --extends=diff-recommended.
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 

@@ -176,6 +176,20 @@ describe('diff', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('should read the base and the files it references from a git revision', async () => {
+    const testPath = join(__dirname, 'multi-file');
+    const args = getParams(indexEntryPoint, [
+      'diff',
+      'HEAD:./base/openapi.yaml',
+      'revision/openapi.yaml',
+    ]);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-git-revision.txt')
+    );
+  });
+
   test('should compare two APIs by their aliases and judge them with the rules of redocly.yaml', async () => {
     const testPath = join(__dirname, 'configuration');
     const args = getParams(indexEntryPoint, ['diff', 'cafe@v1', 'cafe@v2']);
@@ -226,6 +240,20 @@ describe('diff', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       join(testPath, 'snapshot-no-diff-rules.txt')
     );
+  });
+
+  test('should turn on the rules of the ruleset --extends names', async () => {
+    const testPath = join(__dirname, 'config-file');
+    const args = getParams(indexEntryPoint, [
+      'diff',
+      'base.yaml',
+      'revision.yaml',
+      '--config=lint-only.yaml',
+      '--extends=diff-recommended',
+    ]);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-extends.txt'));
   });
 
   test('should judge a change with a diff rule from a plugin', async () => {

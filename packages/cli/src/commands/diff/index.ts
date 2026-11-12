@@ -1,22 +1,28 @@
 import {
   AbortFlowError,
-  BaseResolver,
   diffDocuments,
   HandledError,
   formatProblems,
   getTotals,
   logger,
+  type Config,
   type JudgedChange,
 } from '@redocly/openapi-core';
 import { green } from 'colorette';
 import { writeFileSync } from 'node:fs';
 
-import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
+import type { Entrypoint } from '../../types.js';
+import {
+  getFallbackApisOrExit,
+  handleError,
+  printExecutionTime,
+} from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { checkVersion } from './check-version.js';
 import { getDiffFailure } from './fail-on.js';
 import { printGithubActions } from './format/github-actions.js';
 import { diffReportFormats } from './format/index.js';
+import { fromRepositoryRoot, GitRevisionResolver, isGitRevisionFile } from './git-revision.js';
 import type { DiffArgv } from './types.js';
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
@@ -28,18 +34,23 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   const startedAt = performance.now();
 
-  const [{ path: basePath }, { path: revisionPath, alias: revisionAlias }] =
-    await getFallbackApisOrExit([argv.base, argv.revision], config);
+  const [{ path: basePath }, { path: revisionPath, alias: revisionAlias }] = await Promise.all(
+    [argv.base, argv.revision].map((api) => findEntrypoint(api, config))
+  );
 
   const diffConfig = config.forAlias(revisionAlias);
   diffConfig.skipDiffRules(argv['skip-rule']);
 
   // One resolver loads both documents and resolves their `$ref`s, as lint does.
-  const externalRefResolver = new BaseResolver(config.resolve);
+  const externalRefResolver = new GitRevisionResolver(config.resolve);
   const load = async (documentPath: string) => {
-    const document = await externalRefResolver.resolveDocument(null, documentPath, true);
-    if (document instanceof Error) throw document;
-    return document;
+    try {
+      const document = await externalRefResolver.resolveDocument(null, documentPath, true);
+      if (document instanceof Error) throw document;
+      return document;
+    } catch (error) {
+      handleError(error, documentPath);
+    }
   };
   const [base, revision] = await Promise.all([load(basePath), load(revisionPath)]);
 
@@ -61,7 +72,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   const impacts = diffConfig.diff[result.specVersions.revision];
   if (impacts && Object.values(impacts).every((impact) => impact === 'off')) {
     logger.warn(
-      '⚠️  No diff rules are on, so the command cannot find breaking changes. Add diff-recommended to extends in your configuration file.\n'
+      '⚠️  No diff rules are on, so the command cannot find breaking changes. Add diff-recommended to extends in your configuration file, or use --extends=diff-recommended.\n'
     );
   }
 
@@ -97,6 +108,16 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   }
 
   logger.info(green('✅ Diff passed.\n'));
+}
+
+// An alias or an existing file wins over a git revision, so an argument that named one still does.
+async function findEntrypoint(api: string, config: Config): Promise<Entrypoint> {
+  if (!config.resolvedConfig.apis?.[api] && isGitRevisionFile(api)) {
+    return { path: await fromRepositoryRoot(api) };
+  }
+
+  const [entrypoint] = await getFallbackApisOrExit([api], config);
+  return entrypoint;
 }
 
 function byPathAndProperty(left: JudgedChange, right: JudgedChange): number {
