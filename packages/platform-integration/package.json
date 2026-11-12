@@ -1,6 +1,6 @@
 {
   "name": "@redocly/platform-integration",
-  "version": "2.77.0",
+  "version": "2.78.0",
   "description": "Programmatic access to the Redocly platform capabilities",
   "type": "module",
   "sideEffects": false,
@@ -27,7 +27,7 @@
     "platform"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "2.77.0",
+    "@redocly/openapi-core": "2.78.0",
     "undici": "^7.30.0"
   },
   "files": [
