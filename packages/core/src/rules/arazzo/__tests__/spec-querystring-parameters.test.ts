@@ -137,4 +137,44 @@ describe('Arazzo spec-querystring-parameters', () => {
 
     expect(results).toEqual([]);
   });
+
+  it('should not fail on parameters of a wrong type', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.1.0
+        info:
+          title: Redocly Cafe
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: list-menu
+            parameters:
+              - reference: 1
+              - null
+            steps:
+              - stepId: parameters-as-mapping
+                operationId: cafe-api.listMenuItems
+                parameters:
+                  in: querystring
+                  name: filters
+                  value: search=latte
+        components:
+          parameters: not-a-mapping
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        arazzo1_1Rules: { 'spec-querystring-parameters': 'error' },
+      }),
+    });
+
+    expect(results).toEqual([]);
+  });
 });

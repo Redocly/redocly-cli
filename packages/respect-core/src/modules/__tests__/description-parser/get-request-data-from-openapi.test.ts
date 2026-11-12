@@ -39,6 +39,34 @@ describe('getRequestDataFromOpenApi', () => {
     expect(pageParam?.allowReserved).toBeUndefined();
   });
 
+  it('should take the example of a querystring parameter before the example of its media type', () => {
+    const { parameters } = getRequestDataFromOpenApi(
+      {
+        method: 'get',
+        path: '/menu',
+        descriptionName: 'cafe',
+        pathParameters: [],
+        parameters: [
+          {
+            name: 'filters',
+            in: 'querystring',
+            required: true,
+            example: 'search=iced+%2B+latte&limit=2',
+            content: {
+              'application/x-www-form-urlencoded': { example: { search: 'tiramisu' } },
+            },
+          },
+        ],
+        responses: {},
+      } as OperationDetails,
+      logger
+    );
+
+    expect(parameters).toEqual([
+      { name: 'filters', in: 'querystring', value: 'search=iced+%2B+latte&limit=2' },
+    ]);
+  });
+
   it('should serialize the example of a required querystring parameter by its media type', () => {
     const getQuerystringParameter = (mediaType: string) =>
       getRequestDataFromOpenApi(

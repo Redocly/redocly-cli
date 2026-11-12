@@ -253,6 +253,10 @@ steps:
 If the OpenAPI description declares a media type other than `application/x-www-form-urlencoded` for the parameter, `respect` percent-encodes the whole value.
 
 A step without `parameters` takes a required `querystring` parameter from the OpenAPI description.
+The value comes from the examples of the parameter, then from the examples or the schema of its media type.
+For `application/x-www-form-urlencoded`, an array property repeats its name for each item, and an object is sent as JSON.
+`respect` does not apply the `encoding` field of a media type, for a `querystring` parameter or for a request body.
+
 The parameters that a workflow or a step sets take priority.
 `respect` does not take a `querystring` parameter from the OpenAPI description when the workflow or the step sets `query` or `querystring` parameters.
 It does not take `query` parameters from the OpenAPI description when the workflow or the step sets a `querystring` parameter.

@@ -87,7 +87,7 @@ exports[`should send a querystring parameter from the step or from the API descr
  
   ✓ GET /menu - step list-menu-items 
 
-    Request URL: https://api.cafe.redocly.com/menu?search=mermaid+treasure+latte&limit=2&token=********
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid+treasure+latte&limit=2&token=********&token=********&session=%7B%22password%22%3A%22********%22%7D
     Request Headers:
       accept: application/json 
  

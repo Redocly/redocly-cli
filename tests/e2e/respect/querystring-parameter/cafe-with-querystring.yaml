@@ -27,12 +27,24 @@ paths:
                   limit:
                     type: integer
                   token:
-                    type: string
-                    format: password
+                    type: array
+                    items:
+                      type: string
+                      format: password
+                  session:
+                    type: object
+                    properties:
+                      password:
+                        type: string
+                        format: password
               example:
                 search: mermaid treasure latte
                 limit: 2
-                token: mermaid-treasure-token
+                token:
+                  - mermaid-treasure-token
+                  - mermaid-treasure-spare-token
+                session:
+                  password: mermaid-treasure-password
       responses:
         '200':
           description: Successful operation.

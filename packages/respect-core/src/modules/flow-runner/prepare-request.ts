@@ -306,11 +306,30 @@ function collectQuerystringSecrets(
     return;
   }
   if (isFormUrlencoded(mediaType)) {
-    collectSecretValues(
-      ctx,
-      mediaTypeObject?.schema,
-      Object.fromEntries(new URLSearchParams(querystring))
-    );
+    const schema = mediaTypeObject?.schema;
+    const properties =
+      isPlainObject(schema) && isPlainObject(schema.properties) ? schema.properties : {};
+
+    // Every name-value pair is checked on its own: an array property repeats its name
+    // for each item, and an object is serialized as JSON.
+    for (const [name, value] of new URLSearchParams(querystring)) {
+      const propertySchema = properties[name];
+      const parsedValue = isJSON(value) ? JSON.parse(value) : value;
+
+      collectSecretValues(
+        ctx,
+        {
+          type: 'object',
+          properties: {
+            [name]:
+              isPlainObject(propertySchema) && isPlainObject(propertySchema.items)
+                ? propertySchema.items
+                : propertySchema,
+          },
+        },
+        { [name]: isPlainObject(parsedValue) ? parsedValue : value }
+      );
+    }
   } else if (isJSON(querystring)) {
     collectSecretValues(ctx, mediaTypeObject?.schema, JSON.parse(querystring));
   }

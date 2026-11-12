@@ -1,4 +1,5 @@
 import type { ArazzoDefinition, Parameter, Step, Workflow } from '../../typings/arazzo.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
@@ -8,10 +9,15 @@ export const SpecQuerystringParameters: Arazzo1Rule = () => {
   let reusableParameters: Record<string, Parameter> = {};
   let workflowParameters: Parameter[] = [];
 
-  // a reusable object points to a parameter with `$components.parameters.<name>`
-  function resolveParameters(parameters: Parameter[] = []): Parameter[] {
+  // A reusable object points to a parameter with `$components.parameters.<name>`.
+  // The struct rule reports parameters of a wrong type, so this rule only has to skip them.
+  function resolveParameters(parameters?: Parameter[]): Parameter[] {
+    if (!Array.isArray(parameters)) {
+      return [];
+    }
+
     return parameters.map((parameter) =>
-      parameter.reference
+      typeof parameter?.reference === 'string'
         ? (reusableParameters[parameter.reference.replace('$components.parameters.', '')] ??
           parameter)
         : parameter
@@ -23,13 +29,13 @@ export const SpecQuerystringParameters: Arazzo1Rule = () => {
     parameters: Parameter[],
     { report, location }: UserContext
   ) {
-    let hasQuery = inheritedParameters.some((parameter) => parameter.in === 'query');
-    let hasQuerystring = inheritedParameters.some((parameter) => parameter.in === 'querystring');
+    let hasQuery = inheritedParameters.some((parameter) => parameter?.in === 'query');
+    let hasQuerystring = inheritedParameters.some((parameter) => parameter?.in === 'querystring');
 
     parameters.forEach((parameter, index) => {
       const parameterLocation = location.child(['parameters', index]);
 
-      if (parameter.in === 'querystring') {
+      if (parameter?.in === 'querystring') {
         if (hasQuerystring) {
           report({
             message:
@@ -49,7 +55,7 @@ export const SpecQuerystringParameters: Arazzo1Rule = () => {
         hasQuerystring = true;
       }
 
-      if (parameter.in === 'query') {
+      if (parameter?.in === 'query') {
         if (hasQuerystring) {
           report({
             message:
@@ -66,7 +72,9 @@ export const SpecQuerystringParameters: Arazzo1Rule = () => {
   return {
     Root: {
       enter(root: ArazzoDefinition) {
-        reusableParameters = root.components?.parameters ?? {};
+        reusableParameters = isPlainObject(root.components?.parameters)
+          ? root.components.parameters
+          : {};
       },
     },
     Workflow: {
@@ -88,8 +96,8 @@ export const SpecQuerystringParameters: Arazzo1Rule = () => {
           (workflowParameter) =>
             !stepParameters.some(
               (stepParameter) =>
-                stepParameter.name === workflowParameter.name &&
-                stepParameter.in === workflowParameter.in
+                stepParameter?.name === workflowParameter?.name &&
+                stepParameter?.in === workflowParameter?.in
             )
         );
 

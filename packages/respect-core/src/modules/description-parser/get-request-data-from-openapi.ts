@@ -88,6 +88,7 @@ function transformParameters(params: Parameter[], logger: LoggerInterface): Para
 function generateQuerystringValue(parameter: Parameter, logger: LoggerInterface) {
   const [mediaType, mediaTypeObject] = Object.entries(parameter.content || {})[0] || [];
   const example =
+    generateExampleValue(parameter, logger) ??
     mediaTypeObject?.example ??
     extractFirstExample(mediaTypeObject?.examples) ??
     generateTestDataFromJsonSchema(mediaTypeObject?.schema, logger);
