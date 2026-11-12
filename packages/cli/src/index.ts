@@ -993,12 +993,6 @@ yargs(hideBin(process.argv))
           disableGoogleFont: { hidden: true, type: 'boolean' },
         })
         .check((argv) => {
-          if (argv.o && !argv.api) {
-            throw new Error('At least one inline API must be specified when using --output.');
-          }
-          return true;
-        })
-        .check((argv) => {
           if (argv.theme !== undefined) {
             throw new Error(
               'The --theme.openapi option was removed. Pass Redoc options with --openapi instead: https://redocly.com/docs/cli/guides/migrate-to-v2#changes-in-the-build-docs-command'
