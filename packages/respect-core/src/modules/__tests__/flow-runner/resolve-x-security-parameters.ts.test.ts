@@ -38,7 +38,7 @@ describe('resolveXSecurityParameters', () => {
       ],
     } as unknown as Step;
 
-    const parameters = resolveXSecurityParameters({
+    const { parameters } = resolveXSecurityParameters({
       ctx,
       runtimeContext,
       step,
@@ -135,7 +135,7 @@ describe('resolveXSecurityParameters', () => {
       securitySchemes: { MuseumPlaceholderAuth: { type: 'http', scheme: 'basic' } },
     } as any;
 
-    const parameters = resolveXSecurityParameters({
+    const { parameters } = resolveXSecurityParameters({
       ctx,
       runtimeContext,
       step,
@@ -180,6 +180,81 @@ describe('resolveXSecurityParameters', () => {
         value: 'step-level-api-key',
       },
     ]);
+  });
+
+  describe('digestCredentials', () => {
+    const digest = (username: string, password: string) => ({
+      scheme: { type: 'http', scheme: 'digest' },
+      values: { username, password },
+    });
+    const bearer = (token: string) => ({
+      scheme: { type: 'http', scheme: 'bearer' },
+      values: { token },
+    });
+    const runtimeContext = {
+      $inputs: { password: 'from-input' },
+    } as unknown as RuntimeExpressionContext;
+
+    it('should return digest credentials when digest is the only scheme', () => {
+      const step = { stepId: 's', 'x-security': [digest('user', 'pass')] } as unknown as Step;
+      const result = resolveXSecurityParameters({ ctx, runtimeContext, step });
+      expect(result.parameters).toEqual([]);
+      expect(result.digestCredentials).toEqual({ username: 'user', password: 'pass' });
+    });
+
+    it('should return digest credentials when digest comes after bearer', () => {
+      const step = {
+        stepId: 's',
+        'x-security': [bearer('token'), digest('user', 'pass')],
+      } as unknown as Step;
+      const result = resolveXSecurityParameters({ ctx, runtimeContext, step });
+      expect(result.digestCredentials).toEqual({ username: 'user', password: 'pass' });
+    });
+
+    it('should not return digest credentials when a later scheme sets Authorization', () => {
+      const step = {
+        stepId: 's',
+        'x-security': [digest('user', 'pass'), bearer('token')],
+      } as unknown as Step;
+      const result = resolveXSecurityParameters({ ctx, runtimeContext, step });
+      expect(result.digestCredentials).toBeUndefined();
+    });
+
+    it('should not return digest credentials when none is configured', () => {
+      const step = { stepId: 's', 'x-security': [bearer('token')] } as unknown as Step;
+      expect(resolveXSecurityParameters({ ctx, runtimeContext, step }).digestCredentials).toBe(
+        undefined
+      );
+    });
+
+    it('should not leak the first call credentials into a reused workflow', () => {
+      const workflowLevelXSecurityParameters = [
+        {
+          scheme: { type: 'http', scheme: 'digest' },
+          values: { username: 'user', password: '$inputs.password' },
+        },
+      ] as any;
+      const step = { stepId: 's' } as unknown as Step;
+      const first = resolveXSecurityParameters({
+        ctx,
+        runtimeContext,
+        step,
+        workflowLevelXSecurityParameters,
+      });
+      const second = resolveXSecurityParameters({
+        ctx,
+        runtimeContext: { $inputs: { password: 'second' } } as unknown as RuntimeExpressionContext,
+        step,
+        workflowLevelXSecurityParameters: [
+          {
+            scheme: { type: 'http', scheme: 'digest' },
+            values: { username: 'user2', password: 'p2' },
+          },
+        ] as any,
+      });
+      expect(first.digestCredentials).toEqual({ username: 'user', password: 'from-input' });
+      expect(second.digestCredentials).toEqual({ username: 'user2', password: 'p2' });
+    });
   });
 
   it('should throw when schemeName is provided but scheme cannot be resolved', () => {

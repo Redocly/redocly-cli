@@ -27,7 +27,10 @@ import {
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
 import { getServerUrl } from './get-server-url.js';
-import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
+import {
+  resolveXSecurityParameters,
+  type DigestCredentials,
+} from './resolve-x-security-parameters.js';
 
 export type RequestData = {
   serverUrl?: {
@@ -39,6 +42,7 @@ export type RequestData = {
   parameters: ParameterWithIn[];
   requestBody: any;
   openapiOperation?: OperationDetails & { securitySchemes?: Record<string, Oas3SecurityScheme> };
+  digestCredentials?: DigestCredentials;
 };
 
 export async function prepareRequest(
@@ -157,7 +161,7 @@ export async function prepareRequest(
 
   const workflowLevelXSecurityParameters = activeWorkflow?.['x-security'] || [];
 
-  const xSecurityParameters = resolveXSecurityParameters({
+  const { parameters: xSecurityParameters, digestCredentials } = resolveXSecurityParameters({
     ctx: ctxWithInputs,
     runtimeContext: expressionContext,
     step,
@@ -223,6 +227,7 @@ export async function prepareRequest(
     parameters: extractCookieParametersFromHeaderParameters(evaluatedParameters),
     requestBody: evaluatedBody,
     openapiOperation,
+    digestCredentials,
   };
 }
 
