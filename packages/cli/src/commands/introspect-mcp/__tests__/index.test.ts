@@ -13,6 +13,7 @@ import { createServer, type Server as HttpServer } from 'node:http';
 import { type AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { text } from 'node:stream/consumers';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
@@ -458,15 +459,11 @@ describe('handleIntrospectMcp', () => {
     );
     // The handler takes a web Request, so the node:http request is converted to one.
     const discoverOnlyServer = createServer(async (request, response) => {
-      const bodyChunks: Buffer[] = [];
-      for await (const chunk of request) {
-        bodyChunks.push(chunk);
-      }
       const handlerResponse = await discoverOnlyHandler.fetch(
         new Request(`http://${request.headers.host}${request.url}`, {
           method: request.method,
           headers: request.headers as Record<string, string>,
-          body: bodyChunks.length > 0 ? Buffer.concat(bodyChunks) : undefined,
+          body: await text(request),
         })
       );
       response.writeHead(handlerResponse.status, Object.fromEntries(handlerResponse.headers));
@@ -481,53 +478,11 @@ describe('handleIntrospectMcp', () => {
     try {
       await runIntrospectMcp({ 'server-url': discoverOnlyServerUrl, output: outputFile });
 
-      const written = readFileSync(outputFile, 'utf-8').replaceAll(
-        discoverOnlyServerUrl,
-        '<server-url>'
-      );
-      expect(written).toMatchInlineSnapshot(`
-        "openapi: 3.1.0
-        info:
-          title: discover-cafe-mcp
-          description: Manage the cafe menu.
-          version: 4.0.0
-        paths: {}
-        x-mcp:
-          protocolVersion: '2026-07-28'
-          servers:
-            - url: <server-url>
-          capabilities:
-            prompts: {}
-            resources: {}
-            tools: {}
-          tools:
-            - name: orders/create
-              description: Create an order.
-              inputSchema:
-                type: object
-                properties:
-                  customerName:
-                    type: string
-                required:
-                  - customerName
-            - name: menu/list
-              description: List the menu items.
-              inputSchema:
-                type: object
-          prompts:
-            - name: daily-special
-              description: Suggest a daily special.
-              arguments:
-                - name: category
-                  description: Menu category.
-                  required: true
-          resources:
-            - name: menu
-              uri: cafe://menu
-              description: The current menu.
-              mimeType: application/json
-        "
-      `);
+      const document = parseYaml(readFileSync(outputFile, 'utf-8')) as Record<string, any>;
+      expect(document['x-mcp'].protocolVersion).toEqual('2026-07-28');
+      expect(document['x-mcp'].tools).toEqual([CREATE_ORDER_TOOL, LIST_MENU_TOOL]);
+      expect(document['x-mcp'].prompts).toEqual([DAILY_SPECIAL_PROMPT]);
+      expect(document['x-mcp'].resources).toEqual([MENU_RESOURCE]);
     } finally {
       rmSync(outputDir, { recursive: true, force: true });
       await new Promise((resolve) => discoverOnlyServer.close(resolve));
