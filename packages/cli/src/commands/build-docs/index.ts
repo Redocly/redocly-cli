@@ -18,7 +18,7 @@ import { performance } from 'node:perf_hooks';
 import { convertSwagger2OpenAPI } from 'redoc';
 
 import { renderBanner } from '../../utils/banner.js';
-import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { getExecutionTime, getFallbackApisOrExit, handleError } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import { isTelemetryEnabled } from '../../utils/telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -47,7 +47,9 @@ export const handlerBuildCommand = async ({
 
   const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
   const aliasConfig = config.forAlias(alias);
-  const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
+  const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData).catch(
+    (error) => handleError(error, apiRef)
+  );
   for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
     if (optionsKey !== specType && argv[optionsKey] !== undefined) {
       logger.warn(

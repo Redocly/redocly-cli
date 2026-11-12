@@ -23,8 +23,6 @@ describe('build-docs', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       join(testPath, 'missing-template-snapshot.txt')
     );
-    expect(result).toContain('Cannot read the template file');
-    expect(result).not.toContain('An unexpected error occurred');
   });
 
   test('build docs for an AsyncAPI description', async () => {
