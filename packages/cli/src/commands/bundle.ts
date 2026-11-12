@@ -28,6 +28,7 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeys,
+  warnOnRepeatedOutput,
   formatPath,
 } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
@@ -63,6 +64,7 @@ export async function handleBundle({
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const configDir = getConfigDirectory(config);
+  const outputFiles: (string | undefined)[] = [];
 
   for (const { path, alias, output } of apis) {
     try {
@@ -112,6 +114,8 @@ export async function handleBundle({
         ext: argv.ext,
         entries: argv?.apis?.length || 0,
       });
+      outputFiles.push(outputFile);
+      warnOnRepeatedOutput(outputFiles);
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {

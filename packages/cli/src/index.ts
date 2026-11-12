@@ -946,10 +946,9 @@ yargs(hideBin(process.argv))
         .positional('api', { type: 'string' })
         .options({
           o: {
-            describe: 'Output destination file.',
+            describe: 'Output destination file. The default value is redoc-static.html.',
             alias: 'output',
             type: 'string',
-            default: 'redoc-static.html',
           },
           title: {
             describe: 'Page title.',
@@ -992,6 +991,12 @@ yargs(hideBin(process.argv))
           // Remove these options and the check below in the first release after January 31, 2027.
           theme: { hidden: true },
           disableGoogleFont: { hidden: true, type: 'boolean' },
+        })
+        .check((argv) => {
+          if (argv.o && !argv.api) {
+            throw new Error('At least one inline API must be specified when using --output.');
+          }
+          return true;
         })
         .check((argv) => {
           if (argv.theme !== undefined) {

@@ -18,7 +18,7 @@ import { performance } from 'node:perf_hooks';
 import { convertSwagger2OpenAPI } from 'redoc';
 
 import { renderBanner } from '../../utils/banner.js';
-import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import { isTelemetryEnabled } from '../../utils/telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -40,46 +40,55 @@ export const handlerBuildCommand = async ({
     ])
   );
 
-  const startedAt = performance.now();
-
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-  const { path: pathToApi, alias } = apis[0];
-
-  try {
-    const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
-    const aliasConfig = config.forAlias(alias);
-    const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
-    for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
-      if (optionsKey !== specType && argv[optionsKey] !== undefined) {
-        logger.warn(
-          `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
-        );
-      }
-    }
-    const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
-
-    const options = {
-      output: argv.o,
-      title: argv.title,
-      templateFileName: argv.template,
-      templateOptions: argv.templateOptions || {},
-      redocOptions,
-      redocVersion,
-      disableTelemetry: !isTelemetryEnabled(config),
-      inlineBundle: argv.inlineBundle,
-    };
-
-    const pageHTML = await getPageHTML(definition, options, argv.config);
-
-    mkdirSync(dirname(options.output), { recursive: true });
-    writeFileSync(options.output, pageHTML);
-    const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
-    const elapsed = getExecutionTime(startedAt);
-    logger.info(
-      `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
+  const outputs = apis.map(
+    ({ docsOutput }) => argv.o ?? (docsOutput ? formatPath(docsOutput) : 'redoc-static.html')
+  );
+  const repeatedOutput = outputs.find((output, index) => outputs.indexOf(output) !== index);
+  if (repeatedOutput) {
+    throw new HandledError(
+      `Two APIs write to the same path: ${repeatedOutput}. Give each API a distinct \`docsOutput\`.`
     );
-  } catch (error) {
-    throw new HandledError(error instanceof Error ? error.message : String(error));
+  }
+
+  for (const [index, { path: pathToApi, alias }] of apis.entries()) {
+    const startedAt = performance.now();
+    const output = outputs[index];
+
+    try {
+      const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
+      const aliasConfig = config.forAlias(alias);
+      const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
+      for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
+        if (optionsKey !== specType && argv[optionsKey] !== undefined) {
+          logger.warn(
+            `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
+          );
+        }
+      }
+      const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
+
+      const options = {
+        output,
+        title: argv.title,
+        templateFileName: argv.template,
+        templateOptions: argv.templateOptions || {},
+        redocOptions,
+        redocVersion,
+        disableTelemetry: !isTelemetryEnabled(config),
+        inlineBundle: argv.inlineBundle,
+      };
+
+      const pageHTML = await getPageHTML(definition, options, argv.config);
+
+      mkdirSync(dirname(output), { recursive: true });
+      writeFileSync(output, pageHTML);
+      const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
+      const elapsed = getExecutionTime(startedAt);
+      logger.info(`\n🎉 bundled successfully in: ${output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`);
+    } catch (error) {
+      throw new HandledError(error instanceof Error ? error.message : String(error));
+    }
   }
 };
 

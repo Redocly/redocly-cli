@@ -1,0 +1,34 @@
+
+index.js build-docs [api]
+
+Produce API documentation as an HTML file
+
+Positionals:
+  api                                                                   [string]
+
+Options:
+      --help             Show help.                                    [boolean]
+  -o, --output           Output destination file. The default value is redoc-sta
+                         tic.html.                                      [string]
+      --title            Page title.                                    [string]
+  -t, --template         Path to handlebars page template, see https://github.co
+                         m/Redocly/redocly-cli/blob/main/packages/cli/src/comman
+                         ds/build-docs/template.hbs for the example.    [string]
+      --templateOptions  Additional options to pass to the template. Use dot not
+                         ation, e.g. templateOptions.metaDescription
+      --openapi          Redoc configuration. Use dot notation, e.g. openapi.hid
+                         eDownloadButtons
+      --asyncapi         Redoc configuration. Use dot notation, e.g. asyncapi.js
+                         onSamplesDepth
+      --graphql          Redoc configuration. Use dot notation, e.g. graphql.sho
+                         wBuiltInScalars
+      --inlineBundle     Embed the Redoc scripts into the output file instead of
+                          loading them from the Redocly CDN.
+                                                      [boolean] [default: false]
+      --config           Path to the config file.                       [string]
+      --lint-config      Severity level for config file linting.
+                             [choices: "warn", "error", "off"] [default: "warn"]
+
+At least one inline API must be specified when using --output.
+
+Exit code: 1

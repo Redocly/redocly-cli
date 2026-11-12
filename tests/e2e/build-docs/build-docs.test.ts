@@ -196,6 +196,45 @@ describe('build-docs', () => {
     await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('build docs for every API of the config', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+    expect(readFileSync(join(testPath, 'output/menu.html'), 'utf8')).toContain(
+      '<title>Redocly Cafe Menu</title>'
+    );
+    expect(readFileSync(join(testPath, 'output/orders.html'), 'utf8')).toContain(
+      '<title>Redocly Cafe Orders</title>'
+    );
+  });
+
+  test('build docs writes to --output for an alias with docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs', 'menu', '--output=output/option.html']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'output-option-snapshot.txt')
+    );
+  });
+
+  test('build docs fails when --output comes without an API', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs', '--output=output/option.html']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'output-without-api-snapshot.txt')
+    );
+  });
+
+  test('build docs fails when two APIs have no docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-fails-on-repeated-output');
+    const args = getParams(indexEntryPoint, ['build-docs']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   describe('build docs with openapi options', () => {
     const expectedOptions =
       'const __redoc_options = {"hideDownloadButtons":true,"skipBundle":true,"disableTelemetry":true};';
