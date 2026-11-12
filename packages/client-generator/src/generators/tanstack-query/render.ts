@@ -16,6 +16,7 @@
 
 import {
   type ApiModel,
+  type GeneratorInput,
   type ModelPagination,
   type OperationModel,
   type PaginationSpec,
@@ -34,6 +35,7 @@ import {
 } from '@redocly/client-generator/printers/typescript';
 
 export type TanstackOptions = {
+  reportFinding: GeneratorInput['reportFinding'];
   /** Import specifier for the sdk entry the `client` instance and types live in. */
   sdkModule: string;
   /** TanStack adapter to import the option helpers from (`@tanstack/${framework}-query`). */
@@ -49,7 +51,7 @@ export type TanstackOptions = {
 
 /** Render the full TanStack Query module source. `''` when there are no wrappable operations. */
 export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): string {
-  const ops = wrappableOperations(model, 'tanstack-query');
+  const ops = wrappableOperations(model, 'tanstack-query', opts.reportFinding);
   if (ops.length === 0) return '';
   const pagination = opts.pagination ?? new Map();
   const source = [
@@ -232,12 +234,13 @@ function infiniteMember(
     );
   }
   // The cursor is a query parameter, so it lands in the sdk's own spelling for one:
-  // inside the `query` layer, or at the top level of a merged call.
-  const cursor = safeIdent(spec.param);
+  // inside the `query` layer, or at the top level of a merged call. A first page without
+  // a cursor leaves the key out, so `exactOptionalPropertyTypes` accepts the call.
+  const cursor = `...(pageParam === undefined ? {} : { ${safeIdent(spec.param)}: pageParam })`;
   const override =
     argsStyle === 'flat'
-      ? `{ ...vars, ${cursor}: pageParam }`
-      : `{ ...vars, query: { ...vars.query, ${cursor}: pageParam } }`;
+      ? `{ ...vars, ${cursor} }`
+      : `{ ...vars, query: { ...vars.query, ${cursor} } }`;
   return (
     `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
     `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +

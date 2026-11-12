@@ -59,7 +59,8 @@ export type ApiErrorLike = globalThis.Error & {
 };
 
 export type SettledCall = {
-  response?: Response;
+  // `| undefined`, so the runtime can pass an unset response under `exactOptionalPropertyTypes`.
+  response?: Response | undefined;
   error?: unknown;
   attempts: number;
   durationMs: number;

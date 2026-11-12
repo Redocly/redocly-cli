@@ -20,3 +20,5 @@ https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/tests/e2e/
 ❌ Validation failed with 1 error.
 run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 
+
+Exit code: 1

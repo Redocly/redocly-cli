@@ -16,6 +16,7 @@ const EJECTABLE = [
   'python',
   'go',
   'php',
+  'java',
   'typescript',
   'zod',
   'mock',

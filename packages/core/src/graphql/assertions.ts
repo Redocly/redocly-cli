@@ -1,4 +1,3 @@
-import { colorize } from '../logger.js';
 import { Location } from '../ref-utils.js';
 import {
   asserts,
@@ -152,9 +151,7 @@ function runGraphqlAssertion(
 
   // {{pointer}} and {{key}} stay empty - SDL has no JSON pointers or parent keys.
   const defaultMessage =
-    `${colorize.blue(assertion.assertionId)} failed because the ${colorize.blue(
-      assertion.subject.type
-    )} ${colorize.blue(property ?? '')} didn't meet the assertions: {{problems}}`.replace(
+    `${assertion.assertionId} failed because the ${assertion.subject.type} ${property ?? ''} didn't meet the assertions: {{problems}}`.replace(
       / +/g,
       ' '
     );

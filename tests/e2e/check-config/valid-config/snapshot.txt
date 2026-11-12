@@ -1,2 +1,4 @@
 
 ✅  Your config is valid.
+
+Exit code: 0

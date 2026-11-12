@@ -107,3 +107,49 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
     expectTscPasses(['-p', join(dir, 'tsconfig.faker.json')], dir);
   });
 });
+
+describe('mock generator — the mocks satisfy the zod schemas of the same description', () => {
+  const dirs: string[] = [];
+  afterAll(() => {
+    for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
+  });
+
+  test.each(['cafe.yaml', 'base.yaml', 'pagination.yaml'])(
+    '%s: factories and default handlers pass validation',
+    async (name) => {
+      const dir = copyConsumer(join(__dirname, 'consumer'));
+      dirs.push(dir);
+      await generateClient({
+        api: join(__dirname, '../../fixtures', name),
+        output: join(dir, 'client.ts'),
+        generators: ['typescript', 'zod', 'mock'],
+      });
+      expect(await runConsumer(join(dir, 'zod-validation.ts'))).toEqual([]);
+    }
+  );
+
+  test('pages() over the default cursor and body-link handlers yields exactly one page', async () => {
+    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dirs.push(dir);
+    await generateClient({
+      api: join(__dirname, '../../fixtures/pagination.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'mock'],
+    });
+    expect(await runConsumer(join(dir, 'pagination-pages.ts'))).toEqual({
+      orders: 1,
+      receipts: 1,
+    });
+  });
+
+  test('items() over an offset handler with an override yields the override items once', async () => {
+    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dirs.push(dir);
+    await generateClient({
+      api: join(__dirname, 'offset-menu.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'mock'],
+    });
+    expect(await runConsumer(join(dir, 'offset-override.ts'))).toEqual(['Latte']);
+  });
+});

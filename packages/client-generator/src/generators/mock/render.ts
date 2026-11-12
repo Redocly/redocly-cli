@@ -9,9 +9,13 @@ import {
   allOperations,
   type ApiModel,
   type DateType,
+  flattenAllOf,
+  isNullable,
+  type ModelPagination,
   type NamedSchemaModel,
   type OperationModel,
   type ResponseBodyModel,
+  schemaAtPointer,
   type SchemaModel,
 } from '@redocly/client-generator';
 import {
@@ -26,6 +30,7 @@ import { sampleValue, SampleExpression } from './sample.ts';
 import {
   expr,
   isObjectValue,
+  type MockEntry,
   type MockValue,
   objectValue,
   renderMockValue,
@@ -50,6 +55,8 @@ export type MockOptions = {
   mockData?: 'static' | 'faker';
   /** When set in `'faker'` mode, emit a top-level `faker.seed(<n>);` so runs reproduce. */
   mockSeed?: number;
+  /** The run's resolved pagination: a paginated handler serves the last page. */
+  pagination?: ModelPagination;
 };
 
 /** The body value for `schema` under the active data mode: a static literal tree
@@ -146,7 +153,7 @@ function codeIdent(value: string): string {
 function handlerFor(op: OperationModel, model: ApiModel, opts: MockOptions): string {
   const override = overrideParam(op, model, opts);
   const params = override ?? '';
-  const call = `http.${codeIdent(op.method)}(${JSON.stringify(mswPath(op.path))}, () => ${responseExpression(op, model, opts)})`;
+  const call = `http.${codeIdent(op.method)}(${JSON.stringify(mswPath(op.path))}, ${resolverFor(op, model, opts)})`;
   return `export const ${codeIdent(op.name)}Handler = (${params}) => ${call};`;
 }
 
@@ -208,8 +215,8 @@ function errorBodyType(op: OperationModel): string {
  * A `ref` success body forwards `override` to `create<Schema>(override)`, so its type
  * mirrors the factory's parameter (`Partial<Schema>`, or the full type when the factory
  * replaces wholesale — see `factoryFor`). An inline object body spreads `override`, typed
- * `Record<string, unknown>`. A body-less or non-object inline response has nothing to
- * override, so the handler takes no parameter.
+ * `Record<string, unknown>`, or `Partial<Omit<Schema, …>>` for an `omit` body. A body-less
+ * or non-object inline response has nothing to override, so the handler takes no parameter.
  */
 function overrideParam(op: OperationModel, model: ApiModel, opts: MockOptions): string | undefined {
   const success = op.successResponses[0];
@@ -222,16 +229,128 @@ function overrideParam(op: OperationModel, model: ApiModel, opts: MockOptions): 
     return `override?: ${type}`;
   }
   if (!isObjectValue(bodyValue(success.schema, model, opts))) return undefined;
+  if (success.schema.kind === 'omit') {
+    const keys = success.schema.keys.map((key) => JSON.stringify(key)).join(' | ');
+    return `override?: Partial<Omit<${success.schema.base}, ${keys}>>`;
+  }
   return 'override?: Record<string, unknown>';
 }
 
 /**
+ * The handler's resolver. A paginated operation serves the LAST page, so `.pages()` over
+ * the default handlers ends after one page: a cursor page carries no next cursor (and a
+ * `false` "has more" flag), and a `body-link` page no next link; an offset or page-number
+ * page answers any position past the first with an empty item list, because those styles
+ * stop only on an empty page.
+ */
+function resolverFor(op: OperationModel, model: ApiModel, opts: MockOptions): string {
+  const spec = opts.pagination?.get(op.name)?.spec;
+  const success = op.successResponses[0];
+  if (!spec || spec.style === 'link' || !success)
+    return `() => ${responseExpression(op, model, opts)}`;
+  const page = bodyValue(success.schema, model, opts);
+  const status = statusCode(success.status);
+  // An object page spreads `override` in; a page that is the item array is replaced by it.
+  const takesOverride = overrideParam(op, model, opts) !== undefined;
+  const withOverride = (value: MockValue): MockValue => {
+    if (isObjectValue(value)) return spreadInto(value, 'override');
+    return takesOverride ? { kind: 'wrap', before: 'override ?? ', value, after: '' } : value;
+  };
+  const json = (value: MockValue): string => {
+    const data = renderMockValue(value, '');
+    return status === 200
+      ? `HttpResponse.json(${data})`
+      : `HttpResponse.json(${data}, { status: ${status} })`;
+  };
+  if (spec.style === 'cursor' || spec.style === 'body-link') {
+    const next = spec.style === 'cursor' ? spec.nextCursor : spec.nextLink;
+    let last = withPointer(page, pointerKeys(next), cursorStop(success.schema, next, model));
+    if (spec.style === 'cursor' && spec.hasMore !== undefined)
+      last = withPointer(last, pointerKeys(spec.hasMore), expr('false'));
+    return `() => ${json(withOverride(last))}`;
+  }
+  const first = spec.style === 'page' ? 1 : 0;
+  const position = `Number(new URL(request.url).searchParams.get(${codeLiteral(spec.param)}) ?? ${first})`;
+  const empty = emptyPage(page, pointerKeys(spec.items));
+  return `({ request }) => ${position} > ${first} ? ${json(empty)} : ${json(withOverride(page))}`;
+}
+
+/**
+ * The page past the last one: the page with `override` spread in, and the items at `keys`
+ * set AFTER the spread, so an override that sets the items cannot refill the empty page.
+ * The top-level property that holds the items is written out from the sample.
+ */
+function emptyPage(page: MockValue, keys: string[]): MockValue {
+  if (keys.length === 0 || !isObjectValue(page)) return withPointer(page, keys, expr('[]'));
+  const [key, ...rest] = keys;
+  const isKey = (entry: MockEntry) => !('spread' in entry) && entry.key === key;
+  const holder = page.entries.find(isKey);
+  const inner = holder && !('spread' in holder) ? holder.value : objectValue([]);
+  return objectValue([
+    ...page.entries.filter((entry) => !isKey(entry)),
+    { spread: 'override' },
+    { key, value: withPointer(inner, rest, expr('[]')) },
+  ]);
+}
+
+/**
+ * What ends a cursor or `body-link` walk at `pointer`: `null` when the value is nullable,
+ * nothing (the property is left out) when it is optional, and an empty string otherwise.
+ */
+function cursorStop(schema: SchemaModel, pointer: string, model: ApiModel): MockValue | undefined {
+  const cursor = schemaAtPointer(schema, pointer, model);
+  if (cursor?.kind === 'null' || (cursor && isNullable(cursor))) return expr('null');
+  const keys = pointerKeys(pointer);
+  const parent = schemaAtPointer(schema, pointer.slice(0, pointer.lastIndexOf('/')), model);
+  const property =
+    parent &&
+    flattenAllOf(parent, model)?.properties.find((candidate) => candidate.name === keys.at(-1));
+  return property?.required === false ? undefined : expr('""');
+}
+
+/** RFC 6901 pointer tokens (`~1` → `/`, `~0` → `~`); none for `''`, the whole value. */
+function pointerKeys(pointer: string): string[] {
+  if (pointer === '') return [];
+  return pointer
+    .slice(1)
+    .split('/')
+    .map((token) => token.replaceAll('~1', '/').replaceAll('~0', '~'));
+}
+
+/**
+ * `value` with the property at the `keys` path replaced (added when missing), or removed
+ * when `replacement` is `undefined`. An empty path replaces the whole value (a page that
+ * is the item array itself). Steps only through objects: a path that reaches into
+ * anything else leaves the value unchanged.
+ */
+function withPointer(
+  value: MockValue,
+  keys: string[],
+  replacement: MockValue | undefined
+): MockValue {
+  if (keys.length === 0) return replacement ?? value;
+  if (!isObjectValue(value)) return value;
+  const [key, ...rest] = keys;
+  const found = value.entries.some((entry) => !('spread' in entry) && entry.key === key);
+  const entries = value.entries.flatMap((entry) => {
+    if ('spread' in entry || entry.key !== key) return [entry];
+    if (rest.length > 0) return [{ key, value: withPointer(entry.value, rest, replacement) }];
+    return replacement === undefined ? [] : [{ key, value: replacement }];
+  });
+  if (!found && rest.length === 0 && replacement !== undefined) {
+    entries.push({ key, value: replacement });
+  }
+  return objectValue(entries);
+}
+
+/**
  * The handler's response. A primary success body becomes `HttpResponse.json(…)`:
- * a `ref` body calls its named `create<Schema>(override)` factory; an inline body
- * is sampled and printed in place with `...override` spread in. A success with no
- * usable body (an `unknown` schema, or no success response at all) becomes a
- * body-less `new HttpResponse(null, { status })`. The status is the success
- * response's declared code, or 200 when it's `default`/absent.
+ * a `ref` body calls its named `create<Schema>(override)` factory; an inline body is
+ * sampled and printed in place with `...override` spread in. An `omit` body (a named
+ * schema without its `writeOnly` keys) is inline too, because the factory keeps the
+ * required ones. A success with no usable body (an `unknown` schema, or no success
+ * response at all) becomes a body-less `new HttpResponse(null, { status })`. The status
+ * is the success response's declared code, or 200 when it's `default`/absent.
  */
 function responseExpression(op: OperationModel, model: ApiModel, opts: MockOptions): string {
   const success = op.successResponses[0];

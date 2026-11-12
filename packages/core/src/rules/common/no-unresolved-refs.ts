@@ -1,5 +1,5 @@
 import { YamlParseError } from '../../errors/yaml-parse-error.js';
-import type { Location } from '../../ref-utils.js';
+import { isMappingRef, type Location } from '../../ref-utils.js';
 import type {
   Oas2Rule,
   Oas3Rule,
@@ -17,22 +17,31 @@ export const NoUnresolvedRefs:
   | Async3Rule
   | Arazzo1Rule
   | Overlay1Rule = () => {
+  let componentsSchemaNames: string[] = [];
+
   return {
+    Root: {
+      enter(root: { components?: { schemas?: Record<string, unknown> } }) {
+        componentsSchemaNames = Object.keys(root.components?.schemas || {});
+      },
+    },
     ref: {
       leave(_, { report, location }, resolved) {
         if (resolved.node !== undefined) return;
         reportUnresolvedRef(resolved, report, location);
       },
     },
-    DiscriminatorMapping(
-      mapping: Record<string, string>,
-      { report, resolve, location }: UserContext
-    ) {
+    DiscriminatorMapping(mapping: Record<string, string>, { report, location }: UserContext) {
       for (const mappingName of Object.keys(mapping)) {
-        const resolved = resolve({ $ref: mapping[mappingName] });
-        if (resolved.node !== undefined) return;
+        const mappingValue = mapping[mappingName];
+        // refs are walked as $ref and checked by the ref visitor above, other values are schema names
+        if (isMappingRef(mappingValue) || componentsSchemaNames.includes(mappingValue)) continue;
 
-        reportUnresolvedRef(resolved, report, location.child(mappingName));
+        report({
+          message: `Discriminator mapping value '${mappingValue}' does not point to an existing schema component.`,
+          location: location.child(mappingName),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-unresolved-refs',
+        });
       }
     },
   };

@@ -1,9 +1,9 @@
-import { getPushStatus, waitForDeployment, type PushResponse } from '@redocly/reunite-integration';
+import { getPushStatus, waitForDeployment, type PushResponse } from '@redocly/platform-integration';
 
 import { handlePushStatus } from '../push-status.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, getPushStatus: vi.fn(), waitForDeployment: vi.fn() };
 });
 vi.mock('colorette', async () => {
@@ -152,6 +152,73 @@ describe('handlePushStatus()', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [Error: ❌ Preview deploy fail.
       Preview URL: https://preview-test-url]
+    `);
+  });
+
+  it('prints the link check', async () => {
+    vi.mocked(getPushStatus).mockResolvedValue({
+      ...pushResponseStub,
+      status: {
+        ...pushResponseStub.status,
+        preview: {
+          deploy: { status: 'success', url: 'https://preview-test-url' },
+          scorecard: [],
+          linkCheck: {
+            name: 'Link checker',
+            status: 'success',
+            description: 'No broken links',
+            url: 'test-url',
+          },
+        },
+      },
+    });
+
+    await handlePushStatus({ argv, config, version });
+
+    expect(process.stdout.write).toHaveBeenCalledWith('\nLink check:');
+    expect(process.stdout.write).toHaveBeenCalledWith(
+      '\n    Name: Link checker\n    Status: success\n    URL: test-url\n    Description: No broken links\n'
+    );
+  });
+
+  it('lists the failed checks in the error of a failed deployment', async () => {
+    vi.mocked(getPushStatus).mockResolvedValue({
+      ...pushResponseStub,
+      status: {
+        ...pushResponseStub.status,
+        preview: {
+          deploy: { status: 'failed', url: 'https://preview-test-url' },
+          scorecard: [
+            {
+              name: 'openapi.yaml',
+              status: 'success',
+              description: 'Baseline',
+              url: 'test-url',
+            },
+            {
+              name: 'museum.yaml',
+              status: 'failed',
+              description: 'Below the minimum level',
+              url: 'test-url',
+            },
+          ],
+          linkCheck: {
+            name: 'Link checker',
+            status: 'failed',
+            description: 'Detected 3 broken links',
+            url: 'test-url',
+          },
+        },
+      },
+    });
+
+    await expect(handlePushStatus({ argv, config, version })).rejects
+      .toThrowErrorMatchingInlineSnapshot(`
+      [Error: ❌ Preview deploy fail.
+      Preview URL: https://preview-test-url
+      Failed checks:
+        museum.yaml: Below the minimum level
+        Link checker: Detected 3 broken links]
     `);
   });
 

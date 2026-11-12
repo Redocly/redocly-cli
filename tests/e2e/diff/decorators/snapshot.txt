@@ -1,0 +1,8 @@
+0 major, 0 minor, 0 patch.
+
+
+./tests/e2e/diff/decorators/base.yaml vs ./tests/e2e/diff/decorators/revision.yaml: diff processed in <test>ms
+
+✅ Diff passed.
+
+Exit code: 0

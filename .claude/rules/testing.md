@@ -78,11 +78,11 @@
 1. Run the full suite (`npm test`) after the code change, and make sure all tests pass in CI.
 1. Client generation has its own projects: `npm run client-generators` runs the bars in `packages/client-generator/tests/e2e`.
    Run it for any generation change.
-   These bars compile real Python, Go, PHP, and TypeScript output, some of it from large real-world descriptions.
+   These bars compile real Python, Go, PHP, Java, and TypeScript output, some of it from large real-world descriptions.
    They need toolchains that no other test needs, so a separate CI job installs them.
    The large-description tests generate from real-world descriptions and take the longest.
    There is one project per toolchain, and one folder per project: `client-generators` runs `typescript/`,
-   and `client-generators-go`, `-php`, and `-python` run `go/`, `php/`, and `python/`.
+   and `client-generators-go`, `-php`, `-java`, and `-python` run `go/`, `php/`, `java/`, and `python/`.
    The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
    A language project runs a setup that checks its toolchain and stops the run when the toolchain is missing.
    Apart from that check, the projects only select test files: they compile and resolve code the same way as every other suite.

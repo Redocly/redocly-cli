@@ -105,10 +105,12 @@ type GenerateClientResult = {
   outputPath: string; // the `output` anchor path (the entry file in multi-file modes)
   bytes: number; // total bytes written
   files: Array<{ path: string; bytes: number }>; // every file written to disk
+  operations: Array<{ id: string; name: string }>; // the operationId (or the generated name) and the generated name
 };
 ```
 
 `GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `options`, `setup`, `pagination`, `queryKeyPrefix`, `goPackage`, `cliOutput`, `codeSamples`, `docs`, `docsFrontmatter`, `telemetry` optional) plus an optional resolved Redocly `config` used to load the description.
+`onFinding`, when set, receives each warning of the run as `{ kind, message, operations }`, besides the printed text.
 
 ### `collectGeneratedFiles`
 
@@ -174,7 +176,7 @@ Run all commands from the repo root:
 ```sh
 npm run compile                 # build this package
 npm run unit                    # unit tests
-npm run client-generators       # behavioral e2e (needs Go, PHP, and Python)
+npm run client-generators       # behavioral e2e (needs Go, PHP, a JDK, and Python)
 ```
 
 Each generator that embeds a runtime keeps its sources in its own folder (`src/generators/<name>/runtime/` — real, unit-testable modules that generation embeds), the IR lives in `src/intermediate-representation/`, and the generators in `src/generators/`.

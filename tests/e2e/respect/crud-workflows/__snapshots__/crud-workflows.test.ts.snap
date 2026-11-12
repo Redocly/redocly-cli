@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should create, read, and delete orders 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow crud-workflows.arazzo.yaml / authorize 
+ 
+  ✓ POST /oauth2/register - step register-client 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ POST /oauth2/token - step create-access-token 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 401, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow crud-workflows.arazzo.yaml / before 
+ 
+  ✓ GET /orders - step get-all-orders-before 
+    ✓ status code check - $statusCode in [200, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow crud-workflows.arazzo.yaml / crud-orders 
+ 
+  ✓ POST /orders - step add-order 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /orders - step get-all-orders 
+    ✓ success criteria check - $response.body#/items/0/id == $steps.add-order.out...
+    ✓ status code check - $statusCode in [200, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /orders/{orderId} - step get-order-by-id 
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/id == $steps.add-order.outputs.cre...
+    ✓ success criteria check - $response.body#/orderItems/0/quantity == $steps.ad...
+    ✓ status code check - $statusCode in [200, 400, 401, 403, 404, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ DELETE /orders/{orderId} - step drop-order 
+    ✓ success criteria check - $statusCode == 204
+    ✓ status code check - $statusCode in [204, 400, 401, 403, 404, 500]
+ 
+  ✓ GET /orders/{orderId} - step get-after-deleting 
+    ✓ success criteria check - $statusCode == 404
+    ✓ status code check - $statusCode in [200, 400, 401, 403, 404, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow crud-workflows.arazzo.yaml / cleanup 
+ 
+  ✓ DELETE /oauth2/register/{clientId} - step delete-client 
+    ✓ success criteria check - $statusCode == 204
+    ✓ status code check - $statusCode in [204, 401, 500]
+ 
+ 
+  Summary for crud-workflows.arazzo.yaml
+  
+  Workflows: 4 passed, 4 total
+  Steps: 9 passed, 9 total
+  Checks: 33 passed, 33 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                           │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ crud-workflows.arazzo.yaml                                       │ 4          │ 4       │ -       │ -        │
+└────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;

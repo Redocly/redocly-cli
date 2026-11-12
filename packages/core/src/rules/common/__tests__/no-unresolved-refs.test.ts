@@ -276,4 +276,108 @@ describe('oas3 boolean-parameter-prefixes', () => {
 
     expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
+
+  it('should not report on discriminator mapping values that are schema names', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Pet:
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+              discriminator:
+                propertyName: petType
+                mapping:
+                  cat: Cat
+                  dog: Dog
+            Cat:
+              type: object
+            Dog:
+              type: object
+      `,
+      path.join(__dirname, 'foobar.yaml')
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
+  });
+
+  it('should report discriminator mapping values that are neither a schema name nor a resolvable ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Pet:
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+              discriminator:
+                propertyName: petType
+                mapping:
+                  cat: '#/components/schemas/Cat'
+                  dog: Doge
+                  bird: '#/components/schemas/Bird'
+            Cat:
+              type: object
+            Dog:
+              type: object
+      `,
+      path.join(__dirname, 'foobar.yaml')
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Pet/discriminator/mapping/dog",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Discriminator mapping value 'Doge' does not point to an existing schema component.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
+          "ruleId": "no-unresolved-refs",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Pet/discriminator/mapping/bird",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Can't resolve $ref",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unresolved-refs",
+          "ruleId": "no-unresolved-refs",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

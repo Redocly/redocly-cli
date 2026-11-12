@@ -1,0 +1,25 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe with empty path items
+  description: >
+    Part of the Redocly Cafe API description with an empty path item and an
+    empty operation listed before the operation that the workflow calls.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /orders:
+  /order-items:
+    get:
+  /menu:
+    get:
+      summary: List all menu items
+      operationId: listMenuItems
+      security: []
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object

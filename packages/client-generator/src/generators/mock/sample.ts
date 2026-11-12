@@ -1,6 +1,7 @@
 import {
   type DateType,
   type NamedSchemaModel,
+  type PropertyModel,
   type ScalarKind,
   type SchemaMetadata,
   type SchemaModel,
@@ -93,7 +94,10 @@ export function splitIntersection(
   members: SchemaModel[],
   byName: Map<string, SchemaModel>
 ): { merged: SchemaModel | undefined; rest: SchemaModel[] } {
-  const properties = new Map<string, { schema: SchemaModel; required: boolean; rank: number }>();
+  const properties = new Map<
+    string,
+    { schema: SchemaModel; required: boolean; writeOnly: boolean; rank: number }
+  >();
   const rest: SchemaModel[] = [];
   let sawObject = false;
   for (const member of members) {
@@ -112,6 +116,7 @@ export function splitIntersection(
         properties.set(property.name, {
           schema: property.schema,
           required: property.required || (existing?.required ?? false),
+          writeOnly: property.writeOnly === true || (existing?.writeOnly ?? false),
           rank,
         });
       }
@@ -125,6 +130,7 @@ export function splitIntersection(
         name,
         schema: p.schema,
         required: p.required,
+        ...(p.writeOnly ? { writeOnly: true } : {}),
       })),
     },
     rest,
@@ -191,7 +197,9 @@ function walk(
   const meta = schema.metadata;
   // An example/default is honored only when it inhabits the generated type — real specs
   // carry `example: null` on non-nullable fields and defaults outside a narrowed enum
-  // (`enum: [cram-md5], default: none`); baking those would not type-check.
+  // (`enum: [cram-md5], default: none`); baking those would not type-check. A number
+  // outside its bounds or off its `multipleOf` step would fail the zod schema, so it is
+  // skipped too.
   const inhabits = (value: unknown): boolean => {
     if (value === null) {
       return (
@@ -201,6 +209,16 @@ function walk(
     }
     if (schema.kind === 'enum') return (schema.values as unknown[]).includes(value);
     if (schema.kind === 'literal') return value === schema.value;
+    if (
+      schema.kind === 'scalar' &&
+      (schema.scalar === 'integer' || schema.scalar === 'number') &&
+      typeof value === 'number'
+    ) {
+      const { min, max, step } = numericRange(schema.scalar, meta);
+      // `toPrecision` drops float noise, so `0.3` counts as a multiple of `0.1`.
+      const onStep = step === undefined || Number.isInteger(Number((value / step).toPrecision(12)));
+      return onStep && (min === undefined || value >= min) && (max === undefined || value <= max);
+    }
     return true;
   };
   if (meta?.example !== undefined && inhabits(meta.example)) return meta.example;
@@ -217,6 +235,7 @@ function walk(
     case 'object':
       return Object.fromEntries(
         schema.properties.flatMap((p) => {
+          if (omitsFromResponse(p)) return [];
           const value = walk(p.schema, byName, visiting, dateType);
           // A cyclic optional property is omitted (a null would not satisfy `T | undefined`);
           // a cyclic required property is uninhabitable, so null is the only stand-in.
@@ -288,9 +307,73 @@ function walk(
   }
 }
 
+/**
+ * Whether a mock leaves a property out. Mocks are response data, and a response never
+ * carries a `writeOnly` property. A required one stays, because the named type still
+ * demands it; a handler whose response omits it samples that `omit` shape instead.
+ */
+export function omitsFromResponse(property: PropertyModel): boolean {
+  return property.writeOnly === true && !property.required;
+}
+
+/**
+ * The inclusive range a numeric schema allows. `minimum`/`maximum` and the exclusive
+ * bounds narrow it, aligned to `multipleOf` (an integer steps by 1 without one). An
+ * exclusive bound on a number without a step moves in by 1, or to the middle of the
+ * range when the range is narrower than that. An unbounded side is `undefined`.
+ */
+export function numericRange(
+  scalar: 'integer' | 'number',
+  meta: SchemaMetadata | undefined
+): { min?: number; max?: number; step?: number } {
+  const step = meta?.multipleOf ?? (scalar === 'integer' ? 1 : undefined);
+  // The multiple of `step` that `round` picks for `bound`; `toPrecision` drops float noise.
+  const onStep = (bound: number, size: number, round: (steps: number) => number): number =>
+    Number((round(bound / size) * size).toPrecision(15));
+  const lows: number[] = [];
+  const highs: number[] = [];
+  if (meta?.minimum !== undefined) {
+    const bound = meta.minimum;
+    lows.push(step === undefined ? bound : onStep(bound, step, Math.ceil));
+  }
+  if (meta?.exclusiveMinimum !== undefined) {
+    const bound = meta.exclusiveMinimum;
+    lows.push(
+      step === undefined ? bound + 1 : onStep(bound, step, (steps) => Math.floor(steps) + 1)
+    );
+  }
+  if (meta?.maximum !== undefined) {
+    const bound = meta.maximum;
+    highs.push(step === undefined ? bound : onStep(bound, step, Math.floor));
+  }
+  if (meta?.exclusiveMaximum !== undefined) {
+    const bound = meta.exclusiveMaximum;
+    highs.push(
+      step === undefined ? bound - 1 : onStep(bound, step, (steps) => Math.ceil(steps) - 1)
+    );
+  }
+  const min = lows.length > 0 ? Math.max(...lows) : undefined;
+  const max = highs.length > 0 ? Math.min(...highs) : undefined;
+  if (step === undefined && min !== undefined && max !== undefined && min > max) {
+    const low = Math.max(meta?.minimum ?? -Infinity, meta?.exclusiveMinimum ?? -Infinity);
+    const high = Math.min(meta?.maximum ?? Infinity, meta?.exclusiveMaximum ?? Infinity);
+    const middle = (low + high) / 2;
+    return { min: middle, max: middle };
+  }
+  return { min, max, step };
+}
+
+/** `0` when the range allows it, else the end of the range nearest to `0`. */
+function numberSample(scalar: 'integer' | 'number', meta: SchemaMetadata | undefined): number {
+  const { min, max } = numericRange(scalar, meta);
+  if (min !== undefined && min > 0) return min;
+  if (max !== undefined && max < 0) return max;
+  return 0;
+}
+
 function scalarSample(scalar: ScalarKind, meta: SchemaMetadata | undefined): unknown {
   if (scalar === 'boolean') return true;
-  if (scalar === 'integer' || scalar === 'number') return 0;
+  if (scalar === 'integer' || scalar === 'number') return numberSample(scalar, meta);
   // Type-demanding formats (binary, and date/date-time under `dateType: 'Date'`) are
   // handled earlier in `walk` via `typeDemandedExpression`; here the date formats fall
   // through to the ISO-string path (the `dateType: 'string'` types them as `string`).

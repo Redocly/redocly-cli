@@ -1,5 +1,69 @@
 # @redocly/respect-core
 
+## 2.77.0
+
+### Patch Changes
+
+- Changed JSON Pointers in `respect` runtime expressions to accept every character that the Arazzo grammar allows, so put a space before `&&` that follows a pointer, as in `$response.body#/flag && $statusCode == 200`.
+- Added support for the `~0` and `~1` escapes in JSON Pointers of `respect` runtime expressions, so a pointer can reach a key that contains `~` or `/`.
+- Fixed an issue where `respect` reported an unresolved workflow output instead of the failed step that caused it, and stopped the other workflows of the file.
+- Fixed an issue where `respect` could run values from API responses and step outputs as code when it evaluated runtime expressions.
+- Changed `respect` runtime expressions to read a backslash in a string literal as written, so `"a\nb"` no longer contains a newline.
+- Updated @redocly/openapi-core to v2.77.0.
+
+## 2.76.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` sent `cnonce="undefined"` in every HTTP Digest `Authorization` header instead of a random client nonce.
+- Fixed an issue where `respect` failed HTTP Digest authentication when the server's `WWW-Authenticate` header had no `opaque` parameter.
+- Fixed an issue where `respect` failed HTTP Digest authentication when a value in the server's `WWW-Authenticate` header contained `=` or `,`, such as a base64 nonce with padding.
+- Updated @redocly/openapi-core to v2.76.0.
+
+## 2.75.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 2.74.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.74.0.
+
+## 2.73.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.73.0.
+
+## 2.72.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 2.72.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` ignored the `dataValue` field of OpenAPI 3.2 examples when a step took its parameters or request body from the API description.
+- Fixed an issue where `respect` ignored parameters defined on a path item when a step used `operationId` and took its request data from the API description.
+- Updated @redocly/openapi-core to v2.72.0.
+
+## 2.71.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.2.
+
+## 2.71.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.1.
+
 ## 2.71.0
 
 ### Patch Changes

@@ -1,2 +1,4 @@
 
 Use one of --readability, --generate-baseline, or --generate-markdoc-schema.
+
+Exit code: 1

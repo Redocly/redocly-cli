@@ -1,5 +1,8 @@
 import { defineConfig } from 'vitest/config';
 
+// The unit tests expect colors, and a `NO_COLOR` from the shell would win over `FORCE_COLOR`.
+delete process.env.NO_COLOR;
+
 export default defineConfig({
   test: {
     globals: true,
@@ -97,6 +100,23 @@ export default defineConfig({
                 command: 'php',
                 args: ['-r', 'exit(extension_loaded("curl") ? 0 : 1);'],
               },
+              { name: 'PHPStan', command: 'phpstan', args: ['--version'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-java',
+          include: ['packages/client-generator/tests/e2e/java/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'a JDK (javac)', command: 'javac', args: ['-version'] },
+              { name: 'Java', command: 'java', args: ['-version'] },
             ],
           },
           testTimeout: 120_000,
@@ -122,6 +142,7 @@ export default defineConfig({
                 command: 'python3',
                 args: ['-c', 'import pydantic'],
               },
+              { name: 'mypy', command: 'python3', args: ['-m', 'mypy', '--version'] },
             ],
           },
           testTimeout: 120_000,

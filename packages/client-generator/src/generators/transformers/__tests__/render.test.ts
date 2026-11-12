@@ -87,6 +87,38 @@ describe('renderTransformersModule', () => {
     );
   });
 
+  it('takes the response shape of a schema with writeOnly properties', () => {
+    const out = render([
+      {
+        name: 'Customer',
+        schema: {
+          kind: 'object',
+          properties: [
+            {
+              name: 'password',
+              schema: { kind: 'scalar', scalar: 'string' },
+              required: true,
+              writeOnly: true,
+            },
+            {
+              name: 'createdAt',
+              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+              required: true,
+            },
+          ],
+        },
+      },
+    ]);
+    expect(out.slice(out.indexOf('export const'))).toMatchInlineSnapshot(`
+      "export const transformCustomer = <T extends Omit<Customer, "password">>(input: T): T => {
+          const data: Omit<Customer, "password"> = input;
+          if (typeof data["createdAt"] === "string")
+              data["createdAt"] = new Date(data["createdAt"]);
+          return input;
+      };"
+    `);
+  });
+
   it('maps an array of scalar-date refs through the sibling transform', () => {
     const out = render([
       {

@@ -52,3 +52,5 @@ websocket-gemini.yml: validated in <test>ms
 
 Woohoo! Your API descriptions are valid. 🎉
 
+
+Exit code: 0

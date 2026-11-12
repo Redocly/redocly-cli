@@ -2,6 +2,7 @@
 import './utils/assert-node-version.js';
 
 import {
+  impacts,
   logger,
   type OutputFormat,
   type RuleSeverity,
@@ -13,6 +14,7 @@ import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { DiffArgv, DiffFailOn, DiffOutputFormat } from './commands/diff/types.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -37,8 +39,8 @@ import type {
 } from './commands/scorecard-classic/types.js';
 import { handleSkills, SKILLS_AGENTS, type SkillsArgv } from './commands/skills.js';
 import { outputExtensions } from './types.js';
+import { cacheLatestVersion, notify } from './utils/notifier.js';
 import { version } from './utils/package.js';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { commandWrapper } from './wrapper.js';
@@ -133,6 +135,61 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handleInspectNodeTypes } = await import('./commands/inspect-node-types.js');
       commandWrapper(handleInspectNodeTypes)(argv);
+    }
+  )
+  .command(
+    'diff <base> <revision>',
+    'Compare two API descriptions and rate every change by the semver bump it requires [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_DIFF')
+        .positional('base', { type: 'string', demandOption: true })
+        .positional('revision', { type: 'string', demandOption: true })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: [
+              'stylish',
+              'json',
+              'markdown',
+              'html',
+              'github-actions',
+              'next-version',
+            ] as ReadonlyArray<DiffOutputFormat>,
+            default: 'stylish' as const,
+          },
+          output: {
+            description: 'Write the diff report to a file.',
+            type: 'string',
+            alias: 'o',
+          },
+          'fail-on': {
+            description:
+              'Exit with a non-zero code when changes of this impact or higher are found.',
+            choices: [...impacts, 'none'] as ReadonlyArray<DiffFailOn>,
+            default: 'major' as const,
+          },
+          'check-version': {
+            description:
+              'Fail when info.version was not bumped to match the impact of the changes.',
+            type: 'boolean',
+            default: false,
+          },
+          'skip-rule': {
+            description: 'Ignore certain rules.',
+            array: true,
+            type: 'string',
+          },
+        }),
+    async (argv) => {
+      const { handleDiff } = await import('./commands/diff/index.js');
+      commandWrapper(handleDiff)(argv as Arguments<DiffArgv>);
     }
   )
   .command(
@@ -1265,13 +1322,19 @@ yargs(hideBin(process.argv))
           },
           generator: {
             describe:
-              'Generator to run; repeat the flag to run several (default: typescript). Built-in: typescript, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, python, go, php — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator typescript --generator zod',
+              'Generator to run; repeat the flag to run several (default: typescript). Built-in: typescript, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, python, go, php, java — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator typescript --generator zod',
             type: 'string',
             array: true,
             requiresArg: true,
           },
           config: {
             describe: 'Path to the config file.',
+            type: 'string',
+            requiresArg: true,
+          },
+          report: {
+            describe:
+              'Path of a JSON file to write with the warnings of the run and the operations of each API.',
             type: 'string',
             requiresArg: true,
           },
@@ -1684,5 +1747,5 @@ yargs(hideBin(process.argv))
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
-  .middleware([notifyUpdateCliVersion])
+  .middleware([notify])
   .strict().argv;

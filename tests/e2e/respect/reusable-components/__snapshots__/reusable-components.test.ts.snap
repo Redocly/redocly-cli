@@ -225,5 +225,6 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

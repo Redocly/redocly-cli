@@ -1,5 +1,91 @@
 # @redocly/client-generator
 
+## 0.10.0
+
+### Minor Changes
+
+- Changed the usage telemetry event of the generated clients to the CloudEvent schema of the other Redocly CLI events.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.77.0.
+
+## 0.9.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.76.0.
+
+## 0.9.2
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 0.9.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.74.0.
+
+## 0.9.0
+
+### Minor Changes
+
+- Added usage telemetry and the `onSettled` hook to the generated Go, Python, and PHP clients.
+  Renamed a schema named `UsageTelemetry`, `UsageTelemetryOptions`, `UsageTelemetryEvent`, `NewUsageTelemetry`, or `FlushUsageTelemetry` in every generated client, for example to `UsageTelemetry_2`, so that it does not clash with the usage telemetry code.
+  If your code uses one of these generated types, update its name.
+- Added the `--report` option to the `generate-client` command.
+  It writes a JSON file with the operations of each API and the warnings of the run, each with a stable kind.
+  A custom or ejected generator gets `reportFinding` in its `run` input, to add its own warnings to the report.
+
+  **Note:** `wrappableOperations` from `@redocly/client-generator/contracts/typescript` takes `reportFinding` as its third argument.
+  A custom or ejected `swr` or `tanstack-query` generator must pass the `reportFinding` that its `run` receives.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw `TimeoutError` for a refused connection instead of a transport error.
+- Fixed an issue where the TypeScript usage telemetry counted 0 attempts for a call aborted before its first attempt, so an event had fewer attempts than calls.
+- Fixed an issue where the generated PHP client retried a `POST` or `PATCH` without an `Idempotency-Key`, and retried a `501` or a `505` to `599`.
+  The default retry follows the same rule as the other generated clients.
+
+  **Note:** To retry a `POST` or `PATCH`, pass an `idempotencyKey` to the call, or pass a `retryOn` callable in `Config->retry`.
+
+- Updated @redocly/openapi-core to v2.73.0.
+
+## 0.8.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 0.8.0
+
+### Minor Changes
+
+- Added the `java` generator to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.0.
+
+## 0.7.13
+
+### Patch Changes
+
+- Fixed an issue where the generated TypeScript client lost usage telemetry counts when the telemetry endpoint was unreachable or returned a `408`, `429`, or `5xx` status.
+  The client adds these counts to the next send.
+- Updated @redocly/openapi-core to v2.71.2.
+
+## 0.7.12
+
+### Patch Changes
+
+- Fixed `writeOnly` properties in response types, mock data that broke the API description, and generated code that failed strict type checks.
+- Updated @redocly/openapi-core to v2.71.1.
+
 ## 0.7.11
 
 ### Patch Changes

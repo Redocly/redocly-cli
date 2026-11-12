@@ -7,6 +7,137 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.77.0 (2026-11-09)
+
+### Minor Changes
+
+- Changed the usage telemetry event of the generated clients to the CloudEvent schema of the other Redocly CLI events.
+
+### Patch Changes
+
+- Fixed an issue where the `push-status` and `push --wait-for-deployment` commands did not show why a deployment to Redocly platform failed.
+  The error message lists the failed checks, and the command output includes the link checker result.
+- Changed JSON Pointers in `respect` runtime expressions to accept every character that the Arazzo grammar allows, so put a space before `&&` that follows a pointer, as in `$response.body#/flag && $statusCode == 200`.
+- Added support for the `~0` and `~1` escapes in JSON Pointers of `respect` runtime expressions, so a pointer can reach a key that contains `~` or `/`.
+- Fixed an issue where `respect` reported an unresolved workflow output instead of the failed step that caused it, and stopped the other workflows of the file.
+- Fixed an issue where `respect` could run values from API responses and step outputs as code when it evaluated runtime expressions.
+- Changed `respect` runtime expressions to read a backslash in a string literal as written, so `"a\nb"` no longer contains a newline.
+- Updated @redocly/client-generator to v0.10.0.
+- Updated @redocly/openapi-core to v2.77.0.
+- Updated @redocly/platform-integration to v2.77.0.
+- Updated @redocly/respect-core to v2.77.0.
+
+## 2.76.0 (2026-11-05)
+
+### Patch Changes
+
+- Fixed an issue where `respect` sent `cnonce="undefined"` in every HTTP Digest `Authorization` header instead of a random client nonce.
+- Fixed an issue where `respect` failed HTTP Digest authentication when the server's `WWW-Authenticate` header had no `opaque` parameter.
+- Fixed an issue where `respect` failed HTTP Digest authentication when a value in the server's `WWW-Authenticate` header contained `=` or `,`, such as a base64 nonce with padding.
+- Updated @redocly/platform-integration to v2.76.0.
+- Updated @redocly/respect-core to v2.76.0.
+
+## 2.75.0 (2026-11-04)
+
+### Minor Changes
+
+- Added support for the `platform` option and the `access.rbac.platform` scope in `redocly.yaml`.
+- Added a warning for deprecated options in `redocly.yaml`, for example `reunite`, which `platform` replaces.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/client-generator to v0.9.2.
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 2.74.0 (2026-11-04)
+
+### Patch Changes
+
+- Fixed an issue where `lint` reported Media Type Objects under `components.mediaTypes` in OpenAPI 3.2 descriptions as invalid.
+  A `$ref` to such an object goes in a `content` entry, as the specification defines.
+- Fixed an issue where `lint` reported the `encoding`, `prefixEncoding`, and `itemEncoding` fields of a nested Encoding Object in OpenAPI 3.2 descriptions as invalid.
+  The `spec-no-invalid-encoding-combinations` rule also checks nested Encoding Objects.
+- Fixed the messages of configurable rules and the codeframes in the `json` output so that they no longer carry terminal color codes.
+- Fixed the `spec-strict-refs` rule so that it no longer reports a `$ref` to a Media Type Object in a `content` entry of OpenAPI 3.2 descriptions.
+- Updated @redocly/openapi-core to v2.74.0.
+
+## 2.73.0 (2026-11-03)
+
+### Minor Changes
+
+- Added usage telemetry and the `onSettled` hook to the generated Go, Python, and PHP clients.
+  Renamed a schema named `UsageTelemetry`, `UsageTelemetryOptions`, `UsageTelemetryEvent`, `NewUsageTelemetry`, or `FlushUsageTelemetry` in every generated client, for example to `UsageTelemetry_2`, so that it does not clash with the usage telemetry code.
+  If your code uses one of these generated types, update its name.
+- Added the `--report` option to the `generate-client` command.
+  It writes a JSON file with the operations of each API and the warnings of the run, each with a stable kind.
+  A custom or ejected generator gets `reportFinding` in its `run` input, to add its own warnings to the report.
+
+  **Note:** `wrappableOperations` from `@redocly/client-generator/contracts/typescript` takes `reportFinding` as its third argument.
+  A custom or ejected `swr` or `tanstack-query` generator must pass the `reportFinding` that its `run` receives.
+
+- Added the `no-server-variables-empty-enum` rule to the `spec` ruleset for OpenAPI 3.1 and 3.2 descriptions, where the specification requires a non-empty `enum` that holds the `default` value.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw `TimeoutError` for a refused connection instead of a transport error.
+- Fixed an issue where the TypeScript usage telemetry counted 0 attempts for a call aborted before its first attempt, so an event had fewer attempts than calls.
+- Fixed an issue where the generated PHP client retried a `POST` or `PATCH` without an `Idempotency-Key`, and retried a `501` or a `505` to `599`.
+  The default retry follows the same rule as the other generated clients.
+
+  **Note:** To retry a `POST` or `PATCH`, pass an `idempotencyKey` to the call, or pass a `retryOn` callable in `Config->retry`.
+
+- Updated @redocly/client-generator to v0.9.0.
+- Updated @redocly/openapi-core to v2.73.0.
+
+## 2.72.1 (2026-10-29)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 2.72.0 (2026-10-28)
+
+### Minor Changes
+
+- Added a one-time announcement about the agent skills and the `skills` command, shown the first time you run Redocly CLI.
+  To turn off announcements, set the `REDOCLY_SUPPRESS_NOTIFICATIONS` environment variable to `true`.
+- Added the `java` generator to the `generate-client` command.
+- Added an experimental `diff` command that compares two API descriptions, reports changes, and rates every change by the semver bump it requires (`patch`, `minor`, or `major`).
+  `--fail-on` sets the impact that fails the run and `--check-version` verifies that `info.version` was bumped accordingly.
+
+### Patch Changes
+
+- Fixed an issue where `respect` ignored the `dataValue` field of OpenAPI 3.2 examples when a step took its parameters or request body from the API description.
+- Fixed an issue where `respect` ignored parameters defined on a path item when a step used `operationId` and took its request data from the API description.
+- Updated the `generate-spec`, `generate-arazzo`, and `recheck` commands to print their execution time in milliseconds, the same as the `lint` and `bundle` commands.
+- Updated @redocly/client-generator to v0.8.0.
+- Updated @redocly/openapi-core to v2.72.0.
+- Updated @redocly/respect-core to v2.72.0.
+- Updated @redocly/reunite-integration to v2.72.0.
+
+## 2.71.2 (2026-10-27)
+
+### Patch Changes
+
+- Fixed an issue where the `no-unresolved-refs` rule reported discriminator mapping values that are schema names (for example, `dog: Dog`) as unresolved references.
+  The rule still reports schema names that do not match a schema in `components.schemas`.
+- Fixed an issue where the `drift` and `generate-spec` commands crashed with a stack trace when the traffic file or folder didn't exist, and the `generate-spec` command when the traffic had no matching HTTP exchanges.
+- Fixed an issue where the `bundle` command didn't resolve a `$ref` in an overlay that pointed to a local file when the API description was a URL.
+  The command tried to download the file from the server that hosts the API description instead of reading it from disk.
+- Fixed an issue where the generated TypeScript client lost usage telemetry counts when the telemetry endpoint was unreachable or returned a `408`, `429`, or `5xx` status.
+  The client adds these counts to the next send.
+- Updated @redocly/client-generator to v0.7.13.
+- Updated @redocly/openapi-core to v2.71.2.
+
+## 2.71.1 (2026-10-26)
+
+### Patch Changes
+
+- Fixed `writeOnly` properties in response types, mock data that broke the API description, and generated code that failed strict type checks.
+- Updated @redocly/client-generator to v0.7.12.
+
 ## 2.71.0 (2026-10-23)
 
 ### Minor Changes
@@ -961,7 +1092,7 @@ toc:
 
 - Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
 
-  **Warning:** Autogenrated component names and `$ref` paths in bundled documents may differ from older releases.
+  **Warning:** Autogenerated component names and `$ref` paths in bundled documents may differ from older releases.
 
 - Updated @redocly/openapi-core to v2.27.1.
 

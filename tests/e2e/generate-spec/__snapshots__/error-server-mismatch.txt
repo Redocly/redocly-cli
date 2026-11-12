@@ -1,0 +1,5 @@
+
+No HTTP exchanges in the traffic matched the server "http://unrelated.example.com".
+
+
+Exit code: 1

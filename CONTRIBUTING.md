@@ -170,6 +170,10 @@ curl -I https://cdn.redocly.com/redoc/v<version>/bundles/redoc.standalone.js
 
 Then update the [e2e test snapshots](#e2e-tests) and the [smoke test](#smoke-tests) page.
 
+### Update the announcement
+
+When you add a new command or a new feature, or change something significant, consider replacing the announcement banner in [`packages/cli/src/utils/notifier.ts`](./packages/cli/src/utils/notifier.ts).
+
 ### Arguments usage
 
 There are three ways of providing arguments to the CLI: environment variables, command line arguments, and a Redocly configuration file.
@@ -274,27 +278,29 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 ### Client generator tests
 
 `npm run client-generators` runs the tests in `packages/client-generator/tests/e2e`.
-Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, and `python/`.
-The tests compile the generated clients, so they need Go, PHP, and Python.
+Each language has its own folder and its own Vitest project: `typescript/`, `go/`, `php/`, `java/`, and `python/`.
+The tests compile the generated clients, so they need Go, PHP, a JDK (17 or newer), and Python.
 A missing tool stops the run with a message that names it.
 
 ```bash
 npm run client-generators                       # everything
 npx vitest run --project client-generators      # TypeScript only, no toolchains needed
-npx vitest run --project client-generators-go   # one language (-go, -php, -python)
+npx vitest run --project client-generators-go   # one language (-go, -php, -java, -python)
 ```
 
 Install the toolchains:
 
 ```bash
 # macOS
-brew install go php
-pip3 install httpx pydantic
+brew install go php phpstan temurin
+pip3 install httpx pydantic mypy
 
 # Ubuntu
-sudo apt-get install golang-go php-cli php-curl python3-pip
-pip3 install httpx pydantic
+sudo apt-get install golang-go php-cli php-curl default-jdk python3-pip
+pip3 install httpx pydantic mypy
 ```
+
+On Ubuntu, PHPStan ships as a phar: download `phpstan.phar` from [its releases](https://github.com/phpstan/phpstan/releases) and put it on the path as `phpstan`.
 
 The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`.
 
@@ -445,7 +451,7 @@ To add an entry:
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. It consists of six packages - CLI, core, respect-core, reunite-integration, client-generator, and recheck. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of six packages - CLI, core, respect-core, platform-integration, client-generator, and recheck. The codebase is written in Typescript.
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [in the README](./README.md) file.
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
@@ -462,7 +468,7 @@ To add an entry:
 
   - **`packages/respect-core`**: contains the Respect core package.
 
-  - **`packages/reunite-integration`**: contains everything that talks to the Redocly platform (Reunite) - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+  - **`packages/platform-integration`**: contains everything that talks to the Redocly platform - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 
   - **`packages/client-generator`**: contains the client and SDK generators.
 

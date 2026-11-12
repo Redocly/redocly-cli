@@ -96,3 +96,5 @@ run `redocly lint --generate-ignore-file` to add all problems to the ignore file
 
 [WARNING] Unused rules found in redocly.yaml: context.
 Check the spelling and verify the added plugin prefix.
+
+Exit code: 1

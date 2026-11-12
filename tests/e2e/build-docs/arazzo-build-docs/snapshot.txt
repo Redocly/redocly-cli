@@ -11,3 +11,5 @@
 
 build-docs renders OpenAPI, AsyncAPI, and GraphQL. This file is Arazzo.
 
+
+Exit code: 1

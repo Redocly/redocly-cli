@@ -6,3 +6,5 @@ Suggestion: please use prefix-tags-with-filename, prefix-tags-with-info-prop or 
 
 Please fix conflicts before running join.
 
+
+Exit code: 1

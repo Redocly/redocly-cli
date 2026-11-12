@@ -86,6 +86,11 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     openrpc1Decorators: {},
 
     recheck,
+    diff: {},
+    oas3_0Diff: {},
+    oas3_1Diff: {},
+    oas3_2Diff: {},
+    async3Diff: {},
   };
 
   for (const rulesConf of rulesConfList) {
@@ -164,6 +169,15 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
 
     recheck = mergeRecheckBlocks(recheck, rulesConf.recheck);
+    assignConfig(result.diff, rulesConf.diff);
+    assignConfig(result.oas3_0Diff, rulesConf.oas3_0Diff);
+    assignOnlyExistingConfig(result.oas3_0Diff, rulesConf.diff);
+    assignConfig(result.oas3_1Diff, rulesConf.oas3_1Diff);
+    assignOnlyExistingConfig(result.oas3_1Diff, rulesConf.diff);
+    assignConfig(result.oas3_2Diff, rulesConf.oas3_2Diff);
+    assignOnlyExistingConfig(result.oas3_2Diff, rulesConf.diff);
+    assignConfig(result.async3Diff, rulesConf.async3Diff);
+    assignOnlyExistingConfig(result.async3Diff, rulesConf.diff);
   }
   result.recheck = recheck;
 

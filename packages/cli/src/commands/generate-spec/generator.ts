@@ -672,7 +672,9 @@ export async function generateSpecFromTraffic(
   }
 
   if (supportedTrafficFileCount === 0) {
-    throw new Error('No supported traffic files found to generate an OpenAPI description from.');
+    throw new HandledError(
+      'No supported traffic files found to generate an OpenAPI description from.'
+    );
   }
 
   if (operations.size === 0 && unsupportedMethodExchangeCount > 0) {
@@ -682,7 +684,7 @@ export async function generateSpecFromTraffic(
   }
 
   if (operations.size === 0) {
-    throw new Error(
+    throw new HandledError(
       server
         ? `No HTTP exchanges in the traffic matched the server "${server}".`
         : 'No HTTP exchanges were observed in the traffic. Cannot generate an OpenAPI description.'

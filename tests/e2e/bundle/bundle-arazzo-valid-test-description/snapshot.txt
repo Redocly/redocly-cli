@@ -33,3 +33,5 @@ workflows:
 
 bundling museum.yaml...
 📦 Created a bundle for museum.yaml at stdout <test>ms.
+
+Exit code: 0

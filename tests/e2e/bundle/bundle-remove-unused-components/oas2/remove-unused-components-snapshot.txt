@@ -14,3 +14,5 @@ definitions:
 bundling openapi.yaml using configuration for api 'main'...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
 🧹 Removed 4 unused components.
+
+Exit code: 0

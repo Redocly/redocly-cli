@@ -1,3 +1,5 @@
+import { HandledError } from '@redocly/openapi-core';
+import { existsSync } from 'node:fs';
 import { open, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -46,6 +48,10 @@ export function normalizeFsPath(value: string): string {
 }
 
 export async function listFilesRecursively(rootPath: string): Promise<string[]> {
+  if (!existsSync(rootPath)) {
+    throw new HandledError(`Traffic file or folder not found: ${rootPath}`);
+  }
+
   const stats = await stat(rootPath);
   if (stats.isFile()) {
     return [rootPath];

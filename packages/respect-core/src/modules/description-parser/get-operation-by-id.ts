@@ -1,3 +1,4 @@
+import type { Oas3PathItem } from '@redocly/openapi-core';
 import { red } from 'colorette';
 
 import type { SourceDescription, TestContext } from '../../types.js';
@@ -28,6 +29,14 @@ export function getOperationById(
 
   const availableDescriptions = Object.keys(descriptions);
 
+  if (
+    sourceDescriptions?.some(({ name, type }) => name === descriptionName && type === 'asyncapi')
+  ) {
+    throw new Error(
+      `Source description ${red(descriptionName)} is an AsyncAPI description, which Respect does not support yet. Upvote or open an issue: https://github.com/Redocly/redocly-cli/issues.`
+    );
+  }
+
   if (!descriptions[descriptionName]) {
     throw new Error(
       `Unknown description name ${red(descriptionName)} at ${red(
@@ -40,17 +49,15 @@ export function getOperationById(
   const securitySchemes = description?.components?.securitySchemes;
   const rootServers = description.servers;
 
-  for (const [path, pathDetails] of Object.entries(descriptions[descriptionName].paths)) {
-    if (!pathDetails) {
-      return undefined;
-    }
-
-    for (const [method, operationDetails] of Object.entries(pathDetails)) {
-      if (operationDetails.operationId === operationId) {
+  for (const [path, pathDetails] of Object.entries<Oas3PathItem>(
+    descriptions[descriptionName].paths || {}
+  )) {
+    for (const [method, operationDetails] of Object.entries(pathDetails || {})) {
+      if (operationDetails?.operationId === operationId) {
         return {
-          servers: (pathDetails as any).servers || rootServers,
+          servers: pathDetails.servers || rootServers,
           ...operationDetails,
-          pathParameters: operationDetails.parameters || [],
+          pathParameters: pathDetails.parameters || [],
           path,
           method,
           descriptionName,

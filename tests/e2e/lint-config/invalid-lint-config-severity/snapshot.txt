@@ -24,3 +24,5 @@ Options:
 
 Invalid values:
   Argument: lint-config, Given: "something", Choices: "warn", "error", "off"
+
+Exit code: 1

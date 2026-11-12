@@ -26,6 +26,12 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Models are dataclasses by default**, required fields first (a dataclass constraint),
   optionals `Optional[T] = None`. Wire names live in a `_field_map: ClassVar[Dict[str, str]]`;
   decode/encode is reflective (`_decode.py`, `get_type_hints`) — no per-model codecs.
+- **The file passes `mypy --strict`.** It lands in the user's own package, so their
+  strictest checker reads it: every function is annotated, the operation table is typed,
+  and a decoded body is `cast` to the declared return type (`decode` returns `Any`).
+- **A `writeOnly` property is optional** even when required: requests and responses share
+  one model, and a response never carries it. It is `Optional[T] = None`, so a response
+  decodes without it and a request still sends it.
 - **`models: pydantic` emits `BaseModel` classes instead**, for the FastAPI-shaped half of
   the ecosystem that expects them. A wire name becomes `Field(alias=…)` with
   `populate_by_name=True`, so `_field_map` is not emitted in this mode — the alias is the
@@ -103,6 +109,21 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   time — generator code never builds runtime logic from templates.
   Under `--runtime module` the same sources are written as sibling `_*.py` files instead
   (package-relative imports become sibling imports; the client star-imports each module).
+- **`on_settled` sees every sent call once.** Both `send()` and `send_async()` call each
+  middleware's `on_settled(context, call)` after the last attempt, where `call` holds the final
+  `response` or the `error`, `attempts`, and `duration_ms` (from the first attempt to the end
+  of the `on_response` hooks). A timeout is `ApiTimeoutError`; a cancelled async call is
+  `asyncio.CancelledError`. A call that fails in `on_request` does not reach it. Every hook
+  runs; on a successful call the first hook exception fails the call, and on a failed call
+  the original error wins. SSE streams open outside `send()`, so they reach no middleware.
+- **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
+  writes `<module>_telemetry.py` (from `telemetry/telemetry.py` in this folder, embedded at
+  prepare time) beside the client, in both runtime modes, with the generator version baked
+  in. The client file does not change. The module imports nothing from the client; the
+  application passes `telemetry(sdk_name=..., sdk_version=..., client=...)` in the client's
+  `middleware`, and the open window is sent at interpreter exit.
+  A timeout of the caller, such as `asyncio.wait_for`, cancels the task like any cancel, so
+  it counts as `aborted`; only the client's own `timeout` counts as `timeout`.
 - Authored ONLY with the neutral toolkit (`Printer`, naming, schema, pagination helpers) —
   the dogfooding guard fails otherwise.
 

@@ -246,5 +246,6 @@ exports[`should pass success and failure action parameters as inputs to the acti
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

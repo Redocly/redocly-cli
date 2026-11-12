@@ -349,3 +349,5 @@ Document: museum.yaml score:
 
 museum.yaml: score processed in <test>ms
 
+
+Exit code: 0

@@ -1,6 +1,7 @@
 import type { DateType } from '../authoring/options.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import type { ModelPagination } from '../pagination.js';
+import type { GenerateClientFinding } from '../types.js';
 
 export type { DateType } from '../authoring/options.js';
 
@@ -111,7 +112,8 @@ export type GeneratorName =
   | 'cli'
   | 'python'
   | 'go'
-  | 'php';
+  | 'php'
+  | 'java';
 
 /**
  * One option a generator accepts: a scalar, a closed set of values, or a list of scalars.
@@ -150,6 +152,12 @@ export type GeneratorInput = {
    * them in its own comment syntax, so every emitted file says the same thing.
    */
   banner: string[];
+  /**
+   * Logs the finding as a warning and adds it to the run's findings, so `--report` lists it.
+   * A generator reports through this function and not through an import: an ejected or custom
+   * generator loads its own copy of the package, which the CLI run cannot see.
+   */
+  reportFinding: (finding: GenerateClientFinding) => void;
   /**
    * Pagination resolved ONCE by the pipeline — per-op config > `x-redoclyPagination` >
    * convention, fit-verified, pointers resolved — keyed by operation name. Generators

@@ -14,6 +14,7 @@ Use this command to execute API tests described in an Arazzo description.
 The `respect` command supports Arazzo 1.0.1 descriptions.
 Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions.
 When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
+AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
 
 ## Usage
@@ -88,6 +89,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --input
 - string
 - Input parameters with values that are mapped to the workflow inputs description.
+  Before a workflow runs, `respect` checks its inputs against the workflow's `inputs` schema.
+  Inputs that don't match the schema produce a warning, and the workflow still runs with the inputs as given.
   For example, the following command maps the "userEmail" and "userPassword" inputs and values to all workflows in the `test.yaml` Arazzo description:
 
   `npx @redocly/cli@latest respect test.yaml --input userEmail=name@redocly.com --input userPassword=12345`
@@ -205,6 +208,30 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   `npx @redocly/cli@latest respect test-file.yaml --no-secrets-masking`
 
 {% /table %}
+
+## Request data from the API description
+
+A step that calls an operation doesn't have to list its parameters or request body.
+When the step leaves them out, `respect` takes them from the OpenAPI description:
+
+- Without `parameters`, the step sends the operation's required parameters, including the ones defined on the path.
+- Without `requestBody`, the step sends a body for the first media type of the operation's request body.
+
+Each value comes from the `example` field, or from the first entry in `examples` (its `value` or, in OpenAPI 3.2, its `dataValue`).
+Without an example, `respect` generates a value from the schema.
+
+For example, if the `orderId` path parameter of `getOrderById` has the example `ord_01h1s5z6vf2mm1mz3hevnn9va7`, the following step sends `GET /orders/ord_01h1s5z6vf2mm1mz3hevnn9va7`:
+
+```yaml
+steps:
+  - stepId: get-order
+    operationId: getOrderById
+```
+
+{% admonition type="warning" %}
+A step that lists any `parameters` takes no parameters from the description.
+List every required parameter in that step.
+{% /admonition %}
 
 ## Examples
 

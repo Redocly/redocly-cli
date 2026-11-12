@@ -35,7 +35,10 @@ export const casing = {
 };
 
 /** Keyword sets for the first-party target languages; authors pass their own set for others. */
-export const RESERVED_WORDS: Record<'typescript' | 'python' | 'go' | 'php', ReadonlySet<string>> = {
+export const RESERVED_WORDS: Record<
+  'typescript' | 'python' | 'go' | 'php' | 'java',
+  ReadonlySet<string>
+> = {
   // prettier-ignore
   typescript: new Set([
     'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete',
@@ -70,6 +73,17 @@ export const RESERVED_WORDS: Record<'typescript' | 'python' | 'go' | 'php', Read
     'require', 'return', 'static', 'switch', 'throw', 'trait', 'try', 'unset', 'use', 'var',
     'while', 'xor', 'yield', 'true', 'false', 'null', 'int', 'float', 'bool', 'string', 'void',
     'iterable', 'object', 'mixed', 'never', 'self', 'parent',
+  ]),
+  // Java keywords, the literals, and the contextual keywords a declaration cannot use.
+  // prettier-ignore
+  java: new Set([
+    'abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class', 'const',
+    'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'final', 'finally', 'float',
+    'for', 'goto', 'if', 'implements', 'import', 'instanceof', 'int', 'interface', 'long',
+    'native', 'new', 'package', 'private', 'protected', 'public', 'return', 'short', 'static',
+    'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient', 'try',
+    'void', 'volatile', 'while', 'true', 'false', 'null', 'var', 'yield', 'record', 'sealed',
+    'permits', 'non-sealed',
   ]),
 };
 

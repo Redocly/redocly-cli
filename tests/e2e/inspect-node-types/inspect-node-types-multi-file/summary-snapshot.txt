@@ -9,3 +9,5 @@ Responses      3
 Root           1
 Schema         2
 
+
+Exit code: 0

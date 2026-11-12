@@ -19,3 +19,5 @@ Options:
                              [choices: "warn", "error", "off"] [default: "warn"]
 
 Missing required argument: outDir
+
+Exit code: 1

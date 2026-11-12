@@ -33,6 +33,7 @@ The following is a list of elements the `$ref` can be used with according to the
 - Link
 - Callback
 - PathItem
+- MediaType, in a `content` entry of OpenAPI 3.2
 
 ## Configuration
 

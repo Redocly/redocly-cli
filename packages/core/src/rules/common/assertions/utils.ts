@@ -1,5 +1,4 @@
 import type { AssertionContext, AssertResult } from '../../../config/index.js';
-import { colorize } from '../../../logger.js';
 import { isRef, isAbsoluteUrl } from '../../../ref-utils.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString } from '../../../utils/is-string.js';
@@ -214,11 +213,10 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
   return (node: any, ctx: UserContext) => {
     const properties = getAssertionProperties(assertion);
 
-    const defaultMessage = `${colorize.blue(assertId)} failed because the ${colorize.blue(
-      assertion.subject.type
-    )} ${colorize.blue(properties.join(', '))} didn't meet the assertions: ${
-      assertionMessageTemplates.problems
-    }`.replace(/ +/g, ' ');
+    const defaultMessage =
+      `${assertId} failed because the ${assertion.subject.type} ${properties.join(
+        ', '
+      )} didn't meet the assertions: ${assertionMessageTemplates.problems}`.replace(/ +/g, ' ');
 
     const problems = applyAssertions(assertion, getAssertsToApply(assertion), {
       ...ctx,

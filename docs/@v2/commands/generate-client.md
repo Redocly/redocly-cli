@@ -43,7 +43,7 @@ The `generate-client` command generates API clients from an OpenAPI description:
 - A typed TypeScript client (the default).
 - Add-on modules for the TypeScript client, for example Zod schemas, TanStack Query factories, and MSW mocks.
 - A command-line interface.
-- SDKs for Python, Go, and PHP.
+- SDKs for Python, Go, PHP, and Java.
 
 For the full list, see [Generators](../guides/use-generated-client.md#generators).
 
@@ -65,25 +65,26 @@ redocly generate-client [--help]
 
 ## Options
 
-| Option           | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                       |
-| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api`            | string   | The file path to the OpenAPI description, a URL, or an `apis:` alias. Omit it to generate a client for each api that has a `client` block or `clientOutput`.                                                                                                                                                                                                                                      |
-| `--output`, `-o` | string   | The path of the generated client, with the `.ts` extension, for example `src/client.ts`. The `python`, `go`, and `php` SDKs use the same path with their own extension, for example `src/client.go`. If the output has more than one file, this is the main file. Use this option only for one API. Default: the `clientOutput` of the api, or `<name>.client.ts` next to the configuration file. |
-| `--output-mode`  | string   | The file layout. See [Choose an output mode](#choose-an-output-mode). <br/> **Possible values:** `single`, `split`. Default: `single`.                                                                                                                                                                                                                                                            |
-| `--runtime`      | string   | The location of the client engine. <br/> **Possible values:** `inline`, `module`. Default: `inline`.                                                                                                                                                                                                                                                                                              |
-| `--import-ext`   | string   | The extension in the generated relative imports. See [Run with Node directly](../guides/use-generated-client.md#run-with-node-directly). <br/> **Possible values:** `js` (the tsc/bundler convention), `ts` (for Node's built-in type stripping). Default: `js`.                                                                                                                                  |
-| `--generator`    | [string] | The generator to run: a built-in name, or the path or package of a custom generator. Repeat the flag to run more than one generator. Default value is `typescript`. See [Generators](../guides/use-generated-client.md#generators) for the full list.                                                                                                                                             |
-| `--args-style`   | string   | Sets how you pass inputs to operations. See [Argument style](../guides/use-generated-client.md#argument-style). <br/> **Possible values:** `grouped`, `flat`. Default: `grouped`.                                                                                                                                                                                                                 |
-| `--error-mode`   | string   | Sets how operations report HTTP errors. See [Error handling](../guides/use-generated-client.md#error-handling). <br/> **Possible values:** `throw`, `result`. Default: `throw`.                                                                                                                                                                                                                   |
-| `--date-type`    | string   | The type of the `date`/`date-time` fields. If you use `Date`, also use the `transformers` generator. <br/> **Possible values:** `string`, `Date`. Default: `string`.                                                                                                                                                                                                                              |
-| `--mock-data`    | string   | The data mode for the `mock` generator. <br/> **Possible values:** `static` (deterministic literals), `faker` (`@faker-js/faker` calls). Default: `static`.                                                                                                                                                                                                                                       |
-| `--mock-seed`    | number   | The seed for `faker`-mode mocks. Use it to get reproducible data. The command ignores it in `static` mode.                                                                                                                                                                                                                                                                                        |
-| `--server-url`   | string   | Overrides the default server URL in the client. The option accepts an absolute URL (`https://api.example.com`) or a relative URL (`/v1`). Defaults to `servers[0].url`. The app can also change the server URL at runtime with `createClient({ serverUrl })` or `configure({ serverUrl })`. See [Authentication](../guides/use-generated-client.md#authentication) in the usage guide.            |
-| `--setup`        | string   | The path to a publisher setup module that the command includes in the client. Use it to pre-configure defaults, for example the server URL, retries, headers, and middleware. A published SDK then contains these defaults. See [Publisher defaults](../guides/customize-client-generation.md#publisher-defaults).                                                                                |
-| `--docs`         | boolean  | Also write the reference documentation for what this run generates: one Markdown page for each selected generator that documents itself (the CLI, and each SDK). Default value is `false`.                                                                                                                                                                                                        |
-| `--go-package`   | string   | The package clause in the output of the `go` generator. It must be a valid Go package name (lowercase letters, digits, and `_`; it must not start with a digit or be a keyword). Default value is `client`.                                                                                                                                                                                       |
-| `--config`       | string   | Specify the path to the [configuration file](#generate-from-the-configuration-file).                                                                                                                                                                                                                                                                                                              |
-| `--help`         | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                                                                     |
+| Option           | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `api`            | string   | The file path to the OpenAPI description, a URL, or an `apis:` alias. Omit it to generate a client for each api that has a `client` block or `clientOutput`.                                                                                                                                                                                                                                                                                                       |
+| `--output`, `-o` | string   | The path of the generated client, with the `.ts` extension, for example `src/client.ts`. The `python`, `go`, `php`, and `java` SDKs use the same path with their own extension, for example `src/client.go` (Java names the file after its class: `src/Client.java`). If the output has more than one file, this is the main file. Use this option only for one API. Default: the `clientOutput` of the api, or `<name>.client.ts` next to the configuration file. |
+| `--output-mode`  | string   | The file layout. See [Choose an output mode](#choose-an-output-mode). <br/> **Possible values:** `single`, `split`. Default: `single`.                                                                                                                                                                                                                                                                                                                             |
+| `--runtime`      | string   | The location of the client engine. <br/> **Possible values:** `inline`, `module`. Default: `inline`.                                                                                                                                                                                                                                                                                                                                                               |
+| `--import-ext`   | string   | The extension in the generated relative imports. See [Run with Node directly](../guides/use-generated-client.md#run-with-node-directly). <br/> **Possible values:** `js` (the tsc/bundler convention), `ts` (for Node's built-in type stripping). Default: `js`.                                                                                                                                                                                                   |
+| `--generator`    | [string] | The generator to run: a built-in name, or the path or package of a custom generator. Repeat the flag to run more than one generator. Default value is `typescript`. See [Generators](../guides/use-generated-client.md#generators) for the full list.                                                                                                                                                                                                              |
+| `--args-style`   | string   | Sets how you pass inputs to operations. See [Argument style](../guides/use-generated-client.md#argument-style). <br/> **Possible values:** `grouped`, `flat`. Default: `grouped`.                                                                                                                                                                                                                                                                                  |
+| `--error-mode`   | string   | Sets how operations report HTTP errors. See [Error handling](../guides/use-generated-client.md#error-handling). <br/> **Possible values:** `throw`, `result`. Default: `throw`.                                                                                                                                                                                                                                                                                    |
+| `--date-type`    | string   | The type of the `date`/`date-time` fields. If you use `Date`, also use the `transformers` generator. <br/> **Possible values:** `string`, `Date`. Default: `string`.                                                                                                                                                                                                                                                                                               |
+| `--mock-data`    | string   | The data mode for the `mock` generator. <br/> **Possible values:** `static` (deterministic literals), `faker` (`@faker-js/faker` calls). Default: `static`.                                                                                                                                                                                                                                                                                                        |
+| `--mock-seed`    | number   | The seed for `faker`-mode mocks. Use it to get reproducible data. The command ignores it in `static` mode.                                                                                                                                                                                                                                                                                                                                                         |
+| `--server-url`   | string   | Overrides the default server URL in the client. The option accepts an absolute URL (`https://api.example.com`) or a relative URL (`/v1`). Defaults to `servers[0].url`. The app can also change the server URL at runtime with `createClient({ serverUrl })` or `configure({ serverUrl })`. See [Authentication](../guides/use-generated-client.md#authentication) in the usage guide.                                                                             |
+| `--setup`        | string   | The path to a publisher setup module that the command includes in the client. Use it to pre-configure defaults, for example the server URL, retries, headers, and middleware. A published SDK then contains these defaults. See [Publisher defaults](../guides/customize-client-generation.md#publisher-defaults).                                                                                                                                                 |
+| `--docs`         | boolean  | Also write the reference documentation for what this run generates: one Markdown page for each selected generator that documents itself (the CLI, and each SDK). Default value is `false`.                                                                                                                                                                                                                                                                         |
+| `--go-package`   | string   | The package clause in the output of the `go` generator. It must be a valid Go package name (lowercase letters, digits, and `_`; it must not start with a digit or be a keyword). Default value is `client`.                                                                                                                                                                                                                                                        |
+| `--report`       | string   | The path of a JSON file to write with the warnings of the run and the operations of each API. See [Write a report](#write-a-report).                                                                                                                                                                                                                                                                                                                               |
+| `--config`       | string   | Specify the path to the [configuration file](#generate-from-the-configuration-file).                                                                                                                                                                                                                                                                                                                                                                               |
+| `--help`         | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ## Examples
 
@@ -149,6 +150,7 @@ Every generator that embeds an engine supports both modes, each in its language'
 - `python` writes the `_*.py` runtime modules beside the client, which imports them.
 - `go` writes a `runtime.go` file in the same package as the client.
 - `php` writes a `runtime.php` file that the client loads with `require_once`.
+- `java` writes a `<Class>Runtime.java` base class that the client extends.
 
 ```bash
 redocly generate-client openapi.yaml -o src/api/client.ts --runtime module
@@ -163,13 +165,25 @@ client:
   telemetry: on
 ```
 
-The `typescript` generator then also writes `<output>.telemetry.ts` next to the client.
-The module counts the calls of your SDK per operation and sends the counts once a minute.
+The `typescript`, `go`, `python`, and `php` generators then also write a telemetry module next to the client:
+
+| Generator    | File                     |
+| ------------ | ------------------------ |
+| `typescript` | `<output>.telemetry.ts`  |
+| `go`         | `telemetry.go`           |
+| `python`     | `<module>_telemetry.py`  |
+| `php`        | `<output>.telemetry.php` |
+
+The module counts the calls of your SDK per operation in windows of 60 seconds, and sends the counts at the end of each window.
 Use it to learn which operations your SDK users call, how often, with which outcome, and how fast.
 Without `telemetry: on`, the generated code contains no telemetry, and the client file is the same in both cases.
 This option is available only in the configuration file and has no flag.
 
-Register the middleware once, where your SDK creates its client:
+Register the module once, where your SDK creates its client.
+The module counts each call once, after the last retry.
+
+{% tabs %}
+{% tab label="TypeScript" %}
 
 ```ts
 import { telemetry } from './client.telemetry.ts';
@@ -180,12 +194,69 @@ use(
 );
 ```
 
-The middleware counts each call once, after the last retry.
-It sends one event per operation and window (60 seconds by default), and the open window when Node.js emits `beforeExit`.
+The middleware sends the open window when Node.js emits `beforeExit`.
 Before `process.exit()` or on a signal, call `await flush()`.
+
+{% /tab %}
+{% tab label="Go" %}
+
+```go
+telemetry := client.NewUsageTelemetry(client.UsageTelemetryOptions{
+    SDKName:    "github.com/acme/billing-sdk",
+    SDKVersion: "3.2.0",
+    Client:     "invoice-worker/1.8.4",
+})
+defer telemetry.Flush(context.Background())
+api := client.New(client.Config{Middleware: []client.Middleware{telemetry.Middleware()}})
+```
+
+Go has no exit hook, so call `Flush(ctx)` before your program ends.
+
+To count the calls of every client of the package, for example in a published SDK, call `telemetry.Register()` in an `init` function instead of passing the middleware.
+Then call `client.FlushUsageTelemetry(ctx)` before your program ends.
+
+{% /tab %}
+{% tab label="Python" %}
+
+```python
+from billing_client import Client
+from billing_client_telemetry import telemetry
+
+api = Client(middleware=[telemetry(sdk_name="acme-billing", sdk_version="3.2.0", client="invoice-worker/1.8.4")])
+```
+
+The module sends the open window when the interpreter exits.
+Before `os._exit()` or on a signal, call `flush()`.
+A timeout of the caller, such as `asyncio.wait_for`, counts as `aborted`, because the module cannot tell it from a cancel.
+
+{% /tab %}
+{% tab label="PHP" %}
+
+```php
+require __DIR__ . '/client.telemetry.php';
+
+$telemetry = new UsageTelemetry(sdkName: 'acme/billing-sdk', sdkVersion: '3.2.0', client: 'invoice-worker/1.8.4');
+$api = new Client(new Config(onSettled: [$telemetry]));
+```
+
+PHP has no timers, so the first call after a window ends sends that window, in the same request.
+At shutdown, the module sends the open window, which can add up to 3 seconds to the request.
+Under PHP-FPM, each request that calls the SDK sends its own events at shutdown.
+
+To count the calls of every client of the namespace, for example in a published SDK, call `$telemetry->register()` instead of passing it in `onSettled`.
+Then `UsageTelemetry::flushRegistered()` sends the open windows, for example before `exit` in a long-running worker.
+
+{% /tab %}
+{% /tabs %}
+
 By default, the events go to the Redocly OpenTelemetry endpoint.
 Set `endpoint` to send them to another OTLP/HTTP traces URL, for example a local collector.
 Pass a `sink` function to receive the events yourself instead.
+Each event is a CloudEvent of type `com.redocly.sdkUsage.aggregated`.
+Its `data` holds two items: the operation with its counts, then the SDK.
+
+If the connection fails or the endpoint answers `408`, `429`, or `5xx`, the module adds the counts to the next window.
+After a timeout or any other failed send, it drops the counts.
 
 Each event contains only:
 
@@ -194,13 +265,67 @@ Each event contains only:
 - The calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`) and the calls per duration bucket.
   An outcome or a bucket with no calls is not sent.
 - The window start and length.
-- The SDK name and version, the generator version, the language, and the runtime name and version (Node.js, Bun, or Deno).
+- The SDK name and version, the generator version, the language, and the runtime name and version, for example Node.js or CPython.
 - The client name that you pass.
 
 The module never sends URLs, path or query parameters, headers, request or response bodies, or any other value from a request.
 
 To turn off sending at run time, set `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1`.
-In a browser, the middleware does nothing.
+Under PHP-FPM, the default `clear_env = yes` hides the host environment from PHP, so set the variable in the pool configuration, for example `env[REDOCLY_SDK_TELEMETRY] = off`.
+In a browser, the TypeScript module does nothing.
+
+### Write a report
+
+Use `--report` to write a JSON file that a script or a build tool can read:
+
+```bash
+redocly generate-client openapi.yaml -o src/api/client.ts --report generate-client-report.json
+```
+
+The command writes the file when the run succeeds. It has one entry for each API:
+
+```json
+{
+  "apis": [
+    {
+      "name": "cafe",
+      "operations": [{ "id": "listMenuItems", "name": "listMenuItems" }],
+      "findings": [
+        {
+          "kind": "name-changed",
+          "message": "schema \"Error\" is a name a generated client already declares, so it is emitted as \"Error_2\" — ...",
+          "operations": []
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `operations` lists every operation of the API.
+  `id` is the `operationId`, or the generated name when the operation has none.
+  It is the same ID that the usage telemetry sends.
+  Two operations with the same `operationId` have the same `id`.
+  `name` is the name in the generated TypeScript code.
+  The other generators derive their names from it.
+- `findings` lists the warnings of the run.
+  A tool can act on `kind`, which does not change between releases.
+  The `message` text can change.
+  The `operations` of a finding are the IDs of the operations it is about.
+  The list is empty when the finding is about the whole API, a schema, or a security scheme.
+- When the run fails, the command exits with a code other than 0 and does not write the report.
+  A file from an earlier run stays as it was, so check the exit code before you read the report.
+
+| Kind                  | Meaning                                                                    |
+| --------------------- | -------------------------------------------------------------------------- |
+| `operation-skipped`   | A generator writes no code for some operations.                            |
+| `name-changed`        | The generated code uses another name than the description.                 |
+| `option-ignored`      | An option has no effect with the selected generators.                      |
+| `generator-replaced`  | A custom generator replaces the built-in generator with the same name.     |
+| `description-ignored` | The generated code ignores a keyword of the description.                   |
+| `undocumented-header` | Pagination reads a response header that the description does not document. |
+| `browser-unsupported` | A feature of the client does not work in a browser.                        |
+| `command-shadowed`    | A command of the generated CLI has the name of a command group.            |
 
 ## Resources
 

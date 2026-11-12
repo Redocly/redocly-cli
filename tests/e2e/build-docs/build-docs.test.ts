@@ -186,8 +186,9 @@ describe('build-docs', () => {
       Found nested/redocly.yaml and using 'openapi' options
       Prerendering docs
 
-      🎉 bundled successfully in: nested/redoc-static.html (244 KiB) [⏱ <test>ms].
-      "
+      🎉 bundled successfully in: nested/redoc-static.html (265 KiB) [⏱ <test>ms].
+
+      Exit code: 0"
     `);
 
     expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
@@ -222,8 +223,9 @@ describe('build-docs', () => {
 
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -253,8 +255,9 @@ describe('build-docs', () => {
         Found config.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -283,8 +286,9 @@ describe('build-docs', () => {
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -313,8 +317,9 @@ describe('build-docs', () => {
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);
@@ -343,8 +348,9 @@ describe('build-docs', () => {
         Found config-with-apis-and-root-option.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (249 KiB) [⏱ <test>ms].
-        "
+        🎉 bundled successfully in: redoc-static.html (269 KiB) [⏱ <test>ms].
+
+        Exit code: 0"
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
       expect(output).toContain(expectedOptions);

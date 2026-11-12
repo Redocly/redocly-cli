@@ -18,6 +18,7 @@ export type SchemaMetadata = {
   maximum?: number;
   exclusiveMinimum?: number;
   exclusiveMaximum?: number;
+  multipleOf?: number;
   minLength?: number;
   maxLength?: number;
   pattern?: string;
@@ -88,8 +89,9 @@ export type SchemaModel =
   /**
    * `Omit<base, "k1" | "k2">` — a named schema with some keys removed. Built only
    * for request bodies, where `readOnly` (server-managed) properties must not be
-   * sent. `base` is a named schema (an emitted type); `keys` are the readOnly
-   * property names dropped from it.
+   * sent, and for success responses, where `writeOnly` properties are never
+   * returned. `base` is a named schema (an emitted type); `keys` are the property
+   * names dropped from it.
    */
   | {
       kind: 'omit';
@@ -106,6 +108,8 @@ export type PropertyModel = {
   description?: string;
   /** `readOnly: true` in the spec — server-managed; dropped from request bodies. */
   readOnly?: boolean;
+  /** `writeOnly: true` in the spec — sent but never returned; dropped from success responses. */
+  writeOnly?: boolean;
 };
 
 export type ParamModel = {

@@ -35,11 +35,11 @@ describe('phpType — unions', () => {
         },
         base
       )
-    ).toBe('Kind|array');
-    // A class member keeps its class name.
+    ).toBe('string|array');
+    // A class member is the decoded array.
     expect(
       phpType({ kind: 'union', members: [{ kind: 'ref', name: 'Order' }, STRING] }, base)
-    ).toBe('Order|string');
+    ).toBe('array|string');
   });
 
   it('expresses nullability as |null inside a union — PHP forbids mixing ? with |', () => {
@@ -48,6 +48,40 @@ describe('phpType — unions', () => {
     expect(type.startsWith('?')).toBe(false);
     // A single nullable type keeps the shorthand.
     expect(phpType({ kind: 'union', members: [STRING, { kind: 'null' }] }, base)).toBe('?string');
+  });
+
+  it('widens a nullable discriminated union with array without the ? shorthand', () => {
+    const pets = model({
+      Cat: { kind: 'object', properties: [] },
+      Pet: {
+        kind: 'union',
+        members: [{ kind: 'ref', name: 'Cat' }, { kind: 'null' }],
+        discriminator: { propertyName: 'kind', mapping: [{ value: 'cat', schemaName: 'Cat' }] },
+      },
+    });
+    expect(phpType({ kind: 'ref', name: 'Pet' }, pets)).toBe('Cat|array|null');
+  });
+
+  it('names each type once when a member of a discriminated union is itself a union', () => {
+    const events = model({
+      Click: { kind: 'object', properties: [] },
+      Other: { kind: 'union', members: [{ kind: 'ref', name: 'Click' }, STRING] },
+      Event: {
+        kind: 'union',
+        members: [
+          { kind: 'ref', name: 'Click' },
+          { kind: 'ref', name: 'Other' },
+        ],
+        discriminator: {
+          propertyName: 'kind',
+          mapping: [
+            { value: 'click', schemaName: 'Click' },
+            { value: 'other', schemaName: 'Other' },
+          ],
+        },
+      },
+    });
+    expect(phpType({ kind: 'ref', name: 'Event' }, events)).toBe('Click|array|string');
   });
 
   it('falls back to mixed when a member has no PHP type — mixed cannot be a union member', () => {

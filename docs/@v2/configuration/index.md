@@ -8,7 +8,8 @@ toc:
 
 # Redocly configuration file
 
-You can configure all of your Redocly tools using a single `redocly.yaml` configuration file in the root of your project. Your `redocly.yaml` configurations can be used locally, in CI, or on our hosted platforms to specify the following behaviors:
+You can configure all of your Redocly tools using a single `redocly.yaml` configuration file in the root of your project.
+Your `redocly.yaml` configurations can be used locally, in CI, or on our hosted platforms to specify the following behaviors:
 
 - The rules to apply to your APIs and how strictly to `lint`.
 - The styles and features to use when rendering your API documentation.
@@ -43,7 +44,7 @@ openapi:
 
 Read on to learn more about the various configuration sections and what you can do with each one.
 
-## Using configuration with Redocly CLI
+## Use configuration with Redocly CLI
 
 Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` object as shortcuts for referencing API descriptions.
 You can tell the `lint` command to validate specific API descriptions by using their names from the `apis` object, like in the following example:
@@ -80,7 +81,8 @@ Read the [detailed `extends` documentation](./extends.md) to see more informatio
 In the `rules` section, configure which rules apply, their severity levels, and any options that they support.
 Configurable rules, and rules from custom plugins are also configured here.
 
-Use this section to adjust the linting rules from the rulesets or other base configuration set in `extends`, and fine-tune it to meet the needs of your API. Here's an example `redocly.yaml`, changing some rule severity, and using some additional configuration for a rule.
+Use this section to adjust the linting rules from the rulesets or other base configuration set in `extends`, and fine-tune it to meet the needs of your API.
+Here's an example `redocly.yaml`, changing some rule severity, and using some additional configuration for a rule.
 
 ```yaml
 rules:
@@ -111,6 +113,19 @@ recheck:
 
 The `lint` command ignores the Recheck presets and the `recheck` block, and the `recheck` command ignores API rulesets.
 For more information, visit the [`recheck` block reference](./reference/recheck.md) and the [Markdown and prose linting](../recheck/index.md) section.
+
+### Configure `diff` rules
+
+In the `diff` section, set the impact that each [diff rule](../rules/diff-rules.md) gives to a change: `major`, `minor`, `patch`, or `off`.
+The [`diff` command](../commands/diff.md) uses these rules to compare two versions of an API.
+See the [`diff` reference](./reference/diff.md) for all options.
+
+```yaml
+extends:
+  - diff-recommended
+diff:
+  enum-values-added: minor
+```
 
 <a id="theme-object"></a>
 
