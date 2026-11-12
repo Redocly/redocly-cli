@@ -23,7 +23,7 @@ workflows:
         parameters:
           - in: querystring
             name: filters
-            value: 'search={$inputs.search}&limit=1'
+            value: 'search={$inputs.search}&limit=1&token=mermaid@treasure%20token'
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: querystring-from-description

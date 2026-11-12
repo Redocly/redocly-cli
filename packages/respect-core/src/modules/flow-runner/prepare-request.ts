@@ -312,7 +312,12 @@ function collectQuerystringSecrets(
 
     // Every name-value pair is checked on its own: an array property repeats its name
     // for each item, and an object is serialized as JSON.
-    for (const [name, value] of new URLSearchParams(querystring)) {
+    for (const pair of querystring.split('&')) {
+      const [[name, value] = []] = new URLSearchParams(pair);
+      if (name === undefined || value === undefined) {
+        continue;
+      }
+
       const propertySchema = properties[name];
       const parsedValue = isJSON(value) ? JSON.parse(value) : value;
 
@@ -329,6 +334,11 @@ function collectQuerystringSecrets(
         },
         { [name]: isPlainObject(parsedValue) ? parsedValue : value }
       );
+
+      // The query string is sent and logged as written, so the secret is masked in that form too.
+      if (ctx.secretsSet.has(value)) {
+        ctx.secretsSet.add(pair.slice(pair.indexOf('=') + 1));
+      }
     }
   } else if (isJSON(querystring)) {
     collectSecretValues(ctx, mediaTypeObject?.schema, JSON.parse(querystring));
