@@ -22,7 +22,7 @@ import { isBinaryContentType } from './binary-content-type-checker.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { isEmpty } from './is-empty.js';
-import { buildQueryString } from './url-encoding.js';
+import { buildQueryString, encodeQuerystring } from './url-encoding.js';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -136,7 +136,15 @@ export class ApiFetcher implements IFetcher {
     workflowId: string;
     // oxlint-disable-next-line sonarjs/cognitive-complexity
   }): Promise<ResponseContext | never> => {
-    const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
+    const {
+      serverUrl,
+      path,
+      method,
+      parameters,
+      requestBody,
+      openapiOperation,
+      querystringMediaType,
+    } = requestData;
     if (!serverUrl?.url) {
       ctx.options.logger.error(bgRed(` No server url provided `));
       throw new Error('No server url provided');
@@ -168,7 +176,12 @@ export class ApiFetcher implements IFetcher {
       }
     }
 
-    const queryString = buildQueryString(searchParams);
+    // prepareRequest lets through one querystring parameter at most, with a string value and no query parameters
+    const querystring = parameters.find((parameter) => parameter.in === 'querystring')?.value;
+    const queryString =
+      typeof querystring === 'string'
+        ? encodeQuerystring(querystring, querystringMediaType)
+        : buildQueryString(searchParams);
 
     if ((isPlainObject(requestBody) || Array.isArray(requestBody)) && !headers['content-type']) {
       headers['content-type'] = 'application/json';

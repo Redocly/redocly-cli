@@ -350,6 +350,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'sourceDescription-name-unique': 'error',
     'sourceDescription-type': 'error',
     'sourceDescriptions-not-empty': 'error',
+    'spec-querystring-parameters': 'error',
     'spec-step-mutually-exclusive-fields': 'error',
     'step-onFailure-unique': 'error',
     'step-onSuccess-unique': 'error',

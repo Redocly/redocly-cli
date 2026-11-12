@@ -38,4 +38,73 @@ describe('getRequestDataFromOpenApi', () => {
     expect(pageParam).toBeDefined();
     expect(pageParam?.allowReserved).toBeUndefined();
   });
+
+  it('should take the example of a querystring parameter before the example of its media type', () => {
+    const { parameters } = getRequestDataFromOpenApi(
+      {
+        method: 'get',
+        path: '/menu',
+        descriptionName: 'cafe',
+        pathParameters: [],
+        parameters: [
+          {
+            name: 'filters',
+            in: 'querystring',
+            required: true,
+            example: 'search=iced+%2B+latte&limit=2',
+            content: {
+              'application/x-www-form-urlencoded': { example: { search: 'tiramisu' } },
+            },
+          },
+        ],
+        responses: {},
+      } as OperationDetails,
+      logger
+    );
+
+    expect(parameters).toEqual([
+      { name: 'filters', in: 'querystring', value: 'search=iced+%2B+latte&limit=2' },
+    ]);
+  });
+
+  it('should serialize the example of a required querystring parameter by its media type', () => {
+    const getQuerystringParameter = (mediaType: string) =>
+      getRequestDataFromOpenApi(
+        {
+          method: 'get',
+          path: '/menu',
+          descriptionName: 'cafe',
+          pathParameters: [],
+          parameters: [
+            {
+              name: 'filters',
+              in: 'querystring',
+              required: true,
+              content: {
+                [mediaType]: {
+                  example: { search: 'iced latte', tags: ['hot', 'iced'], page: { limit: 2 } },
+                },
+              },
+            },
+          ],
+          responses: {},
+        } as OperationDetails,
+        logger
+      ).parameters;
+
+    expect(getQuerystringParameter('application/x-www-form-urlencoded; charset=utf-8')).toEqual([
+      {
+        name: 'filters',
+        in: 'querystring',
+        value: 'search=iced+latte&tags=hot&tags=iced&page=%7B%22limit%22%3A2%7D',
+      },
+    ]);
+    expect(getQuerystringParameter('application/json')).toEqual([
+      {
+        name: 'filters',
+        in: 'querystring',
+        value: '{"search":"iced latte","tags":["hot","iced"],"page":{"limit":2}}',
+      },
+    ]);
+  });
 });

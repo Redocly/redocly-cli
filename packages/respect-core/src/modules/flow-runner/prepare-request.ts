@@ -1,6 +1,8 @@
 import {
   isPlainObject,
   type ExtendedSecurity,
+  type Oas3MediaType,
+  type Oas3Parameter,
   type Oas3SecurityScheme,
 } from '@redocly/openapi-core';
 
@@ -11,6 +13,8 @@ import {
   type PublicStep,
   type OperationMethod,
 } from '../../types.js';
+import { isJSON } from '../../utils/is-json.js';
+import { isFormUrlencoded } from '../../utils/url-encoding.js';
 import {
   parseRequestBody,
   resolveReusableComponentItem,
@@ -37,6 +41,8 @@ export type RequestData = {
   path: string;
   method: OperationMethod;
   parameters: ParameterWithIn[];
+  // the media type the API description gives to the `querystring` parameter of the operation
+  querystringMediaType?: string;
   requestBody: any;
   openapiOperation?: OperationDetails & { securitySchemes?: Record<string, Oas3SecurityScheme> };
 };
@@ -103,6 +109,8 @@ export async function prepareRequest(
       ? stepRequestBodyPayload
       : requestDataFromOpenAPI?.requestBody;
   const contentType = stepRequestBodyContentType || requestDataFromOpenAPI?.contentType;
+  // if step.parameters is defined, we do not auto-populate parameters from the openapi operation
+  const generatedParameters = step.parameters ? [] : requestDataFromOpenAPI?.parameters || [];
   const parameters = joinParameters(
     // order is important here, the last one wins
     isPlainObject(requestBody) || Array.isArray(requestBody)
@@ -110,8 +118,7 @@ export async function prepareRequest(
       : [],
     serverUrl?.parameters || [],
     requestDataFromOpenAPI?.contentTypeParameters || [],
-    // if step.parameters is defined, we do not auto-populate parameters from the openapi operation
-    step.parameters ? [] : requestDataFromOpenAPI?.parameters || [],
+    generatedParameters,
     resolveParameters(workflowLevelParameters, ctx),
     stepRequestBodyContentType
       ? [{ in: 'header', name: 'content-type', value: stepRequestBodyContentType }]
@@ -167,7 +174,10 @@ export async function prepareRequest(
     workflowLevelXSecurityParameters: workflowLevelXSecurityParameters as ExtendedSecurity[],
   });
 
-  const evaluatedParameters = joinParameters(parameters, xSecurityParameters).map((parameter) => {
+  const evaluatedParameters = dropGeneratedQueryConflicts(
+    joinParameters(parameters, xSecurityParameters),
+    generatedParameters
+  ).map((parameter) => {
     return {
       ...parameter,
       value: evaluateRuntimeExpressionPayload({
@@ -177,6 +187,23 @@ export async function prepareRequest(
       }),
     };
   });
+
+  validateQuerystringParameter(evaluatedParameters, stepId);
+
+  const describedParameters: Oas3Parameter[] = [
+    ...(openapiOperation?.parameters || []),
+    ...(openapiOperation?.pathParameters || []),
+  ];
+  const [querystringMediaType, querystringMediaTypeObject] =
+    Object.entries(
+      describedParameters.find((parameter) => parameter.in === 'querystring')?.content || {}
+    )[0] || [];
+  collectQuerystringSecrets(
+    ctx,
+    evaluatedParameters,
+    querystringMediaType,
+    querystringMediaTypeObject
+  );
 
   for (const param of openapiOperation?.parameters || []) {
     const { schema, name } = param;
@@ -221,6 +248,7 @@ export async function prepareRequest(
     path,
     method,
     parameters: extractCookieParametersFromHeaderParameters(evaluatedParameters),
+    querystringMediaType,
     requestBody: evaluatedBody,
     openapiOperation,
   };
@@ -239,6 +267,109 @@ function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   );
 
   return Object.values(parameterMap);
+}
+
+// A request has one query string, so the query and querystring parameters generated
+// from the API description give way to the ones the Arazzo description sets.
+function dropGeneratedQueryConflicts(
+  parameters: ParameterWithIn[],
+  generatedParameters: ParameterWithIn[]
+): ParameterWithIn[] {
+  const explicitLocations = new Set(
+    parameters
+      .filter((parameter) => !generatedParameters.includes(parameter))
+      .map((parameter) => parameter.in)
+  );
+  const hasExplicitQuery = explicitLocations.has('query');
+  const hasExplicitQuerystring = explicitLocations.has('querystring');
+
+  return parameters.filter(
+    (parameter) =>
+      !generatedParameters.includes(parameter) ||
+      !(
+        (parameter.in === 'querystring' && (hasExplicitQuery || hasExplicitQuerystring)) ||
+        (parameter.in === 'query' && hasExplicitQuerystring)
+      )
+  );
+}
+
+// Password fields of a described query string are secrets, the same as password query parameters.
+function collectQuerystringSecrets(
+  ctx: TestContext,
+  parameters: ParameterWithIn[],
+  mediaType?: string,
+  mediaTypeObject?: Oas3MediaType
+) {
+  const querystring = parameters.find((parameter) => parameter.in === 'querystring')?.value;
+
+  if (typeof querystring !== 'string' || !mediaType) {
+    return;
+  }
+  if (isFormUrlencoded(mediaType)) {
+    const schema = mediaTypeObject?.schema;
+    const properties =
+      isPlainObject(schema) && isPlainObject(schema.properties) ? schema.properties : {};
+
+    // Every name-value pair is checked on its own: an array property repeats its name
+    // for each item, and an object is serialized as JSON.
+    for (const pair of querystring.split('&')) {
+      const [[name, value] = []] = new URLSearchParams(pair);
+      if (name === undefined || value === undefined) {
+        continue;
+      }
+
+      const propertySchema = properties[name];
+      const parsedValue = isJSON(value) ? JSON.parse(value) : value;
+
+      collectSecretValues(
+        ctx,
+        {
+          type: 'object',
+          properties: {
+            [name]:
+              isPlainObject(propertySchema) && isPlainObject(propertySchema.items)
+                ? propertySchema.items
+                : propertySchema,
+          },
+        },
+        { [name]: isPlainObject(parsedValue) ? parsedValue : value }
+      );
+
+      // The query string is sent and logged as written, so the secret is masked in that form too.
+      if (ctx.secretsSet.has(value)) {
+        ctx.secretsSet.add(pair.slice(pair.indexOf('=') + 1));
+      }
+    }
+  } else if (isJSON(querystring)) {
+    collectSecretValues(ctx, mediaTypeObject?.schema, JSON.parse(querystring));
+  }
+}
+
+// A querystring parameter is the whole query string, so a request takes only one and no query parameters.
+function validateQuerystringParameter(parameters: ParameterWithIn[], stepId: string) {
+  const querystringParameters = parameters.filter((parameter) => parameter.in === 'querystring');
+  const [querystringParameter] = querystringParameters;
+
+  if (!querystringParameter) {
+    return;
+  }
+  if (querystringParameters.length > 1) {
+    throw new Error(
+      `A request accepts only one "querystring" parameter, but step ${stepId} has ${querystringParameters.length}: ${querystringParameters
+        .map((parameter) => parameter.name)
+        .join(', ')}.`
+    );
+  }
+  if (parameters.some((parameter) => parameter.in === 'query')) {
+    throw new Error(
+      `The "querystring" parameter ${querystringParameter.name} of step ${stepId} cannot be combined with "query" parameters, because it sets the whole query string.`
+    );
+  }
+  if (typeof querystringParameter.value !== 'string') {
+    throw new Error(
+      `The value of the "querystring" parameter ${querystringParameter.name} of step ${stepId} must be a string with the whole query string.`
+    );
+  }
 }
 
 function groupParametersValuesByName(

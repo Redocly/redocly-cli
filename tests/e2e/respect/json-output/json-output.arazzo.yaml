@@ -1,0 +1,39 @@
+arazzo: 1.0.1
+info:
+  title: JSON logs
+  description: >-
+    Testing the file that the --json-output option writes, based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: search-menu
+    description: >-
+      A passing step, followed by a step that runs another workflow.
+    steps:
+      - stepId: search-menu-items
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: order-attempt
+        workflowId: order-attempt
+
+  - workflowId: order-attempt
+    description: >-
+      A failing step: an order without a bearer token is rejected, and the criterion expects it to be created.
+    steps:
+      - stepId: create-order
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1orders/post'
+        requestBody:
+          payload:
+            customerName: respect-e2e-customer
+        successCriteria:
+          - condition: $statusCode == 201

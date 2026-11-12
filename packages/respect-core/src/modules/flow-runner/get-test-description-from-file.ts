@@ -42,16 +42,18 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
     throw new Error('Invalid file name');
   }
 
+  const respectRules = {
+    'no-criteria-xpath': 'error',
+    'no-x-security-both-scheme-and-scheme-name': 'error',
+    'no-x-security-scheme-name-without-openapi': 'error',
+    'outputs-defined': 'error',
+    'x-security-scheme-name-reference': 'error',
+    'x-security-scheme-required-values': 'error',
+  } as const;
   const config = await createConfig({
     extends: ['recommended-strict'],
-    arazzo1Rules: {
-      'no-criteria-xpath': 'error',
-      'no-x-security-both-scheme-and-scheme-name': 'error',
-      'no-x-security-scheme-name-without-openapi': 'error',
-      'outputs-defined': 'error',
-      'x-security-scheme-name-reference': 'error',
-      'x-security-scheme-required-values': 'error',
-    },
+    arazzo1Rules: respectRules,
+    arazzo1_1Rules: respectRules,
   });
 
   if (!skipLint) {
