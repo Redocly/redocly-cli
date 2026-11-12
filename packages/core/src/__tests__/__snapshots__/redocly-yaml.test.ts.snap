@@ -3402,6 +3402,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "categories": "rootRedoclyConfigSchema.aiAssistant.categories",
       "hide": {
         "type": "boolean",
       },
@@ -3418,6 +3419,35 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "trigger": "rootRedoclyConfigSchema.aiAssistant.trigger",
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.aiAssistant.categories": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.aiAssistant.categories_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.aiAssistant.categories_items": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "name": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
   },
   "rootRedoclyConfigSchema.aiAssistant.trigger": {
     "additionalProperties": undefined,
@@ -3953,6 +3983,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",
@@ -10538,6 +10571,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "jsonSamplesDepth": {
         "type": "number",
       },
@@ -12878,6 +12914,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "categories": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.categories",
       "hide": {
         "type": "boolean",
       },
@@ -12894,6 +12931,35 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "trigger": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.trigger",
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.categories": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.categories_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.categories_items": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "name": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.trigger": {
     "additionalProperties": undefined,
@@ -13429,6 +13495,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",
@@ -20013,6 +20082,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",
@@ -28552,6 +28624,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "categories": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.categories",
       "hide": {
         "type": "boolean",
       },
@@ -28568,6 +28641,35 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "trigger": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.trigger",
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.categories": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.categories_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.categories_items": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "name": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.trigger": {
     "additionalProperties": undefined,
@@ -28918,6 +29020,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "feedback": "rootRedoclyConfigSchema.env_additionalProperties.theme.asyncapi.feedback",
       "fieldExpandLevel": {
         "type": "number",
+      },
+      "hideReplay": {
+        "type": "boolean",
       },
       "jsonSamplesDepth": {
         "type": "number",
