@@ -60,6 +60,24 @@ describe('getResponseSchema', () => {
     expect(result).toEqual({ type: 'object' });
   });
 
+  it('should prefer the explicit status code over its range, and the range over the default response', () => {
+    const descriptionResponses = {
+      '200': { content: { 'application/json': { schema: { title: 'explicit' } } } },
+      '2XX': { content: { 'application/json': { schema: { title: 'range' } } } },
+      default: { content: { 'application/json': { schema: { title: 'default' } } } },
+    };
+
+    expect(
+      getResponseSchema({ statusCode: 200, contentType: 'application/json', descriptionResponses })
+    ).toEqual({ title: 'explicit' });
+    expect(
+      getResponseSchema({ statusCode: 201, contentType: 'application/json', descriptionResponses })
+    ).toEqual({ title: 'range' });
+    expect(
+      getResponseSchema({ statusCode: 404, contentType: 'application/json', descriptionResponses })
+    ).toEqual({ title: 'default' });
+  });
+
   it('should return undefined if contentType is not found in the response content', () => {
     const result = getResponseSchema({
       statusCode: 200,
