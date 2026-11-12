@@ -40,6 +40,12 @@ export const handlerBuildCommand = async ({
     ])
   );
 
+  // FIXME: remove this line with `getDeprecatedFirstApi`.
+  argv.api ??= getDeprecatedFirstApi(argv, config);
+
+  if (argv.o && !argv.api) {
+    throw new HandledError('At least one inline API must be specified when using --output.');
+  }
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const outputs = apis.map(
     ({ docsOutput }) => argv.o ?? (docsOutput ? formatPath(docsOutput) : 'redoc-static.html')
@@ -91,6 +97,31 @@ export const handlerBuildCommand = async ({
     }
   }
 };
+
+// FIXME: remove this function when the deprecation period ends, a week to a month after the release.
+// Before the `docsOutput` option, `build-docs` without an API built the first API of the configuration file.
+// Such a run now builds every API, so it fails with `--output`, or when two APIs write to `redoc-static.html`.
+// Until then, a run that would fail this way gets the first API as its `api` argument and a deprecation banner.
+function getDeprecatedFirstApi(argv: BuildDocsArgv, config: Config): string | undefined {
+  const apis = Object.values(config.resolvedConfig.apis ?? {});
+  const [firstApi] = Object.keys(config.resolvedConfig.apis ?? {});
+  if (
+    firstApi === undefined ||
+    apis.some(({ docsOutput }) => docsOutput) ||
+    (argv.o === undefined && apis.length === 1)
+  ) {
+    return undefined;
+  }
+  logger.info(
+    renderBanner([
+      'Deprecated: build-docs without an API builds the first API of the configuration file.',
+      'A later release builds every API of the configuration file.',
+      `Pass the API: ${cyan('redocly build-docs <api>')}, or set docsOutput for each API.`,
+      `Learn more: ${cyan('https://redocly.com/docs/cli/commands/build-docs#build-docs-for-several-apis')}`,
+    ])
+  );
+  return firstApi;
+}
 
 const unsupportedSpecNames: Partial<Record<SpecMajorVersion, string>> = {
   arazzo1: 'Arazzo',
