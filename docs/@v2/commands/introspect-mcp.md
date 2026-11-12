@@ -22,7 +22,8 @@ The command reaches the MCP server in one of two ways:
   Servers that read API keys from environment variables work as they do in your shell.
 
 The command supports MCP servers of protocol version `2026-07-28` and of the earlier versions.
-It first asks the server to describe itself with the `server/discover` request, and falls back to the `initialize` handshake of the earlier protocol versions when the server doesn't support that request.
+It first asks the server to describe itself with the `server/discover` request.
+When the server doesn't support that request, the command falls back to the `initialize` handshake of the earlier protocol versions.
 With `--command`, this check runs in a separate short-lived process, so the command starts the local server twice.
 A local server of an earlier protocol version that doesn't answer unknown requests makes the command wait up to a minute before the fallback.
 
