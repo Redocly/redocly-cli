@@ -89,10 +89,13 @@ To install a binary on Linux or macOS:
 
 1. Run `redocly --version` to confirm the installation.
 
-On Windows, download the `.exe` file, compare the output of `Get-FileHash redocly-windows-x64.exe` in PowerShell with its line in `SHA256SUMS`, and add the file's folder to your `PATH`.
+On Windows, download the `.exe` file and the `SHA256SUMS` file.
+In PowerShell, run `Get-FileHash redocly-windows-x64.exe` and compare the hash with the line for the same file in `SHA256SUMS`.
+Then rename the file to `redocly.exe` and add its folder to your `PATH`.
 
 The macOS binaries are not notarized by Apple.
-macOS blocks a binary downloaded in a web browser; download it with `curl` as shown above, or remove the block with `xattr -d com.apple.quarantine <file>`.
+MacOS blocks binaries downloaded in a web browser.
+Download the binary with the previously mentioned `curl` command, or remove the block with `xattr -d com.apple.quarantine <file>`.
 
 The `preview`, `eject`, and `translate` commands download their product package from the npm registry and run it on the runtime built into the binary.
 They use the registry configured in your `.npmrc` file.
