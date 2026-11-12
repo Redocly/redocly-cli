@@ -59,7 +59,7 @@ export type {
 } from './generators/types.js';
 
 // --- The intermediate representation (the `model` a generator walks) ---------------------------
-export { allOperations, operationIdOf } from './intermediate-representation/model.js';
+export { allOperations, getOperationId } from './intermediate-representation/model.js';
 export type {
   ApiModel,
   DiscriminatorModel,

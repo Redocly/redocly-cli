@@ -11,7 +11,7 @@ import {
   type OperationModel,
   sseResponse,
   uniqueIdentifiers,
-  operationIdOf,
+  getOperationId,
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
@@ -97,7 +97,7 @@ function writeRequestSetup(
   model: ApiModel,
   args: MethodArgs
 ): void {
-  printer.line(`$op = self::OPERATIONS[${phpString(operationIdOf(op))}];`);
+  printer.line(`$op = self::OPERATIONS[${phpString(getOperationId(op))}];`);
   printer.line(
     `[$authHeaders, $query, $cookies] = resolveAuth(${phpSecurityArg(op, model)}, $this->config->auth);`
   );

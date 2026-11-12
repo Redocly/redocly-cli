@@ -16,7 +16,7 @@ import {
   type ScalarKind,
   type SchemaMetadata,
   type SchemaModel,
-  operationIdOf,
+  getOperationId,
 } from '@redocly/client-generator';
 import { codeLiteral, pascalCase, safeIdent } from '@redocly/client-generator/printers/typescript';
 
@@ -234,7 +234,7 @@ function operationSchemaEntries(model: ApiModel, byName: SchemaByName): Operatio
     if (!request && !response) continue;
     // The SPEC operationId — the middleware looks entries up by `ctx.operation.id`,
     // which stays the spec id even when the emitted function name was renamed.
-    entries.push({ name: operationIdOf(op), request, response });
+    entries.push({ name: getOperationId(op), request, response });
   }
   return entries;
 }

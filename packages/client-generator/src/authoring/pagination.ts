@@ -7,7 +7,7 @@
 import {
   type ApiModel,
   type OperationModel,
-  operationIdOf,
+  getOperationId,
 } from '../intermediate-representation/model.js';
 import { deref, schemaAtPointer, unwrapNullable } from './schema.js';
 
@@ -35,7 +35,7 @@ export function paginationRuleFor(
   model?: ApiModel
 ): NeutralPaginationRule | undefined {
   const configuration = config ?? {};
-  const id = operationIdOf(op);
+  const id = getOperationId(op);
   if (Array.isArray(configuration.exclude) && configuration.exclude.includes(id)) {
     return undefined;
   }

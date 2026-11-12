@@ -293,6 +293,6 @@ export function allOperations(
  * The operation ID that the `--report` file and the docs use: the spec's `operationId`,
  * or the generated name when the operation has none.
  */
-export function operationIdOf(operation: Pick<OperationModel, 'name' | 'specName'>): string {
+export function getOperationId(operation: OperationModel): string {
   return operation.specName ?? operation.name;
 }

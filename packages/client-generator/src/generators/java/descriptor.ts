@@ -8,7 +8,7 @@ import {
   type OperationModel,
   securityRequirements,
   uniqueIdentifiers,
-  operationIdOf,
+  getOperationId,
 } from '@redocly/client-generator';
 
 import { JAVA, javaString } from './naming.ts';
@@ -51,7 +51,7 @@ export function javaOperationLiteral(
   model: ApiModel,
   rule: NeutralPaginationRule | undefined
 ): string {
-  return `new Operation(${javaString(operationIdOf(op))}, ${javaString(op.method.toUpperCase())}, ${javaString(op.path)}, ${javaSecurityLiteral(op, model)}, ${javaPaginationLiteral(rule)})`;
+  return `new Operation(${javaString(getOperationId(op))}, ${javaString(op.method.toUpperCase())}, ${javaString(op.path)}, ${javaSecurityLiteral(op, model)}, ${javaPaginationLiteral(rule)})`;
 }
 
 /** Declared response headers as runtime coerce specs: `{wire name, camelCase key, type}`. */

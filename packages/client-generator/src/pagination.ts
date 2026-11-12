@@ -15,7 +15,7 @@ import {
   type ApiModel,
   type OperationModel,
   type SchemaModel,
-  operationIdOf,
+  getOperationId,
 } from './intermediate-representation/model.js';
 
 /**
@@ -132,7 +132,7 @@ export function resolveOperationPagination(
   model: ApiModel,
   config: PaginationConfig | undefined
 ): ResolvedPagination {
-  const configName = operationIdOf(op);
+  const configName = getOperationId(op);
   if (config?.exclude?.includes(configName)) return {};
   const perOp = config?.operations?.[configName];
   if (perOp !== undefined) {
@@ -235,7 +235,7 @@ function applyRule(
       reportFinding({
         kind: 'undocumented-header',
         message: `${label.toLowerCase()} follows the Link header, but the success response does not document one.`,
-        operations: [operationIdOf(op)],
+        operations: [getOperationId(op)],
       });
     }
   }

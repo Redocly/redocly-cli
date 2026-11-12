@@ -9,7 +9,7 @@ import { operationSignature } from '../generators/typescript/operation-signature
 import {
   type ApiModel,
   type OperationModel,
-  operationIdOf,
+  getOperationId,
 } from '../intermediate-representation/model.js';
 
 /**
@@ -36,7 +36,7 @@ export function wrappableOperations(
       message: `${label} skipped ${sse.length} server-sent-events operation(s) — iterate the sdk's exported async generators directly: ${sse
         .map((op) => op.name)
         .join(', ')}.`,
-      operations: sse.map((operation) => operationIdOf(operation)),
+      operations: sse.map(getOperationId),
     });
   }
   const schemaNames = new Set(model.schemas.map((s) => s.name));
@@ -47,7 +47,7 @@ export function wrappableOperations(
       message: `${label} skipped ${clashing.length} operation(s) whose variables type name collides with a schema — rename the schema or the operation: ${clashing
         .map((op) => op.name)
         .join(', ')}.`,
-      operations: clashing.map((operation) => operationIdOf(operation)),
+      operations: clashing.map(getOperationId),
     });
   }
   return all.filter((op) => op.sse === undefined && !collides(op, schemaNames));
