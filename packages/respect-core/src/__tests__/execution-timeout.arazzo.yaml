@@ -3,14 +3,14 @@ info:
   title: Execution timeout
   version: 1.0.0
 sourceDescriptions:
-  - name: status-api
+  - name: cafe
     type: openapi
-    url: ./execution-timeout.openapi.yaml
+    url: ../../../../resources/cafe.yaml
 workflows:
   - workflowId: retry-after-a-minute
     steps:
-      - stepId: get-status
-        operationId: getStatus
+      - stepId: list-menu-items
+        operationId: listMenuItems
         successCriteria:
           - condition: $statusCode == 200
         onFailure:
@@ -24,8 +24,8 @@ workflows:
         workflowId: retry-after-a-minute
   - workflowId: retry-often
     steps:
-      - stepId: get-status
-        operationId: getStatus
+      - stepId: list-menu-items
+        operationId: listMenuItems
         successCriteria:
           - condition: $statusCode == 200
         onFailure:
@@ -35,7 +35,7 @@ workflows:
             retryLimit: 30
   - workflowId: single-call
     steps:
-      - stepId: get-status
-        operationId: getStatus
+      - stepId: list-menu-items
+        operationId: listMenuItems
         successCriteria:
           - condition: $statusCode == 200

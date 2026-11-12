@@ -53,6 +53,19 @@ function timeoutCheckCount(results: RunFileResult[]): number {
 
 const failingFetch = async () => new Response('unavailable', { status: 503 });
 
+const EMPTY_MENU = {
+  object: 'list',
+  page: {
+    endCursor: null,
+    startCursor: null,
+    hasNextPage: false,
+    hasPrevPage: false,
+    limit: 10,
+    total: 0,
+  },
+  items: [],
+};
+
 describe('run with an execution timeout', () => {
   it('ends a retry wait when the execution timeout is reached', async () => {
     const fetch = vi.fn(failingFetch);
@@ -102,7 +115,7 @@ describe('run with an execution timeout', () => {
     const shortRun = run(shortOptions);
     const longRun = run(longOptions);
     const shortResult = await shortRun;
-    releaseLongRun(new Response('{}', { status: 200 }));
+    releaseLongRun(Response.json(EMPTY_MENU));
     const longResult = await longRun;
 
     expect(checkNames(shortResult)).toContain(CHECKS.GLOBAL_TIMEOUT_ERROR);
