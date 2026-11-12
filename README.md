@@ -57,7 +57,6 @@ Start with a built-in ruleset: [`recommended`](https://redocly.com/docs/cli/rule
 Then mix and match the [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules) to set your own API guidelines.
 When you need a rule of your own, write it in `redocly.yaml`.
 [Configurable rules](https://redocly.com/docs/cli/rules/configurable-rules) use simple expressions that know the structure of the API description, not complex JSONPath selectors.
-Build one in your browser with the [visual rules builder](https://redocly.com/config-rules-builder).
 For full control, [build your own plugin](https://redocly.com/docs/cli/custom-plugins).
 
 ```yaml
@@ -219,12 +218,6 @@ To install every skill that Redocly publishes, use `npx skills add https://redoc
 - `recheck-lint`: run `redocly recheck` on the Markdown that the assistant changed, and fix what it finds.
 - `recheck-config`: write and tune the `recheck` settings in `redocly.yaml`.
 
-## Migrate
-
-- [From Redocly CLI v1 to v2](https://redocly.com/docs/cli/guides/migrate-to-v2)
-- [From Spectral](https://redocly.com/docs/cli/guides/migrate-from-spectral)
-- From [swagger-cli](https://redocly.com/docs/cli/guides/migrate-from-swagger-cli), [redoc-cli](https://redocly.com/docs/cli/guides/migrate-from-redoc-cli), or [openapi-cli](https://redocly.com/docs/cli/guides/migrate-from-openapi-cli)
-
 ## From the CLI to a full API platform
 
 <a href="https://redocly.com/pricing">
@@ -237,6 +230,14 @@ To install every skill that Redocly publishes, use `npx skills add https://redoc
 See [plans and pricing](https://redocly.com/pricing).
 To work on a Redocly Framework project locally, run [`redocly preview`](https://redocly.com/docs/cli/commands/preview).
 Add `--plan=pro`, `--plan=scale`, or `--plan=enterprise` to see the features of that plan.
+
+## Migrate
+
+Follow our official migration guides:
+
+- [From Redocly CLI v1 to v2](https://redocly.com/docs/cli/guides/migrate-to-v2)
+- [From Spectral](https://redocly.com/docs/cli/guides/migrate-from-spectral)
+- From [swagger-cli](https://redocly.com/docs/cli/guides/migrate-from-swagger-cli), [redoc-cli](https://redocly.com/docs/cli/guides/migrate-from-redoc-cli), or [openapi-cli](https://redocly.com/docs/cli/guides/migrate-from-openapi-cli)
 
 ## Data collection
 
