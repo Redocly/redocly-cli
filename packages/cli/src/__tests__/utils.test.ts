@@ -786,6 +786,17 @@ describe('cleanArgs', () => {
       })
     );
   });
+
+  it('should hide an output path that does not exist', () => {
+    const output = 'private/docs/index.html';
+    const rawInput = ['redocly', 'build-docs', './fixtures/openapi.yaml', '--output', output];
+    const parsedArgs = { api: './fixtures/openapi.yaml', output, o: output };
+
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly build-docs file-yaml --output ***');
+    expect(result.arguments).toEqual(JSON.stringify({ api: 'file-yaml', output: '***', o: '***' }));
+  });
 });
 
 describe('validateFileExtension', () => {
