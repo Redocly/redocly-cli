@@ -117,6 +117,8 @@ To find the exact type of a place in your API description, either:
 Using the `pattern` assertion, describe what's allowed with [regular expression syntax](https://en.wikipedia.org/wiki/Regular_expression).
 Finally, adding the `message` ensures clear information is conveyed if the rule isn't satisfied.
 
+To build a rule like this one without writing the YAML by hand, use the [Rules Builder](https://redocly.com/config-rules-builder).
+
 Using the supplied assertion features, you can extend the built-in rules in Redocly and describe the success criteria for APIs in your organization.
 
 ## Set up per-API configuration
