@@ -2,4 +2,5 @@
 '@redocly/cli': patch
 ---
 
-Fixed the `preview` command previewing the whole workspace package instead of the directory it was run from, when launched with `npx` from a subdirectory of an npm workspace.
+Fixed an issue where the `preview` command previewed the whole workspace package instead of the requested directory when a user ran it with `npx` in an npm workspace.
+The issue occurred when the command ran from a subdirectory of the package, or when the `--project-dir` option pointed to a subdirectory.
