@@ -37,7 +37,6 @@ export function getRecommendations(
     );
 
     recommendations.push({
-      id: kind,
       kind,
       subscore,
       impact,

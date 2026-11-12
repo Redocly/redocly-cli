@@ -36,7 +36,6 @@ export type ScoreArgv = {
   format: OutputFormat;
   'operation-details'?: boolean;
   'debug-operation-id'?: string;
-  recommendations?: boolean;
 };
 
 export async function handleScore({ argv, config, collectSpecData }: CommandArgs<ScoreArgv>) {
@@ -87,9 +86,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
     hotspots,
     operationScores,
     dependencyDepths,
-    ...(argv.recommendations
-      ? getRecommendations(rawMetrics, dependencyDepths, agentReadiness)
-      : {}),
+    ...getRecommendations(rawMetrics, dependencyDepths, agentReadiness),
   };
 
   printScore(

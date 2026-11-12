@@ -57,7 +57,7 @@ The command identifies the operations with the lowest scores and provides reason
 
 ### Recommendations
 
-With `--recommendations`, the command ranks the edits that raise the score by their simulated impact.
+The command also ranks the edits that raise the score by their simulated impact.
 Each recommendation names one kind of edit, the subscore it moves, the number of places it fixes, and the operations it touches.
 Edits that don't change the score are left out.
 
@@ -78,7 +78,7 @@ Add only the constraints that the API already enforces; the reachable score leav
 
 The command simulates the edits on the collected metrics and never changes your files.
 
-**Design findings** list the structural problems that no documentation edit fixes, such as:
+The JSON output also lists **design findings**: the structural problems that no documentation edit fixes, such as:
 
 - high parameter count
 - deep schema nesting
@@ -91,7 +91,7 @@ Each finding names the operations it affects.
 
 ```bash
 redocly score <api>
-redocly score <api> [--format=<option>] [--recommendations]
+redocly score <api> [--format=<option>]
 ```
 
 ## Options
@@ -103,7 +103,6 @@ redocly score <api> [--format=<option>] [--recommendations]
 | --format             | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                |
 | --operation-details  | boolean | Print a per-operation metrics table sorted by property count.                                                                                  |
 | --debug-operation-id | string  | Print a detailed schema breakdown for a specific operation (by `operationId` or `METHOD /path`).                                               |
-| --recommendations    | boolean | Rank the edits that raise the score by their simulated impact. Refer to [Recommendations](#recommendations).                                   |
 | --help               | boolean | Show help.                                                                                                                                     |
 | --lint-config        | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.             |
 
@@ -127,6 +126,7 @@ The default output format shows a human-readable summary in your terminal.
   Scores
 
   Agent Readiness:  68.3/100
+  Reachable:        74.9/100 with every safe edit
 
   Subscores
 
@@ -163,17 +163,13 @@ Use `--format=json` for machine-readable output:
 redocly score openapi.yaml --format=json
 ```
 
-The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, dependency depths, and hotspot details with reasoning.
+The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, dependency depths, hotspot details with reasoning, the reachable score, the recommendations sorted by impact, and the design findings.
 
 The JSON format is suitable for CI pipelines, quality gates, or feeding results into dashboards.
 
 ### Rank the edits that raise the score
 
-```bash
-redocly score openapi.yaml --recommendations
-```
-
-The output adds the reachable score below the Agent Readiness score, and the recommendations and design findings after the hotspots:
+The stylish output shows the reachable score below the Agent Readiness score, and the recommendations after the hotspots:
 
 ```sh
   Agent Readiness:  79.6/100
@@ -188,11 +184,4 @@ The output adds the reachable score below the Agent Readiness score, and the rec
    +1.8  Add descriptions to schema properties (13 operations)
    +0.3  Add response examples (4 operations)
    +0.3  Add request body examples (3 operations)
-
-  Design findings
-
-  Deep schema nesting (10 operations)
-  High polymorphism count (10 operations)
 ```
-
-With `--format=json`, the output adds three fields: `reachableScore`, `recommendations` sorted by impact, and `designFindings`.

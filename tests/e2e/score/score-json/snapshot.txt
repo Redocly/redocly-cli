@@ -1,5 +1,6 @@
 {
   "agentReadiness": 89.8,
+  "reachableScore": 91.3,
   "discoverability": 99,
   "subscores": {
     "parameterSimplicity": 0.8625,
@@ -351,7 +352,77 @@
         "Missing response examples"
       ]
     }
-  ]
+  ],
+  "recommendations": [
+    {
+      "kind": "constraint",
+      "subscore": "constraintClarity",
+      "impact": 5.3,
+      "count": 15,
+      "operations": [
+        {
+          "method": "get",
+          "path": "/special-events",
+          "operationId": "listSpecialEvents"
+        },
+        {
+          "method": "post",
+          "path": "/special-events",
+          "operationId": "createSpecialEvent"
+        },
+        {
+          "method": "get",
+          "path": "/special-events/{eventId}",
+          "operationId": "getSpecialEvent"
+        },
+        {
+          "method": "patch",
+          "path": "/special-events/{eventId}",
+          "operationId": "updateSpecialEvent"
+        },
+        {
+          "method": "post",
+          "path": "/tickets",
+          "operationId": "buyMuseumTickets"
+        }
+      ],
+      "safe": false
+    },
+    {
+      "kind": "property-description",
+      "subscore": "documentationQuality",
+      "impact": 0.5,
+      "count": 2,
+      "operations": [
+        {
+          "method": "get",
+          "path": "/museum-hours",
+          "operationId": "getMuseumHours"
+        },
+        {
+          "method": "post",
+          "path": "/tickets",
+          "operationId": "buyMuseumTickets"
+        }
+      ],
+      "safe": true
+    },
+    {
+      "kind": "response-example",
+      "subscore": "exampleCoverage",
+      "impact": 0.5,
+      "count": 1,
+      "operations": [
+        {
+          "method": "get",
+          "path": "/tickets/{ticketId}/qr",
+          "operationId": "getTicketCode"
+        }
+      ],
+      "safe": true
+    }
+  ],
+  "designFindings": []
 }
 Document: museum.yaml score:
 

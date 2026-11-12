@@ -582,7 +582,6 @@
   ],
   "recommendations": [
     {
-      "id": "response-example",
       "kind": "response-example",
       "subscore": "exampleCoverage",
       "impact": 4.8,
@@ -607,7 +606,6 @@
       "safe": true
     },
     {
-      "id": "request-example",
       "kind": "request-example",
       "subscore": "exampleCoverage",
       "impact": 1.6,
@@ -622,7 +620,6 @@
       "safe": true
     },
     {
-      "id": "property-description",
       "kind": "property-description",
       "subscore": "documentationQuality",
       "impact": 0.8,
@@ -667,7 +664,6 @@
       "safe": true
     },
     {
-      "id": "constraint",
       "kind": "constraint",
       "subscore": "constraintClarity",
       "impact": 0.4,

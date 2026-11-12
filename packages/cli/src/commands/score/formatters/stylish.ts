@@ -42,9 +42,7 @@ function printScores(result: ScoreResult): void {
   out(bold(white('  Scores')));
   out('');
   out(`  Agent Readiness:  ${formatScore(result.agentReadiness)}/100`);
-  if (result.reachableScore !== undefined) {
-    out(`  Reachable:        ${formatScore(result.reachableScore)}/100 with every safe edit`);
-  }
+  out(`  Reachable:        ${formatScore(result.reachableScore)}/100 with every safe edit`);
   out('');
 }
 
@@ -290,9 +288,7 @@ function printHotspots(result: ScoreResult): void {
   }
 }
 
-function printRecommendations({ recommendations, designFindings }: ScoreResult): void {
-  if (!recommendations || !designFindings) return;
-
+function printRecommendations({ recommendations }: ScoreResult): void {
   out(bold(white('  Recommendations')));
   out('');
   if (recommendations.length === 0) out('  No edits to recommend.');
@@ -303,14 +299,6 @@ function printRecommendations({ recommendations, designFindings }: ScoreResult):
     if (!recommendation.safe) {
       out(yellow('         Contract risk: add only the constraints the API already enforces.'));
     }
-  }
-  out('');
-
-  out(bold(white('  Design findings')));
-  out('');
-  if (designFindings.length === 0) out('  No design findings.');
-  for (const finding of designFindings) {
-    out(`  ${finding.reason} (${pluralize('operation', finding.operations.length, true)})`);
   }
   out('');
 }

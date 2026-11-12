@@ -42,7 +42,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `drift`              | Report differences between recorded traffic and an OpenAPI description, with optional `--coverage` [experimental] | API testing and drift |
 | `generate-spec`      | Infer an OpenAPI 3.2 description from recorded traffic; `--openapi-version 3.1` targets 3.1 [experimental]        | API testing and drift |
 | `stats`              | Count operations, schemas, refs, and other metrics                                                                | Quality reports       |
-| `score`              | Score an OpenAPI description for AI-agent readiness, with optional `--recommendations` [experimental]             | Quality reports       |
+| `score`              | Score an OpenAPI description for AI-agent readiness and rank the edits that raise it [experimental]               | Quality reports       |
 | `generate-client`    | Generate a typed, zero-dependency TypeScript client [experimental]                                                | SDK generation        |
 | `eject-generator`    | Copy a built-in generator into the repo to edit it [experimental]                                                 | SDK generation        |
 | `check-config`       | Lint `redocly.yaml` itself                                                                                        | Redocly configuration |

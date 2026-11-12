@@ -86,7 +86,6 @@ export interface OperationRef {
 }
 
 export interface Recommendation {
-  id: string;
   kind: RecommendationKind;
   subscore: keyof Subscores;
   impact: number;
@@ -109,9 +108,9 @@ export interface ScoreResult {
   hotspots: HotspotOperation[];
   operationScores: Map<string, OperationScores>;
   dependencyDepths: Map<string, number>;
-  reachableScore?: number;
-  recommendations?: Recommendation[];
-  designFindings?: DesignFinding[];
+  reachableScore: number;
+  recommendations: Recommendation[];
+  designFindings: DesignFinding[];
 }
 
 export interface ScoringThresholds {

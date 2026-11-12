@@ -2,6 +2,7 @@
   Scores
 
   Agent Readiness:  89.8/100
+  Reachable:        91.3/100 with every safe edit
 
   Subscores
 
@@ -32,6 +33,13 @@
   GET /tickets/{ticketId}/qr (getTicketCode)
     Agent Readiness: 81.0
     - Missing response examples
+
+  Recommendations
+
+   +5.3  Add constraints to schema properties (5 operations)
+         Contract risk: add only the constraints the API already enforces.
+   +0.5  Add descriptions to schema properties (2 operations)
+   +0.5  Add response examples (1 operation)
 
 
 Document: museum.yaml score:

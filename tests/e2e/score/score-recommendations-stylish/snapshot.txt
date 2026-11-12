@@ -74,12 +74,6 @@
    +0.4  Add constraints to schema properties (5 operations)
          Contract risk: add only the constraints the API already enforces.
 
-  Design findings
-
-  High parameter count (2 operations)
-  Deep schema nesting (3 operations)
-  High polymorphism count (3 operations)
-
 
 Document: cafe.yaml score:
 
