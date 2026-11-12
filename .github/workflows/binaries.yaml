@@ -57,6 +57,9 @@ jobs:
       run:
         shell: bash
     steps:
+      # The Windows runners check out with CRLF line endings, which break the build scripts that parse Markdown.
+      - run: git config --global core.autocrlf false
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.version && format('@redocly/cli@{0}', inputs.version) || '' }}
