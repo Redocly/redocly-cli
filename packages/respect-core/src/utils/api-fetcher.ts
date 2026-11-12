@@ -5,7 +5,6 @@ import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
 import { resolvePath } from '../modules/context-parser/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretValues, type RequestData } from '../modules/flow-runner/index.js';
-import { resolveSecurityScheme } from '../modules/flow-runner/resolve-security-scheme.js';
 import {
   getVerboseLogs,
   conditionallyMaskSecrets,
@@ -136,7 +135,15 @@ export class ApiFetcher implements IFetcher {
     workflowId: string;
     // oxlint-disable-next-line sonarjs/cognitive-complexity
   }): Promise<ResponseContext | never> => {
-    const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
+    const {
+      serverUrl,
+      path,
+      method,
+      parameters,
+      requestBody,
+      openapiOperation,
+      digestCredentials,
+    } = requestData;
     if (!serverUrl?.url) {
       ctx.options.logger.error(bgRed(` No server url provided `));
       throw new Error('No server url provided');
@@ -304,48 +311,18 @@ export class ApiFetcher implements IFetcher {
       }),
     };
 
-    const workflowLevelXSecurityParameters =
-      ctx.workflows.find((workflow) => workflow.workflowId === workflowId)?.['x-security'] || [];
-
-    const lastAuthorizationSecurity = [
-      ...workflowLevelXSecurityParameters,
-      ...(step['x-security'] || []),
-    ]
-      .reverse()
-      .find((security) => {
-        const scheme = resolveSecurityScheme({
-          ctx,
-          security,
-          operation: openapiOperation,
-        });
-
-        if (scheme?.type === 'apiKey') {
-          return scheme.in === 'header' && scheme.name.toLowerCase() === 'authorization';
-        }
-
-        return (
-          scheme?.type === 'http' || scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'
-        );
-      });
-
-    const lastAuthorizationScheme =
-      lastAuthorizationSecurity &&
-      resolveSecurityScheme({
-        ctx,
-        security: lastAuthorizationSecurity,
-        operation: openapiOperation,
-      });
-    const lastDigestSecurityScheme =
-      lastAuthorizationScheme?.type === 'http' &&
-      lastAuthorizationScheme.scheme?.toLowerCase() === 'digest'
-        ? lastAuthorizationSecurity
-        : undefined;
-
-    if (lastDigestSecurityScheme) {
+    if (digestCredentials) {
       // FETCH WITH DIGEST AUTH
       // Digest auth perform two requests to establish the connection
       // We need to wait for the second request to complete before returning the response
-      const first401Result = await customFetch(urlToFetch, fetchParams);
+      // The challenge request must not carry an Authorization header resolved earlier
+      const challengeHeaders = { ...headers };
+      delete challengeHeaders.authorization;
+
+      const first401Result = await customFetch(urlToFetch, {
+        ...fetchParams,
+        headers: challengeHeaders,
+      });
       const body401 = await first401Result.text();
       const wwwAuthenticateHeader = first401Result.headers.get('www-authenticate');
 
@@ -381,12 +358,12 @@ export class ApiFetcher implements IFetcher {
 
       const { realm, nonce, opaque, qop, algorithm } =
         parseWwwAuthenticateHeader(wwwAuthenticateHeader);
-      const { username, password } = lastDigestSecurityScheme.values;
+      const { username, password } = digestCredentials;
       const uri = new URL(urlToFetch).pathname + new URL(urlToFetch).search;
 
       const digestAuthHeader = generateDigestAuthHeader({
-        username: username as string,
-        password: password as string,
+        username,
+        password,
         realm,
         nonce,
         opaque,

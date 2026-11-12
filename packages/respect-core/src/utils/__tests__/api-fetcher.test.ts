@@ -214,28 +214,14 @@ describe('ApiFetcher', () => {
       );
     });
 
-    it('should not use digest auth when a later security scheme sets the Authorization header', async () => {
+    it('should not use digest auth when digestCredentials are not resolved', async () => {
       const apiFetcher = new ApiFetcher({});
       const fetch = vi.fn(
         async () => new Response('{}', { headers: { 'content-type': 'application/json' } })
       );
       const ctx = {
         options: { logger, fetch, maxFetchTimeout: 1000 },
-        workflows: [
-          {
-            workflowId: 'test',
-            'x-security': [
-              {
-                scheme: { type: 'http', scheme: 'digest' },
-                values: { username: 'user', password: 'pass' },
-              },
-              {
-                scheme: { type: 'apiKey', in: 'header', name: 'Authorization' },
-                values: { apiKey: 'Token abc' },
-              },
-            ],
-          },
-        ],
+        workflows: [{ workflowId: 'test' }],
         noSecretsMasking: false,
         secretsSet: new Set(),
       } as any;
@@ -256,6 +242,49 @@ describe('ApiFetcher', () => {
           headers: expect.objectContaining({ authorization: 'Token abc' }),
         })
       );
+    });
+
+    it('should send the digest challenge without an earlier Authorization header', async () => {
+      const apiFetcher = new ApiFetcher({});
+      const fetch = vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response('', {
+            status: 401,
+            headers: { 'www-authenticate': 'Digest realm="r", nonce="n", qop="auth"' },
+          })
+        )
+        .mockResolvedValueOnce(
+          new Response('{}', { headers: { 'content-type': 'application/json' } })
+        );
+      const ctx = {
+        options: { logger, fetch, maxFetchTimeout: 1000 },
+        workflows: [{ workflowId: 'test' }],
+        $workflows: { test: { steps: { s: { request: {} } } } },
+        noSecretsMasking: false,
+        secretsSet: new Set(),
+      } as any;
+      const requestData = {
+        serverUrl: { url: 'https://api.example.com' },
+        path: '/pets',
+        method: 'get' as OperationMethod,
+        parameters: [{ in: 'header' as const, name: 'Authorization', value: 'Bearer earlier' }],
+        requestBody: {},
+        digestCredentials: { username: 'user', password: 'pass' },
+      };
+
+      await apiFetcher.fetchResult({
+        ctx,
+        step: { stepId: 's' } as any,
+        requestData,
+        workflowId: 'test',
+      });
+
+      expect(fetch).toHaveBeenCalledTimes(2);
+      const [, challengeInit] = fetch.mock.calls[0];
+      expect(challengeInit.headers).not.toHaveProperty('authorization');
+      const [, authedInit] = fetch.mock.calls[1];
+      expect(authedInit.headers.authorization).toMatch(/^Digest /);
     });
   });
 });

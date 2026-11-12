@@ -8,6 +8,8 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.j
 import { resolveSecurityScheme } from './resolve-security-scheme.js';
 import { validateXSecurityParameters } from './validate-x-security-parameters.js';
 
+export type DigestCredentials = { username: string; password: string };
+
 export function resolveXSecurityParameters({
   ctx,
   runtimeContext,
@@ -20,12 +22,13 @@ export function resolveXSecurityParameters({
   step: Step;
   operation?: OperationDetails & { securitySchemes: Record<string, Oas3SecurityScheme> };
   workflowLevelXSecurityParameters?: ExtendedSecurity[];
-}): ParameterWithIn[] {
+}): { parameters: ParameterWithIn[]; digestCredentials?: DigestCredentials } {
   const stepXSecurity = step['x-security'] as ExtendedSecurity[] | undefined;
   const workflowLevelXSecurity = workflowLevelXSecurityParameters as ExtendedSecurity[] | undefined;
 
   const securities = [...(workflowLevelXSecurity || []), ...(stepXSecurity || [])];
   const parameters: ParameterWithIn[] = [];
+  let digestCredentials: DigestCredentials | undefined;
 
   for (const security of securities) {
     const scheme = resolveSecurityScheme({
@@ -62,7 +65,17 @@ export function resolveXSecurityParameters({
     if (param) {
       parameters.push(param);
     }
+
+    // The last entry that sets the Authorization header wins
+    if (scheme.type === 'http' && scheme.scheme?.toLowerCase() === 'digest') {
+      digestCredentials = {
+        username: values.username as string,
+        password: values.password as string,
+      };
+    } else if (param?.in === 'header' && param.name.toLowerCase() === 'authorization') {
+      digestCredentials = undefined;
+    }
   }
 
-  return parameters;
+  return { parameters, digestCredentials };
 }
