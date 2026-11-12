@@ -453,7 +453,7 @@ describe('handleIntrospectMcp', () => {
             id,
             result: {
               supportedVersions: ['2026-07-28'],
-              capabilities: { tools: {} },
+              capabilities: { tools: {}, prompts: {}, resources: {} },
               instructions: 'Manage the cafe menu.',
               ...cacheHints,
               _meta: {
@@ -465,7 +465,20 @@ describe('handleIntrospectMcp', () => {
             },
           });
         } else if (method === 'tools/list') {
-          respond(response, 200, { id, result: { tools: [LIST_MENU_TOOL], ...cacheHints } });
+          respond(response, 200, {
+            id,
+            result:
+              params.cursor === 'page-2'
+                ? { tools: [LIST_MENU_TOOL], ...cacheHints }
+                : { tools: [CREATE_ORDER_TOOL], nextCursor: 'page-2', ...cacheHints },
+          });
+        } else if (method === 'prompts/list') {
+          respond(response, 200, {
+            id,
+            result: { prompts: [DAILY_SPECIAL_PROMPT], ...cacheHints },
+          });
+        } else if (method === 'resources/list') {
+          respond(response, 200, { id, result: { resources: [MENU_RESOURCE], ...cacheHints } });
         } else {
           respond(response, 400, {
             id,
@@ -503,12 +516,35 @@ describe('handleIntrospectMcp', () => {
           servers:
             - url: <server-url>
           capabilities:
+            prompts: {}
+            resources: {}
             tools: {}
           tools:
+            - name: orders/create
+              description: Create an order.
+              inputSchema:
+                type: object
+                properties:
+                  customerName:
+                    type: string
+                required:
+                  - customerName
             - name: menu/list
               description: List the menu items.
               inputSchema:
                 type: object
+          prompts:
+            - name: daily-special
+              description: Suggest a daily special.
+              arguments:
+                - name: category
+                  description: Menu category.
+                  required: true
+          resources:
+            - name: menu
+              uri: cafe://menu
+              description: The current menu.
+              mimeType: application/json
         "
       `);
     } finally {
