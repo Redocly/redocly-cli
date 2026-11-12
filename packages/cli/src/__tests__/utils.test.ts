@@ -640,7 +640,7 @@ describe('cleanArgs', () => {
     };
     const result = cleanArgs(parsedArgs, rawInput);
     expect(result.raw_input).toEqual(
-      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
+      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output *** --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
     );
     expect(result.arguments).toEqual(
       JSON.stringify({
@@ -655,7 +655,7 @@ describe('cleanArgs', () => {
           },
         },
         config: 'file-yaml',
-        output: 'folder',
+        output: '***',
       })
     );
   });
@@ -737,7 +737,9 @@ describe('cleanArgs', () => {
     const result = cleanArgs(parsedArgs, rawInput);
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml --output=');
-    expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '', o: '***' }));
+    expect(result.arguments).toEqual(
+      JSON.stringify({ apis: ['file-yaml'], output: '***', o: '***' })
+    );
   });
 
   it('should not mangle the raw CLI input when a cleaned argument is a single character', () => {
@@ -748,7 +750,7 @@ describe('cleanArgs', () => {
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml -o -');
     expect(result.arguments).toEqual(
-      JSON.stringify({ apis: ['file-yaml'], output: '-', o: '***' })
+      JSON.stringify({ apis: ['file-yaml'], output: '***', o: '***' })
     );
   });
 
@@ -785,17 +787,6 @@ describe('cleanArgs', () => {
         message: 'Update the docs',
       })
     );
-  });
-
-  it('should hide an output path that does not exist', () => {
-    const output = 'private/docs/index.html';
-    const rawInput = ['redocly', 'build-docs', './fixtures/openapi.yaml', '--output', output];
-    const parsedArgs = { api: './fixtures/openapi.yaml', output, o: output };
-
-    const result = cleanArgs(parsedArgs, rawInput);
-
-    expect(result.raw_input).toEqual('redocly build-docs file-yaml --output ***');
-    expect(result.arguments).toEqual(JSON.stringify({ api: 'file-yaml', output: '***', o: '***' }));
   });
 });
 

@@ -379,6 +379,7 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   const KEYS_TO_CLEAN = [
     'organization',
     'o',
+    'output',
     'input',
     'i',
     'author',
@@ -397,11 +398,7 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
       commandArguments[key] = SECRET_REPLACEMENT;
       commandInput = replaceArgs(commandInput, value, SECRET_REPLACEMENT);
     } else if (typeof value === 'string') {
-      let cleanedValue = cleanString(value);
-      // An output path that is not on the disk cannot be reduced to its type, so hide it.
-      if (key === 'output' && cleanedValue === value && value.length > 1) {
-        cleanedValue = SECRET_REPLACEMENT;
-      }
+      const cleanedValue = cleanString(value);
       commandArguments[key] = cleanedValue;
       commandInput = replaceArgs(commandInput, value, cleanedValue);
     } else if (Array.isArray(value)) {
