@@ -82,7 +82,7 @@ Check that the Redocly rule supports the specification version you lint: `no-inv
 | `no-script-tags-in-markdown`           | `no-unsafe-markdown`                                             |
 | `oas3-api-servers`                     | `no-empty-servers`                                               |
 | `oas3-callbacks-in-callbacks`          |                                                                  |
-| `oas3-examples-value-or-externalValue` | `no-example-value-and-externalValue`                             |
+| `oas3-examples-value-or-externalValue` | `spec-example-values`                                            |
 | `oas3-operation-security-defined`      | `security-defined`, `security-scopes-defined`                    |
 | `oas3-parameter-description`           | `parameter-description`                                          |
 | `oas3-schema`                          | `struct`                                                         |
@@ -140,7 +140,6 @@ Check that the Redocly rule supports the specification version you lint: `no-inv
 |                                        | `security-scopes-defined`                                        |
 |                                        | `spec-components-invalid-map-name`                               |
 |                                        | `spec-discriminator-defaultMapping`                              |
-|                                        | `spec-example-values`                                            |
 |                                        | `spec-no-invalid-encoding-combinations`                          |
 |                                        | `spec-no-invalid-tag-parents`                                    |
 |                                        | `spec-querystring-parameters`                                    |

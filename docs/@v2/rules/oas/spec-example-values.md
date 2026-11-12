@@ -4,7 +4,7 @@ slug: /docs/cli/rules/oas/spec-example-values
 
 # spec-example-values
 
-Ensures that example objects have valid field combinations according to the OpenAPI 3.2.0 specification.
+Ensures that example objects have valid field combinations according to the OpenAPI specification.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -31,8 +31,15 @@ style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ## API design principles
 
-According to the OpenAPI 3.2.0 specification, example objects have strict rules about which fields can be used together.
-This rule ensures that only valid field combinations are used in example objects.
+According to the OpenAPI specification, some fields of an Example Object cannot be used together.
+This rule reports an example that contains any of these pairs:
+
+- `value` and `externalValue` (all OpenAPI 3.x versions)
+- `value` and `dataValue` (OpenAPI 3.2)
+- `value` and `serializedValue` (OpenAPI 3.2)
+- `externalValue` and `serializedValue` (OpenAPI 3.2)
+
+This rule replaces the deprecated [no-example-value-and-externalValue](./no-example-value-and-externalValue.md) rule.
 
 ## Configuration
 

@@ -9,7 +9,6 @@ All the rules are of severity `error`:
 
 - [criteria-unique](./arazzo/criteria-unique.md)
 - [no-duplicated-tag-names](./oas/no-duplicated-tag-names.md)
-- [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
 - [no-server-variables-empty-enum](./oas/no-server-variables-empty-enum.md) (OpenAPI 3.1 and 3.2)
