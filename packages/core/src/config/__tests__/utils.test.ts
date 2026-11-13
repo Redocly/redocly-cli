@@ -31,6 +31,10 @@ describe('mergeExtends', () => {
     expect(merged.oas3_1Rules).toEqual({ 'spec-example-values': 'off' });
   });
 
+  it('should leave a rules block that is not an object to the config linter', () => {
+    expect(utils.renameDeprecatedRules({ rules: 'foo' as never })).toEqual({ rules: 'foo' });
+  });
+
   it('should work with configurable rules changing severity', () => {
     expect(
       utils.mergeExtends([
