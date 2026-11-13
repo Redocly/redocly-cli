@@ -1,0 +1,100 @@
+name: Stress test on production specs
+
+# Compares the lint output of a pull request with the output of its fork point from main
+# on Rebilly, GitHub, and Okta. A release pull request is compared with the latest release.
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+# One run per pull request at a time. A new push cancels the run of the old commit.
+concurrency:
+  group: stress-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  compare-output:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # The pull request head, not the merge commit, so the fork point from main can be found.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install pnpm for Rebilly/api-definitions
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          run_install: false
+          version: 11.22.0
+
+      - name: Build the pull request
+        run: |
+          npm ci
+          npm run compile
+
+      - name: Build the base
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ "$HEAD_REF" = "changeset-release/main" ]; then
+            # The release branch is main plus the version changes, so its fork point shows no difference.
+            # The latest release shows what a user gets after an upgrade.
+            base=$(git describe --tags --abbrev=0 --match '@redocly/cli@*' HEAD)
+          else
+            base=$(git merge-base origin/main HEAD)
+          fi
+          echo "Base: $base"
+          git worktree add ../base "$base"
+          cd ../base
+          npm ci
+          npm run compile
+
+      - name: Lint with both builds
+        run: |
+          bash tests/stress/run.sh ../base/packages/cli/lib/index.js tests/stress/out/base
+          bash tests/stress/run.sh packages/cli/lib/index.js tests/stress/out/head
+
+      - name: Compare the output
+        id: compare
+        # compare.mjs exits with 1 when the output differs and with 2 when a lint run failed.
+        # The step keeps the exit code, so the report is posted before the job fails.
+        run: |
+          exit_code=0
+          node tests/stress/compare.mjs tests/stress/out/base tests/stress/out/head tests/stress/out/report.md || exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+
+      - name: Comment PR
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          file-path: tests/stress/out/report.md
+          comment-tag: stress-test
+
+      # A fork pull request gets a read-only token, so stress-comment.yaml posts its report.
+      - name: Upload the report
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: stress-test-report
+          path: tests/stress/out/report.md
+
+      - name: Fail when the output differs
+        # A release pull request collects the differences that other pull requests already showed,
+        # so only a failed lint run fails it.
+        if: >-
+          steps.compare.outputs.exit_code == '2' ||
+          (steps.compare.outputs.exit_code == '1' && github.head_ref != 'changeset-release/main')
+        run: exit 1

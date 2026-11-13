@@ -34,7 +34,7 @@ export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
         }
         if (ambiguousPath) {
           report({
-            message: `Paths should resolve unambiguously. Found two ambiguous paths: \`${ambiguousPath.path}\` and \`${currentPath}\`.`,
+            message: `Paths must not be ambiguous. These two paths are ambiguous: \`${ambiguousPath.path}\` and \`${currentPath}\`.`,
             location: location.child([currentPath]).key(),
             reference: 'https://redocly.com/docs/cli/rules/oas/no-ambiguous-paths',
           });

@@ -81,7 +81,7 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'security-defined': SecurityDefined as Oas2Rule,
   'security-scopes-defined': SecurityScopesDefined as Oas2Rule,
   'no-unresolved-refs': NoUnresolvedRefs as Oas2Rule,
-  'no-identical-paths': NoIdenticalPaths as Oas2Rule,
+  'no-same-paths': NoIdenticalPaths as Oas2Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths as Oas2Rule,
