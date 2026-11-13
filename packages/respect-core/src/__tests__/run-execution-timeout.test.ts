@@ -134,8 +134,9 @@ describe('run with an execution timeout', () => {
 describe('run request count', () => {
   it('counts no request for the workflows that start after the execution timeout', async () => {
     const fetch = vi.fn(failingFetch);
+    const options = await runOptions('retry-after-a-minute', 1_000, fetch);
 
-    const result = await run(await runOptions(undefined, 1_000, fetch));
+    const result = await run({ ...options, workflow: undefined });
 
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(result).toMatchObject([{ totalRequests: 1 }]);
