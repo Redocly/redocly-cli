@@ -13,6 +13,7 @@ import { writeFileSync } from 'node:fs';
 
 import type { Entrypoint } from '../../types.js';
 import {
+  getAliasOrPath,
   getFallbackApisOrExit,
   handleError,
   printExecutionTime,
@@ -22,7 +23,7 @@ import { checkVersion } from './check-version.js';
 import { getDiffFailure } from './fail-on.js';
 import { printGithubActions } from './format/github-actions.js';
 import { diffReportFormats } from './format/index.js';
-import { fromRepositoryRoot, GitRevisionResolver, isGitRevisionFile } from './git-revision.js';
+import { GitRevisionResolver, isGitRevisionFile, locateRevisionFile } from './git-revision.js';
 import type { DiffArgv } from './types.js';
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
@@ -113,10 +114,13 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 // An alias or an existing file wins over a git revision, so an argument that named one still does.
 async function findEntrypoint(api: string, config: Config): Promise<Entrypoint> {
   if (!config.resolvedConfig.apis?.[api] && isGitRevisionFile(api)) {
-    return { path: await fromRepositoryRoot(api) };
+    const { revisionFile, localPath } = await locateRevisionFile(api);
+    // The settings of an API apply to its root file in every revision.
+    return { path: revisionFile, alias: getAliasOrPath(config, localPath).alias };
   }
 
   const [entrypoint] = await getFallbackApisOrExit([api], config);
+
   return entrypoint;
 }
 
@@ -125,6 +129,7 @@ function byPathAndProperty(left: JudgedChange, right: JudgedChange): number {
 
   const leftProperty = left.kind === 'modified' ? left.property : '';
   const rightProperty = right.kind === 'modified' ? right.property : '';
+
   if (leftProperty !== rightProperty) return leftProperty < rightProperty ? -1 : 1;
 
   return 0;

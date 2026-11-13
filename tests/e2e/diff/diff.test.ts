@@ -68,6 +68,16 @@ describe('diff', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('should apply the decorators of an API to its root file in a git revision', async () => {
+    const testPath = join(__dirname, 'decorators');
+    const args = getParams(indexEntryPoint, ['diff', 'HEAD:./base.yaml', 'HEAD:./revision.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-git-revision.txt')
+    );
+  });
+
   test('should fail when the revision has a $ref that does not resolve', async () => {
     const testPath = join(__dirname, 'unresolved-refs');
     const args = getParams(indexEntryPoint, ['diff', 'valid.yaml', 'broken.yaml']);
@@ -187,6 +197,21 @@ describe('diff', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(
       join(testPath, 'snapshot-git-revision.txt')
+    );
+  });
+
+  test('should read an argument that names an alias as the alias, not as a git revision file', async () => {
+    const testPath = join(__dirname, 'config-file');
+    const args = getParams(indexEntryPoint, [
+      'diff',
+      'cafe:v1',
+      'revision.yaml',
+      '--config=alias-with-colon.yaml',
+    ]);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'snapshot-alias-with-colon.txt')
     );
   });
 

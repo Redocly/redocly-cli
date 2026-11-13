@@ -29,7 +29,7 @@ redocly diff <base> <revision> [--config=<path>] [--extends=<ruleset>]... [--ski
 
 | Option          | Type     | Description                                                                                                                                                                                    |
 | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| base            | string   | **REQUIRED.** Path, URL, [alias](../configuration/reference/apis.md), or [git revision file](#compare-with-a-git-revision) of the older API description.                                       |
+| base            | string   | **REQUIRED.** Path, URL, [alias](../configuration/reference/apis.md), or [Git revision file](#compare-with-a-git-revision) of the older API description.                                       |
 | revision        | string   | **REQUIRED.** Path, URL, alias, or Git revision file of the newer API description.                                                                                                             |
 | --check-version | boolean  | Fail if `info.version` of the revision is lower than the version that the changes require. See [Check the version](#check-the-version). Default value is `false`.                              |
 | --config        | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                           |
@@ -106,6 +106,7 @@ redocly diff v1.0.0:openapi.yaml v2.0.0:openapi.yaml
   To start at the current directory, put `./` before the path, for example `main:./openapi.yaml`.
 - If the description has `$ref`s to other files, the command reads these files from the same revision.
 - The command uses the configuration file in your working directory for the two descriptions.
+  If the file is the `root` of an API in the configuration file, the command uses the settings of this API.
 - If a file or an API alias has the same name as the argument, the command uses the file or the alias.
 - The command reads only the revisions that are in your local repository.
   It does not download revisions.

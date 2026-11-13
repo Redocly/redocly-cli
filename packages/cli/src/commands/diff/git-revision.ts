@@ -31,20 +31,27 @@ export function isGitRevisionFile(ref: string): boolean {
 }
 
 /**
- * Returns the git revision file with its path counted from the repository root. Git counts
- * a path that starts with `./` or `../` from the current directory.
+ * Returns the git revision file with its path counted from the repository root, and the path
+ * that the same file has in the working tree. Git counts a path that starts with `./` or `../`
+ * from the current directory.
  */
-export async function fromRepositoryRoot(file: string): Promise<string> {
+export async function locateRevisionFile(
+  file: string
+): Promise<{ revisionFile: string; localPath: string }> {
   const { revision, filePath } = splitRevisionFile(file);
-  if (!filePath.startsWith('./') && !filePath.startsWith('../')) return file;
 
-  const currentDirectory = (await runGit(['rev-parse', '--show-prefix'])).trim();
-  const fromRoot = path.posix.join(currentDirectory, filePath);
+  const currentDirectory = (await runGit(['rev-parse', '--show-prefix'], file)).trim();
+  const isFromCurrentDirectory = filePath.startsWith('./') || filePath.startsWith('../');
+  const fromRoot = isFromCurrentDirectory ? path.posix.join(currentDirectory, filePath) : filePath;
+
   if (fromRoot.startsWith('../')) {
     throw new HandledError(`${file} is outside the git repository.`);
   }
 
-  return `${revision}:${fromRoot}`;
+  return {
+    revisionFile: `${revision}:${fromRoot}`,
+    localPath: path.posix.relative(currentDirectory, fromRoot),
+  };
 }
 
 /**
@@ -70,7 +77,8 @@ export class GitRevisionResolver extends BaseResolver {
     if (!this.revisionFiles.has(absoluteRef)) return super.loadExternalRef(absoluteRef);
 
     try {
-      const body = await runGit(['show', absoluteRef]);
+      // Unlike `git show`, `git cat-file blob` fails for a folder.
+      const body = await runGit(['cat-file', 'blob', absoluteRef], absoluteRef);
       return new Source(absoluteRef, body.replace(/\r\n/g, '\n'));
     } catch (error) {
       throw new ResolveError(error);
@@ -87,21 +95,31 @@ function resolveInRevision(base: string, ref: string): string {
 }
 
 function splitRevisionFile(file: string): { revision: string; filePath: string } {
-  const [revision, ...pathParts] = file.split(':');
+  // As in git, a colon in braces is a part of the revision: `main@{2026-01-01 10:00}:openapi.yaml`.
+  let braceDepth = 0;
+  const colonIndex = file.split('').findIndex((character) => {
+    if (character === '{') braceDepth++;
+    if (character === '}' && braceDepth > 0) braceDepth--;
 
-  return { revision, filePath: pathParts.join(':') };
+    return character === ':' && braceDepth === 0;
+  });
+
+  return colonIndex === -1
+    ? { revision: file, filePath: '' }
+    : { revision: file.slice(0, colonIndex), filePath: file.slice(colonIndex + 1) };
 }
 
-async function runGit(args: string[]): Promise<string> {
+async function runGit(args: string[], revisionFile: string): Promise<string> {
   try {
     const { stdout } = await execFileAsync('git', args, { maxBuffer: Infinity });
 
     return stdout;
   } catch (error) {
-    throw new HandledError(
+    const reason =
       error.code === 'ENOENT'
         ? 'git is not installed or not on PATH.'
-        : (error.stderr || error.message).trim()
-    );
+        : (error.stderr || error.message).trim();
+
+    throw new HandledError(`Cannot read ${revisionFile} from Git as <revision>:<path>. ${reason}`);
   }
 }
