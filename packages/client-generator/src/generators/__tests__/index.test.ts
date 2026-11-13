@@ -55,12 +55,6 @@ describe('validateGenerators', () => {
     ).not.toThrow();
   });
 
-  it.each(['tanstack-query', 'swr'] as const)('rejects %s with result error mode', (generator) => {
-    expect(() => validateGenerators(['typescript', generator], { errorMode: 'result' })).toThrow(
-      /does not support --error-mode "result".*throw/
-    );
-  });
-
   it('rejects --error-mode result for the go, php, and java SDKs (their idiom IS the error mode)', () => {
     for (const language of ['go', 'php', 'java']) {
       expect(() => validateGenerators([language], { errorMode: 'result' })).toThrow(

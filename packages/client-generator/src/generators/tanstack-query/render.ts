@@ -7,7 +7,9 @@
 // `<op>InfiniteOptions(vars, init?)` with `initialPageParam`/`getNextPageParam` compiled
 // from the pagination rule's JSON pointers. Per mutation: `<op>Mutation(init?)`. Calls go
 // through the client instance's methods, which take one input object in either
-// `--args-style`; only the infinite query's page-param override differs between them.
+// `--args-style`; only the infinite query's page-param override differs between them. Over a
+// result-mode client every call goes through `unwrapResult`, so a failed request rejects
+// the `queryFn`/`mutationFn` either way.
 //
 // The factory bodies are authored as source text — the emitted module verbatim
 // and normalizes everything to the printer's canonical style. Every interpolated piece
@@ -16,6 +18,7 @@
 
 import {
   type ApiModel,
+  type ErrorMode,
   type GeneratorInput,
   type ModelPagination,
   type OperationModel,
@@ -25,6 +28,7 @@ import {
 import {
   hasInputs,
   isQuery,
+  throwingCallText,
   variablesName,
   wrappableOperations,
 } from '@redocly/client-generator/contracts/typescript';
@@ -47,6 +51,8 @@ export type TanstackOptions = {
   queryKeyPrefix?: string;
   /** The sdk's call shape — the infinite query overrides the cursor inside it. */
   argsStyle?: 'grouped' | 'flat';
+  /** The sdk's error mode — a result-mode client's calls are unwrapped to throw. */
+  errorMode?: ErrorMode;
 };
 
 /** Render the full TanStack Query module source. `''` when there are no wrappable operations. */
@@ -58,7 +64,7 @@ export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): st
     importHeader(ops, opts, pagination),
     ...(ops.some((op) => isBodyLinkInfinite(op, pagination)) ? [NEXT_LINK_QUERY] : []),
     ...ops.filter(isQuery).map((op) => queryKeySource(op, opts.queryKeyPrefix)),
-    factoriesSource(model, ops, pagination, opts.queryKeyPrefix, opts.argsStyle),
+    factoriesSource(model, ops, pagination, opts),
     ...defaultBindings(ops, pagination),
   ].join('\n');
   return source;
@@ -100,7 +106,8 @@ const NEXT_LINK_QUERY =
 
 /**
  * The import header: the option helpers from `@tanstack/${framework}-query` (only the
- * ones used), then the sdk's `client` instance plus the referenced types.
+ * ones used), then the sdk's `client` instance (plus `unwrapResult` over a result-mode
+ * client) and the referenced types.
  */
 function importHeader(
   ops: OperationModel[],
@@ -114,11 +121,12 @@ function importHeader(
   const types = [...ops.filter(hasInputs).map(variablesName), 'RequestOptions']
     .sort()
     .map((name) => `type ${name}`);
+  const values = opts.errorMode === 'result' ? ['client', 'unwrapResult'] : ['client'];
   const lines = [];
   if (helpers.length > 0) {
     lines.push(`import { ${helpers.join(', ')} } from "@tanstack/${opts.framework}-query";`);
   }
-  lines.push(`import { client, ${types.join(', ')} } from "${opts.sdkModule}";`);
+  lines.push(`import { ${[...values, ...types].join(', ')} } from "${opts.sdkModule}";`);
   return lines.join('\n');
 }
 
@@ -149,15 +157,17 @@ function factoriesSource(
   model: ApiModel,
   ops: OperationModel[],
   pagination: ModelPagination,
-  prefix: string | undefined,
-  argsStyle: TanstackOptions['argsStyle']
+  opts: TanstackOptions
 ): string {
   const members = ops.flatMap((op) => {
-    if (!isQuery(op)) return [mutationMember(op, prefix)];
+    if (!isQuery(op)) return [mutationMember(op, opts.queryKeyPrefix, opts.errorMode)];
     const spec = pagination.get(op.name)?.spec;
     return spec !== undefined && spec.style !== 'link' && isInfinite(op, pagination)
-      ? [optionsMember(op), infiniteMember(model, op, spec, argsStyle)]
-      : [optionsMember(op)];
+      ? [
+          optionsMember(op, opts.errorMode),
+          infiniteMember(model, op, spec, opts.argsStyle, opts.errorMode),
+        ]
+      : [optionsMember(op, opts.errorMode)];
   });
   return (
     '/**\n' +
@@ -172,21 +182,32 @@ function factoriesSource(
 }
 
 /** `<op>Options` — `queryFn` forwards TanStack's abort `signal` into the request `init`. */
-function optionsMember(op: OperationModel): string {
+function optionsMember(op: OperationModel, errorMode: TanstackOptions['errorMode']): string {
   const { params, keyArg, callArgs } = varsPieces(op);
+  const call = throwingCallText(
+    `instance.${op.name}(${callArgs}, { ...init, signal, envelope: undefined })`,
+    errorMode
+  );
   return (
     `    ${op.name}Options: (${params}) => queryOptions({\n` +
     `        queryKey: ${op.name}QueryKey(${keyArg}),\n` +
-    `        queryFn: ({ signal }) => instance.${op.name}(${callArgs}, { ...init, signal, envelope: undefined }),\n` +
+    `        queryFn: ({ signal }) => ${call},\n` +
     `    })`
   );
 }
 
 /** `<op>Mutation(init?)` — per-call options (headers, a retry override) reach the mutation. */
-function mutationMember(op: OperationModel, prefix: string | undefined): string {
-  const mutationFn = hasInputs(op)
-    ? `(vars: ${variablesName(op)}) => instance.${op.name}(vars, { ...init, envelope: undefined })`
-    : `() => instance.${op.name}({}, { ...init, envelope: undefined })`;
+function mutationMember(
+  op: OperationModel,
+  prefix: string | undefined,
+  errorMode: TanstackOptions['errorMode']
+): string {
+  const inputs = hasInputs(op);
+  const call = throwingCallText(
+    `instance.${op.name}(${inputs ? 'vars' : '{}'}, { ...init, envelope: undefined })`,
+    errorMode
+  );
+  const mutationFn = inputs ? `(vars: ${variablesName(op)}) => ${call}` : `() => ${call}`;
   return (
     `    ${op.name}Mutation: (${INIT_PARAM}) => ({\n` +
     `        mutationKey: [${keyElements(op, prefix)}] as const,\n` +
@@ -207,9 +228,15 @@ function infiniteMember(
   model: ApiModel,
   op: OperationModel,
   spec: Exclude<PaginationSpec, { style: 'link' }>,
-  argsStyle: TanstackOptions['argsStyle']
+  argsStyle: TanstackOptions['argsStyle'],
+  errorMode: TanstackOptions['errorMode']
 ): string {
   const { params, keyArg } = varsPieces(op);
+  const pageCall = (args: string) =>
+    throwingCallText(
+      `instance.${op.name}(${args}, { ...init, signal, envelope: undefined })`,
+      errorMode
+    );
   if (spec.style === 'body-link') {
     const merged =
       argsStyle === 'flat'
@@ -225,7 +252,7 @@ function infiniteMember(
     return (
       `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
       `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +
-      `        queryFn: ({ pageParam, signal }) => instance.${op.name}(pageParam === undefined ? vars : ${merged} as ${variablesName(op)}, { ...init, signal, envelope: undefined }),\n` +
+      `        queryFn: ({ pageParam, signal }) => ${pageCall(`pageParam === undefined ? vars : ${merged} as ${variablesName(op)}`)},\n` +
       `        initialPageParam: undefined as string | undefined,\n` +
       `        getNextPageParam: (lastPage) => {\n` +
       next +
@@ -244,7 +271,7 @@ function infiniteMember(
   return (
     `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
     `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +
-    `        queryFn: ({ pageParam, signal }) => instance.${op.name}(${override}, { ...init, signal, envelope: undefined }),\n` +
+    `        queryFn: ({ pageParam, signal }) => ${pageCall(override)},\n` +
     nextPageSource(model, op, spec, argsStyle) +
     `    })`
   );

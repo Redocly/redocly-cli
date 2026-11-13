@@ -1242,6 +1242,19 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Turn a result-mode call into a throwing one: resolve with the response body, or throw
+ * the `ApiError` a throw-mode client would.
+ */
+export async function unwrapResult<TData>(call: Promise<Result<TData, unknown>>): Promise<TData> {
+  const { data, error, response } = await call;
+  // Failure is `!response.ok`, not `data === undefined`: a successful bodyless response
+  // (204/void) also has undefined data, and a failed one can have an undefined `error`
+  // (unreadable body).
+  if (!response.ok) throw new ApiError(response.url, response.status, response.statusText, error);
+  return data as TData;
+}
+
 /** The error thrown when a request attempt exceeds the configured `timeout` — carries
  * the context a log line needs (which operation, what budget, which attempt). */
 export class TimeoutError extends Error {
@@ -2202,22 +2215,10 @@ function pageCall(
     return method(args, pageInit);
   };
   if (config.errorMode !== 'result') return callWithoutEnvelope;
-  return async (args?: OperationArgs, init?: RequestOptions) => {
-    const envelope = (await callWithoutEnvelope(args, init)) as {
-      data: unknown;
-      error: unknown;
-      response: Response;
-    };
-    // Failure is `!response.ok` — NOT `data === undefined`: a successful bodyless page
-    // (204/void) also parses to undefined data, and a failed page's `error` can be
-    // undefined too (unreadable body). The pointers then miss on the undefined data
-    // and iteration stops cleanly, which is the correct semantics for an empty page.
-    if (!envelope.response.ok) {
-      const { response } = envelope;
-      throw new ApiError(response.url, response.status, response.statusText, envelope.error);
-    }
-    return envelope.data;
-  };
+  // A bodyless page unwraps to undefined data: the pointers then miss on it and
+  // iteration stops cleanly, which is the correct semantics for an empty page.
+  return (args?: OperationArgs, init?: RequestOptions) =>
+    unwrapResult(callWithoutEnvelope(args, init) as Promise<Result<unknown, unknown>>);
 }
 
 /**

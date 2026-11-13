@@ -4,7 +4,7 @@
 // answers in each wrapper would put the SDK's calling convention in several places,
 // which is exactly the drift this module exists to prevent.
 
-import type { GeneratorInput } from '../generators/types.js';
+import type { ErrorMode, GeneratorInput } from '../generators/types.js';
 import { operationSignature } from '../generators/typescript/operation-signature.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 
@@ -87,14 +87,23 @@ export function sdkCallText(op: OperationModel, source: string, withInit: boolea
   return `${op.name}(${args.join(', ')})`;
 }
 
-/** The named import from the sdk module: wrapped opFns, then the referenced
- * `<Op>Variables` types + `RequestOptions` (when any query op) as `type` specifiers. */
+/** An sdk call that throws on a failed request in either error mode: a result-mode call
+ * goes through the sdk's `unwrapResult`. */
+export function throwingCallText(callText: string, errorMode: ErrorMode = 'throw'): string {
+  return errorMode === 'result' ? `unwrapResult(${callText})` : callText;
+}
+
+/** The named import from the sdk module: wrapped opFns (plus `unwrapResult` in result
+ * mode), then the referenced `<Op>Variables` types + `RequestOptions` (when any query op)
+ * as `type` specifiers. */
 export function sdkNamedImportText(
   ops: OperationModel[],
   sdkModule: string,
-  hasQuery: boolean
+  hasQuery: boolean,
+  errorMode: ErrorMode = 'throw'
 ): string {
   const values = ops.map((op) => op.name).sort();
+  if (errorMode === 'result') values.push('unwrapResult');
   const types = ops.filter(hasInputs).map(variablesName).sort();
   if (hasQuery) types.push('RequestOptions');
   const specifiers = [...values, ...types.map((name) => `type ${name}`)].join(', ');

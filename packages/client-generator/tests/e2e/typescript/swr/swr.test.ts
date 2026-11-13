@@ -45,4 +45,21 @@ describe('generate-client swr generator', () => {
     // module proves the emitted useSWR/useSWRMutation calls match swr's real API.
     expectTscPasses(['--noEmit', '-p', dir]);
   });
+
+  it('unwraps the calls of a result-mode sdk and still strict-tsc-checks against real swr', async () => {
+    dir = copyConsumer(join(__dirname, 'consumer'));
+
+    await generateClient({
+      api: join(__dirname, '../../fixtures', 'base.yaml'),
+      output: join(dir, 'client.ts'),
+      generators: ['typescript', 'swr'],
+      errorMode: 'result',
+    });
+
+    const source = readFileSync(join(dir, 'client.swr.ts'), 'utf-8');
+    expect(source).toContain('() => unwrapResult(getPetById(');
+    expect(source).toContain('}) => unwrapResult(createPet(arg))');
+
+    expectTscPasses(['--noEmit', '-p', dir]);
+  });
 });
