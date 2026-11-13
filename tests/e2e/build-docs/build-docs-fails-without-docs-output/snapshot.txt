@@ -13,7 +13,7 @@
     ╔════════════════════════════════════════════════════════════════════════════════════════════╗
     ║                                                                                            ║
     ║  Deprecated: build-docs without an API builds the first API of the configuration file.     ║
-    ║  A later release builds every API of the configuration file.                               ║
+    ║  A later release builds only the APIs that have docsOutput.                                ║
     ║  Pass the API: redocly build-docs <api>, or set docsOutput for each API.                   ║
     ║  Learn more: https://redocly.com/docs/cli/commands/build-docs#build-docs-for-several-apis  ║
     ║                                                                                            ║
