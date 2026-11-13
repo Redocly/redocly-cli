@@ -380,4 +380,58 @@ describe('oas3 boolean-parameter-prefixes', () => {
       ]
     `);
   });
+
+  it('should resolve $defs and sibling $id refs in OAS 3.1 and report missing $defs refs', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Pet:
+              $id: 'https://example.com/schemas/pet'
+              type: object
+              properties:
+                tag:
+                  $ref: 'tag'
+                collar:
+                  $ref: '#/$defs/Collar'
+                missing:
+                  $ref: '#/$defs/Missing'
+              $defs:
+                Collar:
+                  type: string
+            Tag:
+              $id: 'https://example.com/schemas/tag'
+              type: object
+      `,
+      path.join(__dirname, 'foobar.yaml')
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([
+      {
+        location: [
+          {
+            pointer: '#/components/schemas/Pet/properties/missing',
+            reportOnKey: false,
+            source: 'foobar.yaml',
+          },
+        ],
+        message: "Can't resolve $ref",
+        reference: 'https://redocly.com/docs/cli/rules/oas/no-unresolved-refs',
+        ruleId: 'no-unresolved-refs',
+        severity: 'error',
+        suggest: [],
+      },
+    ]);
+  });
 });
