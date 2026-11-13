@@ -2,6 +2,7 @@
   Scores
 
   Agent Readiness:  52.7/100
+  Reachable:        86.6/100 with every safe edit
 
   Subscores
 
@@ -38,13 +39,24 @@
 
   POST /items (createItem)
     Agent Readiness: 50.7
-    - Missing request and response examples
+    - Missing request body examples
     - Missing operation description
+
+  Recommendations
+
+  +10.8  Add constraints to schema properties (2 operations)
+         Contract risk: add only the constraints the API already enforces.
+   +8.7  Add descriptions to schema properties (2 operations)
+   +8.1  Add request body examples (1 operation)
+   +8.1  Add response examples (1 operation)
+   +4.7  Add descriptions to parameters (1 operation)
+   +4.4  Add descriptions to operations (2 operations)
 
 
 Document: openapi.yaml score:
 
 openapi.yaml: score processed in <test>ms
 
+Learn how to improve the score: https://redocly.com/docs/cli/commands/score?source=cli
 
 Exit code: 0

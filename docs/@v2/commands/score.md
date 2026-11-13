@@ -28,10 +28,13 @@ The following raw metrics are collected per operation and aggregated across the 
 | Description coverage               | Fraction of operations, parameters, and schema properties that have descriptions.                                                                                                                                   |
 | Ambiguous identifier count         | Parameters with generic names (e.g. `id`, `name`, `type`) and no description.                                                                                                                                       |
 | Constraint coverage                | Count of constraining keywords (`enum`, `format`, `pattern`, `minimum`, `maximum`, `minLength`, `maxLength`, `discriminator`, etc.).                                                                                |
-| Request/response example coverage  | Whether request and response media types include `example` or `examples`.                                                                                                                                           |
+| Request/response example coverage  | Whether request and response media types include `example` or `examples`. An operation without a request or response body needs no example for it.                                                                  |
 | Structured error response coverage | How many 4xx/5xx responses include a content schema or meaningful description.                                                                                                                                      |
 | Security scheme coverage           | Whether operations reference documented security schemes with descriptions.                                                                                                                                         |
 | Cross-operation dependency depth   | Inferred from shared `$ref` usage across operations. Operations that share many schemas form a dependency graph; deeper graphs indicate tightly coupled multi-step interactions.                                    |
+
+The schema, example, and dependency metrics read request bodies and success responses.
+Error responses count only toward structured error coverage.
 
 ### Subscores
 
@@ -51,6 +54,38 @@ The command identifies the operations with the lowest scores and provides reason
 - "Missing request and response examples"
 - "No structured error responses (4xx/5xx)"
 - "Missing operation description"
+
+### Recommendations
+
+The command also ranks the edits that raise the score by their simulated impact.
+Each recommendation names one kind of edit, the subscore it moves, the number of places it fixes, and the operations it touches.
+Edits that don't change the score are left out.
+
+| Kind                    | Edit                                                                                        | Subscore               |
+| ----------------------- | ------------------------------------------------------------------------------------------- | ---------------------- |
+| `operation-description` | Add a description to each operation.                                                        | `documentationQuality` |
+| `parameter-description` | Add a description to each parameter. A parameter with a description is no longer ambiguous. | `documentationQuality` |
+| `property-description`  | Add a description to each schema property.                                                  | `documentationQuality` |
+| `request-example`       | Add an example to each request body.                                                        | `exampleCoverage`      |
+| `response-example`      | Add an example to the success responses that declare a body.                                | `exampleCoverage`      |
+| `structured-error`      | Add a schema or a description to each 4xx and 5xx response.                                 | `errorClarity`         |
+| `constraint`            | Add constraints, such as `enum`, `format`, or `maxLength`, to schema properties.            | `constraintClarity`    |
+
+The impact of a recommendation is the score change from that edit alone, so the impacts don't add up.
+The **reachable** score is the score with every recommended safe edit made together.
+A constraint is not a safe edit: a constraint that the API doesn't enforce narrows its contract.
+Add only the constraints that the API already enforces; the reachable score leaves them out.
+
+The command simulates the edits on the collected metrics and never changes your files.
+
+The JSON output also lists **design findings**: the structural problems that no documentation edit fixes, such as:
+
+- high parameter count
+- deep schema nesting
+- polymorphism
+- high dependency depth
+
+Each finding names the operations it affects.
 
 ## Usage
 
@@ -85,12 +120,13 @@ redocly score openapi/openapi.yaml
 
 #### Stylish output (default)
 
-The default output format shows a human-readable summary in your terminal:
+The default output format shows a human-readable summary in your terminal.
 
 ```sh
   Scores
 
   Agent Readiness:  68.3/100
+  Reachable:        74.9/100 with every safe edit
 
   Subscores
 
@@ -127,6 +163,25 @@ Use `--format=json` for machine-readable output:
 redocly score openapi.yaml --format=json
 ```
 
-The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, dependency depths, and hotspot details with reasoning.
+The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, dependency depths, hotspot details with reasoning, the reachable score, the recommendations sorted by impact, and the design findings.
 
 The JSON format is suitable for CI pipelines, quality gates, or feeding results into dashboards.
+
+### Rank the edits that raise the score
+
+The stylish output shows the reachable score below the Agent Readiness score, and the recommendations after the hotspots:
+
+```sh
+  Agent Readiness:  79.6/100
+  Reachable:        83.0/100 with every safe edit
+
+  ...
+
+  Recommendations
+
+   +2.9  Add constraints to schema properties (14 operations)
+         Contract risk: add only the constraints the API already enforces.
+   +1.8  Add descriptions to schema properties (13 operations)
+   +0.3  Add response examples (4 operations)
+   +0.3  Add request body examples (3 operations)
+```

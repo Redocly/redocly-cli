@@ -29,6 +29,7 @@ function makeBaseMetrics(overrides: Partial<OperationMetrics> = {}): OperationMe
     constraintCount: 0,
     requestExamplePresent: false,
     responseExamplePresent: true,
+    responseBodyPresent: true,
     structuredErrorResponseCount: 0,
     totalErrorResponses: 0,
     ambiguousIdentifierCount: 0,
@@ -203,6 +204,16 @@ describe('scoring', () => {
       });
       const sub = computeOperationSubscores(metrics, 0);
       expect(sub.exampleCoverage).toBe(0.5);
+    });
+
+    it('should give full example coverage when neither request nor response has a body', () => {
+      const metrics = makeBaseMetrics({
+        requestBodyPresent: false,
+        responseBodyPresent: false,
+        responseExamplePresent: false,
+      });
+      const sub = computeOperationSubscores(metrics, 0);
+      expect(sub.exampleCoverage).toBe(1);
     });
   });
 

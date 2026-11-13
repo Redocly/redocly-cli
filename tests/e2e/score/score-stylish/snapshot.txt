@@ -1,17 +1,18 @@
 
   Scores
 
-  Agent Readiness:  88.2/100
+  Agent Readiness:  89.8/100
+  Reachable:        91.3/100 with every safe edit
 
   Subscores
 
   Parameter Simplicity     [█████████████████░░░] 86%
-  Schema Simplicity        [████████████████░░░░] 80%
-  Documentation Quality    [██████████████████░░] 90%
-  Constraint Clarity       [███████████░░░░░░░░░] 56%
+  Schema Simplicity        [████████████████░░░░] 81%
+  Documentation Quality    [███████████████████░] 96%
+  Constraint Clarity       [██████████████░░░░░░] 69%
   Example Coverage         [██████████████████░░] 88%
   Error Clarity            [████████████████████] 100%
-  Dependency Clarity       [███████████████░░░░░] 73%
+  Dependency Clarity       [██████████████████░░] 88%
   Identifier Clarity       [████████████████████] 100%
   Polymorphism Clarity     [████████████████████] 100%
   Discoverability          [████████████████████] 99%
@@ -20,11 +21,11 @@
 
   Total operations: 8
   Parameters/operation:      avg    1.4  median    1.0  min     0  max     4
-  Schema depth:              avg    1.6  median    2.0  min     0  max     3
+  Schema depth:              avg    1.5  median    2.0  min     0  max     3
   Polymorphism/operation:    avg    0.0  median    0.0  min     0  max     0
-  Properties/operation:      avg    4.4  median    6.0  min     0  max     6
+  Properties/operation:      avg    4.1  median    6.0  min     0  max     6
   Operations with request examples: 3/8 (38%)
-  Operations with response examples: 7/8 (88%)
+  Operations with response examples: 6/8 (75%)
   Operations with description: 8/8 (100%)
 
   Top 1 Hotspot Operations
@@ -33,10 +34,18 @@
     Agent Readiness: 81.0
     - Missing response examples
 
+  Recommendations
+
+   +5.3  Add constraints to schema properties (5 operations)
+         Contract risk: add only the constraints the API already enforces.
+   +0.5  Add descriptions to schema properties (2 operations)
+   +0.5  Add response examples (1 operation)
+
 
 Document: museum.yaml score:
 
 museum.yaml: score processed in <test>ms
 
+Learn how to improve the score: https://redocly.com/docs/cli/commands/score?source=cli
 
 Exit code: 0
