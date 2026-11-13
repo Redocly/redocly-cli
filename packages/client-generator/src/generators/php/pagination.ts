@@ -6,6 +6,7 @@ import {
   type DateType,
   jsonSuccessSchema,
   type OperationModel,
+  getOperationId,
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
@@ -30,7 +31,7 @@ export function writePhpPaginationWrappers(
   const name = ident;
 
   const writeCall = () => {
-    printer.line(`$op = self::OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+    printer.line(`$op = self::OPERATIONS[${phpString(getOperationId(op))}];`);
     printer.line('$base = [];');
     for (const { php, wire, value } of args.queryArgs) {
       printer.block(

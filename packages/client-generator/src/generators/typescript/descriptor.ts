@@ -14,6 +14,7 @@ import {
   securityRequirements,
   type SecuritySchemeModel,
   WIRING_NAMES,
+  getOperationId,
 } from '@redocly/client-generator';
 import { codeLiteral, uniqueIdent } from '@redocly/client-generator/printers/typescript';
 
@@ -62,7 +63,7 @@ function descriptorValue(
     // targeting (`ctx.operation.id`) and must match inline mode's `operationMetaExpr`.
     // The wire/middleware identity stays the SPEC operationId even when the emitted
     // function name was renamed away from a collision (`configure` → `configure_2`).
-    id: op.specName ?? op.name,
+    id: getOperationId(op),
     method: op.method.toUpperCase(),
     path: op.path,
     ...(op.tags.length > 0 ? { tags: op.tags } : {}),

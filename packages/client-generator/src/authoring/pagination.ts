@@ -4,7 +4,11 @@
 // (schema-level advance-param/pointer checks) remains generation-side; this helper is
 // what every language generator shares.
 
-import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
+import {
+  type ApiModel,
+  type OperationModel,
+  getOperationId,
+} from '../intermediate-representation/model.js';
 import { deref, schemaAtPointer, unwrapNullable } from './schema.js';
 
 /** The normalized rule a generator renders into its runtime's pagination spec. */
@@ -31,7 +35,7 @@ export function paginationRuleFor(
   model?: ApiModel
 ): NeutralPaginationRule | undefined {
   const configuration = config ?? {};
-  const id = op.specName ?? op.name;
+  const id = getOperationId(op);
   if (Array.isArray(configuration.exclude) && configuration.exclude.includes(id)) {
     return undefined;
   }

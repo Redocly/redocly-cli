@@ -18,6 +18,7 @@ import {
   renderReferencePage,
   type SampleContext,
   sseResponse,
+  getOperationId,
 } from '@redocly/client-generator';
 import { PhpPrinter } from '@redocly/client-generator/printers/php';
 import {
@@ -103,7 +104,7 @@ export const phpGenerator: Generator = ({ model, output, banner, emit, paginatio
         'public const OPERATIONS = [',
         () => {
           for (const op of operations) {
-            const id = op.specName ?? op.name;
+            const id = getOperationId(op);
             const security = phpSecurityLiteral(op, model);
             const rule = paginationRules.get(op.name);
             const fields = [
