@@ -1,5 +1,7 @@
 import {
   Client,
+  SdkError,
+  SdkErrorCode,
   SSEClientTransport,
   StreamableHTTPClientTransport,
   type Implementation,
@@ -31,13 +33,22 @@ async function collectAllPages<Item>(
   listPage: (cursor: string | undefined) => Promise<{ items: Item[]; nextCursor?: string }>
 ): Promise<Item[]> {
   const items: Item[] = [];
+  const seenCursors = new Set<string>();
   let cursor: string | undefined;
-  do {
+  while (true) {
     const page = await listPage(cursor);
     items.push(...page.items);
     cursor = page.nextCursor;
-  } while (cursor);
-  return items;
+    if (!cursor) {
+      return items;
+    }
+    if (seenCursors.has(cursor)) {
+      throw new HandledError(
+        'The MCP server returned the same pagination cursor twice, so its list never ends.'
+      );
+    }
+    seenCursors.add(cursor);
+  }
 }
 
 // The spawned server inherits the full environment, like running the command in the same
@@ -58,67 +69,81 @@ function targetLabel(target: McpTarget): string {
     : `"${[target.command, ...target.args].join(' ')}"`;
 }
 
-type ConnectionAttempt = {
-  createTransport: () => Transport;
-  versionNegotiation: 'auto' | 'legacy';
-  retryMessage?: string;
-};
-
-function connectionAttempts(target: McpTarget): ConnectionAttempt[] {
-  if (target.kind === 'stdio') {
-    return [
-      {
-        createTransport: () =>
-          new StdioClientTransport({
-            command: target.command,
-            args: target.args,
-            env: inheritedEnvironment(),
-          }),
-        versionNegotiation: 'auto',
-      },
-    ];
-  }
-  const createStreamableHttpTransport = () =>
-    new StreamableHTTPClientTransport(target.url, { requestInit: { headers: target.headers } });
+async function connectClient(target: McpTarget, version: string): Promise<Client> {
   // The `auto` mode tries `server/discover` of protocol 2026-07-28 and falls back to `initialize`.
   // Over HTTP it fails on a 5xx status or no answer, so the second attempt sends `initialize`.
-  return [
-    { createTransport: createStreamableHttpTransport, versionNegotiation: 'auto' },
-    {
-      createTransport: createStreamableHttpTransport,
-      versionNegotiation: 'legacy',
-      retryMessage: 'Retrying with the initialize handshake...',
-    },
-    {
-      createTransport: () =>
-        new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
-      versionNegotiation: 'legacy',
-      retryMessage: 'Retrying with the legacy HTTP+SSE transport...',
-    },
-  ];
-}
+  const attempts: {
+    createTransport: () => Transport;
+    versionNegotiation: 'auto' | 'legacy';
+    afterProbeFailure?: boolean;
+    retryMessage?: string;
+  }[] =
+    target.kind === 'stdio'
+      ? [
+          {
+            createTransport: () =>
+              new StdioClientTransport({
+                command: target.command,
+                args: target.args,
+                env: inheritedEnvironment(),
+              }),
+            versionNegotiation: 'auto',
+          },
+        ]
+      : [
+          {
+            createTransport: () =>
+              new StreamableHTTPClientTransport(target.url, {
+                requestInit: { headers: target.headers },
+              }),
+            versionNegotiation: 'auto',
+          },
+          {
+            createTransport: () =>
+              new StreamableHTTPClientTransport(target.url, {
+                requestInit: { headers: target.headers },
+              }),
+            versionNegotiation: 'legacy',
+            afterProbeFailure: true,
+            retryMessage: 'Retrying with the initialize handshake...',
+          },
+          {
+            createTransport: () =>
+              new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
+            versionNegotiation: 'legacy',
+            retryMessage: 'Retrying with the legacy HTTP+SSE transport...',
+          },
+        ];
 
-async function connectClient(target: McpTarget, version: string): Promise<Client> {
-  let firstError: unknown;
-  for (const { createTransport, versionNegotiation, retryMessage } of connectionAttempts(target)) {
-    if (retryMessage) {
-      logger.info(gray(`  ${retryMessage} \n`));
+  let connectionError: unknown;
+  let probeFailed = false;
+  for (const attempt of attempts) {
+    if (attempt.afterProbeFailure && !probeFailed) {
+      continue;
+    }
+    if (attempt.retryMessage) {
+      logger.info(gray(`  ${attempt.retryMessage} \n`));
     }
     const mcpClient = new Client(
       { name: 'redocly-cli', version },
-      { versionNegotiation: { mode: versionNegotiation } }
+      { versionNegotiation: { mode: attempt.versionNegotiation } }
     );
     try {
-      await mcpClient.connect(createTransport());
+      await mcpClient.connect(attempt.createTransport());
       return mcpClient;
     } catch (error) {
-      firstError ??= error;
+      // The error of the `initialize` attempt replaces the error of the failed probe before it.
+      connectionError = attempt.afterProbeFailure ? error : (connectionError ?? error);
+      probeFailed =
+        error instanceof SdkError &&
+        (error.code === SdkErrorCode.EraNegotiationFailed ||
+          error.code === SdkErrorCode.RequestTimeout);
       await mcpClient.close().catch(() => undefined);
     }
   }
   throw new HandledError(
     `Failed to connect to the MCP server at ${targetLabel(target)}: ${
-      firstError instanceof Error ? firstError.message : String(firstError)
+      connectionError instanceof Error ? connectionError.message : String(connectionError)
     }`
   );
 }

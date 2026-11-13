@@ -473,6 +473,53 @@ describe('handleIntrospectMcp', () => {
     }
   });
 
+  it('fails when the server returns the same pagination cursor twice', async () => {
+    const repeatedCursorServer = createServer(async (request, response) => {
+      const mcpServer = new McpServer(
+        { name: 'cafe-mcp', version: '3.2.1' },
+        { capabilities: { tools: {} } }
+      );
+      mcpServer.setRequestHandler(ListToolsRequestSchema, () => ({
+        tools: [LIST_MENU_TOOL],
+        nextCursor: 'page-2',
+      }));
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: undefined,
+        enableJsonResponse: true,
+      });
+      response.on('close', () => {
+        transport.close();
+        mcpServer.close();
+      });
+      await mcpServer.connect(transport);
+      await transport.handleRequest(request, response);
+    });
+    await new Promise<void>((resolve) => repeatedCursorServer.listen(0, '127.0.0.1', resolve));
+    const repeatedCursorServerUrl = `http://127.0.0.1:${
+      (repeatedCursorServer.address() as AddressInfo).port
+    }/mcp`;
+    try {
+      await expect(
+        runIntrospectMcp({ 'server-url': repeatedCursorServerUrl, output: 'openapi.yaml' })
+      ).rejects.toThrow(
+        'The MCP server returned the same pagination cursor twice, so its list never ends.'
+      );
+    } finally {
+      await new Promise((resolve) => repeatedCursorServer.close(resolve));
+    }
+  });
+
+  it('reports the connection error when the server cannot be reached', async () => {
+    const closedServer = createServer();
+    await new Promise<void>((resolve) => closedServer.listen(0, '127.0.0.1', resolve));
+    const closedServerUrl = `http://127.0.0.1:${(closedServer.address() as AddressInfo).port}/mcp`;
+    await new Promise((resolve) => closedServer.close(resolve));
+
+    await expect(
+      runIntrospectMcp({ 'server-url': closedServerUrl, output: 'openapi.yaml' })
+    ).rejects.toThrow(`Failed to connect to the MCP server at ${closedServerUrl}: fetch failed`);
+  });
+
   it('introspects a server that supports only the 2026-07-28 protocol, which has no initialize handshake', async () => {
     // The SDK client drops a tool with an invalid `x-mcp-header` from its own tool list.
     const invalidHeaderTool = {
