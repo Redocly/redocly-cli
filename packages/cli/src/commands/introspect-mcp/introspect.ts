@@ -77,43 +77,36 @@ async function connectClient(target: McpTarget, version: string): Promise<Client
     versionNegotiation: 'auto' | 'legacy';
     afterProbeFailure?: boolean;
     retryMessage?: string;
-  }[] =
-    target.kind === 'stdio'
-      ? [
-          {
-            createTransport: () =>
-              new StdioClientTransport({
-                command: target.command,
-                args: target.args,
-                env: inheritedEnvironment(),
-              }),
-            versionNegotiation: 'auto',
-          },
-        ]
-      : [
-          {
-            createTransport: () =>
-              new StreamableHTTPClientTransport(target.url, {
-                requestInit: { headers: target.headers },
-              }),
-            versionNegotiation: 'auto',
-          },
-          {
-            createTransport: () =>
-              new StreamableHTTPClientTransport(target.url, {
-                requestInit: { headers: target.headers },
-              }),
-            versionNegotiation: 'legacy',
-            afterProbeFailure: true,
-            retryMessage: 'Retrying with the initialize handshake...',
-          },
-          {
-            createTransport: () =>
-              new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
-            versionNegotiation: 'legacy',
-            retryMessage: 'Retrying with the legacy HTTP+SSE transport...',
-          },
-        ];
+  }[] = [];
+  if (target.kind === 'stdio') {
+    attempts.push({
+      createTransport: () =>
+        new StdioClientTransport({
+          command: target.command,
+          args: target.args,
+          env: inheritedEnvironment(),
+        }),
+      versionNegotiation: 'auto',
+    });
+  } else {
+    const createStreamableHttpTransport = () =>
+      new StreamableHTTPClientTransport(target.url, { requestInit: { headers: target.headers } });
+    attempts.push(
+      { createTransport: createStreamableHttpTransport, versionNegotiation: 'auto' },
+      {
+        createTransport: createStreamableHttpTransport,
+        versionNegotiation: 'legacy',
+        afterProbeFailure: true,
+        retryMessage: 'Retrying with the initialize handshake...',
+      },
+      {
+        createTransport: () =>
+          new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
+        versionNegotiation: 'legacy',
+        retryMessage: 'Retrying with the legacy HTTP+SSE transport...',
+      }
+    );
+  }
 
   let connectionError: unknown;
   let probeFailed = false;
