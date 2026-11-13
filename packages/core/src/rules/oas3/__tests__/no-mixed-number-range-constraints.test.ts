@@ -148,6 +148,6 @@ describe('Oas3 no-mixed-number-range-constraints', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

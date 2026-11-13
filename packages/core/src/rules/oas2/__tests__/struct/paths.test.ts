@@ -22,7 +22,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report if Path object is empty ', async () => {
@@ -39,7 +39,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should report if Path object is not present ', async () => {
@@ -62,23 +62,6 @@ describe('OpenAPI Schema', () => {
         },
       ]
     `);
-  });
-
-  it('should not report if Path object is empty ', async () => {
-    const source = outdent`
-      swagger: '2.0'
-      info:
-        title: Test
-        version: '1.0'
-
-      paths: {}
-    `;
-
-    expect(
-      await lintDoc(source, {
-        struct: 'error',
-      })
-    ).toMatchInlineSnapshot(`[]`);
   });
 
   //Check: no error
@@ -135,7 +118,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         'paths-identical': 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report valid matching URLs', async () => {
@@ -162,7 +145,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report in case of ambiguous matching ', async () => {
@@ -189,7 +172,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report if Path Item is empty ', async () => {
@@ -207,7 +190,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report of a valid Parameter Object', async () => {
@@ -241,6 +224,6 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 });

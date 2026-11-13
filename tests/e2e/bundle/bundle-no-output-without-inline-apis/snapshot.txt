@@ -7,7 +7,6 @@ Positionals:
   apis                                                     [array] [default: []]
 
 Options:
-      --version                             Show version number.       [boolean]
       --help                                Show help.                 [boolean]
   -o, --output                              Output file or folder for inline API
                                             s.                          [string]
@@ -40,3 +39,5 @@ Options:
                             [choices: "basename", "title"] [default: "basename"]
 
 At least one inline API must be specified when using --output.
+
+Exit code: 1

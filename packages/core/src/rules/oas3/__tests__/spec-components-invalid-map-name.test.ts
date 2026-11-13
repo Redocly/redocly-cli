@@ -222,7 +222,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
       }),
     });
 
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should not report invalid keys inside nested examples', async () => {

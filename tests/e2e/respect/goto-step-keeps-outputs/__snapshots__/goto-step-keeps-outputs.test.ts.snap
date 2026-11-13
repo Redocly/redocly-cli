@@ -53,5 +53,6 @@ exports[`should keep earlier step outputs addressable when a goto action targets
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

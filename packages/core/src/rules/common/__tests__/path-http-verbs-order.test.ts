@@ -94,6 +94,6 @@ describe('Common path-http-verbs-order', () => {
       config: await createConfig({ rules: { 'path-http-verbs-order': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

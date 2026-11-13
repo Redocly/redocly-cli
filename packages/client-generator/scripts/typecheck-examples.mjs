@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(pkgRoot, '..', '..');
 const tsc = join(repoRoot, 'node_modules/.bin/tsc');
-const examplesDir = join(repoRoot, 'tests/e2e/generate-client/examples');
+const examplesDir = join(pkgRoot, 'examples');
 const examples = readdirSync(examplesDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && entry.name !== '_shared')
   .map((entry) => entry.name)
@@ -20,7 +20,7 @@ const examples = readdirSync(examplesDir, { withFileTypes: true })
 let failed = false;
 for (const name of examples) {
   const tsconfig = join(examplesDir, name, 'tsconfig.json');
-  // Language-SDK examples (python/go/php) have no TypeScript consumer to check.
+  // Language-SDK examples (python/go/php/java) have no TypeScript consumer to check.
   if (!existsSync(tsconfig)) continue;
   const res = spawnSync(tsc, ['--noEmit', '-p', tsconfig], {
     stdio: 'inherit',

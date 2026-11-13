@@ -97,6 +97,7 @@ export type {
   RetryConfig,
   RetryContext,
   RetryStrategy,
+  SettledCall,
 } from '../../../runtime-contract.js';
 
 /** Client configuration: transport, defaults, retry policy, middleware, and credentials. */

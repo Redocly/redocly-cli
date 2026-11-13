@@ -154,10 +154,7 @@ logo:
   altText: Test
   link: /
 asyncapi:
-  hideInfo: false
-  expandSchemas:
-    root: true
-    elements: true
+  layout: stacked
 navbar:
   items:
     - label: Markdown

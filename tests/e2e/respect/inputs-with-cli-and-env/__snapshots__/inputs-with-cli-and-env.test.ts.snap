@@ -64,32 +64,6 @@ exports[`should use inputs from CLI and env 1`] = `
     ✓ schema check
     ✗ unexpected error
  
-  ✓ GET /menu - step test-default-input 
-
-    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte&organizationId=acme-inc
-    Request Headers:
-      accept: application/json, application/problem+json
-      authorization: Basic Og== 
- 
-
-    Response status code: 200
-    Response time: <test> ms
-    Response Headers: <response headers test>
-    Response Size: <test> bytes
-    Response Body:
-      {
-        "object": "list",
-        "page": {
-          "nextPage": null,
-          "previousPage": null,
-          "limit": 10
-        },
-        "items": []
-      } 
- 
-    ✓ status code check - $statusCode in [200, 400, 500]
-    ✓ content-type check
-    ✓ schema check
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
@@ -136,13 +110,13 @@ exports[`should use inputs from CLI and env 1`] = `
  
     stepId - search-menu 
     ✗ unexpected error 
-    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    Reason: Error in resolving runtime expression '$response.body#/page/total': JSON Pointer "/page/total" reaches no value. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
   Summary for inputs-with-cli-and-env.arazzo.yaml
   
   Workflows: 1 passed, 1 failed, 2 total
-  Steps: 3 passed, 1 failed, 4 total
-  Checks: 12 passed, 1 failed, 13 total
+  Steps: 2 passed, 1 failed, 3 total
+  Checks: 13 passed, 1 failed, 14 total
   Time: <test>ms 
  
  
@@ -155,5 +129,6 @@ exports[`should use inputs from CLI and env 1`] = `
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

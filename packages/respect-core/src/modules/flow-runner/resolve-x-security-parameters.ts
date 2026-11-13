@@ -1,5 +1,4 @@
-import type { ExtendedSecurity } from '@redocly/openapi-core';
-import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+import type { ExtendedSecurity, Oas3SecurityScheme } from '@redocly/openapi-core';
 
 import type { Step, RuntimeExpressionContext, TestContext } from '../../types.js';
 import { getSecurityParameter } from '../context-parser/get-security-parameters.js';

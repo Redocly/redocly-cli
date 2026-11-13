@@ -1,4 +1,4 @@
-import { logger, pluralize } from '@redocly/openapi-core';
+import { HandledError, logger, pluralize } from '@redocly/openapi-core';
 
 import { selectTrafficParser } from '../drift/log-formats/registry.js';
 import type {
@@ -25,9 +25,12 @@ import {
   type StringObservations,
 } from './value-inference.js';
 
+export type OpenApiVersion = '3.1' | '3.2';
+
 export interface GenerateSpecOptions {
   trafficPath: string;
   format: TrafficFormat;
+  openapiVersion: OpenApiVersion;
   title?: string;
   server?: string;
 }
@@ -552,7 +555,7 @@ function accumulateBodySchema(target: Map<string, JsonSchema>, mime: string, sch
 }
 
 /**
- * Generate an OpenAPI 3.2 document by observing recorded traffic. Returns the
+ * Generate an OpenAPI document by observing recorded traffic. Returns the
  * document object; the caller decides whether to print it, write it, or hand it
  * to an AI provider for refinement.
  */
@@ -568,6 +571,7 @@ export async function generateSpecFromTraffic(
   const operations = new Map<string, OperationAccumulator>();
   const observedServers = new Set<string>();
   let supportedTrafficFileCount = 0;
+  let unsupportedMethodExchangeCount = 0;
 
   const observe = (exchange: NormalizedExchange) => {
     const method = exchange.request.method.toLowerCase();
@@ -582,7 +586,14 @@ export async function generateSpecFromTraffic(
         return;
       }
       rawPath = serverRelativePath;
-    } else if (exchange.request.host && !isSyntheticHost(exchange.request.host)) {
+    }
+
+    if (method === 'query' && options.openapiVersion === '3.1') {
+      unsupportedMethodExchangeCount += 1;
+      return;
+    }
+
+    if (!server && exchange.request.host && !isSyntheticHost(exchange.request.host)) {
       observedServers.add(`${exchange.request.protocol}//${exchange.request.host}`);
     }
 
@@ -661,11 +672,19 @@ export async function generateSpecFromTraffic(
   }
 
   if (supportedTrafficFileCount === 0) {
-    throw new Error('No supported traffic files found to generate an OpenAPI description from.');
+    throw new HandledError(
+      'No supported traffic files found to generate an OpenAPI description from.'
+    );
+  }
+
+  if (operations.size === 0 && unsupportedMethodExchangeCount > 0) {
+    throw new HandledError(
+      'All observed HTTP exchanges use the QUERY method, which OpenAPI 3.1 does not support. Use --openapi-version 3.2 to include them.'
+    );
   }
 
   if (operations.size === 0) {
-    throw new Error(
+    throw new HandledError(
       server
         ? `No HTTP exchanges in the traffic matched the server "${server}".`
         : 'No HTTP exchanges were observed in the traffic. Cannot generate an OpenAPI description.'
@@ -673,7 +692,12 @@ export async function generateSpecFromTraffic(
   }
 
   const serverUrls = server ? [server] : Array.from(observedServers).sort();
-  return buildDocument(operations, options.title ?? 'Generated API', serverUrls);
+  return buildDocument(
+    operations,
+    options.openapiVersion,
+    options.title ?? 'Generated API',
+    serverUrls
+  );
 }
 
 export function countOperations(document: GeneratedDocument): number {
@@ -696,6 +720,7 @@ function parameterSchema(param: ParameterAccumulator, allowEnum: boolean): JsonS
 
 function buildDocument(
   operations: Map<string, OperationAccumulator>,
+  openapiVersion: OpenApiVersion,
   title: string,
   serverUrls: string[]
 ): GeneratedDocument {
@@ -705,22 +730,18 @@ function buildDocument(
     const pathItem = (paths[accumulator.template] ??= {});
 
     const parameters: GeneratedParameter[] = [
-      ...Array.from(accumulator.pathParams).map(
-        ([name, param]): GeneratedParameter => ({
-          name,
-          in: 'path',
-          required: true,
-          schema: parameterSchema(param, false),
-        })
-      ),
-      ...Array.from(accumulator.queryParams).map(
-        ([name, param]): GeneratedParameter => ({
-          name,
-          in: 'query',
-          required: false,
-          schema: parameterSchema(param, true),
-        })
-      ),
+      ...Array.from(accumulator.pathParams).map(([name, param]): GeneratedParameter => ({
+        name,
+        in: 'path',
+        required: true,
+        schema: parameterSchema(param, false),
+      })),
+      ...Array.from(accumulator.queryParams).map(([name, param]): GeneratedParameter => ({
+        name,
+        in: 'query',
+        required: false,
+        schema: parameterSchema(param, true),
+      })),
     ];
 
     const operation: GeneratedOperation = {
@@ -762,7 +783,7 @@ function buildDocument(
   }
 
   return {
-    openapi: '3.2.0',
+    openapi: `${openapiVersion}.0`,
     info: { title, version: '1.0.0' },
     ...(serverUrls.length > 0 ? { servers: serverUrls.map((url) => ({ url })) } : {}),
     paths,

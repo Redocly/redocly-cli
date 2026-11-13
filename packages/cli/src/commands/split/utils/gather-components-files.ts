@@ -1,29 +1,46 @@
 import {
+  escapePointerFragment,
   isTruthy,
-  type Oas3ComponentName,
-  type Oas3Components,
-  type Oas3Schema,
-  type Oas3_1Components,
   type Oas3_1Schema,
+  type Oas3Schema,
 } from '@redocly/openapi-core';
+import * as path from 'node:path';
 
-import type { ComponentsFiles } from '../types.js';
+import { COMPONENTS } from '../constants.js';
+import type { AnyOas3Definition, ComponentsFiles } from '../types.js';
+import { assertWithinDir } from './assert-within-dir.js';
+import { findComponentTypes } from './find-component-type.js';
+import { getFileNamePath, type FileNameConflict } from './get-file-name-path.js';
 
 export function gatherComponentsFiles(
-  components: Oas3Components | Oas3_1Components,
+  openapi: AnyOas3Definition,
+  openapiDir: string,
   componentsFiles: ComponentsFiles,
-  componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>,
-  componentName: string,
-  filename: string
+  ext: string,
+  conflicts: FileNameConflict[]
 ) {
-  let inherits: string[] = [];
-  if (componentType === 'schemas') {
-    inherits = (
-      (components?.[componentType]?.[componentName] as Oas3Schema | Oas3_1Schema)?.allOf || []
-    )
-      .map(({ $ref }) => $ref)
-      .filter(isTruthy);
+  const { components } = openapi;
+  if (!components) return;
+  const componentsDir = path.join(openapiDir, COMPONENTS);
+  for (const componentType of findComponentTypes(components)) {
+    const componentDirPath = path.join(componentsDir, componentType);
+    const takenFileNames = new Map<string, string>();
+    for (const componentName of Object.keys(components[componentType] || {})) {
+      const filename = getFileNamePath(componentDirPath, componentName, ext, takenFileNames, {
+        conflicts,
+        pointer: `#/components/${componentType}/${escapePointerFragment(componentName)}`,
+      });
+      assertWithinDir(openapiDir, filename, componentName);
+      let inherits: string[] = [];
+      if (componentType === 'schemas') {
+        inherits = (
+          (components[componentType]?.[componentName] as Oas3Schema | Oas3_1Schema)?.allOf || []
+        )
+          .map(({ $ref }) => $ref)
+          .filter(isTruthy);
+      }
+      componentsFiles[componentType] = componentsFiles[componentType] || {};
+      componentsFiles[componentType][componentName] = { inherits, filename };
+    }
   }
-  componentsFiles[componentType] = componentsFiles[componentType] || {};
-  componentsFiles[componentType][componentName] = { inherits, filename };
 }

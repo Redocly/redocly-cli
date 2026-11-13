@@ -19,6 +19,9 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 
 - **Models are structs**: required fields by value, optionals as pointers with
   `,omitempty`; the `json` tag always carries the exact wire name.
+- **A `writeOnly` property is optional** even when required: requests and responses share
+  one struct, and a response never carries it. A pointer with `,omitempty` still sends it
+  in a request, and leaves it `nil` in a response instead of claiming a zero value.
 - **Package clause:** `package client` by default, `goPackage` to override — a generated
   file usually lands in a package the consumer already owns. The value is checked against
   Go's own rule (lowercase letters, digits, `_`, no leading digit, not a keyword) and an
@@ -55,6 +58,17 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   parameters (Go has no defaults — the doc comment states the spec default), so templated
   base URLs need no manual string building. The client's baked default stays `servers[0]`
   with variable defaults substituted.
+- **Stream bodies pass through.** For an untyped `multipart/form-data` operation
+  (`isUntypedMultipartBody` from the toolkit: a schema that is neither an object nor a
+  `$ref`) or a binary operation (`isBinaryContentType`), the body argument is `any` and
+  the runtime sorts it out (`multipartBody` / `binaryBody`): an `io.Reader` is the
+  request body as is, with no `io.ReadAll` and exactly one attempt (a consumed reader
+  cannot be replayed, whatever the retry policy says); a `[]byte` or a `string` is sent as
+  bytes, not JSON-marshalled, and stays replayable, so retries stay; a map or struct body
+  of an untyped multipart operation keeps the `toMultipart` path. The description's (or
+  the multipart boundary's) `Content-Type` is applied only when the caller set none, so a
+  forwarded boundary survives; that rule holds for every operation. The per-attempt
+  timeout still applies. Typed multipart bodies are unaffected.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   `context.WithTimeout`, idempotency keys, middleware, pagination (`<Op>Pages`/`<Op>Items`
   as `func(yield func(T, error) bool)` — `range`-over-func needs Go ≥ 1.23; 1.21 calls
@@ -76,6 +90,25 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   and embedded at prepare time.
   Under `--runtime module` it is written as a same-package `runtime.go` beside the client,
   whose import block then lists only the packages its own body uses.
+- **`OnSettled` sees every sent call once.** `send()` calls each `Middleware.OnSettled` after
+  the last attempt with a `SettledCall`: the operation id, the final response (body unread)
+  or the error, the attempt count, and the duration from the first attempt to the end of the
+  `OnResponse` hooks on the final response. A timeout is a `*TimeoutError`; a cancelled or
+  expired caller context is an error that wraps `context.Canceled` or
+  `context.DeadlineExceeded`. A call whose body cannot be encoded or read does not reach it,
+  and a request that `http.NewRequestWithContext` cannot build settles with 1 attempt.
+- **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
+  writes `telemetry.go` (from `telemetry/telemetry.go` in this folder, embedded at prepare
+  time) beside the client, in both runtime modes, with the client's package clause and the
+  generator version baked in. The client file does not change. The application registers
+  `NewUsageTelemetry(UsageTelemetryOptions{...}).Middleware()` and calls `Flush(ctx)` before
+  it exits, because Go has no exit hook. An SDK owner calls `Register()` instead, in an `init`
+  function, which adds the middleware to `registeredMiddleware` of the runtime, so `send` runs
+  it for every client; `FlushUsageTelemetry(ctx)` then flushes each registered instance. The
+  runtime declares `registeredMiddleware` in both modes, so the client file stays the same.
+  Its exported names are reserved for every SDK, and
+  every unexported name starts with `usageTelemetry`, because the file shares the package
+  with the model types and the runtime.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 - **It documents itself.** With `client.docs` (or `--docs`), the `docs` hook writes

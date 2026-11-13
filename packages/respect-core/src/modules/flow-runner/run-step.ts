@@ -18,7 +18,6 @@ import {
   isParameterWithoutIn,
   resolveReusableComponentItem,
   resolveWorkflowReference,
-  type ParameterWithoutIn,
 } from '../context-parser/index.js';
 import {
   printChildWorkflowSeparator,
@@ -28,9 +27,9 @@ import {
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { Timer } from '../timeout-timer/timer.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
+import { resolveActionInputs } from './resolve-action-inputs.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
 import { checkCriteria } from './success-criteria/index.js';
 
@@ -40,16 +39,30 @@ export async function runStep({
   ctx,
   workflowId,
   retriesLeft,
+  retriesLeftByAction = {},
+  retryingStepIds = [],
   executedStepsCount,
 }: {
   step: Step;
   ctx: TestContext;
   workflowId: string | undefined;
+  // set for the steps of a workflow that a retry action runs; above 0, it keeps
+  // those steps out of the summary until the last retry
   retriesLeft?: number;
+  // the retries left of each retry action of this step, by the action's index
+  retriesLeftByAction?: Record<number, number>;
+  // the steps, as `workflowId/stepId`, whose retry action runs the workflow or step this run is part of
+  retryingStepIds?: string[];
   executedStepsCount: ExecutedStepsCount;
 }): Promise<{ shouldEnd: boolean } | void> {
+  const { executionDeadline } = ctx.options;
+  if (executionDeadline !== undefined && Date.now() >= executionDeadline) {
+    return endStepAtExecutionTimeout(step, ctx, retriesLeft);
+  }
+
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
+
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
@@ -89,39 +102,32 @@ export async function runStep({
       ctx.options.config
     );
 
-    if (resolvedParameters && resolvedParameters.length > 0) {
-      // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
-      const workflowInputParameters = resolvedParameters.filter(isParameterWithoutIn).reduce(
-        (acc, parameter: ParameterWithoutIn) => {
-          const ctxWithInputs = {
-            ...ctx,
-            $inputs: {
-              ...ctx.$inputs,
-              ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
-            },
-          };
-          // Ensure parameter is of type ParameterWithoutIn
-          acc[parameter.name] = getValueFromContext({
-            value: parameter.value,
-            ctx: ctxWithInputs,
-            logger: ctx.options.logger,
-          });
-          return acc;
-        },
-        {} as Record<string, any>
-      );
-
-      // Merge the runtime inputs with the inputs passed in the step as parameters for the workflow
-      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = {
-        ...workflowCtx.$workflows[targetWorkflow.workflowId].inputs,
-        ...workflowInputParameters,
-      };
-    }
+    // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
+    const ctxWithInputs = {
+      ...ctx,
+      $inputs: {
+        ...ctx.$inputs,
+        ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+      },
+    };
+    const workflowInputParameters = resolvedParameters
+      ? Object.fromEntries(
+          resolvedParameters.filter(isParameterWithoutIn).map((parameter) => [
+            parameter.name,
+            getValueFromContext({
+              value: parameter.value,
+              ctx: ctxWithInputs,
+              logger: ctx.options.logger,
+            }),
+          ])
+        )
+      : undefined;
 
     printChildWorkflowSeparator(stepId, ctx.options.logger);
     const stepWorkflowResult = await runWorkflow({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
+      inputs: workflowInputParameters,
       skipLineSeparator: true,
       parentStepId: stepId,
       invocationContext: `Child workflow of step ${stepId}`,
@@ -201,19 +207,6 @@ export async function runStep({
       message: `Max steps (${ctx.options.maxSteps}) reached`,
       passed: false,
       severity: ctx.severity['MAX_STEPS_REACHED_ERROR'],
-    });
-    return { shouldEnd: true };
-  }
-
-  if (
-    ctx.options.executionTimeout &&
-    Timer.getInstance(ctx.options.executionTimeout).isTimedOut()
-  ) {
-    step.checks.push({
-      name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-      message: `Global Respect timer reached`,
-      passed: false,
-      severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
     });
     return { shouldEnd: true };
   }
@@ -334,7 +327,7 @@ export async function runStep({
       return { shouldEnd: true };
     }
 
-    for (const action of actions) {
+    for (const [actionIndex, action] of actions.entries()) {
       const { type, criteria } = action;
 
       if (action.workflowId && action.stepId) {
@@ -375,15 +368,31 @@ export async function runStep({
         const targetStep = action.stepId ? action.stepId : undefined;
 
         if (type === 'retry') {
-          const { retryAfter, retryLimit = 0 } = action;
-          retriesLeft = retriesLeft ?? retryLimit;
-          step.retriesLeft = retriesLeft;
-          if (retriesLeft === 0) {
-            return { retriesLeft: 0, shouldEnd: false };
+          const { retryAfter, retryLimit = 1 } = action;
+          const retryingStepId = `${workflowId}/${stepId}`;
+          // a step that fails again inside its own retry target would run that target
+          // again without end, so there it counts as out of retries
+          const actionRetriesLeft =
+            (targetWorkflow || targetStep) && retryingStepIds.includes(retryingStepId)
+              ? 0
+              : (retriesLeftByAction[actionIndex] ?? retryLimit);
+          step.retriesLeft = actionRetriesLeft;
+          if (actionRetriesLeft === 0) {
+            continue;
           }
 
           if (retryAfter) {
-            await delay(retryAfter);
+            const retryWait =
+              executionDeadline === undefined
+                ? retryAfter
+                : Math.min(retryAfter, Math.max(executionDeadline - Date.now(), 0) / 1000);
+            await delay(retryWait);
+            if (retryWait < retryAfter) {
+              return {
+                stepResult: endStepAtExecutionTimeout(step, ctx, retriesLeft),
+                retriesLeft: actionRetriesLeft,
+              };
+            }
           }
 
           if (targetWorkflow || targetStep) {
@@ -396,13 +405,24 @@ export async function runStep({
           }
 
           if (targetWorkflow) {
+            let inputs: Record<string, unknown> | undefined;
+            try {
+              inputs = resolveActionInputs({ action, ctx, step, workflowId });
+            } catch (error) {
+              return failStepWithActionError(
+                error instanceof Error ? error.message : String(error)
+              );
+            }
+
             const stepWorkflowResult = await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
+              inputs,
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
               executedStepsCount,
-              retriesLeft: retriesLeft - 1,
+              retriesLeft: actionRetriesLeft - 1,
+              retryingStepIds: [...retryingStepIds, retryingStepId],
             });
             ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {
@@ -417,11 +437,12 @@ export async function runStep({
               ctx: targetCtx,
               workflowId,
               executedStepsCount,
+              retryingStepIds: [...retryingStepIds, retryingStepId],
             });
           }
 
           ctx.options.logger.output(
-            `\n  Retrying step ${blue(stepId)} (${retryLimit - retriesLeft + 1}/${retryLimit})\n`
+            `\n  Retrying step ${blue(stepId)} (${retryLimit - actionRetriesLeft + 1}/${retryLimit})\n`
           );
 
           return {
@@ -429,10 +450,12 @@ export async function runStep({
               step,
               ctx,
               workflowId,
-              retriesLeft: retriesLeft - 1,
+              retriesLeft,
+              retriesLeftByAction: { ...retriesLeftByAction, [actionIndex]: actionRetriesLeft - 1 },
+              retryingStepIds,
               executedStepsCount,
             }),
-            retriesLeft,
+            retriesLeft: actionRetriesLeft,
           };
         } else if (type === 'end') {
           return { shouldEnd: true };
@@ -452,9 +475,17 @@ export async function runStep({
             });
           }
 
+          let inputs: Record<string, unknown> | undefined;
+          try {
+            inputs = resolveActionInputs({ action, ctx, step, workflowId });
+          } catch (error) {
+            return failStepWithActionError(error instanceof Error ? error.message : String(error));
+          }
+
           const stepWorkflowResult = await runWorkflow({
             workflowInput: targetWorkflow || workflow,
             ctx: targetCtx,
+            inputs,
             fromStepId: targetStep,
             skipLineSeparator: true,
             invocationContext: `Goto from step ${stepId}`,
@@ -472,4 +503,28 @@ export async function runStep({
       return { shouldEnd: true };
     }
   }
+}
+
+function endStepAtExecutionTimeout(
+  step: Step,
+  ctx: TestContext,
+  retriesLeft: number | undefined
+): { shouldEnd: boolean } {
+  const timeoutCheck: Check = {
+    name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+    message: `Global Respect timer reached`,
+    passed: false,
+    severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
+  };
+  if (ctx.executedSteps.includes(step)) {
+    // the attempt that sent the request is registered and printed: it becomes the result of the step
+    step.retriesLeft = retriesLeft;
+    step.checks.push(timeoutCheck);
+    printUnknownStep({ ...step, checks: [timeoutCheck] }, ctx.options.logger);
+  } else {
+    const timedOutStep = { ...step, retriesLeft, checks: [...step.checks, timeoutCheck] };
+    ctx.executedSteps.push(timedOutStep);
+    printUnknownStep(timedOutStep, ctx.options.logger);
+  }
+  return { shouldEnd: true };
 }

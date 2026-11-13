@@ -1,5 +1,4 @@
 import {
-  type Totals,
   ResolveError,
   YamlParseError,
   HandledError,
@@ -19,7 +18,6 @@ import { fileURLToPath } from 'node:url';
 import {
   getFallbackApisOrExit,
   pathToFilename,
-  printConfigLintTotals,
   langToExt,
   checkIfRulesetExist,
   handleError,
@@ -63,44 +61,7 @@ describe('pathToFilename', () => {
   });
 });
 
-describe('printConfigLintTotals', () => {
-  const totalProblemsMock: Totals = {
-    errors: 1,
-    warnings: 0,
-    ignored: 0,
-  };
-
-  const redColoretteMocks = vi.mocked(red);
-  const yellowColoretteMocks = vi.mocked(yellow);
-
-  beforeEach(() => {
-    yellowColoretteMocks.mockImplementation((text) => text as string);
-    redColoretteMocks.mockImplementation((text) => text as string);
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-  });
-
-  it('should print errors if such exist', () => {
-    printConfigLintTotals(totalProblemsMock);
-    expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
-    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
-  });
-
-  it('should print warning if no error', () => {
-    printConfigLintTotals({ ...totalProblemsMock, errors: 0, warnings: 2 });
-    expect(process.stderr.write).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
-    expect(yellowColoretteMocks).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
-  });
-
-  it('should print nothing if no error and no warnings', () => {
-    const result = printConfigLintTotals({ ...totalProblemsMock, errors: 0 });
-    expect(result).toBeUndefined();
-    expect(process.stderr.write).toHaveBeenCalledTimes(0);
-    expect(yellowColoretteMocks).toHaveBeenCalledTimes(0);
-    expect(redColoretteMocks).toHaveBeenCalledTimes(0);
-  });
-});
-
-describe('getFallbackApisOrExit', async () => {
+describe('getFallbackApisOrExit', () => {
   const redColoretteMocks = vi.mocked(red);
   const yellowColoretteMocks = vi.mocked(yellow);
 
@@ -110,53 +71,40 @@ describe('getFallbackApisOrExit', async () => {
     },
   };
 
-  const config = await openapiCore.createConfig({ apis });
+  let config: Config;
+
+  beforeAll(async () => {
+    config = await openapiCore.createConfig({ apis });
+  });
 
   beforeEach(() => {
     yellowColoretteMocks.mockImplementation((text) => text as string);
     redColoretteMocks.mockImplementation((text) => text as string);
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process, 'exit').mockImplementation((code) => code as never);
-  });
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   it('should exit with error because no path provided', async () => {
     const apisConfig = await openapiCore.createConfig({
       apis: {},
     });
-    expect.assertions(1);
-    try {
-      await getFallbackApisOrExit([''], apisConfig);
-    } catch (e) {
-      expect(e.message).toEqual('Path cannot be empty.');
-    }
+    await expect(getFallbackApisOrExit([''], apisConfig)).rejects.toThrow('Path cannot be empty.');
   });
 
   it('should exit with error when no APIs are provided and config has no apis', async () => {
     const apisConfig = await openapiCore.createConfig({ apis: {} });
-    expect.assertions(1);
-    try {
-      await getFallbackApisOrExit([], apisConfig);
-    } catch (e) {
-      expect(e.message).toEqual(
-        'No APIs were provided. Specify an API via the command argument or define one in your config.'
-      );
-    }
+    await expect(getFallbackApisOrExit([], apisConfig)).rejects.toThrow(
+      'No APIs were provided. Specify an API via the command argument or define one in your config.'
+    );
   });
 
   it('should error if file from config do not exist', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
-    expect.assertions(2);
-    try {
-      await getFallbackApisOrExit(undefined, config);
-    } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
-        '\nsomeFile.yaml does not exist or is invalid.\n\n'
-      );
-      expect(e.message).toEqual('Please provide a valid path.');
-    }
+    await expect(getFallbackApisOrExit(undefined, config)).rejects.toThrow(
+      'Please provide a valid path.'
+    );
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '\nsomeFile.yaml does not exist or is invalid.\n\n'
+    );
   });
 
   it('should return valid array with results if such file exist', async () => {
@@ -180,16 +128,12 @@ describe('getFallbackApisOrExit', async () => {
       apis: {},
     });
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
-    expect.assertions(2);
-
-    try {
-      await getFallbackApisOrExit(['someFile.yaml'], apisConfig);
-    } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
-        '\nsomeFile.yaml does not exist or is invalid.\n\n'
-      );
-      expect(e.message).toEqual('Please provide a valid path.');
-    }
+    await expect(getFallbackApisOrExit(['someFile.yaml'], apisConfig)).rejects.toThrow(
+      'Please provide a valid path.'
+    );
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '\nsomeFile.yaml does not exist or is invalid.\n\n'
+    );
   });
 
   it('should exit with error in case if invalid 2 path provided as args', async () => {
@@ -197,15 +141,12 @@ describe('getFallbackApisOrExit', async () => {
       apis: {},
     });
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
-    expect.assertions(2);
-    try {
-      await getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig);
-    } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
-        '\nsomeFile.yaml does not exist or is invalid.\n\n'
-      );
-      expect(e.message).toEqual('Please provide a valid path.');
-    }
+    await expect(
+      getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig)
+    ).rejects.toThrow('Please provide a valid path.');
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '\nsomeFile.yaml does not exist or is invalid.\n\n'
+    );
   });
 
   it('should exit with error if only one file exist ', async () => {
@@ -217,22 +158,17 @@ describe('getFallbackApisOrExit', async () => {
     };
     const configStub = await openapiCore.createConfig({ apis: apisStub });
 
-    const existSyncMock = vi
-      .mocked(fs.existsSync)
-      .mockImplementation((path) => (path as string).endsWith('someFile.yaml'));
+    vi.mocked(fs.existsSync).mockImplementation((path) =>
+      (path as string).endsWith('someFile.yaml')
+    );
 
-    expect.assertions(3);
-
-    try {
-      await getFallbackApisOrExit(undefined, configStub);
-    } catch (e) {
-      expect(process.stderr.write).toHaveBeenCalledWith(
-        '\nnotExist.yaml does not exist or is invalid.\n\n'
-      );
-      expect(process.stderr.write).toHaveBeenCalledTimes(1);
-      expect(e.message).toEqual('Please provide a valid path.');
-    }
-    existSyncMock.mockClear();
+    await expect(getFallbackApisOrExit(undefined, configStub)).rejects.toThrow(
+      'Please provide a valid path.'
+    );
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '\nnotExist.yaml does not exist or is invalid.\n\n'
+    );
+    expect(process.stderr.write).toHaveBeenCalledTimes(1);
   });
 
   it('should work ok if it is url passed', async () => {
@@ -517,19 +453,14 @@ describe('handleErrors', () => {
   const blueColoretteMocks = vi.mocked(blue);
 
   beforeEach(() => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process, 'exit').mockImplementation((code) => code as never);
     redColoretteMocks.mockImplementation((text) => text as string);
     blueColoretteMocks.mockImplementation((text) => text as string);
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should handle ResolveError', () => {
     const resolveError = new ResolveError(new Error('File not found.'));
-    expect(() => handleError(resolveError, ref)).toThrowError(
+    expect(() => handleError(resolveError, ref)).toThrow(
       new HandledError(
         `Failed to resolve API description at openapi/test.yaml:\n\n  - File not found.`
       )
@@ -538,14 +469,14 @@ describe('handleErrors', () => {
 
   it('should handle YamlParseError', () => {
     const yamlParseError = new YamlParseError(new Error('Invalid yaml.'), {} as any);
-    expect(() => handleError(yamlParseError, ref)).toThrowError(
+    expect(() => handleError(yamlParseError, ref)).toThrow(
       new HandledError(`Failed to parse API description at openapi/test.yaml:\n\n  - Invalid yaml.`)
     );
   });
 
   it('should handle CircularJSONNotSupportedError', () => {
     const circularError = new CircularJSONNotSupportedError(new Error('Circular json'));
-    expect(() => handleError(circularError, ref)).toThrowError(
+    expect(() => handleError(circularError, ref)).toThrow(
       new HandledError(
         `Detected circular reference which can't be converted to JSON.\n` +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
@@ -556,14 +487,14 @@ describe('handleErrors', () => {
   it('should handle SyntaxError', () => {
     const testError = new SyntaxError('Unexpected identifier');
     testError.stack = 'test stack';
-    expect(() => handleError(testError, ref)).toThrowError(
+    expect(() => handleError(testError, ref)).toThrow(
       new HandledError('Syntax error: Unexpected identifier test stack')
     );
   });
 
   it('should throw unknown error', () => {
     const testError = new Error('Test error.');
-    expect(() => handleError(testError, ref)).toThrowError(
+    expect(() => handleError(testError, ref)).toThrow(
       new HandledError(`Something went wrong when processing openapi/test.yaml:\n\n  - Test error.`)
     );
   });
@@ -572,10 +503,6 @@ describe('handleErrors', () => {
 describe('checkIfRulesetExist', () => {
   beforeEach(() => {
     vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null) => code as never);
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   it('should throw an error if rules are not provided', () => {
@@ -594,7 +521,7 @@ describe('checkIfRulesetExist', () => {
       openrpc1: {},
       graphql: {},
     };
-    expect(() => checkIfRulesetExist(rules)).toThrowError(
+    expect(() => checkIfRulesetExist(rules)).toThrow(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
     );
   });
@@ -613,7 +540,7 @@ describe('checkIfRulesetExist', () => {
       openrpc1: {},
       graphql: {},
     };
-    checkIfRulesetExist(rules);
+    expect(() => checkIfRulesetExist(rules)).not.toThrow();
   });
 });
 
@@ -877,7 +804,6 @@ describe('validateFileExtension', () => {
 
 describe('writeToFileByExtension', () => {
   beforeEach(() => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(vi.fn());
     vi.mocked(yellow).mockImplementation((text) => text as string);
   });
 

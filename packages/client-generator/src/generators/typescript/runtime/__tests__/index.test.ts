@@ -107,7 +107,7 @@ describe('public surface', () => {
     });
     expect(merged.serverUrl).toBe('https://mine');
     expect(merged.retry).toEqual({ retries: 3 });
-    expect(merged.middleware!.length).toBe(2);
+    expect(merged.middleware!).toHaveLength(2);
     expect(merged.middleware![0].onRequest).toBeDefined(); // baked first
   });
 

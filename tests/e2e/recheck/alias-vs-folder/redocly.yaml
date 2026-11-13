@@ -1,0 +1,5 @@
+extends:
+  - recheck/markdown
+apis:
+  docs:
+    root: openapi.yaml

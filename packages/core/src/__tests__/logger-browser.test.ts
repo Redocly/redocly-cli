@@ -6,16 +6,16 @@ import * as colorette from 'colorette';
 
 import { logger, colorize } from '../logger.js';
 
+vi.mock('colorette');
+
 describe('Logger in Browser', () => {
   it('should call "console.error"', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     logger.error('error');
 
-    expect(error).toBeCalledTimes(1);
-    expect(error).toBeCalledWith('error');
-
-    error.mockRestore();
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(error).toHaveBeenCalledWith('error');
   });
 
   it('should call "console.log"', () => {
@@ -23,10 +23,8 @@ describe('Logger in Browser', () => {
 
     logger.info('info');
 
-    expect(info).toBeCalledTimes(1);
-    expect(info).toBeCalledWith('info');
-
-    info.mockRestore();
+    expect(info).toHaveBeenCalledTimes(1);
+    expect(info).toHaveBeenCalledWith('info');
   });
 
   it('should call "console.warn"', () => {
@@ -34,20 +32,17 @@ describe('Logger in Browser', () => {
 
     logger.warn('warn');
 
-    expect(warn).toBeCalledTimes(1);
-    expect(warn).toBeCalledWith('warn');
-
-    warn.mockRestore();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith('warn');
   });
 });
 
 describe('colorize in Browser', () => {
   it('should not call original colorette lib', () => {
-    vi.mock('colorette');
     const color = 'cyan';
     const colorized = colorize.cyan(color);
 
-    expect(colorette.cyan).not.toBeCalled();
+    expect(colorette.cyan).not.toHaveBeenCalled();
     expect(colorized).toEqual(color);
   });
 });

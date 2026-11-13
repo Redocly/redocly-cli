@@ -79,9 +79,26 @@ type RetryConfig struct {
 
 // Middleware hooks run around every request (OnRequest before serialization order
 // is N/A in Go — bodies are values; OnResponse runs in reverse registration order).
+// OnSettled runs once per call, after the last attempt, in registration order.
 type Middleware struct {
 	OnRequest  func(req *http.Request)
 	OnResponse func(resp *http.Response)
+	OnSettled  func(call SettledCall)
+}
+
+// registeredMiddleware runs after Config.Middleware on every client of the package. The usage
+// telemetry module adds to it, so one registration counts the calls of every client.
+var registeredMiddleware []Middleware
+
+// SettledCall is the outcome of one call: the final response, or the error.
+// The response body is still unread, so a hook must not read or close it.
+// Duration spans from the first attempt to the end of the OnResponse hooks.
+type SettledCall struct {
+	OperationID string
+	Response    *http.Response
+	Err         error
+	Attempts    int
+	Duration    time.Duration
 }
 
 // Date is an RFC 3339 full-date — a calendar date with no time component. Fields
@@ -253,12 +270,14 @@ func retryDelay(retry RetryConfig, attempt int, retryAfter string) time.Duration
 }
 
 type requestSpec struct {
-	OperationID    string
-	Method         string
-	URL            string
-	Headers        map[string]string
-	Query          url.Values
-	Body           io.Reader
+	OperationID string
+	Method      string
+	URL         string
+	Headers     map[string]string
+	Query       url.Values
+	Body        io.Reader
+	// Stream sends Body as is: no buffering, one attempt, the caller's Content-Type.
+	Stream         bool
 	ContentType    string
 	Timeout        time.Duration
 	Retry          *RetryConfig
@@ -297,7 +316,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	if spec.Body != nil {
+	if spec.Body != nil && !spec.Stream {
 		payload, err := io.ReadAll(spec.Body)
 		if err != nil {
 			return nil, err
@@ -313,6 +332,29 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		fullURL += separator + spec.Query.Encode()
 	}
 	maxAttempts := 1 + retry.Retries
+	if spec.Stream {
+		// The first attempt consumes the reader, so there is nothing to replay.
+		maxAttempts = 1
+	}
+	// Config.Middleware, then the registered middleware, without a combined slice for each call.
+	middlewareLists := [2][]Middleware{config.Middleware, registeredMiddleware}
+	started := time.Now()
+	settle := func(resp *http.Response, err error, attempts int) {
+		call := SettledCall{
+			OperationID: spec.OperationID,
+			Response:    resp,
+			Err:         err,
+			Attempts:    attempts,
+			Duration:    time.Since(started),
+		}
+		for _, middleware := range middlewareLists {
+			for _, mw := range middleware {
+				if mw.OnSettled != nil {
+					mw.OnSettled(call)
+				}
+			}
+		}
+	}
 	for attempt := 1; ; attempt++ {
 		attemptCtx := ctx
 		var cancel context.CancelFunc
@@ -320,7 +362,10 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			attemptCtx, cancel = context.WithTimeout(ctx, timeout)
 		}
 		var bodyReader io.Reader
-		if spec.bodyBytes != nil {
+		switch {
+		case spec.Stream:
+			bodyReader = spec.Body
+		case spec.bodyBytes != nil:
 			bodyReader = bytes.NewReader(spec.bodyBytes)
 		}
 		req, err := http.NewRequestWithContext(attemptCtx, method, fullURL, bodyReader)
@@ -328,17 +373,20 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			if cancel != nil {
 				cancel()
 			}
+			settle(nil, err, attempt)
 			return nil, err
 		}
 		for key, value := range headers {
 			req.Header.Set(key, value)
 		}
-		if spec.ContentType != "" && spec.bodyBytes != nil {
+		if spec.ContentType != "" && bodyReader != nil && req.Header.Get("Content-Type") == "" {
 			req.Header.Set("Content-Type", spec.ContentType)
 		}
-		for _, mw := range config.Middleware {
-			if mw.OnRequest != nil {
-				mw.OnRequest(req)
+		for _, middleware := range middlewareLists {
+			for _, mw := range middleware {
+				if mw.OnRequest != nil {
+					mw.OnRequest(req)
+				}
 			}
 		}
 		resp, err := httpClient.Do(req)
@@ -359,13 +407,17 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 				continue
 			}
 			if timedOut {
-				return nil, &TimeoutError{OperationID: spec.OperationID, Timeout: timeout, Attempt: attempt}
+				err = &TimeoutError{OperationID: spec.OperationID, Timeout: timeout, Attempt: attempt}
 			}
+			settle(nil, err, attempt)
 			return nil, err
 		}
-		for i := len(config.Middleware) - 1; i >= 0; i-- {
-			if config.Middleware[i].OnResponse != nil {
-				config.Middleware[i].OnResponse(resp)
+		for list := len(middlewareLists) - 1; list >= 0; list-- {
+			middleware := middlewareLists[list]
+			for i := len(middleware) - 1; i >= 0; i-- {
+				if middleware[i].OnResponse != nil {
+					middleware[i].OnResponse(resp)
+				}
 			}
 		}
 		if resp.StatusCode >= 400 && attempt < maxAttempts && retryable {
@@ -382,6 +434,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		if cancel != nil {
 			resp.Body = &cancelOnClose{ReadCloser: resp.Body, cancel: cancel}
 		}
+		settle(resp, nil, attempt)
 		return resp, nil
 	}
 }
@@ -472,6 +525,7 @@ type PaginationSpec struct {
 	Param      string
 	NextCursor string
 	HasMore    string
+	NextLink   string
 	LimitParam string
 	Items      string
 }
@@ -562,7 +616,7 @@ func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield f
 				}
 				cursor = next
 			}
-		case "link":
+		case "link", "body-link":
 			params := cloneValues(base)
 			previous := ""
 			for {
@@ -574,7 +628,18 @@ func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield f
 				if !yield(page, nil) {
 					return
 				}
-				target := linkNext(resp.Header.Get("Link"))
+				var target string
+				if spec.Style == "link" {
+					target = linkNext(resp.Header.Get("Link"))
+				} else {
+					value := resolvePointer(page, spec.NextLink)
+					link, isString := value.(string)
+					if value != nil && !isString {
+						yield(nil, fmt.Errorf("pagination link at %s is not a string", spec.NextLink))
+						return
+					}
+					target = link
+				}
 				if target == "" {
 					return
 				}
@@ -599,9 +664,7 @@ func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield f
 				previous = next
 				params = cloneValues(base)
 				for key, values := range targetURL.Query() {
-					for _, value := range values {
-						params.Add(key, value)
-					}
+					params[key] = values
 				}
 			}
 		default: // offset / page
@@ -856,4 +919,39 @@ func toMultipart(body any) (string, io.Reader, error) {
 		return "", nil, err
 	}
 	return writer.FormDataContentType(), buffer, nil
+}
+
+// multipartBody prepares the body of an untyped multipart operation: an io.Reader is
+// streamed and a []byte or string sent as is, all under the caller's Content-Type (the
+// boundary is theirs to set); any other value goes through toMultipart.
+func multipartBody(body any) (string, io.Reader, bool, error) {
+	if reader, stream, raw := rawBody(body); raw {
+		return "", reader, stream, nil
+	}
+	contentType, reader, err := toMultipart(body)
+	return contentType, reader, false, err
+}
+
+// binaryBody prepares the body of a binary operation: an io.Reader is streamed, a
+// []byte or string sent as is, and any other value JSON-marshalled.
+func binaryBody(body any) (io.Reader, bool, error) {
+	if reader, stream, raw := rawBody(body); raw {
+		return reader, stream, nil
+	}
+	payload, err := json.Marshal(body)
+	return bytes.NewReader(payload), false, err
+}
+
+// rawBody recognizes a body that needs no encoding: an io.Reader streams through in one
+// attempt, a []byte or a string is replayable bytes.
+func rawBody(body any) (io.Reader, bool, bool) {
+	switch typed := body.(type) {
+	case io.Reader:
+		return typed, true, true
+	case []byte:
+		return bytes.NewReader(typed), false, true
+	case string:
+		return strings.NewReader(typed), false, true
+	}
+	return nil, false, false
 }

@@ -42,14 +42,12 @@ describe('cliOutputs', () => {
       const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
       printWorkflowSeparator({ fileName: 'file', workflowName: 'workflow', logger });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running workflow'));
-      mockLogger.mockRestore();
     });
 
-    it('should print a separator', () => {
+    it('should print a separator without a workflow name', () => {
       const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
       printWorkflowSeparator({ fileName: 'file', workflowName: undefined, logger });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running workflow'));
-      mockLogger.mockRestore();
     });
   });
 
@@ -58,7 +56,6 @@ describe('cliOutputs', () => {
       const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
       printRequiredWorkflowSeparator('parentWorkflowId', logger);
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running required'));
-      mockLogger.mockRestore();
     });
   });
 
@@ -67,7 +64,6 @@ describe('cliOutputs', () => {
       const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
       printChildWorkflowSeparator('parentStepId', logger);
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running child'));
-      mockLogger.mockRestore();
     });
   });
 
@@ -81,7 +77,6 @@ describe('cliOutputs', () => {
         logger,
       });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running success action'));
-      mockLogger.mockRestore();
     });
   });
 
@@ -90,7 +85,6 @@ describe('cliOutputs', () => {
       const mockLogger = vi.spyOn(logger, 'printSeparator').mockImplementation(() => {});
       printWorkflowSeparatorLine(logger);
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('\u2500'));
-      mockLogger.mockRestore();
     });
   });
 
@@ -99,7 +93,6 @@ describe('cliOutputs', () => {
       const mockLogger = vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
       printStepSeparatorLine(logger);
       expect(mockLogger).toHaveBeenCalled();
-      mockLogger.mockRestore();
     });
   });
 
@@ -110,7 +103,6 @@ describe('cliOutputs', () => {
       expect(mockLogger).toHaveBeenCalledWith(
         expect.stringMatching('❌  Your config has 1 error.')
       );
-      mockLogger.mockRestore();
     });
 
     it('should print the number of warnings', () => {
@@ -119,7 +111,6 @@ describe('cliOutputs', () => {
       expect(mockLogger).toHaveBeenCalledWith(
         expect.stringMatching('⚠️  Your config has 1 warning.')
       );
-      mockLogger.mockRestore();
     });
   });
 
@@ -151,7 +142,6 @@ describe('cliOutputs', () => {
         logger,
       });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('testNameToDisplay'));
-      mockLogger.mockRestore();
     });
   });
 });

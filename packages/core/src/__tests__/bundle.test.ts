@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
 import {
@@ -248,18 +248,18 @@ describe('bundle', () => {
                 '200':
                   description: OK
                   content:
-                    $ref: '#/components/mediaTypes/Test'
+                    application/json:
+                      $ref: '#/components/mediaTypes/Test'
         components:
           mediaTypes:
             Test:
-              'application/json':
-                schema:
-                  $ref: '#/components/schemas/User'
-                examples:
-                  example1:
-                    value:
-                      id: 1
-                      name: John
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: John
           schemas:
             User:
               type: object
@@ -289,18 +289,18 @@ describe('bundle', () => {
               '200':
                 description: OK
                 content:
-                  $ref: '#/components/mediaTypes/Test'
+                  application/json:
+                    $ref: '#/components/mediaTypes/Test'
       components:
         mediaTypes:
           Test:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                example1:
-                  value:
-                    id: 1
-                    name: John
+            schema:
+              $ref: '#/components/schemas/User'
+            examples:
+              example1:
+                value:
+                  id: 1
+                  name: John
         schemas:
           User:
             type: object
@@ -312,7 +312,7 @@ describe('bundle', () => {
     `);
   });
 
-  it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
+  it('should inline external media type refs (OAS 3.2)', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/external-media-types.yaml'),
@@ -328,20 +328,30 @@ describe('bundle', () => {
               '200':
                 description: OK
                 content:
-                  $ref: '#/components/mediaTypes/testMediaType'
-      components:
-        mediaTypes:
-          testMediaType:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-              examples:
-                Test:
-                  value:
-                    id: 1
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                    examples:
+                      Test:
+                        value:
+                          id: 1
+              '201':
+                description: Created
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                    examples:
+                      Test:
+                        value:
+                          id: 1
+      components: {}
     `);
   });
 
@@ -406,6 +416,37 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should not read a local file that a remote API description references', async () => {
+    const fileUrl = pathToFileURL(
+      path.join(__dirname, 'fixtures/overlay/overlays/schemas/Error.yaml')
+    ).href;
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: () => Promise.reject(new Error('Unexpected request')), headers: [] },
+      }),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.2.0
+          info:
+            title: Redocly Cafe
+            version: 1.0.0
+          paths: {}
+          components:
+            schemas:
+              Error:
+                $ref: ${fileUrl}
+        `,
+        'https://example.com/cafe.yaml'
+      ),
+    });
+
+    expect(problems.map(({ message }) => message)).toEqual([
+      `Can't resolve $ref: A remote document can't reference ${fileUrl}, which is a local file.`,
+    ]);
+    expect((res.parsed as any).components.schemas.Error).toEqual({ $ref: fileUrl });
+  });
+
   it('should bundle refs using $anchors', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
@@ -460,7 +501,7 @@ describe('bundle', () => {
         config,
       });
 
-    expect(wrapper()).rejects.toThrowError('Document or reference is required.\n');
+    await expect(wrapper()).rejects.toThrow('Document or reference is required.\n');
   });
 
   it('should bundle with a doc provided', async () => {
@@ -1231,6 +1272,74 @@ describe('bundle with overlays', () => {
     `);
   });
 
+  it('should bundle the files a local overlay references when the API description is remote', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      externalRefResolver: new BaseResolver({
+        http: { customFetch: () => Promise.reject(new Error('Unexpected request')), headers: [] },
+      }),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.2.0
+          info:
+            title: Redocly Cafe
+            version: 1.0.0
+          paths:
+            /menu/{menuItemId}:
+              delete:
+                summary: Delete a menu item
+                operationId: deleteMenuItem
+                responses:
+                  '204':
+                    description: Menu item deleted successfully.
+        `,
+        'https://example.com/cafe.yaml'
+      ),
+      overlays: [path.join(__dirname, 'fixtures/overlay/overlays/not-found.yaml')],
+      // The overlay's local files are bundled even though URL references are kept.
+      keepUrlRefs: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths:
+        /menu/{menuItemId}:
+          delete:
+            summary: Delete a menu item
+            operationId: deleteMenuItem
+            responses:
+              '204':
+                description: Menu item deleted successfully.
+              '404':
+                $ref: '#/components/responses/NotFound'
+      components:
+        schemas:
+          Error:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Short summary of the problem type.
+              status:
+                type: integer
+                format: int32
+            required:
+              - title
+              - status
+        responses:
+          NotFound:
+            description: Resource not found.
+            content:
+              application/problem+json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+    `);
+  });
+
   it('should dereference after applying overlays', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
@@ -1276,6 +1385,6 @@ describe('bundle with overlays', () => {
 
     await expect(
       bundle({ config: await createConfig({}), ref: apiPath, overlays: [apiPath] })
-    ).rejects.toThrowError(`${apiPath} is not an Overlay 1.0, 1.1, or 1.2 document.`);
+    ).rejects.toThrow(`${apiPath} is not an Overlay 1.0, 1.1, or 1.2 document.`);
   });
 });

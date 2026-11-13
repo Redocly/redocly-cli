@@ -3,6 +3,7 @@
 node_modules/
 nodejs/
 coverage/
+__pycache__/
 .vscode/
 yarn.lock
 lib/
@@ -26,7 +27,6 @@ __changesets__.json
 **/.claude/agent-memory-local
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
-__pycache__/
 
 # Stress test inputs and outputs (tests/stress/run.sh)
 tests/stress/api-definitions/

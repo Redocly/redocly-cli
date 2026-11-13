@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info:
+  title: Shop
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Ticket:
+      type: object
+      description: A ticket that is described with a sentence that is far too long for the line-length rule to let it pass.
+    Pet:
+      $ref: ./missing.yaml#/Pet

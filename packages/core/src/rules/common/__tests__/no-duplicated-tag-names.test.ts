@@ -131,7 +131,7 @@ describe('TagsDuplicateNames', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when ignoreCase is true and tag names differ only by case', async () => {
@@ -215,7 +215,7 @@ describe('TagsDuplicateNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when no tags are present', async () => {
@@ -235,7 +235,7 @@ describe('TagsDuplicateNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when tags array is empty', async () => {
@@ -253,7 +253,7 @@ describe('TagsDuplicateNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should work with single tag', async () => {
@@ -273,7 +273,7 @@ describe('TagsDuplicateNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should work with OpenAPI 2.0 (Swagger)', async () => {

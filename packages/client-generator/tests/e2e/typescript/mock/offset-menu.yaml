@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: Cafe Menu
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /menu:
+    get:
+      operationId: listMenuItems
+      summary: List menu items, one offset page at a time.
+      x-redoclyPagination:
+        style: offset
+        offsetParam: offset
+        items: /items
+      parameters:
+        - name: offset
+          in: query
+          description: Index of the first item to return.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: One page of menu items.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                      properties:
+                        name:
+                          type: string

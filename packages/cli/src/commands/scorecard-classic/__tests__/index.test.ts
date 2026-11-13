@@ -1,11 +1,11 @@
 import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
-import { fetchRemoteScorecardAndPlugins, validateScorecard } from '@redocly/reunite-integration';
+import { fetchRemoteScorecardAndPlugins, validateScorecard } from '@redocly/platform-integration';
 
 import { getAliasOrPath, getFallbackApisOrExit } from '../../../utils/miscellaneous.js';
 import { handleScorecardClassic } from '../index.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, fetchRemoteScorecardAndPlugins: vi.fn(), validateScorecard: vi.fn() };
 });
 vi.mock('../../../utils/miscellaneous.js', async () => {
@@ -24,8 +24,6 @@ const argv = {
 describe('handleScorecardClassic()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.mocked(getFallbackApisOrExit).mockResolvedValue([{ path: 'openapi.yaml' }]);
     vi.mocked(getAliasOrPath).mockReturnValue({ path: 'openapi.yaml' });
     vi.spyOn(BaseResolver.prototype, 'resolveDocument').mockResolvedValue({

@@ -1,5 +1,196 @@
 # @redocly/openapi-core
 
+## 2.78.0
+
+### Minor Changes
+
+- Added the `spec-querystring-parameters` rule for Arazzo 1.1.0 descriptions.
+  The rule reports a step that has more than one `querystring` parameter or mixes `querystring` with `query` parameters, counting the parameters of its workflow.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.74.0.
+
+## 2.77.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.72.1.
+
+## 2.76.0
+
+## 2.75.0
+
+### Minor Changes
+
+- Added support for the `platform` option and the `access.rbac.platform` scope in `redocly.yaml`.
+- Added a warning for deprecated options in `redocly.yaml`, for example `reunite`, which `platform` replaces.
+
+## 2.74.0
+
+### Minor Changes
+
+- Removed the `color` option of `formatProblems`, which switched colors on or off for the whole process.
+  The output follows the terminal detection, so set `FORCE_COLOR` or `NO_COLOR` to override it.
+
+### Patch Changes
+
+- Fixed an issue where `lint` reported Media Type Objects under `components.mediaTypes` in OpenAPI 3.2 descriptions as invalid.
+  A `$ref` to such an object goes in a `content` entry, as the specification defines.
+- Fixed an issue where `lint` reported the `encoding`, `prefixEncoding`, and `itemEncoding` fields of a nested Encoding Object in OpenAPI 3.2 descriptions as invalid.
+  The `spec-no-invalid-encoding-combinations` rule also checks nested Encoding Objects.
+- Fixed the messages of configurable rules and the codeframes in the `json` output so that they no longer carry terminal color codes.
+- Fixed the `spec-strict-refs` rule so that it no longer reports a `$ref` to a Media Type Object in a `content` entry of OpenAPI 3.2 descriptions.
+
+## 2.73.0
+
+### Minor Changes
+
+- Added the `no-server-variables-empty-enum` rule to the `spec` ruleset for OpenAPI 3.1 and 3.2 descriptions, where the specification requires a non-empty `enum` that holds the `default` value.
+
+## 2.72.1
+
+### Patch Changes
+
+- Fixed an issue where bundling `@redocly/openapi-core` for the browser failed with `"fileURLToPath" is not exported` and `"pathToFileURL" is not exported` errors.
+
+## 2.72.0
+
+### Minor Changes
+
+- Added an experimental `diff` command that compares two API descriptions, reports changes, and rates every change by the semver bump it requires (`patch`, `minor`, or `major`).
+  `--fail-on` sets the impact that fails the run and `--check-version` verifies that `info.version` was bumped accordingly.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.69.0.
+
+## 2.71.2
+
+### Patch Changes
+
+- Fixed an issue where the `no-unresolved-refs` rule reported discriminator mapping values that are schema names (for example, `dog: Dog`) as unresolved references.
+  The rule still reports schema names that do not match a schema in `components.schemas`.
+- Fixed an issue where the `bundle` command didn't resolve a `$ref` in an overlay that pointed to a local file when the API description was a URL.
+  The command tried to download the file from the server that hosts the API description instead of reading it from disk.
+
+## 2.71.1
+
+## 2.71.0
+
+## 2.70.0
+
+## 2.69.0
+
+## 2.68.0
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule didn't report Arazzo 1.1.0 success and failure actions that had `parameters` without a `workflowId`, or action parameters with an `in` field.
+  Action parameters are passed as inputs to the target workflow, so they require a `workflowId` and can't have an `in` field.
+  Existing Arazzo descriptions with these actions fail `lint`, and `respect` doesn't run them.
+
+## 2.67.1
+
+## 2.67.0
+
+### Minor Changes
+
+- Added an `excludedMethods` option to the `operation-4xx-response` rule, which skips operations that use the listed HTTP methods.
+
+## 2.66.1
+
+## 2.66.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.67.0.
+
+## 2.65.1
+
+### Patch Changes
+
+- Fixed the `no-schema-type-mismatch` rule to report `properties` on any non-`object` type and `items` on any non-`array` type, such as `type: string` with `properties`.
+  Previously, the rule only reported `properties` on `array` and `items` on `object`.
+
+  **Note:** Because the rule is an error in the `recommended` ruleset, descriptions that passed before may now fail.
+
+- Fixed an issue where the `struct` rule incorrectly reported an error for `type: file` in response schemas of OpenAPI 2.0 API descriptions.
+
+## 2.65.0
+
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+
+## 2.64.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated `@redocly/config` to v0.66.0.
+
+## 2.63.0
+
+## 2.62.2
+
+## 2.62.1
+
+## 2.62.0
+
+## 2.61.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.65.0`.
+
+## 2.60.0
+
+## 2.59.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.62.0`.
+
+## 2.58.2
+
+## 2.58.1
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.61.1`.
+- Improved performance of the `no-invalid-media-type-examples`, `no-invalid-schema-examples`, and `no-invalid-parameter-examples` rules by reusing validators for schemas that are referenced or repeated.
+
+## 2.58.0
+
+### Minor Changes
+
+- Added the `redocly recheck` command.
+  It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
+  Presets merge with the `recheck` blocks in `extends` order, like other presets.
+  The engine's actions return data.
+  The CLI prints it.
+  Two agent skills ship in the package under `skills/` and with the repository's other skills: `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
+- Added the `plugins` option to `loadConfig` and `createConfig`: ready plugin objects that are added next to the built-in plugin.
+  Resolved configs carry the merged `recheck` block in `Config.recheck`.
+  A `recheck/*` entry in `extends` resolves like any other preset when a plugin with the id `recheck` is passed, and is skipped otherwise.
+  `lint` reads no rules from the block.
+  A custom plugin cannot use the id `recheck`.
+
+### Patch Changes
+
+- Improved the consistency of how configuration file problems are reported.
+  Commands with machine-readable output formats, such as `json`, `junit`, `checkstyle`, and `sarif` also report configuration file problems instead of hiding them.
+  A configuration file that fails to load displays a specific error message instead of a generic one.
+
+  **Note**: Configuration file problems are printed to `stderr` in the `codeframe` format for every command, regardless of the `--format` option.
+
 ## 2.57.0
 
 ### Minor Changes

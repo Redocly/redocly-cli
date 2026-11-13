@@ -1,6 +1,6 @@
 # `translate`
 
-The `translate` command helps you to manage multiple translations in your Redocly project (Reef, Revel, or Realm only).
+The `translate` command helps you to manage multiple translations in your Redocly project.
 It creates or updates `translations.yaml` files, populating them with "translation keys" that map to elements in your documentation's UI.
 
 This command serves two purposes:
@@ -14,7 +14,6 @@ This command serves two purposes:
 redocly translate <locale>
 redocly translate all
 redocly translate --help
-redocly translate --version
 ```
 
 ## Options
@@ -25,7 +24,6 @@ redocly translate --version
 | `--lint-config`   | string  | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`.                                   |
 | --project-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                                           |
 | `--help`          | boolean | Show help.                                                                                                                             |
-| `--version`       | boolean | Show version number.                                                                                                                   |
 
 ## Examples
 
@@ -116,6 +114,6 @@ The `--project-dir` option is designed to help manage multiple projects by reduc
 
 ## Resources
 
-- See how to [configure localization](https://redocly.com/docs/realm/author/how-to/config-l10n) in your Redocly project.
+- See how to [configure localization](https://redocly.com/docs/platform/content/localization/localize-content) in your Redocly project.
 
-- Configure which languages users can select using the [localization option](https://redocly.com/docs/realm/config/l10n) (`l10n`) in `redocly.yaml`.
+- Configure which languages users can select using the [localization option](https://redocly.com/docs/platform/config/l10n) (`l10n`) in `redocly.yaml`.

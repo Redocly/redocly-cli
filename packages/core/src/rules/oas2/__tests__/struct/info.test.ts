@@ -116,7 +116,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should report if in the Contact Object in URL field is not string', async () => {
@@ -207,7 +207,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should report if the License Object missing field Name', async () => {
@@ -294,7 +294,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should report if the Version field is not provided', async () => {

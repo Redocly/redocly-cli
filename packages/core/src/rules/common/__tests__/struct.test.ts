@@ -251,7 +251,7 @@ describe('Oas3 struct', () => {
       config: await createConfig({ rules: { 'nullable-type-sibling': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on nullable without type with the struct rule', async () => {
@@ -705,7 +705,7 @@ describe('AsyncAPI bindings struct', () => {
       config: await createConfig({ rules: { struct: 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on invalid binding contents', async () => {
@@ -824,7 +824,7 @@ describe('AsyncAPI bindings struct', () => {
       config: await createConfig({ rules: { struct: 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report $ref on a referenced schema with sibling keywords', async () => {
@@ -854,7 +854,7 @@ describe('AsyncAPI bindings struct', () => {
       config: await createConfig({ rules: { struct: 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });
 
@@ -880,7 +880,7 @@ describe('Overlay struct', () => {
       config: await createConfig({ rules: { struct: 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on Overlay 1.2 reusable actions', async () => {
@@ -912,6 +912,6 @@ describe('Overlay struct', () => {
       config: await createConfig({ rules: { struct: 'error', 'no-unresolved-refs': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

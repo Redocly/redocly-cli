@@ -14,12 +14,17 @@ Docs rendering commands:
 
 - [`build-docs`](build-docs.md) Build an API description into an HTML file.
 - [`preview`](preview.md) Start a local preview of a Redocly project with one of the product NPM packages.
-- [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
-- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
+- [`translate`](translate.md) Generate translation keys for a Redocly project.
+- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly project.
+
+Docs linting commands:
+
+- [`recheck`](recheck.md) Lint Markdown prose and structure from the `recheck` block.
 
 CI and delivery commands:
 
 - [`bundle`](bundle.md) Bundle an API description.
+- [`diff`](diff.md) Compare two API descriptions and rate each change by the semver bump it requires [experimental feature].
 - [`join`](join.md) Join API descriptions [experimental feature].
 
 API testing and drift commands:
@@ -46,12 +51,16 @@ Redocly configuration commands:
 - [`check-config`](check-config.md) Lint the Redocly configuration file.
 - [`inspect-node-types`](inspect-node-types.md) Show the node type the linter assigns to a location in an API description [experimental feature].
 
-Reunite platform commands:
+Platform commands:
 
-- [`login`](login.md) Log in to Reunite.
+- [`login`](login.md) Log in to Redocly.
 - [`logout`](logout.md) Clear your stored credentials.
-- [`push`](push.md) Push an API description to Reunite.
-- [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
+- [`push`](push.md) Push an API description to the Redocly platform.
+- [`push-status`](push-status.md) Track an in-progress push operation to the Redocly platform.
+
+AI agent setup commands:
+
+- [`skills`](skills.md) Install the Redocly CLI agent skills for AI coding agents.
 
 Shell setup commands:
 

@@ -28,7 +28,7 @@ describe('lint-entity', () => {
         entityDefaultSchema: entityFileDefaultSchema,
       });
 
-      expect(problems.length).toBe(0);
+      expect(problems).toHaveLength(0);
     });
 
     it('should detect missing required fields in entity', async () => {
@@ -81,7 +81,7 @@ describe('lint-entity', () => {
         entityDefaultSchema: entityFileDefaultSchema,
       });
 
-      expect(problems.length).toBe(0);
+      expect(problems).toHaveLength(0);
     });
 
     it('should use default schema when type is missing', async () => {
@@ -158,7 +158,7 @@ describe('lint-entity', () => {
         entityDefaultSchema: entityFileDefaultSchema,
       });
 
-      expect(problems.length).toBe(1);
+      expect(problems).toHaveLength(1);
       expect(problems[0].ruleId).toBe('entity key-valid');
       expect(problems[0].message).toContain('lowercase letters');
     });
@@ -225,7 +225,7 @@ describe('lint-entity', () => {
         entityDefaultSchema: entityFileDefaultSchema,
       });
 
-      expect(problems.length).toBe(0);
+      expect(problems).toHaveLength(0);
     });
 
     it('should detect invalid relation type', async () => {
@@ -440,7 +440,7 @@ describe('lint-entity', () => {
 
       const problems = await lintEntityWithScorecardLevel(entity, scorecardLevel);
 
-      expect(problems.length).toBe(0);
+      expect(problems).toHaveLength(0);
     });
 
     it('should throw error when rules are not defined', async () => {

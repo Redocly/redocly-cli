@@ -67,7 +67,7 @@ describe('selectTopHotspots', () => {
     };
     const opScores = new Map([['op1', makeScores()]]);
     const result = selectTopHotspots(docMetrics, opScores, new Map([['op1', 0]]));
-    expect(result.length).toBe(1);
+    expect(result).toHaveLength(1);
     expect(result[0].reasons).toContain('High parameter count (10)');
   });
 
@@ -78,7 +78,7 @@ describe('selectTopHotspots', () => {
     };
     const opScores = new Map([['op1', makeScores()]]);
     const result = selectTopHotspots(docMetrics, opScores, new Map([['op1', 0]]));
-    expect(result.length).toBe(1);
+    expect(result).toHaveLength(1);
     expect(result[0].reasons[0]).toMatch(/Deep schema nesting/);
   });
 
@@ -280,7 +280,7 @@ describe('selectTopHotspots', () => {
     }
     const docMetrics: DocumentMetrics = { operationCount: 20, operations: ops };
     const result = selectTopHotspots(docMetrics, scores, depths, DEFAULT_SCORING_CONSTANTS);
-    expect(result.length).toBe(10);
+    expect(result).toHaveLength(10);
   });
 
   it('skips operations not found in documentMetrics', () => {

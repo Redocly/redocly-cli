@@ -1,98 +1,161 @@
-import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 
-const configExtension: { [key: string]: ViteUserConfig } = {
-  unit: defineConfig({
-    test: {
-      include: ['packages/*/src/**/*.test.ts'],
-      coverage: {
-        enabled: true,
-        reporter: ['text', 'json-summary', 'json'],
-        reportOnFailure: true,
-        include: [
-          'packages/cli/src/**/*.ts',
-          'packages/core/src/**/*.ts',
-          'packages/respect-core/src/**/*.ts',
-          'packages/reunite-integration/src/**/*.ts',
-          'packages/client-generator/src/**/*.ts',
-        ],
-        provider: 'istanbul',
-        exclude: [
-          'packages/**/__tests__/**/*',
-          'packages/cli/src/index.ts',
-          'packages/cli/src/utils/assert-node-version.ts',
-        ],
-        thresholds: {
-          lines: 79,
-          functions: 82,
-          statements: 78,
-          branches: 71,
-        },
+// The unit tests expect colors, and a `NO_COLOR` from the shell would win over `FORCE_COLOR`.
+delete process.env.NO_COLOR;
+
+export default defineConfig({
+  test: {
+    globals: true,
+    restoreMocks: true,
+    mockReset: true,
+    environment: 'node',
+    expect: { requireAssertions: true },
+    setupFiles: ['tests/silence-output.ts'],
+    env: {
+      FORCE_COLOR: '1',
+      REDOCLY_TELEMETRY: 'off',
+    },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'json'],
+      reportOnFailure: true,
+      include: ['packages/*/src/**/*.ts'],
+      exclude: [
+        'packages/**/__tests__/**/*',
+        'packages/cli/src/index.ts',
+        'packages/cli/src/utils/assert-node-version.ts',
+      ],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        statements: 80,
+        branches: 75,
       },
     },
-  }),
-  e2e: defineConfig({
-    test: {
-      include: ['tests/e2e/**/*.test.ts'],
-      // Client generation has its own suite and its own CI job (see `generators` below):
-      // its bars compile real Python/Go/PHP/TypeScript output, so a growing set of them
-      // must not slow the job everything else shares.
-      exclude: ['tests/e2e/generate-client/**'],
-    },
-  }),
-  // Everything about client generation in one command: the package's unit tests plus the
-  // end-to-end bars. The unit tests also run under `unit`, which keeps the coverage report
-  // whole — they are seconds, and being able to run the whole generator surface at once is
-  // worth that.
-  'client-generators': defineConfig({
-    test: {
-      include: [
-        'packages/client-generator/src/**/*.test.ts',
-        'tests/e2e/generate-client/**/*.test.ts',
-      ],
-    },
-  }),
-  'smoke-rebilly': defineConfig({
-    test: {
-      include: ['tests/smoke/rebilly/**/*.smoke.ts'],
-    },
-  }),
-  default: defineConfig({}),
-};
-
-export default mergeConfig(
-  defineConfig({
-    // Generator-folder sources import their own package by name (the same specifier an
-    // ejected copy uses); resolve those to src so tests exercise the working tree, not lib.
-    resolve: {
-      alias: [
-        {
-          find: /^@redocly\/client-generator\/printers\/([a-z]+)$/,
-          replacement: `${import.meta.dirname}/packages/client-generator/src/printers/$1.ts`,
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['packages/*/src/**/*.test.ts'],
         },
-        {
-          find: /^@redocly\/client-generator\/contracts\/([a-z]+)$/,
-          replacement: `${import.meta.dirname}/packages/client-generator/src/contracts/$1.ts`,
-        },
-        {
-          find: '@redocly/client-generator/runtime-sources',
-          replacement: `${import.meta.dirname}/packages/client-generator/src/runtime-sources.ts`,
-        },
-        {
-          find: /^@redocly\/client-generator$/,
-          replacement: `${import.meta.dirname}/packages/client-generator/src/index.ts`,
-        },
-      ],
-    },
-    test: {
-      globals: true,
-      restoreMocks: true,
-      mockReset: true,
-      environment: 'node',
-      env: {
-        FORCE_COLOR: '1',
-        REDOCLY_TELEMETRY: 'off',
       },
-    },
-  }),
-  configExtension[process.env.VITEST_SUITE || 'default']
-);
+      {
+        extends: true,
+        test: {
+          name: 'types',
+          typecheck: {
+            enabled: true,
+            only: true,
+            include: ['packages/*/src/**/*.test-d.ts'],
+            // `npm run typecheck` checks the source files with the flags they need.
+            ignoreSourceErrors: true,
+          },
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'e2e',
+          include: ['tests/e2e/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators',
+          include: ['packages/client-generator/tests/e2e/typescript/**/*.test.ts'],
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-go',
+          include: ['packages/client-generator/tests/e2e/go/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'Go', command: 'go', args: ['version'] },
+              { name: 'gofmt', command: 'gofmt', args: ['-l'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-php',
+          include: ['packages/client-generator/tests/e2e/php/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'PHP', command: 'php', args: ['--version'] },
+              // The generated client sends requests with curl.
+              {
+                name: 'the PHP curl extension',
+                command: 'php',
+                args: ['-r', 'exit(extension_loaded("curl") ? 0 : 1);'],
+              },
+              { name: 'PHPStan', command: 'phpstan', args: ['--version'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-java',
+          include: ['packages/client-generator/tests/e2e/java/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'a JDK (javac)', command: 'javac', args: ['-version'] },
+              { name: 'Java', command: 'java', args: ['-version'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-python',
+          include: ['packages/client-generator/tests/e2e/python/**/*.test.ts'],
+          globalSetup: ['packages/client-generator/tests/e2e/toolchains.ts'],
+          provide: {
+            requiredTools: [
+              { name: 'Python 3', command: 'python3', args: ['--version'] },
+              {
+                name: 'the httpx Python package',
+                command: 'python3',
+                args: ['-c', 'import httpx'],
+              },
+              {
+                name: 'the pydantic Python package',
+                command: 'python3',
+                args: ['-c', 'import pydantic'],
+              },
+              { name: 'mypy', command: 'python3', args: ['-m', 'mypy', '--version'] },
+            ],
+          },
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'smoke-rebilly',
+          include: ['tests/smoke/rebilly/**/*.smoke.ts'],
+        },
+      },
+    ],
+  },
+});

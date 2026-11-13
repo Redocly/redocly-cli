@@ -1,0 +1,14 @@
+Ejected the "go" generator to generators/go/.
+The ejected file imports its toolkit from @redocly/client-generator — install it: npm install --save-dev @redocly/client-generator
+Point your config at the entry file — the path to your copy replaces the built-in name:
+
+  client:
+    generators:
+      - ./generators/go/index.ts
+
+Running TypeScript generators uses Node's type stripping — Node 22.18 or 23.6 and newer.
+Your agent's skills: .claude/skills/go-generator/SKILL.md (this generator's design) and .claude/skills/client-generators/SKILL.md (the toolkit).
+
+Run it: redocly generate-client <api> --output <path> --generator ./generators/go/index.ts
+Edit generators/go/ and run that again to see your change.
+Reference: https://redocly.com/docs/cli/commands/eject-generator

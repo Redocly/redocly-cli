@@ -1900,6 +1900,45 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should accept a deviceAuthorization flow with non-empty scopes - OAS 3.2.x', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        info:
+          title: Device flow
+          version: '1'
+        paths:
+          /me:
+            get:
+              summary: Get current user
+              security:
+                - device: [read]
+              responses:
+                '200':
+                  description: OK
+        components:
+          securitySchemes:
+            device:
+              type: oauth2
+              flows:
+                deviceAuthorization:
+                  deviceAuthorizationUrl: https://auth.example.com/device
+                  tokenUrl: https://auth.example.com/token
+                  scopes:
+                    read: Read access
+      `,
+      ''
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should throw an error for $schema not expected here - OAS 3.0.x', async () => {
     const document = parseYamlToDocument(
       outdent`

@@ -22,8 +22,16 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   `fromArray(array $data): self` and `toArray(): array` (wire names inline; nulls
   skipped on serialize) — no reflection. `omit` schemas hydrate/serialize through their
   base class. A property or response typed as a DISCRIMINATED union hydrates through the
-  union's `unmarshalX` dispatcher, so consumers can narrow with `instanceof`;
-  undiscriminated unions stay raw arrays.
+  union's `unmarshalX` dispatcher, so consumers can narrow with `instanceof`; its type
+  includes `array`, because a value with an unknown discriminator stays the raw array.
+  Any other union stays the decoded JSON, so its type is that of the JSON: a class member
+  is `array`, an enum member is its backing scalar, and a date member is `string`.
+- **The file passes PHPStan level 5.** It lands in the user's own project, so their
+  analyser reads it. The operations table is a constant PHPStan knows exactly, so a method
+  reads `$op['security']` only when the table has that entry, and passes `[]` otherwise.
+- **A `writeOnly` property is optional** even when required: requests and responses share
+  one class, and a response never carries it. It is nullable `= null`, so `fromArray`
+  hydrates a response without it and `toArray` still sends it in a request.
 - The `Client` class is NOT `final` — PHP test suites mock concrete classes
   (`createMock(Client::class)`), and `final` would force a wrapper interface on every
   consumer. Model classes stay `final`.
@@ -32,13 +40,20 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   `uniqueIdentifiers(..., { taken: … })`: OpenAPI lets one operation use a name in two
   locations (`id` in the path AND in the query), and PHP rejects a redefined parameter outright. The
   wire name is untouched, so the request is unchanged.
+- **The operation map is a class constant, `Client::OPERATIONS`,** read through
+  `self::OPERATIONS[...]`, never a file-level `const`. OPcache preload keeps classes and
+  functions in shared memory but drops file-level constants, and an autoloader never
+  includes the file again once `Client` exists — so a file-level map is undefined on every
+  request after the first. A class constant is stored with the class.
 - **Naming:** classes PascalCase, properties/methods camelCase via
   `identifierFor(..., RESERVED_WORDS.php)`; reserved words get a trailing underscore.
 - **Enums** are native backed enums (string/int); other scalars stay aliases.
-  **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers;
+  **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers.
+  Each arm hydrates its mapping target the way a property of that type does, so a
+  target with no class of its own (a plain `oneOf`) stays a raw array;
   **allOf** is flattened.
 - **Unions keep their types where PHP 8.1 can express them.** A union of scalars, enums,
-  classes, or arrays becomes a native union type (`int|string`, `PromotionType|array`)
+  classes, or arrays becomes a native union type (`int|string`, `string|array`)
   rather than collapsing to `mixed` — rich list filters are the common case and losing
   their types loses the point of a typed SDK. It falls back to `mixed` only when a member
   has no PHP type of its own (an inline object, an intersection, `unknown`), because
@@ -53,7 +68,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   for query parameters.
 - **Method arguments:** required path params positional, JSON body next, optional query
   params as nullable NAMED arguments, then `?array $headers`, and `?string
-$idempotencyKey` on mutating methods.
+  $idempotencyKey` on mutating methods.
 - **Non-JSON success bodies** (PDFs, images, octet streams) return the raw body as
   `string` — a binary download must never degrade to `void`.
 - **PHPDoc carries what the signature cannot.** PHP's `array` and `\Generator` erase their
@@ -70,6 +85,22 @@ $idempotencyKey` on mutating methods.
   to the spec's defaults (`Servers::production(organizationId: 'org_x')`), so templated
   base URLs need no manual string building. The client's baked default stays `servers[0]`
   with variable defaults substituted.
+- **Stream bodies pass through.** For an untyped `multipart/form-data` operation
+  (`isUntypedMultipartBody` from the toolkit: a schema that is neither an object nor a
+  `$ref`) or a binary operation (`isBinaryContentType`), the body is `mixed` and the
+  runtime sorts it out (`multipartBody` / `binaryBody`): a stream `resource` is uploaded
+  by curl in chunks (`CURLOPT_UPLOAD` + `CURLOPT_INFILE`, the method kept by
+  `CURLOPT_CUSTOMREQUEST`), never read into a string, in exactly one attempt, whatever
+  the retry policy says, because a
+  consumed stream cannot be replayed. `CURLOPT_INFILESIZE` is set only when the stream is
+  seekable AND `fstat` returns an array (the bytes left from the current position);
+  `php://input`, pipes, and wrappers without `stream_stat` go chunked. A `string` body of
+  either operation is sent raw, not `json_encode`d; any other binary-operation value is
+  still `json_encode`d; an `array` body of an untyped multipart operation keeps the
+  `toMultipart` path. The caller's `Content-Type` wins over the description's or the
+  multipart boundary's, matched case-insensitively in `send` so the header is never sent
+  twice; that rule holds for every operation. The whole-request curl timeout still
+  applies (`timeout: null` disables it). Typed multipart bodies are unaffected.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   curl timeouts, middleware callables, pagination (`<op>Pages()` / `<op>Items()` as
   `\Generator`s), SSE (`iterSse` over a curl_multi pump), multipart.
@@ -77,6 +108,21 @@ $idempotencyKey` on mutating methods.
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
   Under `--runtime module` it is written as a `runtime.php` the client `require_once`s,
   with its namespace rewritten to the client's so one namespace spans both files.
+- **`onSettled` sees every sent call once.** `send()` calls each `Config->onSettled` callable,
+  then each `Config::$registeredOnSettled` callable, after the retry loop with `operationId`, `status` (0 without a response), `timedOut`,
+  `attempts`, and `durationMs`, before it throws or returns. Every hook runs. The first hook
+  error is thrown for a successful call; on a failed call, the original error wins and the
+  hook error goes to `error_log`. SSE streams open outside `send()`, so they reach no hook.
+- **Telemetry is opt-in at generation time.** With `client.telemetry: on` the generator also
+  writes `<client>.telemetry.php` (from `telemetry/telemetry.php` in this folder, embedded at prepare
+  time) beside the client, in both runtime modes, with the client's namespace and the
+  generator version baked in. The client file does not change. The application requires it
+  and passes `new UsageTelemetry(...)` in `Config->onSettled`. An SDK owner calls `register()`
+  instead, which adds the instance to `Config::$registeredOnSettled`, so every client counts its
+  calls; `UsageTelemetry::flushRegistered()` flushes each registered instance. PHP has no timers: a call that
+  finds its window elapsed sends it first, and a shutdown function sends the open window.
+  Constants live on the class, because OPcache preloading drops file-level constants. The
+  class name is reserved for every SDK, because the file shares the namespace with the models.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 ## Migrating from a service-based SDK
@@ -107,6 +153,7 @@ $idempotencyKey` on mutating methods.
 2. Change `index.ts` (and `runtime/runtime.php` for runtime behavior; `php -l` it,
    then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
-   `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/php.test.ts`
-   (real `php -l` + `require` bars), the e2e smoke (`tests/e2e/generate-client/php.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   `npx vitest run packages/client-generator/src/generators/php/__tests__` (output-string checks),
+   `packages/client-generator/tests/e2e/php/render.test.ts`
+   (real `php -l` + `require` bars), the e2e smoke (`packages/client-generator/tests/e2e/php/client.test.ts`),
+   and the large-description bars (`packages/client-generator/tests/e2e/php/large-descriptions.test.ts`).

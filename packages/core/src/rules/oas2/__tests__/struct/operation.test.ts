@@ -22,7 +22,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report of a valid PUT operation object', async () => {
@@ -49,7 +49,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report of a valid Post operation object', async () => {
@@ -83,7 +83,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report of a valid delete operation object', async () => {
@@ -119,6 +119,32 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
+  });
+
+  it('should not report on a response schema with the file type', async () => {
+    const source = outdent`
+      swagger: '2.0'
+      info:
+        title: Test
+        version: '1.0'
+
+      paths:
+        '/download':
+          get:
+            produces:
+              - application/octet-stream
+            responses:
+              '200':
+                description: A file
+                schema:
+                  type: file
+    `;
+
+    expect(
+      await lintDoc(source, {
+        struct: 'error',
+      })
+    ).toEqual([]);
   });
 });

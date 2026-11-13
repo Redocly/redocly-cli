@@ -54,3 +54,5 @@ Reference: https://redocly.com/docs/cli/rules/oas/no-unresolved-refs
 
 
 ❌ Errors encountered while bundling test-wrong-examples.yaml: bundle not created (use --force to ignore errors).
+
+Exit code: 1

@@ -14,6 +14,8 @@
           page: commands/bundle.md
         - label: check-config
           page: commands/check-config.md
+        - label: diff
+          page: commands/diff.md
         - label: drift
           page: commands/drift.md
         - label: eject
@@ -46,12 +48,16 @@
           page: commands/push.md
         - label: push-status
           page: commands/push-status.md
+        - label: recheck
+          page: commands/recheck.md
         - label: respect
           page: commands/respect.md
         - label: score
           page: commands/score.md
         - label: scorecard-classic
           page: commands/scorecard-classic.md
+        - label: skills
+          page: commands/skills.md
         - label: split
           page: commands/split.md
         - label: stats
@@ -94,6 +100,7 @@
         - page: guides/migrate-from-openapi-cli.md
         - page: guides/migrate-from-spectral.md
         - page: guides/migrate-from-swagger-cli.md
+        - page: guides/migrate-from-markdownlint.md
         - page: guides/migrate-to-v2.md
     - page: api-docs.md
       label: API docs
@@ -196,6 +203,7 @@
             - page: rules/arazzo/requestBody-replacements-unique.md
             - page: rules/arazzo/sourceDescription-name-unique.md
             - page: rules/arazzo/sourceDescription-type.md
+            - page: rules/arazzo/spec-querystring-parameters.md
             - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
@@ -203,6 +211,7 @@
             - page: rules/arazzo/workflow-dependsOn.md
             - page: rules/arazzo/workflowId-unique.md
 
+        - page: rules/diff-rules.md
         - page: rules/configure-rules.md
           label: Rule configuration
         - page: rules/configurable-rules.md
@@ -218,6 +227,19 @@
             - page: decorators/remove-unused-components.md
             - page: decorators/remove-x-internal.md
             - page: decorators/tag-description-override.md
+    - group: Markdown linting
+      page: recheck/index.md
+      items:
+        - label: Presets
+          page: recheck/presets.md
+        - label: Markdown rules
+          page: recheck/rules.md
+        - label: Prose rules
+          page: recheck/assertions.md
+        - label: Markdoc tags
+          page: recheck/markdoc.md
+        - label: Suppress findings
+          page: recheck/suppress-findings.md
     - page: file-management.md
     - group: Configuration
       page: configuration/index.md
@@ -230,9 +252,11 @@
             - page: configuration/reference/apis.md
             - page: configuration/reference/client.md
             - page: configuration/reference/decorators.md
+            - page: configuration/reference/diff.md
             - page: configuration/reference/extends.md
             - page: configuration/reference/plugins.md
             - page: configuration/reference/preprocessors.md
+            - page: configuration/reference/recheck.md
             - page: configuration/reference/resolve.md
             - page: configuration/reference/rules.md
     - group: Custom plugins

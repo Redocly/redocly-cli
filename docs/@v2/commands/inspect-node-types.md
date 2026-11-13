@@ -17,7 +17,7 @@ Node types are the vocabulary of [configurable rules](../rules/configurable-rule
 
 Use `inspect-node-types` to find the right type name for the part of your description you want to check.
 The `redocly-lint-rules` agent skill runs this command for you when an AI coding assistant writes a rule.
-Install the skill with `npx skills add https://redocly.com`.
+Install the skill with [`redocly skills`](./skills.md).
 
 A node has a type only because of the path the linter took to reach it, so the command always walks the whole description from its root.
 Nodes in referenced files appear at their own pointers, in their own files.
@@ -48,7 +48,6 @@ It changes the answer that `--pointer` or `--type` gives, and on its own it fail
 | --pointer     | string  | Look up a single node instead of listing all of them. A JSON pointer, optionally prefixed with a file: `#/paths` or `paths/orders.yaml#/get`. Not with `--type` or `--summary`. |
 | --summary     | boolean | List the node types used in the description, with the number of nodes of each type. Not with `--pointer` or `--type`.                                                           |
 | --type        | string  | List only the nodes of the given type, for example `--type=Schema`. Not with `--pointer` or `--summary`.                                                                        |
-| --version     | boolean | Display version number.                                                                                                                                                         |
 
 ## Examples
 

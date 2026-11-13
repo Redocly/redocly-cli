@@ -512,6 +512,38 @@ function SchemaTitleDefined() {
 - Keep state that crosses nodes in the factory scope.
   Collect in the `enter` hooks, and report in `Root.leave`.
 
+### Scope with a nested visitor
+
+A visitor key inside another visitor key runs only for the nodes of that type under the outer node, and only for the first level of that type.
+So `NamedSchemas: { Schema }` reaches each schema under `components.schemas`, and not the schemas inside their properties.
+The walker lists the entries of a map when it enters the map, so a node that another visitor adds later, such as a schema the bundler pulls in from another file, is not visited.
+The hook of a nested visitor gets the outer nodes as a third argument, `enter(node, ctx, parents)`.
+
+Reach for the nesting before you record names in `Root.enter`, compare pointers, or test `ctx.parent`.
+Those express the scope by hand, and the nesting expresses it in the shape of the visitor:
+
+```js
+function ComponentSchemaTitleDefined() {
+  return {
+    NamedSchemas: {
+      Schema: {
+        enter(schema, ctx) {
+          if (!schema.title) {
+            ctx.report({
+              message: 'Component schemas must define a title.',
+              location: ctx.location.key(),
+            });
+          }
+        },
+      },
+    },
+  };
+}
+```
+
+A decorator is written the same way, registered under `decorators` instead of `rules` in the plugin, and it changes the node in the hook instead of reporting.
+The same scoping applies: a nested `Schema` under `NamedSchemas` tags the component schemas and leaves the nested ones and the bundled ones alone.
+
 ### The context object
 
 Use only these fields. The context is not the document, and it holds no path and no root.

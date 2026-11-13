@@ -6,12 +6,17 @@ import {
   pushFiles,
   type FileToUpload,
   type SunsetWarning,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import { green } from 'colorette';
 
 import { printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
-import { handlePushStatus, handleReuniteError, printSunsetWarning } from './push-status.js';
+import {
+  handlePushStatus,
+  handlePlatformError,
+  printSlugDeprecation,
+  printSunsetWarning,
+} from './push-status.js';
 
 export type PushArgv = {
   files: string[];
@@ -49,6 +54,8 @@ export async function handlePush({
 
   let files: FileToUpload[];
   let pushId: string;
+  let organizationId: string;
+  let projectId: string;
   const sunsetWarnings: SunsetWarning[] = [];
 
   try {
@@ -87,11 +94,14 @@ export async function handlePush({
         );
       },
       onSunsetWarning: (warning) => sunsetWarnings.push(warning),
+      onSlugDeprecated: printSlugDeprecation,
     });
     pushId = push.pushId;
+    organizationId = push.organizationId;
+    projectId = push.projectId;
   } catch (err) {
     printSunsetWarning('push', sunsetWarnings);
-    handleReuniteError('✗ File upload failed.', err);
+    handlePlatformError('✗ File upload failed.', err);
   }
 
   for (const file of files) {
@@ -107,8 +117,8 @@ export async function handlePush({
 
     await handlePushStatus({
       argv: {
-        organization,
-        project,
+        organization: organizationId,
+        project: projectId,
         pushId,
         wait: true,
         domain,

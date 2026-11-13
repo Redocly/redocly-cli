@@ -1,0 +1,5 @@
+Schema  parameters/limit.yaml#/schema
+Schema  parameters/query.yaml#/offset/schema
+
+
+Exit code: 0

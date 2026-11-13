@@ -129,7 +129,7 @@ describe('bundle-oas', () => {
         config,
       });
 
-    expect(wrapper()).rejects.toThrowError('Document or reference is required.\n');
+    await expect(wrapper()).rejects.toThrow('Document or reference is required.\n');
   });
 
   it('should bundle with a doc provided', async () => {

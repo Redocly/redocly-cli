@@ -1,8 +1,8 @@
 import { BaseResolver } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
 import { run } from '@redocly/respect-core';
-import { fetch as undiciFetch } from 'undici';
 
+import { fetchWithUndiciFormData } from '../../../commands/respect/connection-client.js';
 import { handleRespect, type RespectArgv } from '../../../commands/respect/index.js';
 
 // Mock node:fs
@@ -170,16 +170,16 @@ describe('handleRespect externalRefResolver wiring', () => {
     expect(callArgs?.externalRefResolver).toBeInstanceOf(BaseResolver);
   });
 
-  it('should use the bare undici fetch when no proxy and no mTLS are configured', async () => {
+  it('should use the FormData-aware undici fetch when no proxy and no mTLS are configured', async () => {
     const callArgs = await invokeHandleRespect();
-    expect(getResolverCustomFetch(callArgs?.externalRefResolver)).toBe(undiciFetch);
+    expect(getResolverCustomFetch(callArgs?.externalRefResolver)).toBe(fetchWithUndiciFormData);
   });
 
   it('should use a proxy-aware customFetch when HTTPS_PROXY is set', async () => {
     vi.stubEnv('HTTPS_PROXY', 'http://proxy.local:8080');
     const callArgs = await invokeHandleRespect();
     const customFetch = getResolverCustomFetch(callArgs?.externalRefResolver);
-    expect(customFetch).not.toBe(undiciFetch);
+    expect(customFetch).not.toBe(fetchWithUndiciFormData);
     expect(typeof customFetch).toBe('function');
   });
 
@@ -187,7 +187,7 @@ describe('handleRespect externalRefResolver wiring', () => {
     vi.stubEnv('HTTP_PROXY', 'http://proxy.local:8080');
     const callArgs = await invokeHandleRespect();
     const customFetch = getResolverCustomFetch(callArgs?.externalRefResolver);
-    expect(customFetch).not.toBe(undiciFetch);
+    expect(customFetch).not.toBe(fetchWithUndiciFormData);
     expect(typeof customFetch).toBe('function');
   });
 
@@ -201,7 +201,7 @@ describe('handleRespect externalRefResolver wiring', () => {
       },
     });
     const customFetch = getResolverCustomFetch(callArgs?.externalRefResolver);
-    expect(customFetch).not.toBe(undiciFetch);
+    expect(customFetch).not.toBe(fetchWithUndiciFormData);
     expect(typeof customFetch).toBe('function');
   });
 });

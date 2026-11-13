@@ -31,7 +31,7 @@ describe('Overlay 1.0 Description', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report if the Contact Object is not defined', async () => {

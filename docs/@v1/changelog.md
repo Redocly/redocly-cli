@@ -7,6 +7,34 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.24 (2026-11-05)
+
+### Patch Changes
+
+- Updated the new version notifier to request the latest Redocly CLI version from the npm registry over HTTPS.
+- Updated @redocly/openapi-core to v1.34.24.
+
+## 1.34.23 (2026-11-02)
+
+### Patch Changes
+
+- Updated `undici` to `6.29.1`.
+- Updated @redocly/respect-core to v1.34.23.
+
+## 1.34.22 (2026-10-22)
+
+### Patch Changes
+
+- Fixed an issue where the `preview-docs` command displayed a blank page because it loaded Redoc 3 instead of Redoc 2.
+- Updated @redocly/openapi-core to v1.34.22.
+
+## 1.34.21 (2026-10-13)
+
+### Patch Changes
+
+- Updated `handlebars` to `4.7.10`, `chokidar` to `4.0.3`, and `undici` to `6.29.0`.
+- Updated @redocly/respect-core to v1.34.21.
+
 ## 1.34.20 (2026-09-09)
 
 ### Patch Changes

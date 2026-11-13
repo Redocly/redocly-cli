@@ -119,5 +119,6 @@ exports[`should use error severity level 1`] = `
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

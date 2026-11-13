@@ -58,8 +58,30 @@ const Parameter: NodeType = {
       type: 'string',
       enum: ['header', 'query', 'path', 'cookie', 'querystring'],
       description:
-        'The location of the parameter. Possible values are "path", "query", "querystring", "header", or "cookie". When the step in context specifies a workflowId, then all parameters map to workflow inputs. In all other scenarios (e.g., a step specifies an operationId), the in field MUST be specified.',
+        'The location of the parameter. Possible values are "path", "query", "querystring", "header", or "cookie". When the step, success action, or failure action in context specifies a workflowId, then all parameters map to workflow inputs. In all other scenarios (e.g., a step specifies an operationId), the in field MUST be specified.',
     },
+  },
+};
+
+// action parameters always map to the inputs of a workflow, so the `in` field is not allowed
+const ActionParameter: NodeType = {
+  ...Arazzo1Types.Parameter,
+  properties: {
+    name: Arazzo1Types.Parameter.properties.name,
+    value: Arazzo1Types.Parameter.properties.value,
+  },
+  description:
+    'Describes a single parameter of a success or failure action. The parameter is passed to the workflow that the action references with workflowId as an input.',
+};
+
+const ActionParameters: NodeType = {
+  properties: {},
+  items: (value) => {
+    if (value?.reference) {
+      return 'ReusableObject';
+    } else {
+      return 'ActionParameter';
+    }
   },
 };
 
@@ -227,20 +249,26 @@ const Replacement: NodeType = {
   },
 };
 
+// action parameters are passed to the workflow that `workflowId` references
+const requiredActionFields: NodeType['required'] = (value) =>
+  value?.parameters === undefined ? ['type', 'name'] : ['type', 'name', 'workflowId'];
+
 const SuccessActionObject: NodeType = {
   ...Arazzo1Types.SuccessActionObject,
   properties: {
     ...Arazzo1Types.SuccessActionObject.properties,
-    parameters: 'Parameters',
+    parameters: 'ActionParameters',
   },
+  required: requiredActionFields,
 };
 
 const FailureActionObject: NodeType = {
   ...Arazzo1Types.FailureActionObject,
   properties: {
     ...Arazzo1Types.FailureActionObject.properties,
-    parameters: 'Parameters',
+    parameters: 'ActionParameters',
   },
+  required: requiredActionFields,
 };
 
 export const Arazzo1_1Types: Record<string, NodeType> = {
@@ -249,6 +277,8 @@ export const Arazzo1_1Types: Record<string, NodeType> = {
   SourceDescriptions,
   AsyncAPISourceDescription,
   Parameter,
+  ActionParameter,
+  ActionParameters,
   Step,
   CriterionObject,
   JSONPathExpression,

@@ -20,6 +20,7 @@ export {
 export {
   isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   paginationItemSchema,
   securityRequirements,
@@ -53,6 +54,7 @@ export const AUTHORING_HELPER_NAMES = [
   'jsonSuccessSchema',
   'sseResponse',
   'isMultipartBody',
+  'isUntypedMultipartBody',
   'isBinaryContentType',
   'serverUrlParts',
   'securityRequirements',

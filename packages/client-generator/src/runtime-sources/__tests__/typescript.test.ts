@@ -2,12 +2,12 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { TELEMETRY_RUNTIME_SOURCE } from '../telemetry.js';
 import { RUNTIME_SOURCES } from '../typescript.js';
 
 const pkgSrc = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const runtimeDir = join(pkgSrc, 'generators', 'typescript', 'runtime');
-const STALE =
-  'runtime-sources/typescript.ts is stale — run `npm run prepare -w @redocly/client-generator`';
+const STALE = 'runtime sources are stale — run `npm run prepare -w @redocly/client-generator`';
 
 /** A source region between two anchors (end exclusive), for the spliced-contract checks. */
 function between(source: string, from: string, to: string): string {
@@ -57,6 +57,29 @@ describe('runtime-sources', () => {
     const source = readFileSync(join(runtimeDir, 'types.ts'), 'utf-8');
     expect(embedded, STALE).toContain(
       between(source, '/** Client configuration:', '\n\n/** Response readers')
+    );
+  });
+
+  it('the embedded telemetry source inlines the event type from @redocly/cli-otel', () => {
+    const source = readFileSync(
+      join(pkgSrc, 'generators', 'typescript', 'telemetry', 'telemetry.ts'),
+      'utf-8'
+    );
+    expect(TELEMETRY_RUNTIME_SOURCE).not.toContain("from '@redocly/cli-otel/");
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
+      'export type SdkUsageAggregatedMessage = BaseEventMessage & {'
+    );
+    // The module's own code is the source file's, byte-for-byte, around the re-export that the
+    // declarations replace.
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
+      between(source, 'const GENERATOR_VERSION', '\n\n// The package root does not export')
+    );
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
+      between(
+        source,
+        '/** The `com.redocly.sdkUsage.aggregated` CloudEvent.',
+        '\n\nfunction randomHex'
+      )
     );
   });
 });

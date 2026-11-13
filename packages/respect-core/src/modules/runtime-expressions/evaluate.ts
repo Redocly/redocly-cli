@@ -2,8 +2,8 @@ import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
 
 import type { RuntimeExpressionContext } from '../../types.js';
 import { getFakeData, parseJson } from '../context-parser/index.js';
+import { interpretExpression } from './interpret-expression.js';
 import { lintExpression } from './lint.js';
-import { replaceJSONPointers } from './replace-json-pointers.js';
 
 // Used when evaluating expressions in a string that can contain other text, like request bodies payload, output values, etc.
 export function evaluateRuntimeExpressionPayload({
@@ -115,133 +115,41 @@ function evaluateExpressionString(
   // Validate expression syntax to match ABNF Arazzo grammar
   lintExpression(expression);
 
-  const normalizedExpression = normalizeExpression(expression, context);
-
-  // Normalize the context for evaluation by replacing hyphens with underscores in all keys
-  const normalizedContext = normalizeContext(context);
-
   try {
-    // Create a new Function to evaluate the expression
-    const evaluate = new Function(
-      ...Object.keys(normalizedContext),
-      `return ${normalizedExpression};`
-    );
-
-    // Evaluate the modified expression
-    return evaluate(...Object.values(normalizedContext));
-  } catch (_error) {
+    return interpretExpression(expression, context);
+  } catch (error) {
+    const cause = error instanceof Error ? `: ${error.message}` : '';
     throw new Error(
-      `Error in resolving runtime expression '${expression}'. \n` +
+      `Error in resolving runtime expression '${expression}'${cause}. \n` +
         "This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set."
     );
   }
-}
-
-// Normalize the expression to replace hyphens with underscores and convert to lowercase
-function normalizeSymbolsExpression(expression: string): string {
-  return expression.replace(/\$([a-zA-Z0-9._-]+)/g, (_match, variable) => {
-    // Normalize variable by replacing hyphens with underscores and converting to lowercase
-    const normalizedKey = variable.replace(/-/g, '_'); // Replace hyphens with underscores
-
-    return `$${normalizedKey}`; // Return the normalized variable for evaluation
-  });
-}
-
-function normalizeExpression(expression: string, context: RuntimeExpressionContext): string {
-  const modifiedJsExpression = replaceJSONPointers(expression, context);
-  // Normalize the expression for evaluation by replacing hyphens with underscores and converting to lowercase
-  const normalizedSymbolsExpression = normalizeSymbolsExpression(modifiedJsExpression);
-
-  // Remove the curly braces surrounding the ENTIRE expression (if any), but not braces within JSON
-  let cleanedJsExpression = normalizedSymbolsExpression;
-
-  if (cleanedJsExpression.startsWith('{') && cleanedJsExpression.endsWith('}')) {
-    // A runtime expression wrapper has the form {$variable...} with no nested braces until the end
-    const potentialUnwrapped = cleanedJsExpression.slice(1, -1);
-    // Unwrap if it doesn't look like JSON (i.e., doesn't start with { or [)
-    if (!potentialUnwrapped.trim().startsWith('{') && !potentialUnwrapped.trim().startsWith('[')) {
-      cleanedJsExpression = potentialUnwrapped;
-    }
-  }
-
-  // Convert numeric indices (e.g., `.0`) into square bracket notation (e.g., `[0]`)
-  const expressionWithBrackets = convertNumericIndices(cleanedJsExpression);
-
-  // Check if the expression contains `.header.` and lowercase the parameter after `.header.`.
-  // As headers are case-insensitive, we need to normalize the header names to lowercase for evaluation.
-  const headerParameterNameRegex = /\.header\.([a-zA-Z0-9._-]+)/g;
-  const normalizedExpression = expressionWithBrackets.replace(
-    headerParameterNameRegex,
-    (_match, p1) => {
-      return `.header.${p1.toLowerCase()}`;
-    }
-  );
-
-  return normalizedExpression;
-}
-
-// Normalize the entire context to replace hyphens with underscores in all keys
-function normalizeContext(context: RuntimeExpressionContext): Record<string, any> {
-  const normalized = {} as Record<string, any>;
-
-  for (const [key, value] of Object.entries(context)) {
-    // Normalize variable names to lowercase and replace hyphens with underscores
-    const normalizedKey = key.replace(/-/g, '_');
-
-    normalized[normalizedKey] = normalizeValue(value);
-  }
-
-  return normalized;
-}
-
-// Normalize values recursively, handling objects and primitives
-function normalizeValue(value: unknown) {
-  if (Array.isArray(value)) {
-    // If the value is an array, return it as-is without modifying
-    return value;
-  } else if (isPlainObject(value)) {
-    return normalizeObject(value);
-  }
-  return value;
-}
-
-// Normalize an object by replacing hyphens with underscores in keys
-function normalizeObject(obj: Record<string, unknown>): Record<string, unknown> {
-  return Object.keys(obj).reduce(
-    (acc, key) => {
-      const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
-      acc[normalizedKey] = normalizeValue(obj[key]);
-      return acc;
-    },
-    {} as Record<string, unknown>
-  );
-}
-
-function convertNumericIndices(expression: string): string {
-  // Match any dot followed by a number (e.g., .0, .1, etc.) and replace it with [0], [1], etc.
-  // but not modify floats.
-  return expression.replace(/\.(\d+)/g, (match, num, offset, str) => {
-    // Look at the character right before the dot
-    const charBeforeDot = str[offset - 1];
-    // If the character before the dot is a digit, it's a float
-    const isFloat = /\d/.test(charBeforeDot);
-    return isFloat ? match : `[${num}]`;
-  });
 }
 
 // Helper function to evaluate expressions within a string
 function evaluateExpressionsInString(
   expression: string,
   context: RuntimeExpressionContext,
-  logger: LoggerInterface
+  logger: LoggerInterface,
+  insideBraces = false
 ): string {
-  const regex = /\{(?:[^{}]|\{[^{}]*\})*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
+  // Inside braces that are not an expression, such as a JSON object, only an {expression}
+  // and a $faker call are evaluated.
+  const regex = insideBraces
+    ? /\{(?:[^{}]|\{[^{}]*\})*\}|\$faker\.[a-zA-Z0-9._-]+(?:\([^()]*\))?/g
+    : /\{(?:[^{}]|\{[^{}]*\})*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
 
   return expression.replace(regex, (match) => {
     const exprToEvaluate = match.trim();
 
-    if (!isValidRuntimeExpression(exprToEvaluate) && !exprToEvaluate.includes('$faker.')) {
-      return match;
+    // `{"id": "$faker.string.uuid()"}` only holds a $faker call, `{$faker.string.uuid()}` is one
+    const isFakerExpression =
+      /^\{?\s*\$/.test(exprToEvaluate) && exprToEvaluate.includes('$faker.');
+
+    if (!isValidRuntimeExpression(exprToEvaluate) && !isFakerExpression) {
+      return match.startsWith('{')
+        ? `{${evaluateExpressionsInString(match.slice(1, -1), context, logger, true)}}`
+        : match;
     }
 
     // For dollar expressions, include the leading $ when passing to evaluateRuntimeExpression

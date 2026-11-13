@@ -1,16 +1,16 @@
 import {
   collectFilesToPush,
   pushFiles,
-  ReuniteApiError,
+  PlatformApiError,
   waitForDeployment,
   type PushResponse,
   type UpsertRemoteResponse,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 
 import { handlePush, type PushArgv } from '../push.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, collectFilesToPush: vi.fn(), pushFiles: vi.fn(), waitForDeployment: vi.fn() };
 });
 
@@ -36,12 +36,10 @@ const argv: PushArgv = {
 describe('handlePush()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.mocked(collectFilesToPush).mockReturnValue([{ name: 'test-file', path: '/abs/test-file' }]);
     vi.mocked(pushFiles).mockImplementation(async ({ onUploadStart }) => {
       onUploadStart?.({ mountPath: 'remote-mount-path' } as UpsertRemoteResponse);
-      return { pushId: 'test-id' };
+      return { pushId: 'test-id', organizationId: 'test-org', projectId: 'test-project' };
     });
   });
 
@@ -74,6 +72,7 @@ describe('handlePush()', () => {
       version,
       onUploadStart: expect.any(Function),
       onSunsetWarning: expect.any(Function),
+      onSlugDeprecated: expect.any(Function),
     });
     expect(process.stderr.write).toHaveBeenCalledWith('Uploading to remote-mount-path 1 file:\n');
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');
@@ -109,8 +108,8 @@ describe('handlePush()', () => {
     expect(pushFiles).toHaveBeenCalledWith(expect.objectContaining({ replace: true }));
   });
 
-  it('reports a Reunite API error as a handled error', async () => {
-    vi.mocked(pushFiles).mockRejectedValue(new ReuniteApiError('Deprecated.', 412));
+  it('reports a Redocly platform API error as a handled error', async () => {
+    vi.mocked(pushFiles).mockRejectedValue(new PlatformApiError('Deprecated.', 412));
 
     await expect(handlePush({ argv, config, version })).rejects.toThrow(
       '✗ File upload failed. Reason: Deprecated. (status: 412)'
@@ -146,7 +145,7 @@ describe('handlePush()', () => {
   it('prints the sunset warning even when the upload fails', async () => {
     vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
       onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });
-      throw new ReuniteApiError('Failed to fetch default branch. Unauthorized.', 401);
+      throw new PlatformApiError('Failed to fetch default branch. Unauthorized.', 401);
     });
 
     await expect(handlePush({ argv, config, version })).rejects.toThrow('✗ File upload failed.');
@@ -160,7 +159,7 @@ describe('handlePush()', () => {
   it('prints the sunset warning reported by the upload even when the wait fails', async () => {
     vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
       onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });
-      return { pushId: 'test-id' };
+      return { pushId: 'test-id', organizationId: 'test-org', projectId: 'test-project' };
     });
     vi.mocked(waitForDeployment).mockRejectedValue(new Error('Timeout exceeded.'));
 

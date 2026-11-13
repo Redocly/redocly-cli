@@ -59,6 +59,7 @@ export type Capabilities = SendCapabilities & {
         args?: OperationArgs,
         init?: RequestOptions
       ) => Promise<{ page: unknown; linkHeader: string | null; url: string }>,
+      spec: PaginationSpec,
       args?: OperationArgs,
       init?: RequestOptions
     ) => AsyncGenerator<unknown>;
@@ -210,7 +211,7 @@ function queryStyles(op: OperationDescriptor): Record<string, QueryStyle> | unde
     styles[param.name] = {
       style: param.style ?? 'form',
       explode: param.explode ?? true,
-      allowReserved: param.allowReserved,
+      ...(param.allowReserved === undefined ? {} : { allowReserved: param.allowReserved }),
     };
   }
   return styles;
@@ -506,11 +507,12 @@ export function createClientCore<
       client[name] =
         spec === undefined
           ? method
-          : spec.style === 'link'
+          : spec.style === 'link' || spec.style === 'body-link'
             ? Object.assign(method, {
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).pagesByLink(
                     linkPageCall(config, op, caps),
+                    spec,
                     inputOf(op, args ?? {}, config),
                     init
                   ),

@@ -11,17 +11,21 @@ export const NoSchemaTypeMismatch:
   | Arazzo1Rule = () => {
   return {
     Schema(schema: Oas2Schema | Oas3Schema, { report, location }: UserContext) {
-      if (schema.type === 'object' && schema.items) {
+      if (typeof schema.type !== 'string') {
+        return;
+      }
+
+      if (schema.type !== 'array' && schema.items) {
         report({
-          message: "Schema type mismatch: 'object' type should not contain 'items' field.",
+          message: `Schema type mismatch: '${schema.type}' type should not contain 'items' field.`,
           location: location.child('items'),
           reference: 'https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch',
         });
       }
 
-      if (schema.type === 'array' && schema.properties) {
+      if (schema.type !== 'object' && schema.properties) {
         report({
-          message: "Schema type mismatch: 'array' type should not contain 'properties' field.",
+          message: `Schema type mismatch: '${schema.type}' type should not contain 'properties' field.`,
           location: location.child('properties'),
           reference: 'https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch',
         });

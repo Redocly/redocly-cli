@@ -131,7 +131,7 @@ async function runWorkflows({
           totalTimeMs: 0,
           executedSteps: [failedStep],
           ctx,
-          globalTimeoutError: false,
+          globalTimeoutError: error.globalTimeoutError,
         });
         continue;
       }
@@ -152,12 +152,14 @@ async function runWorkflows({
 export async function runWorkflow({
   workflowInput,
   ctx,
+  inputs,
   fromStepId,
   skipLineSeparator,
   parentStepId,
   invocationContext,
   executedStepsCount,
   retriesLeft,
+  retryingStepIds,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
@@ -171,18 +173,42 @@ export async function runWorkflow({
     throw new Error(`\n ${blue('Workflow')} ${workflowInput} ${blue('not found')} \n`);
   }
 
-  const workflowInputSchema = workflow.inputs;
-  if (workflowInputSchema) {
-    const inputs = ctx.$workflows[workflow.workflowId].inputs;
-
-    ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
-      inputs,
-      workflowInputSchema,
-      env: ctx.options.envVariables,
-    });
-  }
-
   const workflowId = workflow.workflowId;
+  const workflowInputSchema = workflow.inputs;
+  // Keep `undefined` when nothing is passed. Success criteria read the inputs as is,
+  // and `$inputs.x` on `undefined` reports an unresolved expression, while on `{}` it evaluates to false.
+  const runInputs = inputs
+    ? { ...ctx.$workflows[workflowId].inputs, ...inputs }
+    : ctx.$workflows[workflowId].inputs;
+  // A goto re-enters the workflow with inputs that were already checked.
+  const onInvalidInputs = (problems: string) => {
+    if (!fromStepId) {
+      logger.warn(
+        `Workflow "${workflowId}" runs with inputs that don't match its inputs schema: ${problems}.\n`
+      );
+    }
+  };
+
+  // The run gets its own copy of the workflow entry, so the inputs passed to it
+  // don't leak into later or concurrent runs of the same workflow.
+  // The copy shares the steps object, so step data stays visible to the caller.
+  const runCtx: TestContext = {
+    ...ctx,
+    $workflows: {
+      ...ctx.$workflows,
+      [workflowId]: {
+        ...ctx.$workflows[workflowId],
+        inputs: workflowInputSchema
+          ? mergeWorkflowInputs({
+              inputs: runInputs,
+              workflowInputSchema,
+              env: ctx.options.envVariables,
+              onInvalidInputs,
+            })
+          : runInputs,
+      },
+    },
+  };
 
   if (!fromStepId) {
     printWorkflowSeparator({
@@ -202,20 +228,21 @@ export async function runWorkflow({
   // Reset $steps before running workflow steps.
   // A goto to a step in this workflow keeps the outputs of steps that already ran.
   if (!fromStepId) {
-    ctx.$steps = {};
+    runCtx.$steps = {};
   } else {
     for (const stepToReset of workflowSteps) {
-      delete ctx.$steps[stepToReset.stepId];
+      delete runCtx.$steps[stepToReset.stepId];
     }
   }
   for (const step of workflowSteps) {
     try {
       const stepResult = await runStep({
         step,
-        ctx,
+        ctx: runCtx,
         workflowId,
         executedStepsCount,
         retriesLeft,
+        retryingStepIds,
       });
 
       // When `end` action is used, we should not continue with the next steps
@@ -227,15 +254,17 @@ export async function runWorkflow({
         name: CHECKS.UNEXPECTED_ERROR,
         message: err.message,
         passed: false,
-        severity: ctx.severity['UNEXPECTED_ERROR'],
+        severity: runCtx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
-      ctx.executedSteps.push(step);
+      runCtx.executedSteps.push(step);
     }
   }
 
-  const hasFailedTimeoutSteps = workflow.steps.some((step) =>
-    step.checks?.some((check) => !check.passed && check.name == CHECKS.GLOBAL_TIMEOUT_ERROR)
+  const hasFailedTimeoutSteps = runCtx.executedSteps.some((entry) =>
+    isWorkflowExecutionResult(entry)
+      ? entry.globalTimeoutError
+      : entry.checks.some((check) => !check.passed && check.name === CHECKS.GLOBAL_TIMEOUT_ERROR)
   );
 
   // workflow level outputs
@@ -249,15 +278,16 @@ export async function runWorkflow({
 
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: {
-        ...ctx,
+        ...runCtx,
         $inputs: {
-          ...ctx.$inputs,
-          ...ctx.$workflows[workflowId]?.inputs,
+          ...runCtx.$inputs,
+          ...runCtx.$workflows[workflowId]?.inputs,
         },
       },
       workflowId,
     });
 
+    const hasFailedSteps = hasFailedLastAttempt(runCtx.executedSteps);
     const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
@@ -267,12 +297,15 @@ export async function runWorkflow({
           logger: ctx.options.logger,
         });
       } catch (error: any) {
+        // A failed step leaves the values its outputs read unset, and the step reports the failure.
+        if (hasFailedSteps) continue;
         throw new Error(
           `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
         );
       }
     }
     ctx.$outputs[workflowId] = outputs;
+    // written to the caller's entry, not the run's copy, so the caller can read them
     ctx.$workflows[workflowId].outputs = outputs;
   }
 
@@ -288,9 +321,9 @@ export async function runWorkflow({
     stepId: parentStepId,
     startTime: workflowStartTime,
     endTime,
-    totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
-    executedSteps: ctx.executedSteps,
-    ctx,
+    totalTimeMs: calculateWorkflowTotalTimeMs(runCtx.executedSteps),
+    executedSteps: runCtx.executedSteps,
+    ctx: runCtx,
     globalTimeoutError: hasFailedTimeoutSteps,
   };
 }
@@ -298,7 +331,14 @@ export async function runWorkflow({
 // Thrown when a dependsOn entry cannot be resolved to a workflow or a dependency
 // workflow fails. Handled per workflow in runWorkflows so one broken dependency
 // doesn't abort the rest of the run.
-class WorkflowDependencyError extends Error {}
+class WorkflowDependencyError extends Error {
+  globalTimeoutError: boolean;
+
+  constructor(message: string, globalTimeoutError = false) {
+    super(message);
+    this.globalTimeoutError = globalTimeoutError;
+  }
+}
 
 async function handleDependsOn({
   workflow,
@@ -351,7 +391,8 @@ async function handleDependsOn({
     throw new WorkflowDependencyError(
       `Dependent workflows of workflow ${red(workflow.workflowId)} have failed steps: ${red(
         failedDependencies.join(', ')
-      )}.`
+      )}.`,
+      dependenciesWorkflows.some((dependencyWorkflow) => dependencyWorkflow.globalTimeoutError)
     );
   }
 }
@@ -432,4 +473,20 @@ function calculateWorkflowTotalTimeMs(executedSteps: (Step | WorkflowExecutionRe
   }
 
   return totalTime;
+}
+
+// a retry runs the step again in the same run, so the last entry of a step id is its result
+function hasFailedLastAttempt(executedSteps: (Step | WorkflowExecutionResult)[]): boolean {
+  return executedSteps.some((entry, index) => {
+    const isRetriedLater =
+      entry.stepId !== undefined &&
+      executedSteps.findLastIndex((other) => other.stepId === entry.stepId) !== index;
+    if (isRetriedLater) {
+      return false;
+    }
+    if (isWorkflowExecutionResult(entry)) {
+      return hasFailedLastAttempt(entry.executedSteps);
+    }
+    return entry.checks.some((check) => !check.passed && check.severity === 'error');
+  });
 }

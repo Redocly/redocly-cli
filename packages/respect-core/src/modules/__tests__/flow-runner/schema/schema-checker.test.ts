@@ -3,12 +3,7 @@ import { logger } from '@redocly/openapi-core';
 import type { StepCallContext, TestContext } from '../../../../types.js';
 import { cleanColors } from '../../../../utils/clean-colors.js';
 import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
-import {
-  CHECKS,
-  checkSchema,
-  statusCodeDiff,
-  resolveContentByType,
-} from '../../../flow-runner/index.js';
+import { CHECKS, checkSchema, statusCodeDiff } from '../../../flow-runner/index.js';
 
 describe('checkSchema', () => {
   const stepCallCtx = {
@@ -273,6 +268,7 @@ describe('checkSchema', () => {
   });
 
   it('should check circular referenced schema', () => {
+    vi.spyOn(logger, 'output').mockImplementation(() => {});
     vi.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
       throw new Error('circular reference');
     });
@@ -331,6 +327,9 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
+    expect(logger.output).toHaveBeenCalledWith(
+      expect.stringContaining('WARNING: schema have circular references')
+    );
   });
 
   it('should catch ajvStrict.compile error', () => {
@@ -625,101 +624,5 @@ describe('statusCodeDiff', () => {
     expect(cleanColors(statusCodeDiff(202, [200, 201]))).toBe(
       'Expected value to be in the list:\n  200, 201\nReceived:\n  202'
     );
-  });
-
-  it('should return the correct diff when the actual value is not in the expected list', () => {
-    expect(cleanColors(statusCodeDiff(202, [200, 201]))).toBe(
-      'Expected value to be in the list:\n  200, 201\nReceived:\n  202'
-    );
-  });
-});
-
-describe('resolveContentByType', () => {
-  it('should return undefined when content is undefined', () => {
-    expect(resolveContentByType(undefined, 'application/json')).toBeUndefined();
-  });
-
-  it('should return exact match by content type', () => {
-    const content = {
-      'application/json': { schema: { type: 'object' } },
-      'text/plain': { schema: { type: 'string' } },
-    };
-    expect(resolveContentByType(content, 'application/json')).toEqual({
-      schema: { type: 'object' },
-    });
-  });
-
-  it('should match */* wildcard pattern', () => {
-    const content = {
-      '*/*': { schema: { type: 'string' } },
-    };
-    expect(resolveContentByType(content, 'application/json')).toEqual({
-      schema: { type: 'string' },
-    });
-    expect(resolveContentByType(content, 'text/plain')).toEqual({
-      schema: { type: 'string' },
-    });
-  });
-
-  it('should match type/* wildcard pattern', () => {
-    const content = {
-      'application/*': { schema: { type: 'object' } },
-    };
-    expect(resolveContentByType(content, 'application/json')).toEqual({
-      schema: { type: 'object' },
-    });
-    expect(resolveContentByType(content, 'application/xml')).toEqual({
-      schema: { type: 'object' },
-    });
-    expect(resolveContentByType(content, 'text/plain')).toBeUndefined();
-  });
-
-  it('should prefer exact match over wildcard', () => {
-    const content = {
-      'application/json': { schema: { type: 'object' } },
-      '*/*': { schema: { type: 'string' } },
-    };
-    expect(resolveContentByType(content, 'application/json')).toEqual({
-      schema: { type: 'object' },
-    });
-  });
-
-  it('should return undefined when no pattern matches', () => {
-    const content = {
-      'application/json': { schema: { type: 'object' } },
-      'text/*': { schema: { type: 'string' } },
-    };
-    expect(resolveContentByType(content, 'image/png')).toBeUndefined();
-  });
-
-  it('should return first matching wildcard when multiple wildcards match', () => {
-    const content = {
-      'application/*': { schema: { type: 'object' } },
-      '*/*': { schema: { type: 'string' } },
-    };
-    const result = resolveContentByType(content, 'application/json');
-    expect(result).toEqual({ schema: { type: 'object' } });
-  });
-
-  it('should match */subtype wildcard pattern', () => {
-    const content = {
-      '*/json': { schema: { type: 'object' } },
-    };
-    expect(resolveContentByType(content, 'application/json')).toEqual({
-      schema: { type: 'object' },
-    });
-    expect(resolveContentByType(content, 'text/json')).toEqual({
-      schema: { type: 'object' },
-    });
-    expect(resolveContentByType(content, 'application/xml')).toBeUndefined();
-  });
-
-  it('should match content type case-insensitively', () => {
-    const content = {
-      'Application/JSON': { schema: { type: 'object' } },
-    };
-    expect(resolveContentByType(content, 'application/json')).toEqual({
-      schema: { type: 'object' },
-    });
   });
 });

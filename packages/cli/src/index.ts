@@ -2,6 +2,7 @@
 import './utils/assert-node-version.js';
 
 import {
+  impacts,
   logger,
   type OutputFormat,
   type RuleSeverity,
@@ -13,6 +14,7 @@ import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { DiffArgv, DiffFailOn, DiffOutputFormat } from './commands/diff/types.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -26,17 +28,19 @@ import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index
 import type { GenerateClientCommandArgv } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
-import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { PRODUCT_PACKAGES, PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
+import { type RecheckFormat } from './commands/recheck/types.js';
 import type { RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
 } from './commands/scorecard-classic/types.js';
+import { handleSkills, SKILLS_AGENTS, type SkillsArgv } from './commands/skills.js';
 import { outputExtensions } from './types.js';
+import { cacheLatestVersion, notify } from './utils/notifier.js';
 import { version } from './utils/package.js';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { commandWrapper } from './wrapper.js';
@@ -48,7 +52,14 @@ cacheLatestVersion();
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs(hideBin(process.argv))
-  .version('version', 'Show version number.', version)
+  .version(false)
+  .option('version', { type: 'boolean', description: 'Show version number.', global: false })
+  .middleware((argv) => {
+    if (argv.version && argv._.length === 0) {
+      logger.output(`${version}\n`);
+      process.exit(0);
+    }
+  }, true)
   .help('help', 'Show help.')
   .parserConfiguration({ 'greedy-arrays': false, 'boolean-negation': false })
   .command(
@@ -127,6 +138,67 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
+    'diff <base> <revision>',
+    'Compare two API descriptions and rate every change by the semver bump it requires [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_DIFF')
+        .positional('base', { type: 'string', demandOption: true })
+        .positional('revision', { type: 'string', demandOption: true })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: [
+              'stylish',
+              'json',
+              'markdown',
+              'html',
+              'github-actions',
+              'next-version',
+            ] as ReadonlyArray<DiffOutputFormat>,
+            default: 'stylish' as const,
+          },
+          output: {
+            description: 'Write the diff report to a file.',
+            type: 'string',
+            alias: 'o',
+          },
+          'fail-on': {
+            description:
+              'Exit with a non-zero code when changes of this impact or higher are found.',
+            choices: [...impacts, 'none'] as ReadonlyArray<DiffFailOn>,
+            default: 'major' as const,
+          },
+          'check-version': {
+            description:
+              'Fail when info.version was not bumped to match the impact of the changes.',
+            type: 'boolean',
+            default: false,
+          },
+          'skip-rule': {
+            description: 'Ignore certain rules.',
+            array: true,
+            type: 'string',
+          },
+          extends: {
+            description: 'Override extends configurations (defaults or config file settings).',
+            requiresArg: true,
+            array: true,
+            type: 'string',
+          },
+        }),
+    async (argv) => {
+      const { handleDiff } = await import('./commands/diff/index.js');
+      commandWrapper(handleDiff)(argv as Arguments<DiffArgv>);
+    }
+  )
+  .command(
     'score [api]',
     'Score an API description for integration simplicity and agent readiness.',
     (yargs) =>
@@ -181,6 +253,11 @@ yargs(hideBin(process.argv))
             required: false,
             type: 'string',
             default: '_',
+          },
+          'file-name-conflicts-severity': {
+            description: 'Severity level for file name conflicts.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
           config: {
             description: 'Path to the config file.',
@@ -265,13 +342,13 @@ yargs(hideBin(process.argv))
         .implies('max-execution-time', 'wait')
         .option({
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             required: true,
             alias: 'p',
@@ -304,7 +381,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'push [files...]',
-    'Push documents to Reunite.',
+    'Push documents to the Redocly platform.',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_PUSH')
@@ -326,13 +403,13 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             alias: 'p',
             required: true,
@@ -415,6 +492,73 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handlePush } = await import('./commands/push.js');
       commandWrapper(handlePush)(argv);
+    }
+  )
+  .command(
+    'recheck [paths..]',
+    'Lint Markdown prose and structure from the recheck block in redocly.yaml.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_RECHECK')
+        .positional('paths', {
+          array: true,
+          type: 'string',
+          describe: 'Files or directories to lint. Default: the current directory.',
+        })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['table', 'json', 'sarif', 'github-actions'] as ReadonlyArray<RecheckFormat>,
+            default: 'table' as RecheckFormat,
+          },
+          tags: { description: 'Run only rules with these tags.', array: true, type: 'string' },
+          rule: { description: 'Run only these rules.', alias: 'r', array: true, type: 'string' },
+          'skip-rule': { description: 'Skip these rules.', array: true, type: 'string' },
+          stats: { description: 'Print rule statistics.', alias: 's', type: 'boolean' },
+          fix: { description: 'Apply fixes to Markdown files.', alias: 'f', type: 'boolean' },
+          'max-problems': {
+            description: 'Maximum number of problems in the report.',
+            type: 'number',
+          },
+          summary: {
+            description: 'Print a run summary.',
+            choices: ['json', 'text'] as ReadonlyArray<'json' | 'text'>,
+            type: 'string',
+          },
+          'summary-path': { description: 'Write the summary to a file.', type: 'string' },
+          readability: {
+            description: 'Report readability scores instead of linting.',
+            type: 'boolean',
+          },
+          'generate-baseline': {
+            description: 'Write the baseline file from the current findings.',
+            type: 'boolean',
+          },
+          'generate-markdoc-schema': {
+            description: 'Generate a Markdoc tag schema from theme modules.',
+            type: 'boolean',
+          },
+          from: {
+            description: 'Module paths to read Markdoc tags from (with --generate-markdoc-schema).',
+            array: true,
+            type: 'string',
+          },
+          output: { description: 'Output file for the generated schema.', type: 'string' },
+          check: {
+            description: 'Fail if the generated schema differs from --output.',
+            type: 'boolean',
+          },
+        }),
+    async (argv) => {
+      const { handleRecheck } = await import('./commands/recheck/index.js');
+      const { recheckPresetsPlugin } = await import('@redocly/recheck/presets');
+      commandWrapper(handleRecheck, { plugins: [recheckPresetsPlugin] })(argv);
     }
   )
   .command(
@@ -633,21 +777,142 @@ yargs(hideBin(process.argv))
       commandWrapper(handleLogout)(argv);
     }
   )
+  .command('project', '[early access] Work with a Redocly-hosted project.', (yargs) =>
+    yargs
+      .env('REDOCLY_CLI_PROJECT')
+      .command(
+        'clone <project> [directory]',
+        'Clone a Redocly-hosted project as a Git repository.',
+        (yargs) =>
+          yargs
+            .positional('project', {
+              description: 'Organization and project slugs or IDs, as `<organization>/<project>`.',
+              type: 'string',
+              demandOption: true,
+            })
+            .positional('directory', {
+              description: 'Directory to clone into. Defaults to the project.',
+              type: 'string',
+            })
+            .options({
+              residency: {
+                description: 'Residency of the application. Defaults to `us`.',
+                alias: ['r'],
+                type: 'string',
+              },
+              config: {
+                description: 'Path to the config file.',
+                requiresArg: true,
+                type: 'string',
+              },
+            }),
+        async (argv) => {
+          const { handleProjectClone } = await import('./commands/project/index.js');
+          commandWrapper(handleProjectClone)(argv);
+        }
+      )
+      .command('pr', 'Work with the pull requests of a cloned project.', (yargs) =>
+        yargs
+          .command(
+            'create',
+            'Open a pull request in the Redocly platform for the current branch.',
+            (yargs) =>
+              yargs.options({
+                title: {
+                  description: 'Pull request title. Defaults to the subject of the last commit.',
+                  alias: ['t'],
+                  type: 'string',
+                },
+                body: {
+                  description: 'Pull request body.',
+                  alias: ['b'],
+                  type: 'string',
+                },
+                'body-file': {
+                  description: 'Read the body from a file. Use `-` to read from standard input.',
+                  alias: ['F'],
+                  type: 'string',
+                  conflicts: 'body',
+                },
+                base: {
+                  description: "Branch to merge into. Defaults to the project's default branch.",
+                  alias: ['B'],
+                  type: 'string',
+                },
+                draft: {
+                  description: 'Open the pull request as a draft.',
+                  alias: ['d'],
+                  type: 'boolean',
+                },
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPrCreate } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrCreate)(argv);
+            }
+          )
+          .command(
+            'status',
+            'Show the state, review, checks, and preview URL of the pull request for the current branch.',
+            (yargs) =>
+              yargs.options({
+                config: {
+                  description: 'Path to the config file.',
+                  requiresArg: true,
+                  type: 'string',
+                },
+              }),
+            async (argv) => {
+              const { handleProjectPrStatus } = await import('./commands/project/pr.js');
+              commandWrapper(handleProjectPrStatus)(argv);
+            }
+          )
+          .demandCommand(1, 'Specify a pr subcommand: create or status.')
+      )
+      .command(
+        'git-credentials <operation>',
+        false,
+        (yargs) =>
+          yargs.positional('operation', {
+            description: 'Credential helper operation: get, store, or erase.',
+            type: 'string',
+            demandOption: true,
+          }),
+        async (argv) => {
+          const { handleProjectGitCredentials } =
+            await import('./commands/project/git-credentials.js');
+          process.stdout.write(
+            await handleProjectGitCredentials({
+              operation: argv.operation,
+              input: process.stdin,
+              version,
+            })
+          );
+        }
+      )
+      .demandCommand(1, 'Specify a project subcommand: clone or pr.')
+  )
   .command(
     'preview',
-    'Preview Redocly project using one of the product NPM packages.',
+    'Preview Redocly project.',
     (yargs) =>
       yargs.env('REDOCLY_CLI_PREVIEW').options({
         product: {
           type: 'string',
-          choices: ['redoc', 'revel', 'reef', 'realm', 'redoc-revel', 'redoc-reef', 'revel-reef'],
-          description:
-            "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
+          choices: Object.keys(PRODUCT_PACKAGES),
+          hidden: true,
+          deprecated:
+            'the preview reads the package from package.json, @redocly/framework by default.',
         },
         plan: {
           type: 'string',
           choices: PRODUCT_PLANS,
           default: 'enterprise',
+          description: 'Plan whose features the preview enables: pro, scale or enterprise.',
         },
         port: {
           alias: 'p',
@@ -696,11 +961,6 @@ yargs(hideBin(process.argv))
             describe: 'Page title.',
             type: 'string',
           },
-          disableGoogleFont: {
-            describe: 'Disable Google fonts.',
-            type: 'boolean',
-            default: false,
-          },
           t: {
             alias: 'template',
             describe:
@@ -711,9 +971,20 @@ yargs(hideBin(process.argv))
             describe:
               'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
-          theme: {
+          openapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
+          },
+          asyncapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
+          },
+          graphql: {
+            describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
+          },
+          inlineBundle: {
             describe:
-              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
+              'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
+            type: 'boolean',
+            default: false,
           },
           config: {
             describe: 'Path to the config file.',
@@ -724,10 +995,21 @@ yargs(hideBin(process.argv))
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
+          // Remove these options and the check below in the first release after January 31, 2027.
+          theme: { hidden: true },
+          disableGoogleFont: { hidden: true, type: 'boolean' },
         })
-        .check((argv: any) => {
-          if (argv.theme && !argv.theme?.openapi)
-            throw new Error('Invalid option: theme.openapi not set.');
+        .check((argv) => {
+          if (argv.theme !== undefined) {
+            throw new Error(
+              'The --theme.openapi option was removed. Pass Redoc options with --openapi instead: https://redocly.com/docs/cli/guides/migrate-to-v2#changes-in-the-build-docs-command'
+            );
+          }
+          if (argv.disableGoogleFont !== undefined) {
+            throw new Error(
+              'The --disableGoogleFont option was removed because the page no longer loads Google Fonts. Remove the option from your command.'
+            );
+          }
           return true;
         }),
     async (argv) => {
@@ -1046,13 +1328,19 @@ yargs(hideBin(process.argv))
           },
           generator: {
             describe:
-              'Generator to run; repeat the flag to run several (default: typescript). Built-in: typescript, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, python, go, php — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator typescript --generator zod',
+              'Generator to run; repeat the flag to run several (default: typescript). Built-in: typescript, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, python, go, php, java — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator typescript --generator zod',
             type: 'string',
             array: true,
             requiresArg: true,
           },
           config: {
             describe: 'Path to the config file.',
+            type: 'string',
+            requiresArg: true,
+          },
+          report: {
+            describe:
+              'Path of a JSON file to write with the warnings of the run and the operations of each API.',
             type: 'string',
             requiresArg: true,
           },
@@ -1096,6 +1384,32 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
+    'skills',
+    'Install the Redocly CLI agent skills for AI coding agents.',
+    (yargs) =>
+      yargs.options({
+        agent: {
+          description: 'Agents to install the skills for. Default: detected agents.',
+          type: 'array',
+          string: true,
+          choices: SKILLS_AGENTS,
+        },
+        global: {
+          description: 'Install in your home folder instead of the current project.',
+          type: 'boolean',
+          default: false,
+        },
+        list: {
+          description: 'List the bundled skills without installing them.',
+          type: 'boolean',
+          default: false,
+        },
+      }),
+    async (argv) => {
+      commandWrapper(handleSkills)(argv as Arguments<SkillsArgv>);
+    }
+  )
+  .command(
     'generate-spec <traffic>',
     'Infer an OpenAPI description from recorded HTTP traffic, optionally refined with AI [experimental].',
     (yargs) =>
@@ -1110,6 +1424,12 @@ yargs(hideBin(process.argv))
             describe: 'Target API description type.',
             choices: ['openapi'] as const,
             default: 'openapi' as const,
+          },
+          'openapi-version': {
+            describe: 'OpenAPI version of the generated description.',
+            type: 'string',
+            choices: ['3.1', '3.2'] as ReadonlyArray<GenerateSpecArgv['openapi-version']>,
+            default: '3.2' as GenerateSpecArgv['openapi-version'],
           },
           'traffic-format': {
             describe: 'Traffic input format.',
@@ -1433,5 +1753,5 @@ yargs(hideBin(process.argv))
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
-  .middleware([notifyUpdateCliVersion])
+  .middleware([notify])
   .strict().argv;

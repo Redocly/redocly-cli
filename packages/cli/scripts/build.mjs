@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const { redocly } = JSON.parse(readFileSync(path.join(packageDir, 'package.json'), 'utf-8'));
 
 rmSync(path.join(packageDir, 'lib'), { recursive: true, force: true });
 
@@ -37,11 +38,24 @@ const result = await build({
   logLevel: 'info',
 });
 
-const entryChunkInputs = Object.keys(result.metafile.outputs['lib/index.js']?.inputs ?? {});
-if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
-  throw new Error(
-    'redoc leaked into lib/index.js — check for stray static imports in build-docs commands'
-  );
+// The startup chunks are the entry chunk and every chunk it reaches through static imports.
+const startupChunks = new Set(['lib/index.js']);
+for (const chunkPath of startupChunks) {
+  for (const chunkImport of result.metafile.outputs[chunkPath].imports) {
+    if (chunkImport.kind === 'import-statement' && !chunkImport.external) {
+      startupChunks.add(chunkImport.path);
+    }
+  }
+}
+const startupInputs = [...startupChunks].flatMap((chunkPath) =>
+  Object.keys(result.metafile.outputs[chunkPath].inputs)
+);
+for (const packageName of ['redoc', 'undici']) {
+  if (startupInputs.some((inputPath) => inputPath.includes(`node_modules/${packageName}/`))) {
+    throw new Error(
+      `${packageName} leaked into the startup chunks — check for stray static imports of it`
+    );
+  }
 }
 
 const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
@@ -98,6 +112,42 @@ cpSync(
   path.join(packageDir, 'lib', 'eject-assets'),
   { recursive: true }
 );
+
+cpSync(
+  fileURLToPath(import.meta.resolve('redoc/bundles/redoc.standalone.js')),
+  path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js')
+);
+
+for (const skill of redocly.bundledSkills) {
+  cpSync(
+    path.join(packageDir, '..', '..', '.claude', 'skills', skill, 'SKILL.md'),
+    path.join(packageDir, 'lib', 'skills', skill, 'SKILL.md')
+  );
+}
+
+// `dictionary-en` reads its Hunspell data with `new URL(..., import.meta.url)`,
+// so the two data files must sit next to the chunk esbuild bundled it into.
+const dictionaryEntry = 'node_modules/dictionary-en/index.js';
+let dictionaryOutput;
+let dictionaryInput;
+for (const [outputPath, chunk] of Object.entries(result.metafile.outputs)) {
+  const match = Object.keys(chunk.inputs).find((inputPath) =>
+    inputPath.replace(/\\/g, '/').endsWith(dictionaryEntry)
+  );
+  if (match) {
+    dictionaryOutput = outputPath;
+    dictionaryInput = match;
+    break;
+  }
+}
+if (!dictionaryOutput) {
+  throw new Error('dictionary-en is no longer bundled — drop the data-file copy below');
+}
+const dictionaryRoot = path.dirname(path.resolve(packageDir, dictionaryInput));
+const dictionaryOutDir = path.dirname(path.resolve(packageDir, dictionaryOutput));
+for (const dataFile of ['index.aff', 'index.dic']) {
+  cpSync(path.join(dictionaryRoot, dataFile), path.join(dictionaryOutDir, dataFile));
+}
 
 function findLicenseText(pkgRoot) {
   for (const filename of ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md']) {

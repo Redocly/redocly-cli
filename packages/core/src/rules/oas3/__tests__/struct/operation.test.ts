@@ -25,7 +25,7 @@ it('should not report if summary field is valid', async () => {
     await validateDoc(source, {
       struct: 'error',
     })
-  ).toMatchInlineSnapshot(`[]`);
+  ).toEqual([]);
 });
 
 it('should report if summary field is not string ', async () => {
@@ -84,7 +84,7 @@ it('should not report if description field is valid', async () => {
     await validateDoc(source, {
       struct: 'error',
     })
-  ).toMatchInlineSnapshot(`[]`);
+  ).toEqual([]);
 });
 
 it('should report if description field is not string', async () => {
@@ -142,7 +142,7 @@ it('should not report of a valid GET operation object', async () => {
     await validateDoc(source, {
       struct: 'error',
     })
-  ).toMatchInlineSnapshot(`[]`);
+  ).toEqual([]);
 });
 
 it('should not report of a valid PUT operation object', async () => {
@@ -172,7 +172,7 @@ it('should not report of a valid PUT operation object', async () => {
     await validateDoc(source, {
       struct: 'error',
     })
-  ).toMatchInlineSnapshot(`[]`);
+  ).toEqual([]);
 });
 
 it('should not report of a valid Post operation object', async () => {
@@ -210,7 +210,7 @@ it('should not report of a valid Post operation object', async () => {
     await validateDoc(source, {
       struct: 'error',
     })
-  ).toMatchInlineSnapshot(`[]`);
+  ).toEqual([]);
 });
 
 it('should not report of a valid delete operation object', async () => {
@@ -250,5 +250,5 @@ it('should not report of a valid delete operation object', async () => {
     await validateDoc(source, {
       struct: 'error',
     })
-  ).toMatchInlineSnapshot(`[]`);
+  ).toEqual([]);
 });

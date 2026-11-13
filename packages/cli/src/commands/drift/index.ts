@@ -1,7 +1,10 @@
 import { logger, HandledError, AbortFlowError } from '@redocly/openapi-core';
+import { isColorSupported } from 'colorette';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { performance } from 'node:perf_hooks';
 
+import { printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { renderCoverageJson, renderCoverageOverview } from './engine/coverage-reporter.js';
 import { renderReport, type ReportFormat } from './engine/reporter.js';
@@ -33,8 +36,6 @@ export type DriftArgv = {
   coverage?: boolean;
   'coverage-output'?: string;
 };
-
-const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
 
 function collectSpecServerUrls(openApiIndex: OpenApiIndex): string[] {
   const urls = new Set<string>();
@@ -87,6 +88,7 @@ async function writeOutput(outputPath: string, content: string): Promise<void> {
 }
 
 export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
+  const startedAt = performance.now();
   const trafficPath = normalizeFsPath(argv.traffic);
   const trafficFormat = argv['traffic-format'];
   const activeRules = argv.rules ? parseCsv(argv.rules) : undefined;
@@ -138,7 +140,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     },
     {
       format: argv['report-format'],
-      color: USE_COLOR && argv['report-format'] === 'pretty' && !argv.output,
+      color: isColorSupported && argv['report-format'] === 'pretty' && !argv.output,
       maxFindings: argv['max-findings'],
     }
   );
@@ -154,7 +156,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   // a machine-readable report.
   const stdoutIsMachineReadable = argv['report-format'] !== 'pretty' && !argv.output;
   if (argv.coverage && coverage) {
-    const overview = renderCoverageOverview(coverage, USE_COLOR && !stdoutIsMachineReadable);
+    const overview = renderCoverageOverview(coverage, isColorSupported && !stdoutIsMachineReadable);
     if (stdoutIsMachineReadable) {
       logger.info(`\n${overview}`);
     } else {
@@ -169,6 +171,8 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     );
     logger.info(`Coverage report written to: ${normalizeFsPath(coverageOutput)}\n`);
   }
+
+  printExecutionTime('drift', startedAt, argv.api);
 
   // Signal a non-zero exit when error-level drift is found, without printing an
   // extra error line (AbortFlowError is swallowed by the command wrapper).

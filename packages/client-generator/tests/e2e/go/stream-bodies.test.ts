@@ -1,0 +1,49 @@
+import { generateClient } from '@redocly/client-generator';
+import { rmSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { copyConsumer } from '../helpers/helpers.js';
+import type { MockServer } from '../helpers/mock-server.js';
+import {
+  chunked,
+  replayableRows,
+  runProgram,
+  startStreamServer,
+  streamConsumer,
+  streamFixture,
+  streamRows,
+  wireRows,
+} from '../shared/stream-bodies/stream-bodies.js';
+
+describe('generate-client stream bodies, Go', () => {
+  let server: MockServer;
+  let workDir = '';
+
+  beforeAll(async () => {
+    workDir = copyConsumer(streamConsumer);
+    await generateClient({
+      api: streamFixture,
+      output: join(workDir, 'client/client.ts'),
+      generators: ['go'],
+    });
+    server = await startStreamServer();
+  });
+
+  afterAll(async () => {
+    await server.close();
+    rmSync(workDir, { recursive: true, force: true });
+  });
+
+  it(
+    'an io.Pipe passes through unbuffered once and []byte keeps the retry policy',
+    async () => {
+      await runProgram('go', ['run', '.', server.url], 'GO_SMOKE_OK', workDir);
+
+      expect(wireRows(server.requests)).toEqual([...streamRows(chunked), ...replayableRows]);
+      expect(server.handlerErrors).toEqual([]);
+    },
+    // The first build on a cold cache compiles the standard library, so this test
+    // gets more time than the project default.
+    180_000
+  );
+});

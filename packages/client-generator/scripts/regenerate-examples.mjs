@@ -10,7 +10,7 @@ const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(pkgRoot, '..', '..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
-const examplesDir = join(repoRoot, 'tests/e2e/generate-client/examples');
+const examplesDir = join(pkgRoot, 'examples');
 const examples = readdirSync(examplesDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && entry.name !== '_shared')
   .map((entry) => entry.name)

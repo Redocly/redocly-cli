@@ -1,12 +1,12 @@
 import { logger } from '@redocly/openapi-core';
-import { RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { RedoclyOAuthClient } from '@redocly/platform-integration';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { handleLoginAndFetchToken } from '../login-handler.js';
 
-vi.mock('@redocly/reunite-integration', () => ({
+vi.mock('@redocly/platform-integration', () => ({
   RedoclyOAuthClient: vi.fn(),
-  getReuniteUrl: vi.fn(() => 'https://www.test.com'),
+  getPlatformUrl: vi.fn(() => 'https://www.test.com'),
 }));
 
 const version = '1.2.3';
@@ -31,7 +31,6 @@ describe('handleLoginAndFetchToken', () => {
     vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.spyOn(logger, 'warn').mockImplementation(() => {});
     vi.spyOn(logger, 'error').mockImplementation(() => {});
-    vi.spyOn(logger, 'output').mockImplementation(() => {});
   });
 
   it('should return existing access token when available', async () => {
@@ -93,7 +92,9 @@ describe('handleLoginAndFetchToken', () => {
     mockOAuthClient.getAccessToken.mockResolvedValue(null);
     mockOAuthClient.login.mockRejectedValue(loginError);
 
-    await expect(handleLoginAndFetchToken(mockConfig, version, true)).rejects.toThrow();
+    await expect(handleLoginAndFetchToken(mockConfig, version, true)).rejects.toThrow(
+      'Login failed. Please try again or check your connection'
+    );
 
     expect(logger.error).toHaveBeenCalledWith('❌ Login failed.\n');
     expect(logger.error).toHaveBeenCalledWith('Error details: Network error\n');

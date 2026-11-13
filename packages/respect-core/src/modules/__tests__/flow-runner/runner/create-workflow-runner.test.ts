@@ -1,10 +1,15 @@
 import { logger } from '@redocly/openapi-core';
+import { blue } from 'colorette';
 
 import { type ResponseContext, type Workflow, type TestContext } from '../../../../types.js';
 import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
 
 describe('runWorkflow', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'output').mockImplementation(() => {});
+  });
+
   const fileName = 'test.yaml';
   it('should run workflow', async () => {
     const apiClient = {
@@ -97,7 +102,7 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
-    expect(apiClient.fetchResult).toBeCalled();
+    expect(apiClient.fetchResult).toHaveBeenCalled();
   });
 
   it('should return if no steps', async () => {
@@ -113,6 +118,7 @@ describe('runWorkflow', () => {
     const ctx = {
       apiClient,
       workflows: [workflow],
+      $workflows: { test: { steps: {} } },
       options: {
         verbose: false,
         filePath: fileName,
@@ -123,7 +129,7 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
-    expect(apiClient.fetchResult).not.toBeCalled();
+    expect(apiClient.fetchResult).not.toHaveBeenCalled();
   });
 
   it('should throw an error if no workflow exists', async () => {
@@ -142,8 +148,8 @@ describe('runWorkflow', () => {
     } as unknown as TestContext;
     await expect(
       runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } })
-    ).rejects.toThrowError();
-    expect(apiClient.fetchResult).not.toBeCalled();
+    ).rejects.toThrow(`${blue('Workflow')} test ${blue('not found')}`);
+    expect(apiClient.fetchResult).not.toHaveBeenCalled();
   });
 
   it('should set workflow outputs', async () => {
@@ -234,6 +240,122 @@ describe('runWorkflow', () => {
     expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
   });
 
+  it.each([
+    ['a run', undefined],
+    ['a retry target', 1],
+  ])('should skip the outputs a failed step leaves unresolved in %s', async (_, retriesLeft) => {
+    const apiClient = {
+      fetchResult: vi.fn(),
+      getVerboseResponseLogs: vi.fn(),
+    } as unknown as ApiFetcher;
+
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
+      statusCode: 500,
+    } as ResponseContext);
+
+    const step = {
+      stepId: 'read',
+      'x-operation': {
+        url: 'http://localhost:3000/test',
+        method: 'GET',
+      },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      outputs: { state: '$response.body#/state' },
+    };
+    const workflow = {
+      workflowId: 'test',
+      outputs: { state: '$steps.read.outputs.state', source: 'menu' },
+      steps: [step],
+    } as unknown as Workflow;
+
+    const ctx = {
+      apiClient,
+      workflows: [workflow],
+      executedSteps: [],
+      $workflows: { test: { outputs: {}, inputs: {}, steps: { read: {} } } },
+      $steps: {},
+      sourceDescriptions: [],
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+      options: {
+        verbose: false,
+        filePath: fileName,
+        logger,
+      },
+      $outputs: {},
+    } as unknown as TestContext;
+
+    const result = await runWorkflow({
+      workflowInput: 'test',
+      ctx,
+      executedStepsCount: { value: 0 },
+      retriesLeft,
+    });
+
+    expect(ctx.$outputs?.test).toEqual({ source: 'menu' });
+    expect(result.executedSteps).toEqual([
+      expect.objectContaining({
+        stepId: 'read',
+        checks: expect.arrayContaining([
+          expect.objectContaining({ name: 'success criteria check', passed: false }),
+        ]),
+      }),
+    ]);
+  });
+
+  it.each([
+    ['a passed step', [200]],
+    ['a step that a retry fixed', [500, 200]],
+  ])('should fail on an unresolved output after %s', async (_, statusCodes) => {
+    const apiClient = {
+      fetchResult: vi.fn(),
+      getVerboseResponseLogs: vi.fn(),
+    } as unknown as ApiFetcher;
+
+    for (const statusCode of statusCodes) {
+      vi.mocked(apiClient.fetchResult).mockResolvedValueOnce({
+        statusCode,
+        body: { state: 'open' },
+      } as ResponseContext);
+    }
+
+    const step = {
+      stepId: 'read',
+      'x-operation': {
+        url: 'http://localhost:3000/test',
+        method: 'GET',
+      },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onFailure: [{ name: 'retry', type: 'retry', retryLimit: 1 }],
+      outputs: { state: '$response.body#/state' },
+    };
+    const workflow = {
+      workflowId: 'test',
+      outputs: { state: '$steps.raed.outputs.state' },
+      steps: [step],
+    } as unknown as Workflow;
+
+    const ctx = {
+      apiClient,
+      workflows: [workflow],
+      executedSteps: [],
+      $workflows: { test: { outputs: {}, inputs: {}, steps: {} } },
+      $steps: {},
+      sourceDescriptions: [],
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+      options: {
+        verbose: false,
+        filePath: fileName,
+        logger,
+      },
+      $outputs: {},
+    } as unknown as TestContext;
+
+    await expect(
+      runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } })
+    ).rejects.toThrow('Failed to resolve output "state" in workflow "test"');
+    expect(apiClient.fetchResult).toHaveBeenCalledTimes(statusCodes.length);
+  });
+
   it('should return if workflow does not have steps', async () => {
     const apiClient = {
       fetchResult: vi.fn(),
@@ -303,11 +425,10 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
-    expect(apiClient.fetchResult).not.toBeCalled();
+    expect(apiClient.fetchResult).not.toHaveBeenCalled();
   });
 
   it('should run workflow within step execution', async () => {
-    const loggerSpy = vi.spyOn(logger, 'output').mockImplementation(() => {});
     const apiClient = {
       fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
@@ -362,9 +483,7 @@ describe('runWorkflow', () => {
       executedStepsCount: { value: 0 },
     });
 
-    expect(loggerSpy).toMatchSnapshot();
-
-    loggerSpy.mockRestore();
+    expect(logger.output).toMatchSnapshot();
   });
 
   it('should accept workflow as an input', async () => {

@@ -26,7 +26,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should report on empty server URL', async () => {
@@ -148,7 +148,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should report if fields type in servers are not array', async () => {
@@ -210,7 +210,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report if variables are used for a server configuration', async () => {
@@ -245,7 +245,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should report if array in enum is empty', async () => {
@@ -477,7 +477,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 
   it('should not report if servers property is an empty array', async () => {
@@ -501,6 +501,6 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         struct: 'error',
       })
-    ).toMatchInlineSnapshot(`[]`);
+    ).toEqual([]);
   });
 });

@@ -29,5 +29,6 @@ exports[`should send in request and proceed case-insensitive headers in runtime 
 └──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

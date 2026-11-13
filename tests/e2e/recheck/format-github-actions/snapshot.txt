@@ -1,0 +1,16 @@
+::error title=recheck/blanks-around-headings,file=docs/index.md,line=1,endLine=1,col=1,endColumn=25::Headings should be surrounded by blank lines (Expected: 1; Actual: 0; Below)
+::error title=recheck/blanks-around-headings,file=docs/index.md,line=2,endLine=2,col=1,endColumn=15::Headings should be surrounded by blank lines (Expected: 1; Actual: 0; Above)
+::error title=recheck/single-h1,file=docs/index.md,line=2,endLine=2,col=1,endColumn=13::Multiple top-level headings in the same document
+
+🏃 Running recheck on: docs
+   Disabled 1 rule(s) (severity: off)
+
+🔧 Running 52 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 3
+
+❌ Found 3 error(s). Exiting with code 1.
+   Completed in <test>ms
+
+Exit code: 1

@@ -9,6 +9,7 @@ import {
   type CollectSpecData,
   type Exact,
   type NormalizedProblem,
+  type Plugin,
   type SpecVersion,
   AbortFlowError,
   HandledError,
@@ -16,18 +17,20 @@ import {
 import type { Arguments } from 'yargs';
 
 import { bundleTelemetry } from './commands/bundle.js';
+import { loadAndCheckConfig } from './commands/check-config.js';
 import type { CommandArgv, VerifyConfigOptions } from './types.js';
 import {
   ejectGeneratorTelemetry,
   generateClientTelemetry,
 } from './utils/client-generator-telemetry.js';
-import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
+import type { ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
-  sendTelemetry,
-  collectXSecurityAuthTypes,
-  collectSourceDescriptionTypes,
   collectCriterionObjectTypes,
+  collectSourceDescriptionTypes,
+  collectXSecurityAuthTypes,
+  isTelemetryEnabled,
+  sendTelemetry,
 } from './utils/telemetry.js';
 
 export type CollectResults = (results: NormalizedProblem[]) => void;
@@ -41,12 +44,12 @@ export type CommandArgs<T extends CommandArgv> = {
 };
 
 export function commandWrapper<T extends CommandArgv>(
-  commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>
+  commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>,
+  options: { plugins?: Plugin[] } = {}
 ) {
   return async (argv: Arguments<T>) => {
     const startedAt = performance.now();
     let code: ExitCode = 2;
-    let telemetry;
     let specVersion: string = 'unknown';
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
@@ -111,8 +114,7 @@ export function commandWrapper<T extends CommandArgv>(
       if (argv.config && !doesYamlFileExist(argv.config)) {
         throw new HandledError('Please provide a valid path to the configuration file.');
       }
-      config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
-      telemetry = config.resolvedConfig.telemetry;
+      config = await loadAndCheckConfig(argv as Exact<T>, version, options.plugins);
       code = 1;
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData, collectResults });
@@ -131,7 +133,7 @@ export function commandWrapper<T extends CommandArgv>(
         logger.error('\n');
       }
     } finally {
-      if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
+      if (isTelemetryEnabled(config)) {
         const executionTime = Math.round(performance.now() - startedAt);
         await sendTelemetry({
           config,

@@ -4,6 +4,7 @@ import {
   createConfig,
   detectSpec,
   lintDocument,
+  type CollectSpecData,
   type Config,
   type NormalizedProblem,
   type Oas3Definition,
@@ -11,12 +12,16 @@ import {
 
 import type { LoadResult } from './types.js';
 
-export async function loadSpec(ref: string, config?: Config): Promise<LoadResult> {
+export async function loadSpec(
+  ref: string,
+  config?: Config,
+  collectSpecData?: CollectSpecData
+): Promise<LoadResult> {
   const cfg = config ?? (await createConfig({}));
   // We do NOT pass `dereference: true` — the IR builder needs `$ref` preserved so it can map
   // response/parameter schemas back to named `components.schemas` entries.
   // Validation (shape, OpenAPI version) is delegated to `bundle()`, which throws clear messages.
-  const result = await bundle({ ref, config: cfg });
+  const result = await bundle({ ref, config: cfg, collectSpecData });
   // `bundle()` reports unresolved $refs as problems instead of throwing, and runs NO
   // validation rules — a structurally invalid document bundles with zero problems.
   // Generating from either emits code that doesn't compile (or crashes the builder), so

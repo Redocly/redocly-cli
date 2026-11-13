@@ -1,4 +1,7 @@
+import { logger } from '@redocly/openapi-core';
+
 import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
+import { reportFinding } from '../../../findings.js';
 import { renderSwrModule } from '../render.js';
 
 const SDK = './client.js';
@@ -6,13 +9,17 @@ const SDK = './client.js';
 function render(ops: Parameters<typeof operation>[0][]) {
   return renderSwrModule(
     apiModel({ services: [{ name: 'Default', operations: ops.map(operation) }] }),
-    { sdkModule: SDK }
+    { reportFinding, sdkModule: SDK }
   );
 }
 
 describe('renderSwrModule', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  });
+
   it('returns empty string when the model has no operations', () => {
-    expect(renderSwrModule(apiModel(), { sdkModule: SDK })).toBe('');
+    expect(renderSwrModule(apiModel(), { reportFinding, sdkModule: SDK })).toBe('');
   });
 
   it('skips SSE operations (not exported by the sdk) and wraps only the regular ones', () => {
@@ -32,6 +39,9 @@ describe('renderSwrModule', () => {
     ]);
     expect(out).toContain('useGetPet');
     expect(out).not.toContain('streamEvents');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('skipped 1 server-sent-events operation(s)')
+    );
   });
 
   it('skips an op whose <Op>Variables name collides with a schema', () => {
@@ -53,10 +63,13 @@ describe('renderSwrModule', () => {
           },
         ],
       }),
-      { sdkModule: SDK }
+      { reportFinding, sdkModule: SDK }
     );
     expect(out).not.toContain('useGetUser');
     expect(out).toContain('useListUsers');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('skipped 1 operation(s) whose variables type name collides')
+    );
   });
 
   it('returns empty string when every operation is SSE', () => {

@@ -169,8 +169,10 @@ If you work with an AI coding assistant, install the `redocly-lint-rules` agent 
 It turns a Spectral rule into a Redocly one, and it verifies the result against your API description.
 
 ```bash
-npx skills add https://redocly.com
+redocly skills
 ```
+
+Without Redocly CLI, use `npx skills add https://redocly.com`.
 
 ## Explore tool functionality
 

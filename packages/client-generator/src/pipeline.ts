@@ -8,7 +8,6 @@
 
 import {
   isRef,
-  logger,
   stringifyYaml,
   unescapePointerFragment,
   type Oas3Definition,
@@ -17,6 +16,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, parse, resolve, sep } from 'node:path';
 
 import { NotSupportedError } from './errors.js';
+import { findingListener, reportFinding } from './findings.js';
 import { validateSelection } from './generators/meta.js';
 import { resolveGeneratorOptions } from './generators/options.js';
 import { resolveGenerators } from './generators/resolve.js';
@@ -75,6 +75,7 @@ export function runGenerators(
       model,
       output,
       banner,
+      reportFinding,
       outputMode: options.outputMode,
       emit: options.emit,
       pagination: options.pagination,
@@ -125,9 +126,11 @@ export function runGenerators(
   // Asking for documentation and getting none is worth saying: `zod` and the framework
   // wrappers document nothing, so a selection of only those writes no page.
   if (options.emit.docs === true && !documented) {
-    logger.warn(
-      `generate-client: docs is on, but no selected generator writes documentation (${options.generators.join(', ')}).\n`
-    );
+    reportFinding({
+      kind: 'option-ignored',
+      message: `docs is on, but no selected generator writes documentation (${options.generators.join(', ')}).`,
+      operations: [],
+    });
   }
   return files;
 }
@@ -153,13 +156,15 @@ function warnRepeatedParamNames(model: ApiModel): void {
         seen.add(param.name);
       }
       if (repeated.size === 0) continue;
-      logger.warn(
-        `generate-client: operation "${op.specName ?? op.name}" uses ${[...repeated]
+      reportFinding({
+        kind: 'name-changed',
+        message: `operation "${op.specName ?? op.name}" uses ${[...repeated]
           .map((name) => `"${name}"`)
           .join(
             ', '
-          )} in more than one parameter location. Every SDK sends both, and the SDKs whose methods take one argument per parameter give the later one a suffixed name — rename it in the description to choose the name yourself.\n`
-      );
+          )} in more than one parameter location. Every SDK sends both, and the SDKs whose methods take one argument per parameter give the later one a suffixed name — rename it in the description to choose the name yourself.`,
+        operations: [op.specName ?? op.name],
+      });
     }
   }
 }
@@ -216,6 +221,10 @@ function operationTarget(document: Oas3Definition, path: string, method: string)
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
+  return findingListener.run(options.onFinding, () => generate(options));
+}
+
+async function generate(options: GenerateClientOptions): Promise<GenerateClientResult> {
   // A path segment that is literally "undefined"/"null" is the telltale of an
   // interpolation bug in the caller (`\`${dir}/client.ts\`` with `dir` unset) — reject
   // it instead of silently creating an `undefined/` directory.
@@ -235,7 +244,11 @@ export async function generateClient(
     );
   }
   const outputPath = resolve(options.output);
-  const { document, version } = await loadSpec(options.api, options.config);
+  const { document, version } = await loadSpec(
+    options.api,
+    options.config,
+    options.collectSpecData
+  );
   const normalized =
     version === 'oas2'
       ? // loadSpec types the parsed document as OAS3 for the common path; a detected
@@ -279,6 +292,7 @@ export async function generateClient(
     mockData: options.mockData,
     mockSeed: options.mockSeed,
     queryKeyPrefix: options.queryKeyPrefix,
+    telemetry: options.telemetry,
     setup: setupBlock,
     runtime: options.runtime,
     importExt: options.importExt,
@@ -324,9 +338,15 @@ export async function generateClient(
     written.push({ path: file.path, bytes: Buffer.byteLength(file.content, 'utf-8') });
   }
 
+  const operations = allOperations(model.services).map((operation) => ({
+    id: operation.specName ?? operation.name,
+    name: operation.name,
+  }));
+
   return {
     outputPath,
     bytes: written.reduce((sum, file) => sum + file.bytes, 0),
     files: written,
+    operations,
   };
 }

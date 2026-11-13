@@ -60,12 +60,18 @@ Redocly CLI ships [agent skills](./.claude/skills) that teach AI coding assistan
 Install them into your project:
 
 ```sh
-npx skills add https://redocly.com
+redocly skills
 ```
+
+The command detects Claude Code, Codex, Cursor, GitHub Copilot, and other agents.
+It installs only the skills for Redocly CLI.
+To install every skill that Redocly publishes, use `npx skills add https://redocly.com`.
 
 - `redocly-cli` — day-to-day usage: lint, bundle, decorate, build docs, test, and generate a client.
 - `redocly-lint-rules` — turn a check written in plain language into a built-in rule, a configurable rule, or a custom plugin.
   It also covers migrating rules from other linters, such as Spectral.
+- `recheck-lint` — run `redocly recheck` on the Markdown the assistant touched, fix what it finds, and never suppress findings to pass.
+- `recheck-config` — write and tune the `recheck` block in `redocly.yaml` from measured counts, and adopt a baseline on a large document set.
 
 ## Common tasks
 
@@ -184,7 +190,7 @@ You can opt out by setting the `REDOCLY_TELEMETRY` environment variable to `off`
 ## Update notifications
 
 Redocly CLI checks for updates on startup.
-You can disable this by setting the `REDOCLY_SUPPRESS_UPDATE_NOTICE` environment variable to `true`.
+You can disable notifications by setting the `REDOCLY_SUPPRESS_NOTIFICATIONS` environment variable to `true`.
 
 ## More resources
 

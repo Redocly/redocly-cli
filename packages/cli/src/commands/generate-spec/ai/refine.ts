@@ -178,6 +178,7 @@ async function refineOperation(options: RefineOperationOptions): Promise<Operati
   const reservedComponentNames = Object.keys(schemas).filter((name) => !referenced.has(name));
 
   const { system, user } = buildOperationPrompt({
+    openapiVersion: options.document.openapi,
     path: options.path,
     method: options.method,
     operation: options.operation,

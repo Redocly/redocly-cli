@@ -8,13 +8,13 @@ import {
   type Config,
   type Exact,
 } from '@redocly/openapi-core';
+import type { ExtendedSecurity } from '@redocly/respect-core';
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import * as os from 'node:os';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
@@ -35,6 +35,10 @@ type ArazzoSuccessAction = NonNullable<ArazzoWorkflow['successActions']>[number]
 type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number];
 
 const SECRET_REPLACEMENT = '***';
+
+export function isTelemetryEnabled(config?: Config): boolean {
+  return process.env.REDOCLY_TELEMETRY !== 'off' && config?.resolvedConfig.telemetry !== 'off';
+}
 
 export async function sendTelemetry({
   config,
@@ -86,10 +90,10 @@ export async function sendTelemetry({
       $0: _,
       ...args
     } = argv as Exact<Arguments<CommandArgv>>;
-    const { RedoclyOAuthClient, getReuniteUrl } = await import('@redocly/reunite-integration');
+    const { RedoclyOAuthClient, getPlatformUrl } = await import('@redocly/platform-integration');
     const oauthClient = new RedoclyOAuthClient(version);
-    const reuniteUrl = getReuniteUrl(config, args.residency);
-    const logged_in = await oauthClient.isAuthorized(reuniteUrl);
+    const platformUrl = getPlatformUrl(config, args.residency);
+    const logged_in = await oauthClient.isAuthorized(platformUrl);
     let anonymous_id = getCachedAnonymousId();
     if (!anonymous_id) {
       anonymous_id = `ann_${ulid()}`;

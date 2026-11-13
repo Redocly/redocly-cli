@@ -1,0 +1,5 @@
+{
+  "name": "zod-consumer",
+  "private": true,
+  "type": "module"
+}

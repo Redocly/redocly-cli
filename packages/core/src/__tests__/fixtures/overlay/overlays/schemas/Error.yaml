@@ -1,0 +1,11 @@
+type: object
+properties:
+  title:
+    type: string
+    description: Short summary of the problem type.
+  status:
+    type: integer
+    format: int32
+required:
+  - title
+  - status

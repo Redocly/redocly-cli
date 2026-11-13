@@ -186,7 +186,7 @@ describe('oas3 array-parameter-serialization', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report non-array parameter without style and explode', async () => {
@@ -212,7 +212,7 @@ describe('oas3 array-parameter-serialization', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it("should report all array parameter without style and explode if property 'in' not defined ", async () => {

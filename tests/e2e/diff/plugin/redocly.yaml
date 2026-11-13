@@ -1,0 +1,6 @@
+extends:
+  - diff-recommended
+plugins:
+  - plugins/cafe.cjs
+diff:
+  cafe/tag-removed: major

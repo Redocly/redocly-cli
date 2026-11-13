@@ -170,9 +170,80 @@ This update changes how some YAML features are interpreted compared to v1.x:
   baz: something else
   ```
 
+### Changes in the `build-docs` command
+
+The [`build-docs`](../commands/build-docs.md) command renders documentation with Redoc 3 instead of Redoc 2.
+Redoc options come from the configuration key that matches your API description type: `openapi`, `asyncapi`, or `graphql`.
+The `--theme.openapi` option has been removed:
+
+```bash
+# ❌ Removed
+redocly build-docs openapi.yaml --theme.openapi.hideDownloadButtons
+
+# ✅ Use this instead
+redocly build-docs openapi.yaml --openapi.hideDownloadButtons
+```
+
+The `--disableGoogleFont` option has been removed too, because Redoc 3 pages load no Google Fonts.
+
+Redoc 3 renamed or removed some Redoc 2 options and replaced the theme object with CSS custom properties, so review your settings against the [Redoc configuration options](https://redocly.com/docs/realm/config/openapi) and check your custom templates.
+Read [what's new in Redoc 3](https://redocly.com/blog/redoc-3-whats-new) for details.
+
+To keep the Redoc 2 output, pin `@redocly/cli` to the version you used before, or use Redocly CLI v1: `npx @redocly/cli@v1-archive build-docs openapi.yaml`.
+
+### Changes in `bundle` component naming (since v2.27.1)
+
+When two referenced components share a name but have different content, the [`bundle`](../commands/bundle.md) command renames one of them.
+Redocly CLI v1 prefixed the file name to the component name.
+Since v2.27.1, `bundle` adds a numeric suffix instead.
+
+For example, the root document defines an `Order` schema and references a different `Order` from another file:
+
+```yaml
+# openapi.yaml
+paths:
+  /orders:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas.yaml#/Order
+components:
+  schemas:
+    Order:
+      type: object
+```
+
+```yaml
+# schemas.yaml
+Order:
+  type: object
+  properties:
+    coffee:
+      type: string
+```
+
+In the bundled output, Redocly CLI v1 names the second schema `schemas_Order`, and v2 names it `Order-2`:
+
+```yaml
+components:
+  schemas:
+    Order:
+      type: object
+    schemas_Order: # Order-2 in v2
+      type: object
+      properties:
+        coffee:
+          type: string
+```
+
+The change applies to every component type and changes the `$ref` paths in the bundled output.
+To control the names, see [Configure the component names strategy](../commands/bundle.md#configure-the-component-names-strategy) and [Configure component renaming conflicts](../commands/bundle.md#configure-component-renaming-conflicts).
+
 ### Platform changes
 
-- **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/).
+- **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Redocly platform](https://app.cloud.redocly.com/).
 - **Commands**: The `preview-docs` command has been removed - use `preview` instead.
 - **Labels**: The `labels` field in the `apis` section has been removed.
 
@@ -228,6 +299,7 @@ paths:
 1. **Replace `undefined` assertions** with `defined: true`.
 1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
 1. **Revise your YAML files** to comply with the latest YAML specification (v1.2).
+1. **Revise `build-docs` usage**: replace `--theme.openapi` with `--openapi`, remove `--disableGoogleFont`, review your Redoc options and custom templates for Redoc 3, or pin the CLI version to keep the Redoc 2 output.
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`

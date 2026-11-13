@@ -1,0 +1,4 @@
+Root → Paths → PathItem → Operation → ParameterList → Parameter
+
+
+Exit code: 0

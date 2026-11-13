@@ -91,10 +91,19 @@ export interface OpenApiServer {
 
 export interface OpenApiParameter {
   name: string;
-  in: 'query' | 'header' | 'path' | 'cookie';
+  in: 'query' | 'querystring' | 'header' | 'path' | 'cookie';
   required: boolean;
   style?: string;
   schema?: unknown;
+  mediaType?: string;
+  formSchema?: FormQuerystringSchema;
+}
+
+export interface FormQuerystringSchema {
+  properties: Map<string, unknown>;
+  arrayKeys: Set<string>;
+  jsonKeys: Set<string>;
+  checksOtherKeys: boolean;
 }
 
 export interface OpenApiOperation {
@@ -168,7 +177,6 @@ export interface RunSummary {
   findingsByRule: Record<string, number>;
   problemGroupsByRule: Record<string, number>;
   totalProblemGroups: number;
-  durationMs: number;
   previewFindings: FindingPreview[];
   previewLimit: number;
   previewTruncated: boolean;

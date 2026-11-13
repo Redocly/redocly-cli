@@ -21,12 +21,20 @@ The rules below are the specific practices this repository enforces — most are
 1. No defensive noise in trusted paths.
    Skip `try/catch` and null checks in code the walker has already validated — add them only where input is genuinely untrusted.
 
+1. No development-only code in production code.
+   A fallback, a branch, or an error message that serves only a checkout of this repository is dead code for the user.
+   Handle the difference between development and production in the build or in `package.json`, so the code has one path for both.
+
 1. No `any` to silence the type checker.
    Fix the type instead; the shared type definitions live in `packages/core/src/types/`.
    Try avoiding typecasting (especially double typecasting), except for tests.
    Leave a short comment explaining why the typecasting is necessary.
 
 1. Use ESM import extensions.
+
+1. Import from another package by its published name, for example `@redocly/openapi-core` or `@redocly/respect-core`.
+   Do not import its source files by path (`'core/src/typings/openapi.js'`, `'../../core/src/…'`).
+   If the package does not export what you need, reexport it from that package's root.
 
 1. Reuse an existing rule name when the same concept already exists for another spec flavor.
 

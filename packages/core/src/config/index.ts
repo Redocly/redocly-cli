@@ -4,5 +4,6 @@ export * from './rules.js';
 export * from './builtIn.js';
 export * from './load.js';
 export * from './utils.js';
+export * from './recheck.js';
 export * from './config-resolvers.js';
 export { clearPluginsCache, getPluginCacheVersion } from './plugins-cache.js';

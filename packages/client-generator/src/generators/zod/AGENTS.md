@@ -23,7 +23,7 @@ A standalone `<stem>.zod.ts`: one `export const <Name>Schema` per named IR schem
   with no build step, so nothing that needs a transform is emitted: no `enum`, no
   `namespace`, and no constructor parameter properties. `ZodValidationError` therefore
   declares its fields and assigns them in the constructor body — `constructor(readonly
-operationId: string)` fails strip-only mode, which is how the generated CLI broke when it
+  operationId: string)` fails strip-only mode, which is how the generated CLI broke when it
   imported this module.
 
 ## The stage files
@@ -46,6 +46,6 @@ regenerate.
 1. Edit this skill: state the new behavior or decision.
 2. Change the stage files named above (the entry is plumbing — it rarely moves).
 3. Verify: `npm run compile`, the folder's unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/zod`),
+   (`npx vitest run packages/client-generator/src/generators/zod`),
    the e2e suites for this generator, and the large-description bars
-   (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   (`packages/client-generator/tests/e2e/typescript/large-descriptions.test.ts`).

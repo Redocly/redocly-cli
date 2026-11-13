@@ -18,10 +18,12 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
     "lib": ["ESNext", "DOM", "dom.iterable"],
-    "paths": { "*": ["./packages/*"] },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
     "esModuleInterop": true
   },
-  "exclude": ["tests/e2e/generate-client/examples", "tests/e2e/generate-client/*-consumer"]
+  "exclude": [
+    "packages/client-generator/examples",
+    "packages/client-generator/tests/e2e/**/consumer*"
+  ]
 }

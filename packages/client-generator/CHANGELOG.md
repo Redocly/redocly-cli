@@ -1,5 +1,250 @@
 # @redocly/client-generator
 
+## 0.10.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.78.0.
+
+## 0.10.0
+
+### Minor Changes
+
+- Changed the usage telemetry event of the generated clients to the CloudEvent schema of the other Redocly CLI events.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.77.0.
+
+## 0.9.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.76.0.
+
+## 0.9.2
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw a `TypeError` on a response with a `oneOf` or `anyOf` value without a discriminator.
+- Fixed an issue where the generated PHP client named a type twice in a discriminated union whose member is itself a union, which PHP rejects.
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 0.9.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.74.0.
+
+## 0.9.0
+
+### Minor Changes
+
+- Added usage telemetry and the `onSettled` hook to the generated Go, Python, and PHP clients.
+  Renamed a schema named `UsageTelemetry`, `UsageTelemetryOptions`, `UsageTelemetryEvent`, `NewUsageTelemetry`, or `FlushUsageTelemetry` in every generated client, for example to `UsageTelemetry_2`, so that it does not clash with the usage telemetry code.
+  If your code uses one of these generated types, update its name.
+- Added the `--report` option to the `generate-client` command.
+  It writes a JSON file with the operations of each API and the warnings of the run, each with a stable kind.
+  A custom or ejected generator gets `reportFinding` in its `run` input, to add its own warnings to the report.
+
+  **Note:** `wrappableOperations` from `@redocly/client-generator/contracts/typescript` takes `reportFinding` as its third argument.
+  A custom or ejected `swr` or `tanstack-query` generator must pass the `reportFinding` that its `run` receives.
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client threw `TimeoutError` for a refused connection instead of a transport error.
+- Fixed an issue where the TypeScript usage telemetry counted 0 attempts for a call aborted before its first attempt, so an event had fewer attempts than calls.
+- Fixed an issue where the generated PHP client retried a `POST` or `PATCH` without an `Idempotency-Key`, and retried a `501` or a `505` to `599`.
+  The default retry follows the same rule as the other generated clients.
+
+  **Note:** To retry a `POST` or `PATCH`, pass an `idempotencyKey` to the call, or pass a `retryOn` callable in `Config->retry`.
+
+- Updated @redocly/openapi-core to v2.73.0.
+
+## 0.8.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 0.8.0
+
+### Minor Changes
+
+- Added the `java` generator to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.0.
+
+## 0.7.13
+
+### Patch Changes
+
+- Fixed an issue where the generated TypeScript client lost usage telemetry counts when the telemetry endpoint was unreachable or returned a `408`, `429`, or `5xx` status.
+  The client adds these counts to the next send.
+- Updated @redocly/openapi-core to v2.71.2.
+
+## 0.7.12
+
+### Patch Changes
+
+- Fixed `writeOnly` properties in response types, mock data that broke the API description, and generated code that failed strict type checks.
+- Updated @redocly/openapi-core to v2.71.1.
+
+## 0.7.11
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.0.
+
+## 0.7.10
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.70.0.
+
+## 0.7.9
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.69.0.
+
+## 0.7.8
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.68.0.
+
+## 0.7.7
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.1.
+
+## 0.7.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.0.
+
+## 0.7.5
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP and Python clients failed when a discriminator mapping pointed to a schema that is itself a `oneOf`.
+- Updated @redocly/openapi-core to v2.66.1.
+
+## 0.7.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.0.
+
+## 0.7.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 0.7.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.0.
+
+## 0.7.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 0.7.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.0.
+
+## 0.6.0
+
+### Minor Changes
+
+- Added the `body-link` pagination style to the `generate-client` command.
+  Generated clients use it to follow the next page URL from a field in the response, set with the `nextLink` option.
+
+  The `tanstack-query` generator also creates infinite query options for these operations.
+
+### Patch Changes
+
+- Fixed request timeouts in the generated TypeScript client for older browsers that don't support `AbortSignal.timeout()` or `AbortSignal.any()`. Timed-out requests correctly throw `TimeoutError` instead of `AbortError` in Chrome 103–123.
+- Fixed an issue where the generated Go client sent duplicate query parameters when it followed a next page link.
+- Updated @redocly/openapi-core to v2.63.0.
+
+## 0.5.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.2.
+
+## 0.5.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.1.
+
+## 0.5.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.0.
+
+## 0.5.0
+
+### Minor Changes
+
+- Added pass-through stream request bodies to the generated TypeScript, Python, Go, and PHP clients.
+  A stream body is sent as is in one attempt, and the caller's `Content-Type` wins over the one in the API description.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.61.0.
+
+## 0.4.25
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.60.0.
+
+## 0.4.24
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.59.0.
+
+## 0.4.23
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client failed with `Undefined constant "OPERATIONS"` when OPcache preload was enabled.
+- Updated @redocly/openapi-core to v2.58.2.
+
+## 0.4.22
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.1.
+
+## 0.4.21
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.0.
+
 ## 0.4.20
 
 ### Patch Changes

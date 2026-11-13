@@ -99,7 +99,12 @@ function writeParameterTable(printer: Printer, params: ParamModel[]): void {
   printer.blank();
 }
 
-function writeOperation(printer: Printer, op: OperationModel, options: ReferencePageOptions): void {
+function writeOperation(
+  printer: Printer,
+  model: ApiModel,
+  op: OperationModel,
+  options: ReferencePageOptions
+): void {
   printer.line(`### \`${op.specName ?? op.name}\``);
   printer.blank();
   if (op.summary !== undefined) {
@@ -137,7 +142,7 @@ function writeOperation(printer: Printer, op: OperationModel, options: Reference
   const paginates =
     options.paginated !== undefined
       ? options.paginated.has(op.name)
-      : paginationRuleFor(op, options.pagination) !== undefined;
+      : paginationRuleFor(op, options.pagination, model) !== undefined;
   if (paginates) {
     printer.line('This operation is paginated, so the SDK gives it page and item iterators.');
   }
@@ -202,7 +207,7 @@ export function renderReferencePage(model: ApiModel, options: ReferencePageOptio
     printer.line(group === undefined ? '## Operations' : `## ${group}`);
     printer.blank();
     for (const op of operations.filter((candidate) => candidate.tags[0] === group)) {
-      writeOperation(printer, op, options);
+      writeOperation(printer, model, op, options);
     }
   }
   return (

@@ -62,7 +62,7 @@ describe('Oas3 tags-alphabetical', () => {
       config: await createConfig({ rules: { 'tags-alphabetical': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on tags object if not sorted alphabetically not ignoring case', async () => {
@@ -123,6 +123,6 @@ describe('Oas3 tags-alphabetical', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

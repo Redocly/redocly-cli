@@ -540,6 +540,23 @@ describe('createClientCore', () => {
     expect(envelope.data).toEqual(page2);
   });
 
+  it('pagination: onSettled runs once per page with the same operation', async () => {
+    const settledOperations: string[] = [];
+    const { fetchImpl } = spy([
+      jsonOk({ orders: [{ id: 'o1' }], nextCursor: 'c2' }),
+      jsonOk({ orders: [{ id: 'o2' }], nextCursor: 'c3' }),
+      jsonOk({ orders: [{ id: 'o3' }] }),
+    ]);
+    const client = createClientCore<Ops>(
+      OPS,
+      { serverUrl: 'https://x', fetch: fetchImpl },
+      { paginate: { pages: paginatePages, items: paginateItems, pagesByLink, itemsByLink } }
+    );
+    client.use({ onSettled: (ctx) => void settledOperations.push(ctx.operation.id) });
+    for await (const _page of client.listOrders.pages()) void _page;
+    expect(settledOperations).toEqual(['listOrders', 'listOrders', 'listOrders']);
+  });
+
   it('result mode: a successful bodyless page (204) stops iteration cleanly, no bogus ApiError', async () => {
     // A 204 page parses to `data: undefined` with `error: undefined` — success, not failure.
     // The pointers miss on `undefined`, so iteration stops; it must NOT throw.
@@ -615,7 +632,7 @@ describe('createClientCore', () => {
     const client = createClientCore<Ops>(OPS, { middleware: mine });
     client.configure({ serverUrl: 'https://later' }); // the core member, not the colliding op
     client.use({ onRequest: () => {} });
-    expect(mine.length).toBe(0);
+    expect(mine).toHaveLength(0);
 
     // use() also tolerates a configure() that reset middleware to undefined.
     client.configure({ middleware: undefined });

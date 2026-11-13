@@ -1,5 +1,243 @@
 # @redocly/respect-core
 
+## 2.78.0
+
+### Minor Changes
+
+- Added a warning to the `respect` command for workflow inputs that don't match the workflow's `inputs` schema.
+  The workflow still runs with the inputs as given.
+- Added support for the `querystring` parameter location of Arazzo 1.1.0 and OpenAPI 3.2 to the `respect` command.
+  A step or workflow parameter with `in: querystring` sets the whole query string of the request.
+  A step without `parameters` takes a required `querystring` parameter from the OpenAPI description, the same way as the other parameters.
+
+### Patch Changes
+
+- Fixed an issue where a Respect step that uses an AsyncAPI source description failed with `Unknown description name`.
+  The step now reports that Respect does not support AsyncAPI yet and links the Redocly CLI repository to upvote or open an issue.
+- Fixed an issue where `respect` skipped the content type check for a response described only by the `default` response.
+- Fixed an issue where `respect` failed to find an operation by `operationId` when an empty path item or an empty operation came before it in the OpenAPI description.
+- Fixed an issue where `respect` failed when a workflow `inputs` schema had a `default` at its top level or at the top of `env`, or used a keyword that JSON Schema does not define, such as `example` or an `x-` extension.
+- Fixed an issue where `respect` did not mask `format: password` fields of a request body or a response described under a wildcard media type, such as `*/*` or `application/*`.
+- Fixed an issue where `respect` checked a response against the first matching wildcard media type instead of the most specific one.
+  `application/*` wins over `*/*` regardless of their order.
+- Fixed an issue where `respect` did not evaluate a runtime expression embedded in a string value inside other braces, such as `'{"search":"{$inputs.search}"}'`.
+  A `$faker` call in such a value no longer removes the surrounding braces.
+- Fixed an issue where `respect` did not apply its own lint rules, such as `no-criteria-xpath` and the `x-security` rules, to Arazzo 1.1.0 descriptions.
+- Fixed an issue where `respect` failed the status code check and skipped the content type and schema checks for a response described with a status code range, such as `2XX`.
+- Fixed an issue where the `verboseLog` of a step in the Respect results kept path parameter placeholders, such as `{orderId}`, in `host` instead of the values sent in the request.
+- Fixed an issue where Respect printed a secret path parameter of an `x-operation` URL unmasked in the request URL of the `--verbose` output.
+- Updated @redocly/openapi-core to v2.78.0.
+
+## 2.77.0
+
+### Patch Changes
+
+- Changed JSON Pointers in `respect` runtime expressions to accept every character that the Arazzo grammar allows, so put a space before `&&` that follows a pointer, as in `$response.body#/flag && $statusCode == 200`.
+- Added support for the `~0` and `~1` escapes in JSON Pointers of `respect` runtime expressions, so a pointer can reach a key that contains `~` or `/`.
+- Fixed an issue where `respect` reported an unresolved workflow output instead of the failed step that caused it, and stopped the other workflows of the file.
+- Fixed an issue where `respect` could run values from API responses and step outputs as code when it evaluated runtime expressions.
+- Changed `respect` runtime expressions to read a backslash in a string literal as written, so `"a\nb"` no longer contains a newline.
+- Updated @redocly/openapi-core to v2.77.0.
+
+## 2.76.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` sent `cnonce="undefined"` in every HTTP Digest `Authorization` header instead of a random client nonce.
+- Fixed an issue where `respect` failed HTTP Digest authentication when the server's `WWW-Authenticate` header had no `opaque` parameter.
+- Fixed an issue where `respect` failed HTTP Digest authentication when a value in the server's `WWW-Authenticate` header contained `=` or `,`, such as a base64 nonce with padding.
+- Updated @redocly/openapi-core to v2.76.0.
+
+## 2.75.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.75.0.
+
+## 2.74.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.74.0.
+
+## 2.73.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.73.0.
+
+## 2.72.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.72.1.
+
+## 2.72.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` ignored the `dataValue` field of OpenAPI 3.2 examples when a step took its parameters or request body from the API description.
+- Fixed an issue where `respect` ignored parameters defined on a path item when a step used `operationId` and took its request data from the API description.
+- Updated @redocly/openapi-core to v2.72.0.
+
+## 2.71.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.2.
+
+## 2.71.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.1.
+
+## 2.71.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.71.0.
+
+## 2.70.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.70.0.
+
+## 2.69.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.69.0.
+
+## 2.68.0
+
+### Minor Changes
+
+- Added support for the `parameters` field of Arazzo 1.1.0 success and failure actions to the `respect` command.
+  When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
+
+### Patch Changes
+
+- Fixed an issue where `respect` didn't retry a step when its `retry` failure action had no `retryLimit`.
+
+  **Note:** Previously, a workflow continued with the next step after a step had failed and used up its retries.
+
+- Fixed an issue where `respect` skipped a `retry` failure action after an earlier `retry` action of the same step had used up its retries.
+- Updated @redocly/openapi-core to v2.68.0.
+
+## 2.67.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command kept the inputs that a step passed to a workflow in the same file.
+  Later runs of that workflow used them instead of their `--input` values or schema defaults.
+- Updated @redocly/openapi-core to v2.67.1.
+
+## 2.67.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.67.0.
+
+## 2.66.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.1.
+
+## 2.66.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.66.0.
+
+## 2.65.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.1.
+
+## 2.65.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.65.0.
+
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+  For example, a token read through `$response.body#/token` or a quoted value in success criteria.
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 2.64.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.0.
+
+## 2.63.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.63.0.
+
+## 2.62.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.2.
+
+## 2.62.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.1.
+
+## 2.62.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.0.
+
+## 2.61.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.61.0.
+
+## 2.60.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.60.0.
+
+## 2.59.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.59.0.
+
+## 2.58.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.2.
+
+## 2.58.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.1.
+
+## 2.58.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.0.
+
 ## 2.57.0
 
 ### Patch Changes

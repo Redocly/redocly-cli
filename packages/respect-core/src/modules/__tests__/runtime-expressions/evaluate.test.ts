@@ -430,6 +430,35 @@ describe('evaluateRuntimeExpressionPayload', () => {
         </Travelerinformation>`);
   });
 
+  it('should evaluate runtime expressions nested in a JSON string', () => {
+    const payload =
+      '{"limit":1,"filter":{"name":"{$steps.step-three.response.body.name}","code":"{$steps.step-three.outputs.hardcoded}"}}';
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toEqual(
+      '{"limit":1,"filter":{"name":"Mermaid Treasure Identification and Analysis","code":"125"}}'
+    );
+  });
+
+  it('should evaluate a $faker call and a runtime expression in the same JSON string', () => {
+    const payload =
+      '{"code":"{$steps.step-three.outputs.hardcoded}","id":"$faker.number.integer()"}';
+    expect(
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toMatch(/^\{"code":"125","id":"\d+"\}$/);
+  });
+
+  it('should keep an expression without braces inside braces that are not an expression', () => {
+    for (const payload of [
+      '{ "code": $steps.step-three.outputs.hardcoded }',
+      'query Menu($url: String) { menu(url: $url ) { name } }',
+    ]) {
+      expect(
+        evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+      ).toEqual(payload);
+    }
+  });
+
   it('should evaluate x-www-form-urlencoded string with runtime expression values', () => {
     const payload =
       'client_id={$steps.step-three.response.body.location}&grant_type={$steps.step-three.response.body.location}';
@@ -704,6 +733,42 @@ describe('evaluateRuntimeExpression', () => {
     expect(evaluateRuntimeExpression(expression3, runtimeExpressionContext, logger)).toEqual(false);
   });
 
+  it('should not rewrite string values that contain a dot followed by a digit', () => {
+    const token = 'rdsc_scimc_abcdefghijklmnopqrstuv.7fKBCS4zQ';
+    const quoted = 'say "hi.1"';
+    const context = {
+      $response: { body: { token, quoted } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/token', context, logger)).toEqual(token);
+    expect(evaluateRuntimeExpression('$response.body#/quoted', context, logger)).toEqual(quoted);
+    expect(
+      evaluateRuntimeExpression(`$response.body#/token == "${token}"`, context, logger)
+    ).toEqual(true);
+    expect(
+      evaluateRuntimeExpressionPayload({
+        payload: 'Bearer {$response.body#/token}',
+        context,
+        logger,
+      })
+    ).toEqual(`Bearer ${token}`);
+  });
+
+  it('should not rewrite expression-like text inside string values', () => {
+    const note = 'copied from $steps.first-step.response.header.Content-Type';
+    const context = { $response: { body: { note } } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/note', context, logger)).toEqual(note);
+  });
+
+  it('should not rewrite single-quoted string literals in a comparison', () => {
+    const context = { $inputs: { version: '1.0.0-rc.1' } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression("$inputs.version == '1.0.0-rc.1'", context, logger)).toEqual(
+      true
+    );
+  });
+
   it('should evaluate list runtime expression value', () => {
     const expression = '$response.body#/items';
     expect(evaluateRuntimeExpression(expression, runtimeExpressionContext, logger)).toEqual([
@@ -716,5 +781,89 @@ describe('evaluateRuntimeExpression', () => {
         description: 'item2 description',
       },
     ]);
+  });
+
+  it('should treat values from the context as data, never as code', () => {
+    const globals = globalThis as { respectInjected?: unknown };
+    const context = {
+      $request: { body: { code: '||(globalThis.respectInjected = process.pid)||' } },
+      $response: {
+        body: { value: '$request.body#/code', reference: '$steps.login.outputs.token#/x' },
+      },
+      $steps: { login: { outputs: { token: { x: '||(globalThis.respectInjected = 1)||' } } } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/value', context, logger)).toEqual(
+      '$request.body#/code'
+    );
+    expect(evaluateRuntimeExpression('$response.body#/reference', context, logger)).toEqual(
+      '$steps.login.outputs.token#/x'
+    );
+    expect(
+      evaluateRuntimeExpression('$response.body#/value == "$request.body#/code"', context, logger)
+    ).toEqual(true);
+    expect(globals.respectInjected).toBeUndefined();
+  });
+
+  it('should read only own properties of the context', () => {
+    const context = { $inputs: { name: 'ann' } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$inputs.constructor', context, logger)).toBeUndefined();
+    expect(evaluateRuntimeExpression('$inputs.name.length', context, logger)).toEqual(3);
+  });
+
+  it('should decode escaped JSON Pointer segments', () => {
+    const context = {
+      $response: { body: { 'a/b': 1, 'c~d': 2, items: ['x', 'y'] } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/a~1b', context, logger)).toEqual(1);
+    expect(evaluateRuntimeExpression('$response.body#/c~0d', context, logger)).toEqual(2);
+    expect(evaluateRuntimeExpression('$response.body#/items.length == 2', context, logger)).toEqual(
+      true
+    );
+  });
+
+  it('should throw for a JSON Pointer that reaches no value and name the cause', () => {
+    expect(() =>
+      evaluateRuntimeExpression('$response.body#/missing == 1', runtimeExpressionContext, logger)
+    ).toThrow(
+      `Error in resolving runtime expression '$response.body#/missing == 1': JSON Pointer "/missing" reaches no value.`
+    );
+  });
+
+  it('should not resolve the right side of || and && when the left side decides the result', () => {
+    const context = { $statusCode: 404, $inputs: {} } as unknown as RuntimeExpressionContext;
+
+    expect(
+      evaluateRuntimeExpression(
+        '$statusCode == 404 || $steps.nope.outputs.id == 1',
+        context,
+        logger
+      )
+    ).toEqual(true);
+    expect(
+      evaluateRuntimeExpression(
+        '$inputs.optional == undefined || $inputs.optional.enabled == true',
+        context,
+        logger
+      )
+    ).toEqual(true);
+    expect(
+      evaluateRuntimeExpression(
+        '$statusCode == 200 && $steps.nope.outputs.id == 1',
+        context,
+        logger
+      )
+    ).toEqual(false);
+  });
+
+  it('should read JSON Pointer segments with the characters the grammar allows', () => {
+    const context = {
+      $response: { body: { 'a+b': 1, "it's": 2 } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/a+b', context, logger)).toEqual(1);
+    expect(evaluateRuntimeExpression("$response.body#/it's == 2", context, logger)).toEqual(true);
   });
 });

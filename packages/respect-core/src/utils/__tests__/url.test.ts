@@ -9,11 +9,11 @@ describe('combineUrl', () => {
     expect(combineUrl('https://example.com/', '/path')).toBe('https://example.com/path');
   });
 
-  it('should combine host and path without double slashes', () => {
+  it('should add a slash when neither host nor path has one', () => {
     expect(combineUrl('https://example.com', 'path')).toBe('https://example.com/path');
   });
 
-  it('should combine host and path without double slashes', () => {
+  it('should keep one slash when only the host ends with a slash', () => {
     expect(combineUrl('https://example.com/', 'path')).toBe('https://example.com/path');
   });
 });

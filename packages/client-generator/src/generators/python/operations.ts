@@ -4,7 +4,9 @@
 import {
   type ApiModel,
   type DateType,
+  isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
   sseResponse,
@@ -42,7 +44,12 @@ export function writeMethod(
   const positional = pathArgs.map(
     ({ param, python }) => `${python}: ${pythonType(param.schema, dateType)}`
   );
-  const bodyArg = op.requestBody ? [`body: ${pythonType(op.requestBody.schema, dateType)}`] : [];
+  const passThrough =
+    isUntypedMultipartBody(op) ||
+    (op.requestBody !== undefined && isBinaryContentType(op.requestBody.contentType));
+  const bodyArg = op.requestBody
+    ? [`body: ${passThrough ? 'Any' : pythonType(op.requestBody.schema, dateType)}`]
+    : [];
   const kwargs = [
     ...queryArgs.map(({ param, python }) => {
       const annotation = pythonType(param.schema, dateType);
@@ -61,7 +68,7 @@ export function writeMethod(
     : sse !== undefined
       ? `${isAsync ? 'AsyncIterator' : 'Iterator'}[ServerSentEvent]`
       : errorMode === 'result'
-        ? 'Result'
+        ? `Result[${success === undefined ? 'None' : pythonType(success, dateType)}, Any]`
         : success === undefined
           ? 'None'
           : pythonType(success, dateType);
@@ -92,7 +99,7 @@ export function writeMethod(
     printer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
     if (sse !== undefined) {
       const dataKind = sse.schema !== undefined && sse.schema.kind !== 'unknown' ? 'json' : 'text';
-      printer.block('def _open(extra_headers: Dict[str, str]):', () => {
+      printer.block('def _open(extra_headers: Dict[str, str]) -> Any:', () => {
         printer.line(
           'return self._http.stream(op["method"], url, ' +
             'headers={**auth_headers, **(headers or {}), **extra_headers}, params=params, timeout=timeout)'
@@ -101,21 +108,28 @@ export function writeMethod(
       printer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
       return;
     }
-    if (isMultipartBody(op)) printer.line('form_data, form_files = to_multipart(body)');
+    if (isMultipartBody(op) && !isUntypedMultipartBody(op)) {
+      printer.line('form_data, form_files = to_multipart(body)');
+    }
     const bodyKw = op.requestBody
-      ? isMultipartBody(op)
-        ? ', data=form_data, files=form_files'
-        : ', json_body=encode(body)'
+      ? isUntypedMultipartBody(op)
+        ? ', **multipart_arguments(body)'
+        : isMultipartBody(op)
+          ? ', data=form_data, files=form_files'
+          : isBinaryContentType(op.requestBody.contentType)
+            ? `, content=body, content_type=${naming.string(op.requestBody.contentType)}`
+            : ', json_body=encode(body)'
       : '';
     printer.line(
       `response = ${awaitKw}${sendFn}(self._http, self._config, op, url, method=op["method"], ` +
         `headers={**auth_headers, **(headers or {})}, params=params${bodyKw}, ` +
         'timeout=timeout, retry=retry, idempotency_key=idempotency_key)'
     );
+    const successType = success === undefined ? undefined : pythonType(success, dateType);
     const decoded =
-      success === undefined
+      successType === undefined
         ? 'None'
-        : `decode(${pythonType(success, dateType)}, _safe_json(response))`;
+        : `cast(${successType}, decode(${successType}, _safe_json(response)))`;
     if (envelope) {
       printer.block('if not response.is_success:', () => {
         printer.line(

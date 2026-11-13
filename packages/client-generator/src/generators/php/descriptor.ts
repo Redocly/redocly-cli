@@ -26,12 +26,22 @@ export function phpSecurityLiteral(op: OperationModel, model: ApiModel): string 
   return `[${alternatives.join(', ')}]`;
 }
 
+/**
+ * The `resolveAuth` argument: the table's `security` entry, or `[]` for an operation the
+ * table gives none. Reading an absent key with `?? []` reads as dead code to PHPStan,
+ * which knows the table's exact shape.
+ */
+export function phpSecurityArg(op: OperationModel, model: ApiModel): string {
+  return phpSecurityLiteral(op, model) === undefined ? '[]' : "$op['security']";
+}
+
 export function phpPaginationLiteral(rule: NeutralPaginationRule): string {
   const fields = [
     `'style' => ${phpString(rule.style)}`,
     ...(rule.param !== undefined ? [`'param' => ${phpString(rule.param)}`] : []),
     ...(rule.nextCursor !== undefined ? [`'nextCursor' => ${phpString(rule.nextCursor)}`] : []),
     ...(rule.hasMore !== undefined ? [`'hasMore' => ${phpString(rule.hasMore)}`] : []),
+    ...(rule.nextLink !== undefined ? [`'nextLink' => ${phpString(rule.nextLink)}`] : []),
     ...(rule.limitParam !== undefined ? [`'limitParam' => ${phpString(rule.limitParam)}`] : []),
     ...(rule.items !== undefined ? [`'items' => ${phpString(rule.items)}`] : []),
   ];

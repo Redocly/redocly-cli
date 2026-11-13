@@ -21,7 +21,7 @@ final class ApiError extends \RuntimeException
     }
 }
 
-/** Every attempt timed out or failed to connect. */
+/** The last attempt timed out. */
 final class TimeoutError extends \RuntimeException
 {
     public function __construct(
@@ -87,9 +87,17 @@ final class ServerSentEvent
  * `auth`: `['bearer' => string|callable, 'basic' => ['username' => ..., 'password' => ...], 'apiKey' => [scheme => string|callable]]`.
  * `retry`: `['attempts' => int, 'delay' => float, 'strategy' => 'exponential'|'fixed', 'retryOn' => callable]`.
  * `middleware`: callables `fn(array $request, callable $next): array` around each attempt.
+ * `onSettled`: callables `fn(array $call): void`, run once per call after the last attempt, with
+ * `['operationId' => string, 'status' => int (0 without a response), 'timedOut' => bool, 'attempts' => int, 'durationMs' => int]`.
  */
 final class Config
 {
+    /**
+     * Callables that run after `onSettled` on every client of the namespace. The usage telemetry
+     * module adds to it, so one registration counts the calls of every client.
+     */
+    public static array $registeredOnSettled = [];
+
     public function __construct(
         public string $serverUrl = '',
         public array $auth = [],
@@ -97,6 +105,7 @@ final class Config
         public array $retry = [],
         public array $middleware = [],
         public string $clientHeader = 'redocly-client-generator',
+        public array $onSettled = [],
     ) {
     }
 }
@@ -155,14 +164,20 @@ function buildUrl(string $serverUrl, string $path, array $pathParams): string
     return rtrim($serverUrl, '/') . $path;
 }
 
-/** The default retry predicate: 5xx, 429, and transport timeouts/connect failures. */
+/**
+ * The default retry predicate, as in the other languages: only a safe method or a request with
+ * `Idempotency-Key`, and only after a transport failure (`status` 0) or a 408, 429, 500, 502, 503, or 504.
+ */
 function defaultRetryOn(array $context): bool
 {
-    if (($context['timedOut'] ?? false) === true) {
-        return true;
+    $headerNames = array_map('strtolower', array_keys($context['headers'] ?? []));
+    $safe = in_array(strtoupper($context['method'] ?? ''), ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'], true)
+        || in_array('idempotency-key', $headerNames, true);
+    if (!$safe) {
+        return false;
     }
     $status = $context['status'] ?? 0;
-    return $status >= 500 || $status === 429;
+    return in_array($status, [0, 408, 429, 500, 502, 503, 504], true);
 }
 
 /** Delay before the next attempt: `Retry-After` wins; otherwise jittered (fixed|exponential) backoff. */
@@ -215,8 +230,17 @@ function rawSend(Config $config, array $request): array
             return strlen($line);
         },
     ]);
-    if (($request['body'] ?? null) !== null) {
-        curl_setopt($handle, CURLOPT_POSTFIELDS, $request['body']);
+    $body = $request['body'] ?? null;
+    if (is_resource($body)) {
+        curl_setopt_array($handle, [CURLOPT_UPLOAD => true, CURLOPT_INFILE => $body]);
+        // php://input and wrappers without stream_stat report seekable but fstat() fails (with a
+        // warning for the wrappers): those go chunked.
+        $stat = @fstat($body);
+        if (stream_get_meta_data($body)['seekable'] && $stat !== false) {
+            curl_setopt($handle, CURLOPT_INFILESIZE, $stat['size'] - ftell($body));
+        }
+    } elseif ($body !== null) {
+        curl_setopt($handle, CURLOPT_POSTFIELDS, $body);
     }
     if ($config->timeout !== null) {
         curl_setopt($handle, CURLOPT_TIMEOUT_MS, (int) round($config->timeout * 1000));
@@ -226,14 +250,13 @@ function rawSend(Config $config, array $request): array
     $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
     $effectiveUrl = (string) curl_getinfo($handle, CURLINFO_EFFECTIVE_URL);
     if ($errno !== 0) {
-        $timedOut = $errno === CURLE_OPERATION_TIMEDOUT || $errno === CURLE_COULDNT_CONNECT;
         return [
             'status' => 0,
             'reason' => curl_strerror($errno) ?? 'transport error',
             'headers' => [],
             'body' => '',
             'url' => $effectiveUrl,
-            'timedOut' => $timedOut,
+            'timedOut' => $errno === CURLE_OPERATION_TIMEDOUT,
         ];
     }
     return [
@@ -255,7 +278,8 @@ function send(Config $config, array $request): array
 {
     $headers = $request['headers'] ?? [];
     $headers['X-Redocly-Client'] = $config->clientHeader;
-    if (($request['contentType'] ?? null) !== null) {
+    $callerContentType = in_array('content-type', array_map('strtolower', array_keys($headers)), true);
+    if (($request['contentType'] ?? null) !== null && !$callerContentType) {
         $headers['Content-Type'] = $request['contentType'];
     }
     if (($request['idempotencyKey'] ?? null) !== null) {
@@ -269,9 +293,11 @@ function send(Config $config, array $request): array
         $handler = fn (array $req): array => $middleware($req, $next);
     }
 
-    $attempts = max(1, (int) ($config->retry['attempts'] ?? 3));
+    // The first attempt consumes a stream resource, so there is nothing to replay.
+    $attempts = is_resource($request['body'] ?? null) ? 1 : max(1, (int) ($config->retry['attempts'] ?? 3));
     $retryOn = $config->retry['retryOn'] ?? __NAMESPACE__ . '\\defaultRetryOn';
     $response = null;
+    $started = hrtime(true);
     for ($attempt = 1; $attempt <= $attempts; $attempt++) {
         $response = $handler($request);
         $context = [
@@ -279,6 +305,8 @@ function send(Config $config, array $request): array
             'timedOut' => $response['timedOut'],
             'attempt' => $attempt,
             'operationId' => $request['operationId'] ?? '',
+            'method' => $request['method'],
+            'headers' => $request['headers'],
         ];
         if ($attempt === $attempts || !$retryOn($context)) {
             break;
@@ -286,8 +314,32 @@ function send(Config $config, array $request): array
         $seconds = retryDelay($attempt, $config->retry, $response['headers']['retry-after'] ?? null);
         usleep((int) round($seconds * 1_000_000));
     }
+    $call = [
+        'operationId' => $request['operationId'] ?? '',
+        'status' => $response['status'],
+        'timedOut' => $response['timedOut'],
+        'attempts' => $attempt,
+        'durationMs' => intdiv(hrtime(true) - $started, 1_000_000),
+    ];
+    $hookErrors = [];
+    foreach ([$config->onSettled, Config::$registeredOnSettled] as $hooks) {
+        foreach ($hooks as $onSettled) {
+            try {
+                $onSettled($call);
+            } catch (\Throwable $hookError) {
+                $hookErrors[] = $hookError;
+            }
+        }
+    }
+    // On a failed call, the call's own error wins over a hook error.
+    $failed = $response['timedOut'] || $response['status'] === 0;
+    if ($hookErrors !== [] && $failed) {
+        error_log('onSettled hook failed: ' . $hookErrors[0]->getMessage());
+    } elseif ($hookErrors !== []) {
+        throw $hookErrors[0];
+    }
     if ($response['timedOut']) {
-        throw new TimeoutError($response['url'], $config->timeout, $attempts);
+        throw new TimeoutError($response['url'], $config->timeout, $attempt);
     }
     if ($response['status'] === 0) {
         throw new \RuntimeException("Request to {$response['url']} failed: {$response['reason']}");
@@ -342,8 +394,8 @@ function linkNext(?string $header): ?string
 
 /**
  * Auto-pagination: `$call(array $params): [mixed rawPage, array $response]`, `$spec` is the
- * normalized rule (`style`, `param`, `nextCursor`, `hasMore`, `items`), `$base` the caller's
- * query params. Yields raw decoded pages; generated wrappers hydrate them into models.
+ * normalized rule (`style`, `param`, `nextCursor`, `hasMore`, `nextLink`, `items`), `$base`
+ * the caller's query params. Yields raw decoded pages; generated wrappers hydrate them into models.
  */
 function iterPages(callable $call, array $spec, array $base): \Generator
 {
@@ -366,9 +418,11 @@ function iterPages(callable $call, array $spec, array $base): \Generator
             }
             $seenCursors[$next] = true;
             $params[$spec['param']] = $next;
-        } elseif ($style === 'link') {
-            $target = linkNext($response['headers']['link'] ?? null);
-            if ($target === null || isset($seenLinks[$target])) {
+        } elseif ($style === 'link' || $style === 'body-link') {
+            $target = $style === 'body-link'
+                ? resolvePointer($raw, $spec['nextLink'])
+                : linkNext($response['headers']['link'] ?? null);
+            if (!is_string($target) || $target === '' || isset($seenLinks[$target])) {
                 return;
             }
             $seenLinks[$target] = true;
@@ -501,4 +555,20 @@ function toMultipart(array $body): array
     }
     $parts .= "--{$boundary}--\r\n";
     return ['multipart/form-data; boundary=' . $boundary, $parts];
+}
+
+/**
+ * The body of an untyped multipart operation: a stream resource or a string passes through
+ * under the caller's Content-Type (the boundary is theirs to set); an array is encoded.
+ * Returns `[contentType, body]`.
+ */
+function multipartBody(mixed $body): array
+{
+    return is_array($body) ? toMultipart($body) : [null, $body];
+}
+
+/** The body of an octet-stream operation: a stream resource or a string passes through; anything else is JSON. */
+function binaryBody(mixed $body): mixed
+{
+    return is_resource($body) || is_string($body) ? $body : json_encode($body);
 }

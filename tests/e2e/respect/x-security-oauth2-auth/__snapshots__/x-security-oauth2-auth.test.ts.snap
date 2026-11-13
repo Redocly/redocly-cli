@@ -48,5 +48,6 @@ exports[`should make request with Authorization header \`Bearer ...\` using OAut
 └────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
-"
+
+Exit code: 0"
 `;

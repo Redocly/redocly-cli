@@ -1,3 +1,5 @@
+import type { RecheckConfig } from '@redocly/config';
+
 import type {
   Oas3RuleSet,
   Oas2RuleSet,
@@ -10,6 +12,7 @@ import type {
 } from '../oas-types.js';
 import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { mergeRecheckBlocks } from './recheck.js';
 import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
@@ -43,6 +46,7 @@ export function prefixRules<
 }
 
 export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
+  let recheck: RecheckConfig = { rules: {} };
   const result: Required<ResolvedGovernanceConfig> = {
     rules: {},
     oas2Rules: {},
@@ -80,6 +84,13 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     arazzo1_1Decorators: {},
     overlay1Decorators: {},
     openrpc1Decorators: {},
+
+    recheck,
+    diff: {},
+    oas3_0Diff: {},
+    oas3_1Diff: {},
+    oas3_2Diff: {},
+    async3Diff: {},
   };
 
   for (const rulesConf of rulesConfList) {
@@ -156,7 +167,19 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
     assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);
     assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
+
+    recheck = mergeRecheckBlocks(recheck, rulesConf.recheck);
+    assignConfig(result.diff, rulesConf.diff);
+    assignConfig(result.oas3_0Diff, rulesConf.oas3_0Diff);
+    assignOnlyExistingConfig(result.oas3_0Diff, rulesConf.diff);
+    assignConfig(result.oas3_1Diff, rulesConf.oas3_1Diff);
+    assignOnlyExistingConfig(result.oas3_1Diff, rulesConf.diff);
+    assignConfig(result.oas3_2Diff, rulesConf.oas3_2Diff);
+    assignOnlyExistingConfig(result.oas3_2Diff, rulesConf.diff);
+    assignConfig(result.async3Diff, rulesConf.async3Diff);
+    assignOnlyExistingConfig(result.async3Diff, rulesConf.diff);
   }
+  result.recheck = recheck;
 
   return result;
 }

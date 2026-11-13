@@ -54,6 +54,6 @@ describe('GraphQL type-description', () => {
       config: await createConfig({ rules: { 'type-description': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

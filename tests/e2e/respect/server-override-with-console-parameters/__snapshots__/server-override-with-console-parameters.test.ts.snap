@@ -16,6 +16,7 @@ exports[`should use server override from CLI and env 1`] = `
  
     ✗ failed network request
  
+ 
 ──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow server-override-with-console-parameters.arazzo.yaml / client-registration 
@@ -34,9 +35,9 @@ exports[`should use server override from CLI and env 1`] = `
   Workflow name: get-menu-items
  
     stepId - search-menu 
-    ✗ unexpected error 
-    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
+    ✗ failed network request 
+      fetch failed (cause: ENOTFOUND)
+      
   Workflow name: client-registration
  
     stepId - list-menu-items 
@@ -60,5 +61,6 @@ exports[`should use server override from CLI and env 1`] = `
 
  Tests exited with error 
 
-"
+
+Exit code: 1"
 `;

@@ -4,3 +4,5 @@ Something went wrong when processing ./tests/e2e/lint/assertions-property-key-no
 
   - The 'disallowed' assertion can't be used on properties. Please remove the 'property' key.
 
+
+Exit code: 1

@@ -43,7 +43,6 @@ If you're interested in the technical details, the statistics are calculated usi
 ```bash
 redocly stats <api>
 redocly stats <api> [--format=<option>] [--config=<path>]
-redocly stats --version
 ```
 
 ## Options
@@ -55,7 +54,6 @@ redocly stats --version
 | --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`, `markdown`. Default value is `stylish`.                                                          |
 | --help        | boolean | Show help.                                                                                                                                                           |
 | --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                   |
-| --version     | boolean | Show version number.                                                                                                                                                 |
 
 ## Examples
 

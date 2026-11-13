@@ -1,3 +1,5 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 import type { Workflow, PublicWorkflow, InputSchema } from '../../../types.js';
 import { resolveInputValuesToSchema } from '../inputs/index.js';
 import { getPublicSteps } from './set-public-steps.js';
@@ -32,26 +34,45 @@ export function mergeWorkflowInputs({
   inputs,
   workflowInputSchema,
   env,
+  onInvalidInputs,
 }: {
-  inputs: Record<string, string> | undefined;
+  inputs: Record<string, unknown> | undefined;
   workflowInputSchema: InputSchema | undefined;
   env: Record<string, string> | undefined;
+  onInvalidInputs?: (problems: string) => void;
 }) {
-  let resolvedInputs = {};
-  let resolvedDotEnvInputs = {};
-
-  if (workflowInputSchema) {
-    resolvedInputs = resolveInputValuesToSchema(inputs, workflowInputSchema as InputSchema);
+  if (!workflowInputSchema) {
+    return {};
   }
 
-  if (workflowInputSchema?.properties?.env) {
-    resolvedDotEnvInputs = resolveInputValuesToSchema(
-      env || {},
-      workflowInputSchema.properties.env as InputSchema
+  const envProperty = workflowInputSchema.properties?.env;
+  // A boolean `env` schema declares no variables.
+  const envSchema = isPlainObject<InputSchema>(envProperty) ? envProperty : undefined;
+  const resolvedDotEnvInputs = envSchema ? resolveInputValuesToSchema(env || {}, envSchema) : {};
+
+  const problems: string[] = [];
+  const collectProblems = (text: string) => problems.push(text);
+  const result = resolveInputValuesToSchema(
+    Object.keys(resolvedDotEnvInputs).length > 0
+      ? { ...inputs, env: resolvedDotEnvInputs }
+      : inputs,
+    workflowInputSchema,
+    collectProblems
+  );
+
+  // The check above passes an absent `env`, so an empty one is checked for a required variable
+  // that is not set.
+  if (envSchema && result.env === undefined) {
+    resolveInputValuesToSchema(
+      { env: {} },
+      { type: 'object', properties: { env: envSchema } },
+      collectProblems
     );
   }
 
-  return Object.keys(resolvedDotEnvInputs).length > 0
-    ? { ...resolvedInputs, env: resolvedDotEnvInputs }
-    : resolvedInputs;
+  if (problems.length > 0) {
+    onInvalidInputs?.(problems.join(', '));
+  }
+
+  return result;
 }

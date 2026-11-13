@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: Odd Names API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /widgets/{widget-id}:
+    get:
+      operationId: getWidget
+      parameters:
+        - name: widget-id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+  /items/{new}:
+    get:
+      operationId: getItem
+      parameters:
+        - name: new
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string

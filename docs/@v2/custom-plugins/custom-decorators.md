@@ -43,6 +43,7 @@ To find the exact type of a place in your API description, either:
 
 - Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
 - Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+- Select a node type in the [Rules Builder](https://redocly.com/config-rules-builder) to see every place that it matches in a sample or your own OpenAPI description.
 
 ## Decorator example
 
@@ -120,8 +121,8 @@ The `suffix` configuration option is automatically passed in, and it can be used
 Now extend the decorator from the previous example to add this to the existing plugin in `plugins/sparkle.js`:
 
 ```js
-import OperationSparkle from './decorators/operation-sparkle.js';
 import OpIdSuffix from './decorators/add-suffix.js';
+import OperationSparkle from './decorators/operation-sparkle.js';
 
 export default function sparklePlugin() {
   return {

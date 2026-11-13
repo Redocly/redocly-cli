@@ -6,7 +6,7 @@ describe('printExpected', () => {
     expect(printExpected('expected')).toBe('[32m"expected"[39m');
   });
 
-  it('should print expected', () => {
+  it('should print an expected object', () => {
     expect(printExpected({})).toBe('[32m{}[39m');
   });
 });
@@ -16,7 +16,7 @@ describe('printReceived', () => {
     expect(printReceived('received')).toBe('[31m"received"[39m');
   });
 
-  it('should print received', () => {
+  it('should print a received object', () => {
     expect(printReceived({})).toBe('[31m{}[39m');
   });
 });

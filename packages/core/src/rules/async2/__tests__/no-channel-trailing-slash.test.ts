@@ -70,7 +70,7 @@ describe('no-channel-trailing-slash', () => {
       config: await createConfig({ rules: { 'no-channel-trailing-slash': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on trailing slash in path if the path is root', async () => {
@@ -95,6 +95,6 @@ describe('no-channel-trailing-slash', () => {
       config: await createConfig({ rules: { 'no-channel-trailing-slash': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

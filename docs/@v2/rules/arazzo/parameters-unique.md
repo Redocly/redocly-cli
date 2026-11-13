@@ -11,10 +11,11 @@ Requires unique values in the `parameters` lists.
 A list of `parameters` that are applicable to a step or all the steps described in a workflow must not contain duplicates.
 If duplicates are present, unexpected parameter overrides could cause problems.
 
-This ruled checks parameter lists in the following locations:
+This rule checks parameter lists in the following locations:
 
 - `workflows.[workflow].parameters`
 - `workflows.[workflow].steps.[step].parameters`
+- `parameters` of success and failure actions (Arazzo 1.1.0), in steps, workflows, and components
 - `x-parameters`
 
 ## Configuration

@@ -22,7 +22,7 @@ import { isBinaryContentType } from './binary-content-type-checker.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { isEmpty } from './is-empty.js';
-import { buildQueryString } from './url-encoding.js';
+import { buildQueryString, encodeQuerystring } from './url-encoding.js';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -136,7 +136,15 @@ export class ApiFetcher implements IFetcher {
     workflowId: string;
     // oxlint-disable-next-line sonarjs/cognitive-complexity
   }): Promise<ResponseContext | never> => {
-    const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
+    const {
+      serverUrl,
+      path,
+      method,
+      parameters,
+      requestBody,
+      openapiOperation,
+      querystringMediaType,
+    } = requestData;
     if (!serverUrl?.url) {
       ctx.options.logger.error(bgRed(` No server url provided `));
       throw new Error('No server url provided');
@@ -168,7 +176,12 @@ export class ApiFetcher implements IFetcher {
       }
     }
 
-    const queryString = buildQueryString(searchParams);
+    // prepareRequest lets through one querystring parameter at most, with a string value and no query parameters
+    const querystring = parameters.find((parameter) => parameter.in === 'querystring')?.value;
+    const queryString =
+      typeof querystring === 'string'
+        ? encodeQuerystring(querystring, querystringMediaType)
+        : buildQueryString(searchParams);
 
     if ((isPlainObject(requestBody) || Array.isArray(requestBody)) && !headers['content-type']) {
       headers['content-type'] = 'application/json';
@@ -273,11 +286,16 @@ export class ApiFetcher implements IFetcher {
       noSecretsMasking: ctx.noSecretsMasking,
       secretsSet: ctx.secretsSet,
     });
+    const maskedServerUrl = conditionallyMaskSecrets({
+      value: resolvedServerUrl,
+      noSecretsMasking: ctx.noSecretsMasking,
+      secretsSet: ctx.secretsSet,
+    });
 
     // Start of the verbose logs
     this.initVerboseLogs({
       headerParams: maskedHeaderParams,
-      host: resolvedServerUrl,
+      host: maskedServerUrl,
       method: method.toUpperCase() as OperationMethod,
       path: maskedPathParams || '',
       body: maskedBody,
@@ -334,7 +352,7 @@ export class ApiFetcher implements IFetcher {
         this.initVerboseResponseLogs({
           body: body401,
           method,
-          host: serverUrl.url,
+          host: maskedServerUrl,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
@@ -349,7 +367,7 @@ export class ApiFetcher implements IFetcher {
         this.initVerboseResponseLogs({
           body: body401,
           method,
-          host: serverUrl.url,
+          host: maskedServerUrl,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
@@ -360,7 +378,7 @@ export class ApiFetcher implements IFetcher {
         );
       }
 
-      const { realm, nonce, opaque, qop, algorithm, cnonce, nc } =
+      const { realm, nonce, opaque, qop, algorithm } =
         parseWwwAuthenticateHeader(wwwAuthenticateHeader);
       const { username, password } = lastDigestSecurityScheme.values;
       const uri = new URL(urlToFetch).pathname + new URL(urlToFetch).search;
@@ -373,8 +391,6 @@ export class ApiFetcher implements IFetcher {
         opaque,
         qop,
         algorithm,
-        cnonce,
-        nc,
         uri,
         method: method.toUpperCase(),
         bodyContent: JSON.stringify(encodedBody) || '',
@@ -479,7 +495,7 @@ export class ApiFetcher implements IFetcher {
         ? JSON.stringify(maskedResponseBody)
         : maskedResponseBody,
       method,
-      host: serverUrl.url,
+      host: maskedServerUrl,
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,
       responseTime,

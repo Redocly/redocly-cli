@@ -192,4 +192,4 @@ Pick a limit that's generous for the size of the data that you expect, but small
 ## References
 
 - [OWASP top ten](https://owasp.org/Top10/)
-- Published linting rulesets from [Spectral](https://blog.stoplight.io/spectral-owasp-api-2023-security-ruleset) and [Vacuum](https://quobix.com/vacuum/rules/owasp/)
+- Published linting rulesets from [Spectral](https://github.com/stoplightio/spectral-owasp-ruleset) and [Vacuum](https://quobix.com/vacuum/rules/owasp/)

@@ -1,12 +1,12 @@
 import { createConfig } from '@redocly/openapi-core';
-import { RedoclyOAuthClient, getReuniteUrl } from '@redocly/reunite-integration';
+import { RedoclyOAuthClient, getPlatformUrl } from '@redocly/platform-integration';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import { it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 
 import { respondWithinMs } from '../network-check.js';
-import { sendTelemetry } from '../telemetry.js';
+import { isTelemetryEnabled, sendTelemetry } from '../telemetry.js';
 
 const mockMapToCloudEvent = vi.hoisted(() => vi.fn());
 const mockOtelSend = vi.hoisted(() => vi.fn());
@@ -14,7 +14,7 @@ const mockOtelSend = vi.hoisted(() => vi.fn());
 vi.mock('@redocly/cli-otel', () => ({ CloudEvents: { mapToCloudEvent: mockMapToCloudEvent } }));
 vi.mock('../otel.js', () => ({ otelTelemetry: { send: mockOtelSend } }));
 vi.mock('../network-check.js');
-vi.mock('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration');
 vi.mock('node:child_process', async (importOriginal) => {
   const actual = await importOriginal<typeof childProcess>();
   return { ...actual, execSync: vi.fn(actual.execSync) };
@@ -48,7 +48,7 @@ it('sendTelemetry calls all telemetry functions', async () => {
 
   expect(respondWithinMs).toHaveBeenCalled();
   expect(RedoclyOAuthClient).toHaveBeenCalled();
-  expect(getReuniteUrl).toHaveBeenCalled();
+  expect(getPlatformUrl).toHaveBeenCalled();
   expect(mockMapToCloudEvent).toHaveBeenCalledWith(expect.objectContaining({ env: 'development' }));
   expect(mockOtelSend).toHaveBeenCalled();
 });
@@ -141,4 +141,20 @@ it('sendTelemetry includes the number of overlays a bundle run applied', async (
   expect(mockMapToCloudEvent).toHaveBeenCalledWith(
     expect.objectContaining({ data: [expect.objectContaining({ bundle_overlays_count: 2 })] })
   );
+});
+
+describe('isTelemetryEnabled', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('is on unless the environment or the configuration turns it off', async () => {
+    vi.stubEnv('REDOCLY_TELEMETRY', 'on');
+    expect(isTelemetryEnabled(await createConfig({}))).toBe(true);
+    expect(isTelemetryEnabled(undefined)).toBe(true);
+    expect(isTelemetryEnabled(await createConfig({ telemetry: 'off' }))).toBe(false);
+
+    vi.stubEnv('REDOCLY_TELEMETRY', 'off');
+    expect(isTelemetryEnabled(await createConfig({}))).toBe(false);
+  });
 });

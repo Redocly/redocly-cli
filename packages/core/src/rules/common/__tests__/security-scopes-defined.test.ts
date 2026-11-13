@@ -91,7 +91,7 @@ describe('Oas3 security-scopes-defined', () => {
       config: await createConfig({ rules: { 'security-scopes-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on scopes of non-oauth2 or undefined security schemes', async () => {
@@ -125,7 +125,7 @@ describe('Oas3 security-scopes-defined', () => {
       config: await createConfig({ rules: { 'security-scopes-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should resolve $ref-ed flows when collecting defined scopes', async () => {

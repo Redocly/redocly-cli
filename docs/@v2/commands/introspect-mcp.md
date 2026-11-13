@@ -1,9 +1,9 @@
 # `introspect-mcp`
 
-The `introspect-mcp` command analyzes a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
+The `introspect-mcp` command analyzes a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/platform/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
 The command connects to the server, lists its tools, prompts, and resources together with the server capabilities and the negotiated protocol version.
 Then the command writes this information into the description file.
-[Redocly Realm](https://redocly.com/docs/realm) renders the `x-mcp` extension as MCP documentation alongside the rest of the API reference.
+[Redocly](https://redocly.com/docs/platform) renders the `x-mcp` extension as MCP documentation alongside the rest of the API reference.
 The recorded tools, prompts, and resources become reader-facing docs.
 
 {% admonition type="warning" name="Experimental" %}
@@ -59,7 +59,6 @@ redocly introspect-mcp <server-url> --output <file> --check
 | --check      | boolean  | Verify the description is up to date with the MCP server instead of writing: report the differences and exit with code `1` when it is not.                                              |
 | --config     | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                    |
 | --help       | boolean  | Display help.                                                                                                                                                                           |
-| --version    | boolean  | Display version number.                                                                                                                                                                 |
 
 ## Examples
 
@@ -101,5 +100,5 @@ Run the command without --check to update it.
 
 ## Resources
 
-- [The `x-mcp` extension reference](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) describes every field the command writes and shows how the rendered MCP docs look.
-- [Redocly Realm](https://redocly.com/docs/realm) renders an OpenAPI description with `x-mcp` as MCP documentation - use the [`preview`](./preview.md) command to see it locally.
+- [The `x-mcp` extension reference](https://redocly.com/docs/platform/content/api-docs/openapi-extensions/x-mcp) describes every field the command writes and shows how the rendered MCP docs look.
+- [Redocly](https://redocly.com/docs/platform) renders an OpenAPI description with `x-mcp` as MCP documentation - use the [`preview`](./preview.md) command to see it locally.

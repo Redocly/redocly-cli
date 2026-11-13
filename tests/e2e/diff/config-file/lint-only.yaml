@@ -1,0 +1,3 @@
+# A config file for lint only: it does not extend diff-recommended, so no diff rule is on.
+extends:
+  - recommended

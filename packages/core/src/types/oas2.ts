@@ -313,7 +313,7 @@ const Schema: NodeType = {
     enum: { type: 'array' },
     type: {
       type: 'string',
-      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
+      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null', 'file'],
     },
     items: (value: unknown) => {
       if (Array.isArray(value)) {

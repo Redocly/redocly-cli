@@ -1,4 +1,4 @@
-import { Client, ProxyAgent, type RequestInfo, type RequestInit, fetch } from 'undici';
+import { Client, FormData, ProxyAgent, type RequestInfo, type RequestInit, fetch } from 'undici';
 
 import { getProxyUrl, shouldBypassProxy } from '../../utils/proxy-agent.js';
 
@@ -22,7 +22,7 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
   if (clientCert && clientKey && useProxy) {
     return new ProxyAgent({
       uri: proxyUrl,
-      connect: {
+      requestTls: {
         key: Buffer.from(clientKey),
         cert: Buffer.from(clientCert),
         ...(caCert && { ca: Buffer.from(caCert) }),
@@ -55,7 +55,7 @@ export function withConnectionClient(perDomainCerts?: MtlsPerDomainCerts) {
   const proxyUrl = getProxyUrl();
 
   if (!proxyUrl && (!perDomainCerts || Object.keys(perDomainCerts).length === 0)) {
-    return fetch;
+    return fetchWithUndiciFormData;
   }
 
   const dispatcherCache = new Map<string, Client | ProxyAgent>();
@@ -85,11 +85,24 @@ export function withConnectionClient(perDomainCerts?: MtlsPerDomainCerts) {
       }
     }
 
-    return fetch(input, {
+    return fetchWithUndiciFormData(input, {
       ...init,
       dispatcher,
     });
   };
+}
+
+export function fetchWithUndiciFormData(input: RequestInfo, init?: RequestInit) {
+  if (!(init?.body instanceof globalThis.FormData)) {
+    return fetch(input, init);
+  }
+
+  const formData = new FormData();
+  for (const [name, value] of init.body) {
+    formData.append(name, value);
+  }
+
+  return fetch(input, { ...init, body: formData });
 }
 
 function selectCertsForDomain(

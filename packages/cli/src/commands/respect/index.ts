@@ -1,5 +1,4 @@
 import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
-import { type JsonLogs } from '@redocly/respect-core';
 import { blue, green } from 'colorette';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, basename } from 'node:path';
@@ -11,7 +10,6 @@ import { withConnectionClient } from './connection-client.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
 import { createHarLog } from './har-logs/har-logs.js';
 import { withHar } from './har-logs/index.js';
-import { composeJsonLogsFiles } from './json-logs.js';
 import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
 
 export type MtlsConfig = {
@@ -50,7 +48,8 @@ export async function handleRespect({
   let harLogs;
 
   try {
-    const { run, conditionallyMaskSecrets } = await import('@redocly/respect-core');
+    const { run, conditionallyMaskSecrets, composeJsonLogs } =
+      await import('@redocly/respect-core');
     const workingDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
     if (argv.mtls) {
@@ -127,15 +126,8 @@ export async function handleRespect({
     displayFilesSummaryTable(runAllFilesResult, logger);
     logger.printNewLine();
 
-    const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
-    const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);
-
     if (argv['json-output']) {
-      const jsonOutputData = {
-        files: composeJsonLogsFiles(runAllFilesResult),
-        status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
-        totalTime: performance.now() - startedAt,
-      } as JsonLogs;
+      const jsonOutputData = composeJsonLogs(runAllFilesResult, performance.now() - startedAt);
 
       writeFileSync(argv['json-output'], jsonStringifyWithArrayBuffer(jsonOutputData, 2), 'utf-8');
 
@@ -159,7 +151,7 @@ export async function handleRespect({
       }
     }
 
-    if (hasProblems) {
+    if (runAllFilesResult.some((result) => result.hasProblems)) {
       throw new Error(' Tests exited with error ');
     }
   } catch (error) {

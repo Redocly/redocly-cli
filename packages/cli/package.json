@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.57.0",
+  "version": "2.78.0",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -8,6 +8,19 @@
     "openapi": "bin/cli.js"
   },
   "type": "module",
+  "imports": {
+    "#eject-assets/*": "./lib/eject-assets/*",
+    "#redoc.standalone.js": "./lib/chunks/redoc.standalone.js",
+    "#skills/*": "./lib/skills/*"
+  },
+  "redocly": {
+    "bundledSkills": [
+      "recheck-config",
+      "recheck-lint",
+      "redocly-cli",
+      "redocly-lint-rules"
+    ]
+  },
   "engines": {
     "node": ">=22.12.0 || >=20.19.0 <21.0.0",
     "npm": ">=10"
@@ -40,16 +53,17 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@opentelemetry/exporter-trace-otlp-http": "0.219.0",
     "@opentelemetry/resources": "2.8.0",
     "@opentelemetry/sdk-trace-node": "2.8.0",
     "@opentelemetry/semantic-conventions": "1.41.1",
-    "@redocly/cli-otel": "0.3.7",
-    "@redocly/client-generator": "0.4.20",
-    "@redocly/openapi-core": "2.57.0",
-    "@redocly/respect-core": "2.57.0",
-    "@redocly/reunite-integration": "2.57.0",
+    "@redocly/cli-otel": "0.4.0",
+    "@redocly/client-generator": "0.10.1",
+    "@redocly/openapi-core": "2.78.0",
+    "@redocly/recheck": "2.78.0",
+    "@redocly/respect-core": "2.78.0",
+    "@redocly/platform-integration": "2.78.0",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",
@@ -57,21 +71,22 @@
     "@types/semver": "^7.5.0",
     "@types/set-cookie-parser": "2.4.10",
     "@types/yargs": "17.0.32",
-    "colorette": "^1.2.0",
+    "colorette": "^2.0.20",
     "cookie": "^0.7.2",
     "dotenv": "16.4.7",
     "esbuild": "^0.28.0",
-    "glob": "^13.0.5",
-    "handlebars": "^4.7.9",
-    "react": "^17.0.0 || ^18.2.0 || ^19.2.7",
-    "react-dom": "^17.0.0 || ^18.2.0 || ^19.2.7",
-    "redoc": "2.5.4",
+    "glob": "^14.0.3",
+    "handlebars": "^4.7.10",
+    "react": "^18.3.0 || ^19.2.7",
+    "react-dom": "^18.3.0 || ^19.2.7",
+    "react-router": "^7.18.4",
+    "redoc": "3.1.0",
     "semver": "^7.5.2",
     "set-cookie-parser": "^2.3.5",
     "styled-components": "6.4.2",
     "typescript": "6.0.2",
     "ulid": "^3.0.1",
-    "undici": "^6.29.0",
+    "undici": "^7.30.0",
     "yargs": "17.0.1"
   }
 }

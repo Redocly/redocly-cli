@@ -9,7 +9,7 @@ const STDERR_TAIL_LINES = 40;
 
 const [baseDir, headDir, reportPath] = process.argv.slice(2);
 if (!baseDir || !headDir || !reportPath) {
-  console.error('Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md>');
+  process.stderr.write('Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md>\n');
   process.exit(2);
 }
 
@@ -279,5 +279,5 @@ if (differingCells === 0) {
 
 const report = reportLines.join('\n');
 fs.writeFileSync(reportPath, report);
-console.log(report);
+process.stdout.write(report);
 process.exit(differingCells > 0 ? 1 : 0);

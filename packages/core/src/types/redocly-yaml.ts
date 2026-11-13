@@ -3,6 +3,8 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
 import type { Config, RawGovernanceConfig } from '../config/index.js';
+import { impacts } from '../diff/impact.js';
+import { diffRuleIds } from '../diff/rules/index.js';
 import { graphqlNodeKinds } from '../graphql/node-kinds.js';
 import { specVersions, getTypes } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -181,6 +183,7 @@ const builtInArazzo1Rules = [
   'stepId-unique',
   'sourceDescription-name-unique',
   'sourceDescriptions-not-empty',
+  'spec-querystring-parameters',
   'spec-step-mutually-exclusive-fields',
   'workflow-dependsOn',
   'outputs-defined',
@@ -264,7 +267,7 @@ const builtInDecorators = [...builtInOas3Decorators, ...builtInOas2Decorators] a
 type BuiltInDecoratorId = (typeof builtInDecorators)[number];
 
 const configGovernanceProperties: Record<
-  keyof RawGovernanceConfig,
+  Exclude<keyof RawGovernanceConfig, 'recheck'>,
   NodeType['properties'][string]
 > = {
   extends: {
@@ -319,6 +322,12 @@ const configGovernanceProperties: Record<
   arazzo1_1Decorators: 'Decorators',
   overlay1Decorators: 'Decorators',
   openrpc1Decorators: 'Decorators',
+
+  diff: 'DiffRules',
+  oas3_0Diff: 'DiffRules',
+  oas3_1Diff: 'DiffRules',
+  oas3_2Diff: 'DiffRules',
+  async3Diff: 'DiffRules',
 };
 
 const ConfigGovernance: NodeType = {
@@ -355,7 +364,15 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
-    ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+    // plugins are not allowed in apis, and diff compares two apis, so it is configured once.
+    ...omit(ConfigGovernance.properties, [
+      'plugins',
+      'diff',
+      'oas3_0Diff',
+      'oas3_1Diff',
+      'oas3_2Diff',
+      'async3Diff',
+    ]),
     // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
     client: 'Client',
     clientOutput: { type: 'string' },
@@ -388,6 +405,7 @@ const Client: NodeType = {
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
+    telemetry: { enum: ['on', 'off'] },
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
@@ -405,11 +423,12 @@ const ClientGeneratorOptions: NodeType = {
 };
 const ClientPaginationRule: NodeType = {
   properties: {
-    style: { enum: ['cursor', 'offset', 'page', 'link'] },
+    style: { enum: ['cursor', 'offset', 'page', 'link', 'body-link'] },
     cursorParam: { type: 'string' },
     nextCursor: { type: 'string' },
     hasMore: { type: 'string' },
     offsetParam: { type: 'string' },
+    nextLink: { type: 'string' },
     limitParam: { type: 'string' },
     items: { type: 'string' },
   },
@@ -453,6 +472,14 @@ const Rules: NodeType = {
     // Otherwise is considered as invalid
     return;
   },
+};
+
+const DiffRules: NodeType = {
+  properties: {},
+  description:
+    'The `diff` block sets the semver impact of each diff rule: `off`, `patch`, `minor`, or `major`.',
+  additionalProperties: (_value: unknown, key: string) =>
+    diffRuleIds.includes(key) || isCustomRuleId(key) ? { enum: ['off', ...impacts] } : undefined,
 };
 
 const BuiltinRule: NodeType = {
@@ -836,6 +863,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   Decorators,
   Preprocessors,
   Assertions,
+  DiffRules,
 };
 
 // FIXME: remove this once we remove `theme` from the schema

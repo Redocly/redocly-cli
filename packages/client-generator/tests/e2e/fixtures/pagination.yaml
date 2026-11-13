@@ -1,0 +1,132 @@
+openapi: 3.1.0
+info:
+  title: Cafe Orders Pagination API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3131
+paths:
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List orders, one cursor page at a time.
+      # The extension arm: the pagination rule travels with the spec — no config needed.
+      x-redoclyPagination:
+        style: cursor
+        cursorParam: cursor
+        nextCursor: /nextCursor
+        limitParam: limit
+        items: /orders
+      parameters:
+        - name: cursor
+          in: query
+          description: Opaque cursor of the page to fetch; omit for the first page.
+          schema: { type: string }
+        - name: limit
+          in: query
+          description: Page size.
+          schema: { type: integer }
+      responses:
+        '200':
+          description: One page of orders.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [orders]
+                properties:
+                  orders:
+                    type: array
+                    items: { $ref: '#/components/schemas/Order' }
+                  nextCursor:
+                    description: Cursor of the next page; absent on the last page.
+                    type: string
+  /menu:
+    get:
+      operationId: listMenuItems
+      summary: List menu items, one offset page at a time.
+      # No extension here — pagination arrives via the config convention rule.
+      parameters:
+        - name: offset
+          in: query
+          description: Index of the first item to return.
+          schema: { type: integer }
+        - name: limit
+          in: query
+          description: Page size.
+          schema: { type: integer }
+      responses:
+        '200':
+          description: One page of menu items.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MenuItem' }
+                  total: { type: integer }
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Retrieve one order.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: The order.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+  /receipts:
+    get:
+      operationId: listReceipts
+      summary: List receipts, following the next page's URL in the response body.
+      # The body-link arm: the next page's URL is a response field, not a `Link` header.
+      x-redoclyPagination:
+        style: body-link
+        nextLink: /next
+        limitParam: limit
+        items: /receipts
+      parameters:
+        - name: limit
+          in: query
+          description: Page size.
+          schema: { type: integer }
+        - name: after
+          in: query
+          description: Opaque cursor of the page to fetch; `next` carries it.
+          schema: { type: string }
+      responses:
+        '200':
+          description: One page of receipts.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [receipts, next]
+                properties:
+                  receipts:
+                    type: array
+                    items: { $ref: '#/components/schemas/Order' }
+                  next:
+                    description: Path and query of the next page; null on the last page.
+                    type: [string, 'null']
+components:
+  schemas:
+    Order:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string }
+        status: { type: string }
+    MenuItem:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name: { type: string }

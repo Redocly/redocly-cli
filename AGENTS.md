@@ -46,13 +46,16 @@ npm run unit -- -t 'test name pattern'
 # Update snapshots
 npm run unit -- -u
 
-# Run e2e tests (everything under tests/e2e except generate-client)
+# Run the type tests (*.test-d.ts)
+npm run unit:types
+
+# Run e2e tests (everything under tests/e2e)
 npm run e2e
 
-# Run every generator test (client-generator unit + generate-client e2e)
+# Run the client generator tests in packages/client-generator/tests/e2e (they compile real Python/Go/PHP/Java/TypeScript output)
 npm run client-generators
 
-# Run the full test suite (compile + typecheck + unit + e2e)
+# Run the full test suite (compile + typecheck + unit + type tests + e2e)
 npm test
 
 # Lint
@@ -73,8 +76,9 @@ in the wrong package.
 
 ## Build System
 
-`packages/core`, `packages/respect-core`, `packages/reunite-integration`, and `packages/client-generator` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
-`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
+`packages/core`, `packages/respect-core`, `packages/platform-integration`, and `packages/client-generator` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
+`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~160 kB) and lazy chunks under `lib/chunks/`.
+redoc + react load only when `build-docs` runs, and undici loads on the first network request; the build fails when either reaches a chunk the entry imports statically.
 The root `npm run compile` runs both steps: tsc for the compiled packages, then the esbuild bundle for the CLI.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
@@ -108,16 +112,22 @@ Naming and reuse:
 ## Testing
 
 - **Compile before testing.** Unit tests import from `lib/` (compiled output), not `src/` — run `npm run compile` after every change.
+  Do not work around the compile step with aliases, `tsconfig` changes, or a separate test suite for one package.
+  The `client-generators` projects are the one exception, because they need Go, PHP, Java, and Python.
 - Cover the feature or fix with one focused test, not a pile of redundant ones.
   A single clear test that exercises the behavior is enough.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
   Generate or update snapshots as part of the change.
+  When the rule must report no problems, assert `toEqual([])`.
+- Base the API description in a new test on the Redocly Cafe API (`resources/cafe.yaml` or `resources/cafe-split/`) when you can.
+  Copy only the part the test needs.
 - Don't add `console.log` or write to `stdout` / `stderr` directly — it breaks the e2e snapshots.
   Use the `logger` from `@redocly/openapi-core` (see [`CONTRIBUTING.md`](./CONTRIBUTING.md#logging)).
 - A `redocly.yaml` in the repository root affects unit tests in the CLI package.
   Remove it before running them.
-- Run the full suite (`npm test`) when you touch core linting logic.
-- Run `npm run client-generators` when you touch client generation — it is the whole generator suite in one command.
+- Run the full suite (`npm test`) before you open a pull request.
+- Run `npm run client-generators` when you touch client generation.
+  It needs Go, PHP, Java, and Python; see [`CONTRIBUTING.md`](./CONTRIBUTING.md#client-generator-tests).
 
 The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).
@@ -130,6 +140,8 @@ Before opening a PR, strip the things an assistant tends to add that a human rev
 - Defensive `try/catch` or null checks in trusted, already-validated code paths.
 - Casts to `any` to silence the type checker — fix the type instead.
 - Helpers or wrappers used in only one place.
+- Imports of another package's source files by path (`'core/src/typings/openapi.js'`).
+  Import from the package name, such as `@redocly/openapi-core`, instead.
 - Single-letter or abbreviated names (`m`, `p`, `e`).
   Use descriptive names like `pkgRootMatch`, `inputPath`, `error`.
   This applies across every package and script.
@@ -151,7 +163,7 @@ The full documentation and output rules are in [`.claude/rules/documentation.md`
 The full release and commit workflow is in [`.claude/rules/workflow.md`](./.claude/rules/workflow.md).
 
 - Every feature or fix needs a changeset: run `npx changeset` and describe the change in sentence case.
-  If the change lives in `packages/core`, `packages/respect-core`, or `packages/reunite-integration` but affects CLI behavior, include `@redocly/cli` as well.
+  If the change lives in `packages/core`, `packages/respect-core`, or `packages/platform-integration` but affects CLI behavior, include `@redocly/cli` as well.
   All four packages share one version and release together.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 - Don't add AI co-author or "Generated by" lines to commits.

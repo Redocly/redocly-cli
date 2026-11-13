@@ -60,6 +60,6 @@ describe('Oas3 info-license', () => {
       config: await createConfig({ rules: { 'info-license': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

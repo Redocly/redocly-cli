@@ -10,6 +10,8 @@ import {
   type CodeSample,
   type DateType,
   type EmitOptions,
+  GENERATOR_VERSION,
+  type GeneratedFile,
   type Generator,
   identifierFor,
   jsonSuccessSchema,
@@ -21,7 +23,7 @@ import {
   sseResponse,
 } from '@redocly/client-generator';
 import { exported, GoPrinter } from '@redocly/client-generator/printers/go';
-import { GO_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
+import { GO_RUNTIME_SOURCE, GO_TELEMETRY_SOURCE } from '@redocly/client-generator/runtime-sources';
 
 import { writeGoServers } from './client.ts';
 import { goPaginationLiteral, goSecurityLiteral } from './descriptor.ts';
@@ -246,17 +248,31 @@ export const goGenerator: Generator = ({ model, output, banner, emit, pagination
     // between declarations and none at the end of the file.
     content: printer.toString(),
   };
-  if (embedRuntime) return [entry];
-  // The runtime, verbatim except the package clause — same directory, same Go package.
+  const files: GeneratedFile[] = [entry];
   const header = banner.map((line) => `// ${line}`).join('\n');
-  const runtimeSource = GO_RUNTIME_SOURCE.replace(/^package .*$/m, `package ${packageName}`);
-  return [
-    entry,
-    {
+  // The runtime and the telemetry module, verbatim except the package clause — same
+  // directory, same Go package.
+  if (!embedRuntime) {
+    const runtimeSource = GO_RUNTIME_SOURCE.replace(/^package .*$/m, `package ${packageName}`);
+    files.push({
       path: entry.path.replace(/[^\\/]+$/, 'runtime.go'),
       content: `${header}\n${runtimeSource.trimEnd()}\n`,
-    },
-  ];
+    });
+  }
+  if (emit.telemetry === 'on') {
+    const telemetrySource = GO_TELEMETRY_SOURCE.replace(
+      /^package .*$/m,
+      `package ${packageName}`
+    ).replace(
+      'usageTelemetryGeneratorVersion = "dev"',
+      () => `usageTelemetryGeneratorVersion = ${naming.string(GENERATOR_VERSION)}`
+    );
+    files.push({
+      path: entry.path.replace(/[^\\/]+$/, 'telemetry.go'),
+      content: `${header}\n${telemetrySource.trimEnd()}\n`,
+    });
+  }
+  return files;
 };
 
 /** One idiomatic Go call per operation — feeds `x-codeSamples` for docs. */

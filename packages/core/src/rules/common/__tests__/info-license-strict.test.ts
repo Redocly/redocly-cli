@@ -61,7 +61,7 @@ describe('license-strict', () => {
       config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on info.license with identifier', async () => {
@@ -82,7 +82,7 @@ describe('license-strict', () => {
       config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on info.license with no url for AsyncAPI 3.0', async () => {
@@ -140,6 +140,6 @@ describe('license-strict', () => {
       config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

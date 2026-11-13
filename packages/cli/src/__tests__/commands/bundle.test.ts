@@ -10,16 +10,35 @@ import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
 import { type BundleArgv, bundleTelemetry, handleBundle } from '../../commands/bundle.js';
+import { loadAndCheckConfig } from '../../commands/check-config.js';
 import {
   dumpBundle,
   getFallbackApisOrExit,
   getOutputFileName,
   handleError,
-  loadConfigAndHandleErrors,
   saveBundle,
 } from '../../utils/miscellaneous.js';
 import { commandWrapper } from '../../wrapper.js';
 import { configFixture } from '../fixtures/config.js';
+
+vi.mock('@redocly/openapi-core', async () => {
+  const actual = await vi.importActual('@redocly/openapi-core');
+  return {
+    ...actual,
+    bundle: vi.fn(async (): Promise<any> => ({
+      bundle: { parsed: null },
+      problems: [],
+    })),
+    getTotals: vi.fn(),
+    logger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      output: vi.fn(),
+    },
+  };
+});
+vi.mock('../../utils/miscellaneous.js');
+vi.mock('../../commands/check-config.js');
 
 describe('bundle', () => {
   let processExitMock: MockInstance;
@@ -31,27 +50,7 @@ describe('bundle', () => {
       return process.on(_e, cb);
     });
 
-    vi.mock('@redocly/openapi-core', async () => {
-      const actual = await vi.importActual('@redocly/openapi-core');
-      return {
-        ...actual,
-        bundle: vi.fn(
-          async (): Promise<any> => ({
-            bundle: { parsed: null },
-            problems: [],
-          })
-        ),
-        getTotals: vi.fn(),
-        logger: {
-          info: vi.fn(),
-          warn: vi.fn(),
-          output: vi.fn(),
-        },
-      };
-    });
-
-    vi.mock('../../utils/miscellaneous.js');
-    vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
+    vi.mocked(loadAndCheckConfig).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
@@ -81,7 +80,7 @@ describe('bundle', () => {
       ext: 'yaml',
     } as Arguments<BundleArgv>);
 
-    expect(bundle).toBeCalledTimes(apis.length);
+    expect(bundle).toHaveBeenCalledTimes(apis.length);
   });
 
   it('exits with code 0 when bundles definitions', async () => {
@@ -194,7 +193,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(2);
+      expect(saveBundle).toHaveBeenCalledTimes(2);
       expect(saveBundle).toHaveBeenNthCalledWith(1, 'output/foo.yaml', expect.any(String));
       expect(saveBundle).toHaveBeenNthCalledWith(2, 'output/bar.json', expect.any(String));
     });
@@ -232,7 +231,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(1);
+      expect(saveBundle).toHaveBeenCalledTimes(1);
       expect(saveBundle).toHaveBeenCalledWith('output/foo.yaml', expect.any(String));
       expect(logger.output).toHaveBeenCalledTimes(1);
     });
@@ -261,7 +260,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(0);
+      expect(saveBundle).toHaveBeenCalledTimes(0);
       expect(logger.output).toHaveBeenCalledTimes(1);
     });
 
@@ -300,7 +299,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(2);
+      expect(saveBundle).toHaveBeenCalledTimes(2);
       expect(saveBundle).toHaveBeenNthCalledWith(1, 'dist/foo.yaml', expect.any(String));
       expect(saveBundle).toHaveBeenNthCalledWith(2, 'dist/bar.yaml', expect.any(String));
     });

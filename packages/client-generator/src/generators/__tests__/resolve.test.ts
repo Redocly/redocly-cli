@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -123,6 +124,7 @@ describe('resolveGenerators', () => {
   });
 
   it('a custom generator may take over a built-in name (ejected generators shadow their origin)', async () => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
     const custom: CustomGenerator = { name: 'python', run: noopRun, sample: () => undefined };
     const { selected, registry } = await resolveGenerators(['python'], {
       customGenerators: [custom],
@@ -130,6 +132,9 @@ describe('resolveGenerators', () => {
     expect(selected).toEqual(['python']);
     expect(registry.get('python')?.run).toBe(noopRun);
     expect(typeof registry.get('python')?.sample).toBe('function');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('custom generator "python" takes over the built-in generator')
+    );
   });
 
   it('rejects two custom generators with the same name', async () => {

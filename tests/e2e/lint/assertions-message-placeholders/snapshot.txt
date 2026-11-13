@@ -191,3 +191,5 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 12 errors.
 run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 
+
+Exit code: 1

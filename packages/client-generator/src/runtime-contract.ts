@@ -58,7 +58,15 @@ export type ApiErrorLike = globalThis.Error & {
   body: unknown;
 };
 
-/** One interceptor: any subset of the three hooks. */
+export type SettledCall = {
+  // `| undefined`, so the runtime can pass an unset response under `exactOptionalPropertyTypes`.
+  response?: Response | undefined;
+  error?: unknown;
+  attempts: number;
+  durationMs: number;
+};
+
+/** One interceptor: any subset of the four hooks. */
 export type Middleware<Op extends OperationContext = OperationContext> = {
   onRequest?: (ctx: RequestContext<Op>) => void | Promise<void>;
   onResponse?: (
@@ -71,6 +79,7 @@ export type Middleware<Op extends OperationContext = OperationContext> = {
     error: ApiErrorLike,
     ctx: RequestContext<Op>
   ) => globalThis.Error | Promise<globalThis.Error>;
+  onSettled?: (ctx: RequestContext<Op>, call: SettledCall) => void | Promise<void>;
 };
 
 /**

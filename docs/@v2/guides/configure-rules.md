@@ -113,9 +113,12 @@ To find the exact type of a place in your API description, either:
 
 - Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
 - Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+- Select a node type in the [Rules Builder](https://redocly.com/config-rules-builder) to see every place that it matches in a sample or your own OpenAPI description.
 
 Using the `pattern` assertion, describe what's allowed with [regular expression syntax](https://en.wikipedia.org/wiki/Regular_expression).
 Finally, adding the `message` ensures clear information is conveyed if the rule isn't satisfied.
+
+The Rules Builder also generates the configuration of a rule like this one, so you do not need to write the YAML by hand.
 
 Using the supplied assertion features, you can extend the built-in rules in Redocly and describe the success criteria for APIs in your organization.
 
@@ -148,5 +151,5 @@ Especially when you are working on improving your APIs or API descriptions, sett
 
 - Check out the detailed reference documentation for the [built-in rules](../rules/built-in-rules.md) and [configurable rules](../rules/configurable-rules.md).
 - If nothing there meets your needs, you can create your own rules by creating [custom plugins](../custom-plugins/index.md) with JavaScript.
-- If you work with an AI coding assistant, install the `redocly-lint-rules` agent skill with `npx skills add https://redocly.com`.
+- If you work with an AI coding assistant, install the `redocly-lint-rules` agent skill with [`redocly skills`](../commands/skills.md).
   It turns a check written in plain language into a configurable rule or a custom plugin.

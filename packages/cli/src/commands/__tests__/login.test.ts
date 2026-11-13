@@ -1,15 +1,14 @@
-import { RedoclyOAuthClient, type DeviceCode } from '@redocly/reunite-integration';
+import { RedoclyOAuthClient, type DeviceCode } from '@redocly/platform-integration';
 
 import { handleLogin } from '../login.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, RedoclyOAuthClient: vi.fn() };
 });
 
 describe('handleLogin()', () => {
   it('prints the device code instructions and the login confirmation', async () => {
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     const login = vi.fn(async (_url: string, onDeviceCode?: (code: DeviceCode) => void) => {
       onDeviceCode?.({
         verificationUri: 'https://app.redocly.test/device',

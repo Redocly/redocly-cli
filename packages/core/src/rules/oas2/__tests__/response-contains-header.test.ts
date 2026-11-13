@@ -150,7 +150,7 @@ describe('Oas2 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should not report a response object when there is no `names` section defined', async () => {
@@ -179,6 +179,6 @@ describe('Oas2 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 });

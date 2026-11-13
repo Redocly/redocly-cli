@@ -22,7 +22,7 @@ describe('validateSuccessCriteria', () => {
             condition: '$name === 400',
           },
         ]);
-      }).toThrowError(`Success criteria condition $name === 400 is not allowed.`);
+      }).toThrow(`Success criteria condition $name === 400 is not allowed.`);
     });
 
     it('does not throw an error if all keys are expected', () => {
@@ -45,7 +45,7 @@ describe('validateSuccessCriteria', () => {
             condition: 'status === 400',
           },
         ]);
-      }).toThrowError(`Success criteria context "$someUnknownKey" is not allowed.`);
+      }).toThrow(`Success criteria context "$someUnknownKey" is not allowed.`);
     });
 
     it('throws an error if an unexpected key is present', () => {
@@ -57,7 +57,7 @@ describe('validateSuccessCriteria', () => {
             condition: 'status === 400',
           },
         ]);
-      }).toThrowError(`"UnknownKey" does not contain any valid context.`);
+      }).toThrow(`"UnknownKey" does not contain any valid context.`);
     });
 
     it('does not throw an error if all keys are expected', () => {
@@ -81,7 +81,7 @@ describe('validateSuccessCriteria', () => {
             condition: '$.pets[?(@.length>3)] || $.access_token != null',
           },
         ]);
-      }).toThrowError(`jsonpath success criteria context is required.`);
+      }).toThrow(`jsonpath success criteria context is required.`);
     });
 
     it('throws an error if condition is missing', () => {
@@ -93,7 +93,7 @@ describe('validateSuccessCriteria', () => {
             condition: '',
           },
         ]);
-      }).toThrowError(`jsonpath success criteria condition is required.`);
+      }).toThrow(`jsonpath success criteria condition is required.`);
     });
 
     it('does not throw an error if all keys are expected', () => {

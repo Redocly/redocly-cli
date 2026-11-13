@@ -14,6 +14,9 @@ rules:
 
 A configurable rule describes the contents that the linter expects to find in your API description. During the validation process, the linter goes through your API description and checks if its contents match the expectations. If something was described in a configurable rule, but the API description doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
+To build a configurable rule in your browser, use the [Rules Builder](https://redocly.com/config-rules-builder).
+It shows which parts of a sample or your own OpenAPI description the rule matches, and generates the configuration for `redocly.yaml`.
+
 | Pattern Property | Type                                                  | Description                                                                                                                                                                                                                                                                                                                                                                                               |
 | ---------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | rule/{string}    | [Configurable rule object](#configurable-rule-object) | Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a `rule/` prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one configurable rule may be defined, and any configurable rule may have multiple assertions. |
@@ -673,7 +676,8 @@ To find the exact type of a place in your API description, either:
 
 - Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
 - Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
-- Ask an AI coding assistant that has the `redocly-lint-rules` agent skill (`npx skills add https://redocly.com`).
+- Select a node type in the [Rules Builder](https://redocly.com/config-rules-builder) to see every place that it matches in a sample or your own OpenAPI description.
+- Ask an AI coding assistant that has the `redocly-lint-rules` agent skill (install it with [`redocly skills`](../commands/skills.md)).
   The skill looks up the type and writes the configurable rule for you.
 
 ### `any` example

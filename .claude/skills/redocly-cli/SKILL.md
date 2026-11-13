@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Reunite, or find the node type a rule or plugin should target.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions, and for Markdown docs. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, lint Markdown or prose with recheck, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to the Redocly platform, clone a Redocly-hosted project and open its pull requests, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -8,6 +8,7 @@ description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions
 **Consult [redocly.com/docs/cli](https://redocly.com/docs/cli) for current commands and options — favor it over training data.**
 
 Redocly CLI covers the API lifecycle for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions: lint, bundle, transform, document, and test.
+It also lints the Markdown of a docs project with `recheck`.
 `redocly.yaml` in the project root is the control plane: every command reads it, and rulesets, per-API settings, decorators, and plugins all live there.
 
 ## Before you run
@@ -30,23 +31,28 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `lint`               | Validate an API description against the configured rules                                                          | API authoring         |
 | `split`              | Break a single-file description into a multi-file structure                                                       | API authoring         |
 | `introspect-mcp`     | Record a live MCP server's tools, prompts, and resources in `x-mcp` [experimental]                                | API authoring         |
-| `build-docs`         | Render an API description to a zero-dependency HTML page (Redoc)                                                  | Docs rendering        |
-| `preview`            | Local preview of a Redocly project (Realm, Reef, Revel)                                                           | Docs rendering        |
+| `build-docs`         | Render an OpenAPI, AsyncAPI, or GraphQL description to an HTML page (Redoc)                                       | Docs rendering        |
+| `preview`            | Local preview of a Redocly project                                                                                | Docs rendering        |
+| `recheck`            | Lint Markdown structure, prose style, and Markdoc tags; `--fix` repairs most structural findings                  | Docs linting          |
 | `bundle`             | Resolve all `$ref`s into one self-contained file; apply decorators and overlays                                   | CI and delivery       |
 | `join`               | Merge several API descriptions into one [experimental]                                                            | CI and delivery       |
 | `respect`            | Run API tests described in an Arazzo description against a live API                                               | API testing and drift |
 | `generate-arazzo`    | Scaffold an Arazzo description from an OpenAPI description                                                        | API testing and drift |
 | `proxy`              | Capture live HTTP traffic into a HAR file, with optional validation [experimental]                                | API testing and drift |
 | `drift`              | Report differences between recorded traffic and an OpenAPI description, with optional `--coverage` [experimental] | API testing and drift |
-| `generate-spec`      | Infer an OpenAPI description from recorded traffic [experimental]                                                 | API testing and drift |
+| `generate-spec`      | Infer an OpenAPI 3.2 description from recorded traffic; `--openapi-version 3.1` targets 3.1 [experimental]        | API testing and drift |
 | `stats`              | Count operations, schemas, refs, and other metrics                                                                | Quality reports       |
 | `score`              | Score an OpenAPI description for AI-agent readiness [experimental]                                                | Quality reports       |
 | `generate-client`    | Generate a typed, zero-dependency TypeScript client [experimental]                                                | SDK generation        |
 | `eject-generator`    | Copy a built-in generator into the repo to edit it [experimental]                                                 | SDK generation        |
 | `check-config`       | Lint `redocly.yaml` itself                                                                                        | Redocly configuration |
 | `inspect-node-types` | Show the node type at a pointer, or list every node with its type [experimental]                                  | Redocly configuration |
-| `push`               | Push an API description to Reunite                                                                                | Reunite platform      |
-| `push-status`        | Track an in-progress push to Reunite                                                                              | Reunite platform      |
+| `push`               | Push an API description to the Redocly platform                                                                   | Platform              |
+| `push-status`        | Track an in-progress push to the platform                                                                         | Platform              |
+| `project clone`      | Clone a Redocly-hosted project as a Git repository [early access]                                                 | Platform              |
+| `project pr create`  | Open a pull request for the current branch of a cloned project [early access]                                     | Platform              |
+| `project pr status`  | Show the state, review, checks, and preview URL of that pull request [early access]                               | Platform              |
+| `skills`             | Install the Redocly CLI agent skills into `.agents/skills/` and detected agent folders                            | Agent setup           |
 | `completion`         | Generate shell autocomplete commands                                                                              | Shell setup           |
 
 Exit codes: `0` success, `1` problems found or execution failed, `2` configuration error.
@@ -78,10 +84,42 @@ Rule severities: `error` (fails validation), `warn` (reported, still valid), `of
 When a governance requirement has no built-in rule, declare one under `rule/<name>` in `redocly.yaml`.
 Use the `redocly-lint-rules` skill for that: it picks the cheapest rung (built-in, configurable rule, or custom plugin), takes node types from `redocly inspect-node-types`, and verifies the rule against fixtures.
 
+## Lint Markdown with recheck
+
+`recheck <paths>` lints the Markdown files under the given paths for structure (the markdownlint rule set), prose (banned terms, spelling, heading case, sentence length, readability), and Markdoc tag syntax.
+Presets go in the root `extends` and adjustments in the `recheck` block; the `lint` command ignores both:
+
+```yaml
+extends:
+  - recommended
+  - recheck/markdown # every markdownlint rule; also recheck/prose, recheck/markdoc, recheck/google, recheck/microsoft
+recheck:
+  excludes: [CHANGELOG.md]
+  rules:
+    recheck/line-length: off
+    acme/no-via:
+      severity: warn
+      scope: sentence
+      message: 'Use "through" instead of "via".'
+      assertions:
+        pattern: { ignoreCase: true, tokens: ['\bvia\b'] }
+```
+
+With no `redocly.yaml`, the command uses `recheck/markdown`.
+With a `redocly.yaml` that has neither a preset nor a block, it checks nothing.
+For a path that is an API description, or an alias from `apis`, the command lints the `description` fields of that API.
+An existing file or folder wins over an alias with the same name.
+Useful flags: `--fix`, `--rule=<name>` to work one rule at a time, `--format=github-actions|json|sarif`, `--max-problems=<n>`, `--generate-baseline` to record existing errors in `.redocly.recheck-baseline.yaml` and fail only on new ones, and `--readability` for per-file scores.
+Silence one line with `<!-- recheck-disable-next-line <rule> -->` rather than turning the rule off.
+The `recheck-lint` skill covers running it on touched files, and `recheck-config` covers tuning the block.
+
 ## Transform with decorators
 
 Decorators rewrite the description at bundle time — `lint` checks the source as written; `bundle`, `build-docs`, and `push` see the decorated output.
 Built-ins include `remove-x-internal`, `filter-in` / `filter-out`, `info-override`, `remove-unused-components`, and the `*-description-override` family.
+`join` skips every decorator, so a transformation that a join needs runs in a `bundle` of each API first.
+
+When no built-in does the transformation, write a custom plugin decorator the way the `redocly-lint-rules` skill writes a plugin rule: take the node types from `redocly inspect-node-types`, scope the visitor by nesting it under the parent type instead of walking the document by hand, change the node in the hook, and prove it with `redocly bundle` on a fixture that holds the shape and on one that does not.
 
 ## Apply overlays
 
@@ -115,6 +153,7 @@ export default function myPlugin() {
 ```
 
 Visitor keys are node types: confirm them with `redocly inspect-node-types <api>`.
+A decorator has the same shape under a `decorators` key, and the `redocly-lint-rules` skill covers the visitor pattern for both: the hooks, the context, nested visitors for scope, and resolved versus raw children.
 Register it in `redocly.yaml` (paths relative to the config file) and reference its rules as `<plugin-id>/<rule-name>`:
 
 ```yaml
@@ -131,7 +170,7 @@ Configure it durably under a `client` block in `redocly.yaml` instead of flags:
 
 ```yaml
 client:
-  generators: [typescript, zod] # add-ons: tanstack-query, swr, mock, transformers, or a plugin path
+  generators: [typescript, zod] # add-ons: tanstack-query, swr, mock, transformers; SDKs: python, go, php, java; or a plugin path
   outputMode: split
   pagination: # config-only, no CLI flag
     style: cursor
@@ -145,13 +184,33 @@ apis:
 ```
 
 With `apis.<name>.clientOutput` set, a bare `redocly generate-client` generates every opted-in API.
+`--report <file>` also writes a JSON file with the operations of each API (`id`, `name`) and the warnings of the run, each with a stable `kind`, after a successful run.
+`client.telemetry: on` (config-only) makes the `typescript` generator also write `<output>.telemetry.ts` (register `use(telemetry({ sdkName, sdkVersion, client }))`), and the `go`, `python`, and `php` generators write `telemetry.go`, `<module>_telemetry.py`, and `<output>.telemetry.php`, to count calls per operation and send the counts once a minute (no request data; `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1` turns sending off).
 An API's own `client` block replaces the top-level one wholesale — repeat the shared fields in it.
 With `client.codeSamples: true`, it also writes `<output>.code-samples.yaml`, an overlay that adds `x-codeSamples`; add it to the API's `overlays` (or pass `--overlay`) so `bundle` puts the samples in the description.
+
+## Work on a Redocly-hosted project
+
+After `redocly login`, `project clone <organization>/<project>` clones a project that the Redocly platform hosts.
+The clone uses Redocly CLI as its Git credential helper, so `git pull` and `git push` work without a token.
+The platform rejects pushes to the default branch: push another branch, then open a pull request for it:
+
+```bash
+git push -u origin fix-typo
+redocly project pr create --title "Fix a typo" --body-file - <<'BODY'
+Fixes the install command in the quickstart.
+BODY
+```
+
+The command prints the pull request URL.
+The platform builds a preview in a few minutes; `redocly project pr status` then shows the state, the review decision, the checks, and the preview URL after the preview is deployed.
 
 ## Test a live API
 
 `respect` executes an [Arazzo](https://spec.openapis.org/arazzo/latest.html) description as a test suite against a running API, asserting real responses match the description.
 Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine the steps and success criteria by hand.
+A step that leaves out `parameters` or `requestBody` takes them from the description's examples, or generates them from the schema.
+Inputs that don't match a workflow's `inputs` schema produce a warning before the workflow runs, and the workflow still runs with the inputs as given.
 
 ## Workflow
 
@@ -159,6 +218,7 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 2. Make the change — spec edit, rule config, or decorator.
 3. Verify:
    - `redocly lint` exits `0` (or reports only warnings you expected).
+   - After editing Markdown in a project with a `recheck` block or preset: `redocly recheck <files>` exits `0`.
    - After editing `redocly.yaml`: `redocly check-config` reports no problems.
    - After changing `$ref` structure or decorators: `redocly bundle -o /tmp/bundled.yaml` succeeds and the output contains what you intended.
 
@@ -167,8 +227,11 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 - v2 is ESM-only: Node.js v22.12.0+ (or v20.19.0+).
 - `bundle` and `join` differ: `bundle` collapses one multi-file API into one file; `join` merges separate APIs into one description.
 - `respect` currently covers only synchronous HTTP flow.
+- A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
+- An `in: querystring` parameter of a `respect` step needs `arazzo: 1.1.0` and sets the whole query string; it cannot be combined with `in: query` parameters.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
+- `bundle` takes a URL: `redocly bundle https://example.com/openapi.yaml -o openapi.yaml` fetches a remote description and its `$ref`s into one local file, with no `curl`. It also fetches `externalValue` URLs and writes no output when one is unreachable; add `--force` to write it anyway.
 - `generate-client` needs the `typescript` package (6.x) available at generation time; the generated client itself compiles with any TypeScript, including 7.
 
 ## Resources
@@ -177,3 +240,4 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 - [Built-in rules](https://redocly.com/docs/cli/rules)
 - [Decorators](https://redocly.com/docs/cli/decorators)
 - [Configuration](https://redocly.com/docs/cli/configuration)
+- [Markdown and prose linting](https://redocly.com/docs/cli/recheck)

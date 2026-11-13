@@ -1,9 +1,9 @@
-import { getPushStatus, waitForDeployment, type PushResponse } from '@redocly/reunite-integration';
+import { getPushStatus, waitForDeployment, type PushResponse } from '@redocly/platform-integration';
 
 import { handlePushStatus } from '../push-status.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, getPushStatus: vi.fn(), waitForDeployment: vi.fn() };
 });
 vi.mock('colorette', async () => {
@@ -64,8 +64,6 @@ const pushResponseStub: PushResponse = {
 describe('handlePushStatus()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
   afterEach(() => {
@@ -85,6 +83,7 @@ describe('handlePushStatus()', () => {
       pushId: 'test-push-id',
       version,
       onSunsetWarning: expect.any(Function),
+      onSlugDeprecated: expect.any(Function),
     });
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -156,6 +155,73 @@ describe('handlePushStatus()', () => {
     `);
   });
 
+  it('prints the link check', async () => {
+    vi.mocked(getPushStatus).mockResolvedValue({
+      ...pushResponseStub,
+      status: {
+        ...pushResponseStub.status,
+        preview: {
+          deploy: { status: 'success', url: 'https://preview-test-url' },
+          scorecard: [],
+          linkCheck: {
+            name: 'Link checker',
+            status: 'success',
+            description: 'No broken links',
+            url: 'test-url',
+          },
+        },
+      },
+    });
+
+    await handlePushStatus({ argv, config, version });
+
+    expect(process.stdout.write).toHaveBeenCalledWith('\nLink check:');
+    expect(process.stdout.write).toHaveBeenCalledWith(
+      '\n    Name: Link checker\n    Status: success\n    URL: test-url\n    Description: No broken links\n'
+    );
+  });
+
+  it('lists the failed checks in the error of a failed deployment', async () => {
+    vi.mocked(getPushStatus).mockResolvedValue({
+      ...pushResponseStub,
+      status: {
+        ...pushResponseStub.status,
+        preview: {
+          deploy: { status: 'failed', url: 'https://preview-test-url' },
+          scorecard: [
+            {
+              name: 'openapi.yaml',
+              status: 'success',
+              description: 'Baseline',
+              url: 'test-url',
+            },
+            {
+              name: 'museum.yaml',
+              status: 'failed',
+              description: 'Below the minimum level',
+              url: 'test-url',
+            },
+          ],
+          linkCheck: {
+            name: 'Link checker',
+            status: 'failed',
+            description: 'Detected 3 broken links',
+            url: 'test-url',
+          },
+        },
+      },
+    });
+
+    await expect(handlePushStatus({ argv, config, version })).rejects
+      .toThrowErrorMatchingInlineSnapshot(`
+      [Error: ❌ Preview deploy fail.
+      Preview URL: https://preview-test-url
+      Failed checks:
+        museum.yaml: Below the minimum level
+        Link checker: Detected 3 broken links]
+    `);
+  });
+
   it('does not fail on a failed deployment with "continue-on-deploy-failures"', async () => {
     const failedPreview = {
       deploy: { status: 'failed' as const, url: 'https://preview-test-url' },
@@ -215,6 +281,7 @@ describe('handlePushStatus()', () => {
         pushId: 'test-push-id',
         version,
         onSunsetWarning: expect.any(Function),
+        onSlugDeprecated: expect.any(Function),
         buildType: 'preview',
         maxExecutionTime: undefined,
         retryIntervalMs: undefined,
@@ -250,6 +317,41 @@ describe('handlePushStatus()', () => {
       const [[previewOptions], [productionOptions]] = vi.mocked(waitForDeployment).mock.calls;
       expect(productionOptions.startTime).toBe(previewOptions.startTime);
       expect(result?.production).toEqual(pushResponseStub.status.production);
+    });
+
+    it('resolves slugs once and waits for the production deployment with the ids', async () => {
+      const resolution = {
+        organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
+        projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+      };
+      vi.mocked(waitForDeployment).mockImplementation(
+        async ({ organization, onSlugDeprecated }) => {
+          if (organization !== resolution.organizationId) {
+            onSlugDeprecated?.(resolution);
+          }
+          return { ...pushResponseStub, isMainBranch: true };
+        }
+      );
+
+      await handlePushStatus({ argv: { ...argv, wait: true }, config, version });
+
+      expect(waitForDeployment).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          organization: resolution.organizationId,
+          project: resolution.projectId,
+          buildType: 'production',
+        })
+      );
+      const stderrWrite = vi.mocked(process.stderr.write);
+      const notices = stderrWrite.mock.calls.filter(([text]) =>
+        String(text).includes('slugs are deprecated')
+      );
+      expect(notices).toEqual([
+        [
+          `Organization and project slugs are deprecated. Use the ids instead: --organization ${resolution.organizationId} --project ${resolution.projectId}\n`,
+        ],
+      ]);
     });
 
     it('warns when the push has no changes', async () => {

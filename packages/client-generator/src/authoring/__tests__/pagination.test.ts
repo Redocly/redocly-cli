@@ -1,4 +1,4 @@
-import type { OperationModel } from '../../intermediate-representation/model.js';
+import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
 import { paginationRuleFor } from '../pagination.js';
 
 function op(extra: Partial<OperationModel> = {}): OperationModel {
@@ -65,6 +65,48 @@ describe('paginationRuleFor', () => {
       style: 'link',
       items: '/items',
     });
+  });
+
+  it('applies a body-link convention only where the nextLink pointer resolves to a string', () => {
+    const convention = { style: 'body-link', nextLink: '/page/next', items: '/items' };
+    const model = { schemas: [] } as unknown as ApiModel;
+    const paged = op({
+      successResponses: [
+        {
+          contentType: 'application/json',
+          status: 200,
+          schema: {
+            kind: 'object',
+            properties: [
+              {
+                name: 'page',
+                required: true,
+                schema: {
+                  kind: 'object',
+                  properties: [
+                    { name: 'next', required: true, schema: { kind: 'scalar', scalar: 'string' } },
+                    {
+                      name: 'count',
+                      required: true,
+                      schema: { kind: 'scalar', scalar: 'integer' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } as unknown as Partial<OperationModel>);
+
+    expect(paginationRuleFor(paged, convention, model)).toEqual(convention);
+    expect(paginationRuleFor(op(), convention, model)).toBeUndefined();
+    // The pointer resolves, but to a number: the runtime could not follow it.
+    expect(
+      paginationRuleFor(paged, { ...convention, nextLink: '/page/count' }, model)
+    ).toBeUndefined();
+    // Resolving the pointer needs the model's named schemas; without it nothing fits.
+    expect(paginationRuleFor(paged, convention)).toBeUndefined();
   });
 
   it('honors exclude and returns undefined without any source', () => {

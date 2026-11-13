@@ -43,6 +43,12 @@ describe('Config.forAlias', () => {
           "openrpc1": {},
           "overlay1": {},
         },
+        "diff": {
+          "async3": {},
+          "oas3_0": {},
+          "oas3_1": {},
+          "oas3_2": {},
+        },
         "doNotResolveExamples": false,
         "document": {
           "parsed": {
@@ -86,6 +92,9 @@ describe('Config.forAlias', () => {
           "openrpc1": {},
           "overlay1": {},
         },
+        "recheck": {
+          "rules": {},
+        },
         "resolve": {
           "http": {
             "customFetch": undefined,
@@ -103,20 +112,25 @@ describe('Config.forAlias', () => {
           "async2Preprocessors": {},
           "async2Rules": {},
           "async3Decorators": {},
+          "async3Diff": {},
           "async3Preprocessors": {},
           "async3Rules": {},
           "decorators": {},
+          "diff": {},
           "graphqlRules": {},
           "oas2Decorators": {},
           "oas2Preprocessors": {},
           "oas2Rules": {},
           "oas3_0Decorators": {},
+          "oas3_0Diff": {},
           "oas3_0Preprocessors": {},
           "oas3_0Rules": {},
           "oas3_1Decorators": {},
+          "oas3_1Diff": {},
           "oas3_1Preprocessors": {},
           "oas3_1Rules": {},
           "oas3_2Decorators": {},
+          "oas3_2Diff": {},
           "oas3_2Preprocessors": {},
           "oas3_2Rules": {},
           "openrpc1Decorators": {},
@@ -127,6 +141,9 @@ describe('Config.forAlias', () => {
           "overlay1Rules": {},
           "plugins": undefined,
           "preprocessors": {},
+          "recheck": {
+            "rules": {},
+          },
           "resolve": {
             "http": {
               "headers": [],
@@ -227,7 +244,7 @@ describe('Config.extendTypes', () => {
   });
   it('should throw error if for oas version different from 2 and 3', () => {
     const config = new Config({}, { plugins });
-    expect(() => config.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
+    expect(() => config.extendTypes({}, 'something else' as SpecVersion)).toThrow(
       'Not implemented'
     );
   });

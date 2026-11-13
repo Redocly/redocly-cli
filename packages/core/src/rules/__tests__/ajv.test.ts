@@ -32,6 +32,7 @@ vi.mock('ajv-formats', () => {
 
 import { Location } from '../../ref-utils.js';
 import type { Source } from '../../resolve.js';
+import type { Oas3Schema } from '../../typings/openapi.js';
 import { AjvValidator } from '../ajv.js';
 
 describe('AjvValidator', () => {
@@ -151,6 +152,12 @@ describe('AjvValidator', () => {
   });
 
   describe('schema ID key in addSchema', () => {
+    // Only a schema with a nested `$ref` goes through `addSchema`.
+    const schemaWithRef = {
+      type: 'object',
+      properties: { pet: { $ref: '#/components/schemas/Pet' } },
+    };
+
     it('should use "id" key for draft4 dialect', () => {
       const mockAddSchema = vi.fn();
       const mockGetSchema = vi.fn().mockReturnValue(undefined);
@@ -163,9 +170,8 @@ describe('AjvValidator', () => {
       mockAjvDraft4Constructor.mockReturnValue(mockAjvInstance);
 
       const validator = new AjvValidator();
-      const schema = { type: 'integer' };
 
-      validator.validate(10, schema, {
+      validator.validate({}, schemaWithRef, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -190,9 +196,8 @@ describe('AjvValidator', () => {
       mockAjv2020Constructor.mockReturnValue(mockAjvInstance);
 
       const validator = new AjvValidator();
-      const schema = { type: 'integer' };
 
-      validator.validate(10, schema, {
+      validator.validate({}, schemaWithRef, {
         schemaLoc: baseLocation,
         instancePath: '/example',
         resolve,
@@ -205,16 +210,74 @@ describe('AjvValidator', () => {
       expect(addedSchema).toHaveProperty('$id');
     });
   });
+
+  describe('validator sharing', () => {
+    it('should compile a schema without $ref once for equal schemas at different locations', () => {
+      const mockAjvInstance = createMockAjvInstance();
+      mockAjv2020Constructor.mockReturnValue(mockAjvInstance);
+
+      const validator = new AjvValidator();
+      const options = {
+        instancePath: '/example',
+        resolve,
+        allowAdditionalProperties: true,
+        specVersion: 'oas3_1' as const,
+      };
+
+      validator.validate(
+        10,
+        { type: 'integer', description: 'first' },
+        {
+          ...options,
+          schemaLoc: baseLocation.child('first'),
+        }
+      );
+      validator.validate(
+        10,
+        { type: 'integer', description: 'second' },
+        {
+          ...options,
+          schemaLoc: baseLocation.child('second'),
+        }
+      );
+
+      expect(mockAjvInstance.compile).toHaveBeenCalledTimes(1);
+      expect(mockAjvInstance.addSchema).not.toHaveBeenCalled();
+    });
+
+    it('should keep the location path when a rule passes no schema', () => {
+      const mockAjvInstance = createMockAjvInstance();
+      mockAjvInstance.getSchema.mockReturnValueOnce(undefined);
+      mockAjv2020Constructor.mockReturnValue(mockAjvInstance);
+
+      const validator = new AjvValidator();
+      // An OAS 3.2 `querystring` parameter has `content` instead of `schema`, so rules can pass no schema.
+      const missingSchema = undefined as unknown as Oas3Schema;
+
+      validator.validate(10, missingSchema, {
+        schemaLoc: baseLocation,
+        instancePath: '/example',
+        resolve,
+        allowAdditionalProperties: true,
+        specVersion: 'oas3_1',
+      });
+
+      expect(mockAjvInstance.compile).not.toHaveBeenCalled();
+      expect(mockAjvInstance.addSchema).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 function createMockAjvInstance() {
   const mockValidator = vi.fn().mockReturnValue(true);
   const mockGetSchema = vi.fn().mockReturnValue(mockValidator);
+  const mockCompile = vi.fn().mockReturnValue(mockValidator);
   const mockAddSchema = vi.fn();
   const mockSetDefaultUnevaluatedProperties = vi.fn();
 
   return {
     getSchema: mockGetSchema,
+    compile: mockCompile,
     addSchema: mockAddSchema,
     setDefaultUnevaluatedProperties: mockSetDefaultUnevaluatedProperties,
   };

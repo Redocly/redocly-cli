@@ -46,7 +46,7 @@ describe('Resolve http-headers', () => {
       rootType: normalizeTypes(Oas3Types).Root,
     });
 
-    expect(fetchMock).toBeCalledTimes(3);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(fetchMock.mock.calls).toMatchInlineSnapshot(`
       [
         [

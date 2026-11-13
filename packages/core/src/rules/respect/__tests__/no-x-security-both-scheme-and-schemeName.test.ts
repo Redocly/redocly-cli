@@ -150,7 +150,7 @@ describe('Respect no-x-security-both-scheme-and-schemeName', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when only schemeName is provided', async () => {
@@ -185,6 +185,6 @@ describe('Respect no-x-security-both-scheme-and-schemeName', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

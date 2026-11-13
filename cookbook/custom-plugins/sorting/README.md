@@ -30,13 +30,13 @@ Here's a full list of the sorting features:
 Here's the main plugin entrypoint, it's in `sorting.js`:
 
 ```javascript
-import SortTagsAlphabetically from './sort-tags.js';
+import RuleSortMethods from './rule-sort-methods.js';
+import RuleSortProps from './rule-sort-props.js';
 import SortEnumsAlphabetically from './sort-enums.js';
 import SortMethods from './sort-methods.js';
 import SortPropertiesAlphabetically from './sort-props-alpha.js';
 import SortPropertiesRequiredFirst from './sort-props-required.js';
-import RuleSortMethods from './rule-sort-methods.js';
-import RuleSortProps from './rule-sort-props.js';
+import SortTagsAlphabetically from './sort-tags.js';
 
 export default function Sorting() {
   return {
@@ -107,7 +107,7 @@ Your command will look something like the following example:
 redocly lint openapi.yaml
 ```
 
-If your OpenAPI doesn't fulfil the criteria in the configured rules, the details of the warnings/errors are shown in the output.
+If your OpenAPI doesn't fulfill the criteria in the configured rules, the details of the warnings/errors are shown in the output.
 
 Adjust the rule configuration or severity levels to meet your needs, and let us know if there's some other rules you'd like to see included.
 

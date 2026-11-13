@@ -115,19 +115,27 @@ describe('loadSpec', () => {
 
   it('propagates errors from bundle() for null/empty documents', async () => {
     const file = await write('null.yaml', 'null\n');
-    await expect(loadSpec(file)).rejects.toThrow();
+    await expect(loadSpec(file)).rejects.toThrow('Document must be JSON object');
   });
 
   it('propagates errors from bundle() for documents missing "openapi"', async () => {
     const file = await write('no-openapi.yaml', 'foo: bar\n');
-    await expect(loadSpec(file)).rejects.toThrow();
+    await expect(loadSpec(file)).rejects.toThrow('Unsupported specification');
   });
 
   it('propagates errors from bundle() for non-string "openapi" values', async () => {
     const file = await write(
       'numeric-openapi.yaml',
-      'openapi: 3\ninfo:\n  title: x\n  version: y\npaths: {}\n'
+      outdent`
+        openapi: 3
+        info:
+          title: x
+          version: y
+        paths: {}
+      `
     );
-    await expect(loadSpec(file)).rejects.toThrow();
+    await expect(loadSpec(file)).rejects.toThrow(
+      'Invalid OpenAPI version: should be a string but got "number"'
+    );
   });
 });

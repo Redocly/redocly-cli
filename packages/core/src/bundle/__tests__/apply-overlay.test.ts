@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
 import {
@@ -350,8 +351,8 @@ describe('applyOverlay', () => {
           '404':
             $ref: '#/components/responses/NotFound'
     `;
-    const apply = (overlayHeader: string) => {
-      const target = parseYamlToDocument(document, '/project/openapi.yaml');
+    const apply = (overlayHeader: string, documentRef = '/project/openapi.yaml') => {
+      const target = parseYamlToDocument(document, documentRef);
       const overlay = parseOverlay(
         `${overlayHeader}\nactions:\n  - target: $.paths['/tickets'].get\n${update.replace(/^/gm, '    ')}`,
         '/project/overlays/public.yaml'
@@ -360,16 +361,35 @@ describe('applyOverlay', () => {
       return (target.parsed as any).paths['/tickets'].get.responses;
     };
 
-    expect(apply('overlay: 1.1.0\ninfo: { title: T, version: 1.0.0 }')).toEqual({
+    expect(
+      apply(outdent`
+        overlay: 1.1.0
+        info: { title: T, version: 1.0.0 }
+      `)
+    ).toEqual({
       '200': { $ref: 'overlays/responses/Ok.yaml#/Ok' },
       '404': { $ref: '#/components/responses/NotFound' },
     });
     expect(
-      apply(
-        'overlay: 1.2.0\n$self: https://example.com/overlays/public.yaml\ninfo: { title: T, version: 1.0.0 }'
-      )
+      apply(outdent`
+        overlay: 1.2.0
+        $self: https://example.com/overlays/public.yaml
+        info: { title: T, version: 1.0.0 }
+      `)
     ).toEqual({
       '200': { $ref: 'https://example.com/overlays/responses/Ok.yaml#/Ok' },
+      '404': { $ref: '#/components/responses/NotFound' },
+    });
+    expect(
+      apply(
+        outdent`
+          overlay: 1.1.0
+          info: { title: T, version: 1.0.0 }
+        `,
+        'https://example.com/api/openapi.yaml'
+      )
+    ).toEqual({
+      '200': { $ref: `${pathToFileURL('/project/overlays/responses/Ok.yaml').href}#/Ok` },
       '404': { $ref: '#/components/responses/NotFound' },
     });
   });
@@ -379,15 +399,22 @@ describe('applyOverlay', () => {
       applyOverlay(
         parseYamlToDocument(document, 'openapi.yaml'),
         parseOverlay(
-          `overlay: 1.1.0\ninfo: { title: T, version: 1.0.0 }\n${actions}`,
+          outdent`
+            overlay: 1.1.0
+            info: { title: T, version: 1.0.0 }
+            ${actions}
+          `,
           'overlay.yaml'
         ),
         new BaseResolver()
       ).map(({ message }) => message);
 
-    expect(problemsFor('actions:\n  target: $.info')).toEqual([
-      'The overlay must have a list of `actions`.',
-    ]);
+    expect(
+      problemsFor(outdent`
+        actions:
+          target: $.info
+      `)
+    ).toEqual(['The overlay must have a list of `actions`.']);
     expect(problemsFor('')).toEqual(['The overlay must have a list of `actions`.']);
   });
 

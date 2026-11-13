@@ -183,10 +183,12 @@ const DeviceAuthorization: NodeType = {
       description:
         'The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.',
     },
-    scopes: mapOf('string', {
+    scopes: {
+      type: 'object',
+      additionalProperties: { type: 'string' },
       description:
         'REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty.',
-    }),
+    },
   },
   required: ['deviceAuthorizationUrl', 'tokenUrl', 'scopes'],
   extensionsPrefix: 'x-',
@@ -232,7 +234,20 @@ const MediaType: NodeType = {
     itemSchema: 'Schema',
     prefixEncoding: listOf('Encoding', {
       description:
-        'A map between a property name and its encoding information, as defined under Encoding By Name. The encoding field SHALL only apply when the media type is multipart or application/x-www-form-urlencoded. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. This field MUST NOT be present if prefixEncoding or itemEncoding are present.',
+        'An array of positional encoding information, as defined under Encoding By Position. The prefixEncoding field SHALL only apply when the media type is multipart. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. This field MUST NOT be present if encoding is present.',
+    }),
+    itemEncoding: 'Encoding',
+  },
+};
+
+const Encoding: NodeType = {
+  ...Oas3Types.Encoding,
+  properties: {
+    ...Oas3Types.Encoding.properties,
+    encoding: 'EncodingMap',
+    prefixEncoding: listOf('Encoding', {
+      description:
+        "Applies nested Encoding Objects in the same manner as the Media Type Object's prefixEncoding field.",
     }),
     itemEncoding: 'Encoding',
   },
@@ -339,10 +354,11 @@ export const Oas3_2Types = {
   Parameter,
   Response,
   MediaType,
+  Encoding,
   Discriminator,
   Example,
   Xml,
   Schema,
   Components,
-  NamedMediaTypes: mapOf('MediaTypesMap'),
+  NamedMediaTypes: mapOf('MediaType'),
 } as const;
