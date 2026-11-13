@@ -435,7 +435,53 @@ describe('handleIntrospectMcp', () => {
     }
   });
 
+  it('falls back to the initialize handshake when the server fails the server/discover request', async () => {
+    const failingDiscoverServer = createServer(async (request, response) => {
+      const body = await text(request);
+      const message = body ? JSON.parse(body) : undefined;
+      if (message?.method === 'server/discover') {
+        response.writeHead(500).end();
+        return;
+      }
+      const mcpServer = buildMcpServer();
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: undefined,
+        enableJsonResponse: true,
+      });
+      response.on('close', () => {
+        transport.close();
+        mcpServer.close();
+      });
+      await mcpServer.connect(transport);
+      await transport.handleRequest(request, response, message);
+    });
+    await new Promise<void>((resolve) => failingDiscoverServer.listen(0, '127.0.0.1', resolve));
+    const failingDiscoverServerUrl = `http://127.0.0.1:${
+      (failingDiscoverServer.address() as AddressInfo).port
+    }/mcp`;
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    const outputFile = join(outputDir, 'openapi.yaml');
+    try {
+      await runIntrospectMcp({ 'server-url': failingDiscoverServerUrl, output: outputFile });
+
+      const document = parseYaml(readFileSync(outputFile, 'utf-8')) as Record<string, any>;
+      expect(document['x-mcp'].tools).toEqual([CREATE_ORDER_TOOL, LIST_MENU_TOOL]);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+      await new Promise((resolve) => failingDiscoverServer.close(resolve));
+    }
+  });
+
   it('introspects a server that supports only the 2026-07-28 protocol, which has no initialize handshake', async () => {
+    // The SDK client drops a tool with an invalid `x-mcp-header` from its own tool list.
+    const invalidHeaderTool = {
+      name: 'orders/list',
+      description: 'List the orders.',
+      inputSchema: {
+        type: 'object' as const,
+        properties: { region: { type: 'string', 'x-mcp-header': 'Bad Region' } },
+      },
+    };
     const discoverOnlyHandler = createMcpHandler(
       () => {
         const mcpServer = new DiscoverMcpServer(
@@ -447,7 +493,7 @@ describe('handleIntrospectMcp', () => {
         );
         mcpServer.setRequestHandler('tools/list', (listRequest) =>
           listRequest.params?.cursor === 'page-2'
-            ? { tools: [LIST_MENU_TOOL] }
+            ? { tools: [LIST_MENU_TOOL, invalidHeaderTool] }
             : { tools: [CREATE_ORDER_TOOL], nextCursor: 'page-2' }
         );
         mcpServer.setRequestHandler('prompts/list', () => ({ prompts: [DAILY_SPECIAL_PROMPT] }));
@@ -463,7 +509,7 @@ describe('handleIntrospectMcp', () => {
         new Request(`http://${request.headers.host}${request.url}`, {
           method: request.method,
           headers: request.headers as Record<string, string>,
-          body: await text(request),
+          body: request.method === 'POST' ? await text(request) : undefined,
         })
       );
       response.writeHead(handlerResponse.status, Object.fromEntries(handlerResponse.headers));
@@ -479,8 +525,17 @@ describe('handleIntrospectMcp', () => {
       await runIntrospectMcp({ 'server-url': discoverOnlyServerUrl, output: outputFile });
 
       const document = parseYaml(readFileSync(outputFile, 'utf-8')) as Record<string, any>;
+      expect(document.info).toEqual({
+        title: 'discover-cafe-mcp',
+        description: 'Manage the cafe menu.',
+        version: '4.0.0',
+      });
       expect(document['x-mcp'].protocolVersion).toEqual('2026-07-28');
-      expect(document['x-mcp'].tools).toEqual([CREATE_ORDER_TOOL, LIST_MENU_TOOL]);
+      expect(document['x-mcp'].tools).toEqual([
+        CREATE_ORDER_TOOL,
+        LIST_MENU_TOOL,
+        invalidHeaderTool,
+      ]);
       expect(document['x-mcp'].prompts).toEqual([DAILY_SPECIAL_PROMPT]);
       expect(document['x-mcp'].resources).toEqual([MENU_RESOURCE]);
     } finally {

@@ -58,37 +58,58 @@ function targetLabel(target: McpTarget): string {
     : `"${[target.command, ...target.args].join(' ')}"`;
 }
 
-async function connectClient(target: McpTarget, version: string): Promise<Client> {
-  // For HTTP, try Streamable HTTP first and fall back to the legacy HTTP+SSE transport,
-  // as the MCP specification recommends for clients supporting both.
-  const transportAttempts: (() => Transport)[] =
-    target.kind === 'stdio'
-      ? [
-          () =>
-            new StdioClientTransport({
-              command: target.command,
-              args: target.args,
-              env: inheritedEnvironment(),
-            }),
-        ]
-      : [
-          () =>
-            new StreamableHTTPClientTransport(target.url, {
-              requestInit: { headers: target.headers },
-            }),
-          () => new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
-        ];
+type ConnectionAttempt = {
+  createTransport: () => Transport;
+  versionNegotiation: 'auto' | 'legacy';
+  retryMessage?: string;
+};
 
+function connectionAttempts(target: McpTarget): ConnectionAttempt[] {
+  if (target.kind === 'stdio') {
+    return [
+      {
+        createTransport: () =>
+          new StdioClientTransport({
+            command: target.command,
+            args: target.args,
+            env: inheritedEnvironment(),
+          }),
+        versionNegotiation: 'auto',
+      },
+    ];
+  }
+  const createStreamableHttpTransport = () =>
+    new StreamableHTTPClientTransport(target.url, { requestInit: { headers: target.headers } });
+  // Protocol 2026-07-28 replaced the `initialize` handshake with `server/discover`.
+  // In the `auto` mode the client tries `server/discover` first and falls back to `initialize`.
+  // Over HTTP it fails instead when the server answers `server/discover` with a 5xx status
+  // or doesn't answer, so the second attempt sends `initialize` straight away.
+  // The last attempt is the legacy HTTP+SSE transport, as the MCP specification recommends.
+  return [
+    { createTransport: createStreamableHttpTransport, versionNegotiation: 'auto' },
+    {
+      createTransport: createStreamableHttpTransport,
+      versionNegotiation: 'legacy',
+      retryMessage: 'Retrying with the initialize handshake...',
+    },
+    {
+      createTransport: () =>
+        new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
+      versionNegotiation: 'legacy',
+      retryMessage: 'Retrying with the legacy HTTP+SSE transport...',
+    },
+  ];
+}
+
+async function connectClient(target: McpTarget, version: string): Promise<Client> {
   let firstError: unknown;
-  for (const [attemptIndex, createTransport] of transportAttempts.entries()) {
-    if (attemptIndex > 0) {
-      logger.info(gray('  Retrying with the legacy HTTP+SSE transport... \n'));
+  for (const { createTransport, versionNegotiation, retryMessage } of connectionAttempts(target)) {
+    if (retryMessage) {
+      logger.info(gray(`  ${retryMessage} \n`));
     }
-    // Protocol 2026-07-28 replaced the `initialize` handshake with `server/discover`.
-    // In the `auto` mode the client tries `server/discover` first and falls back to `initialize`.
     const mcpClient = new Client(
       { name: 'redocly-cli', version },
-      { versionNegotiation: { mode: 'auto' } }
+      { versionNegotiation: { mode: versionNegotiation } }
     );
     try {
       await mcpClient.connect(createTransport());
@@ -113,21 +134,23 @@ export async function introspectMcpServer(
 
   try {
     const capabilities = mcpClient.getServerCapabilities();
+    // The lists are read page by page with `request`, because `listTools`, `listPrompts`, and
+    // `listResources` stop after 64 pages, and `listTools` drops the tools it finds invalid.
     const tools = capabilities?.tools
       ? await collectAllPages(async (cursor) => {
-          const page = await mcpClient.listTools({ cursor });
+          const page = await mcpClient.request({ method: 'tools/list', params: { cursor } });
           return { items: page.tools, nextCursor: page.nextCursor };
         })
       : [];
     const prompts = capabilities?.prompts
       ? await collectAllPages(async (cursor) => {
-          const page = await mcpClient.listPrompts({ cursor });
+          const page = await mcpClient.request({ method: 'prompts/list', params: { cursor } });
           return { items: page.prompts, nextCursor: page.nextCursor };
         })
       : [];
     const resources = capabilities?.resources
       ? await collectAllPages(async (cursor) => {
-          const page = await mcpClient.listResources({ cursor });
+          const page = await mcpClient.request({ method: 'resources/list', params: { cursor } });
           return { items: page.resources, nextCursor: page.nextCursor };
         })
       : [];
