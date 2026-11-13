@@ -3257,6 +3257,7 @@ describe('runStep', () => {
       $outputs: {},
     } as unknown as TestContext;
 
+    vi.mocked(resolveWorkflowContext).mockResolvedValueOnce(localCTX);
     vi.mocked(runWorkflow).mockResolvedValueOnce({
       type: 'workflow',
       workflowId: 'reusable-external-workflow',

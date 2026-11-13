@@ -136,6 +136,23 @@ export async function runStep({
 
     ctx.executedSteps.push(stepWorkflowResult);
 
+    const childWorkflowFailed = calculateTotals([stepWorkflowResult]).steps.failed > 0;
+    // the step reads the outputs of the workflow it calls as `$outputs`
+    const childWorkflowOutputs = workflowCtx.$outputs?.[targetWorkflow.workflowId] || {};
+
+    // a failed child workflow has already failed the step, and its outputs can be unset
+    const successCriteriaChecks =
+      step.successCriteria && !childWorkflowFailed
+        ? checkCriteria({
+            workflowId,
+            step,
+            criteria: step.successCriteria,
+            ctx: { ...ctxWithInputs, $outputs: childWorkflowOutputs },
+          })
+        : [];
+    // a new list, so a retry does not keep the checks of the previous attempt
+    step.checks = [...successCriteriaChecks];
+
     const outputs: Record<string, any> = {};
     if (step?.outputs) {
       try {
@@ -144,7 +161,7 @@ export async function runStep({
           outputs[outputKey] = evaluateRuntimeExpressionPayload({
             payload: outputValue,
             context: {
-              $outputs: workflowCtx.$outputs?.[targetWorkflow.workflowId] || {},
+              $outputs: childWorkflowOutputs,
             } as RuntimeExpressionContext,
             logger: ctx.options.logger,
           });
@@ -157,9 +174,6 @@ export async function runStep({
           severity: ctx.severity['UNEXPECTED_ERROR'],
         };
         step.checks.push(failedCall);
-        // register the step so the failed check is displayed and counted in the totals
-        ctx.executedSteps.push(step);
-        printUnknownStep(step, ctx.options.logger);
       }
 
       // save local $steps context
@@ -177,9 +191,19 @@ export async function runStep({
       }
     }
 
-    const childWorkflowFailed = calculateTotals([stepWorkflowResult]).steps.failed > 0;
+    if (step.checks.length) {
+      // register the step so its checks are displayed and counted in the totals
+      ctx.executedSteps.push(step);
+      printUnknownStep(step, ctx.options.logger);
+    }
 
-    if (childWorkflowFailed) {
+    const stepFailed =
+      childWorkflowFailed ||
+      !successCriteriaChecks.every(
+        (check) => check.passed || ['off', 'warn'].includes(check.severity)
+      );
+
+    if (stepFailed) {
       const result = await runActions(failureActionsToRun, 'failure', executedStepsCount);
       if (result?.retriesLeft && result.retriesLeft > 0) {
         return result.stepResult;
@@ -189,7 +213,7 @@ export async function runStep({
       }
     }
 
-    if (successActionsToRun.length && !childWorkflowFailed) {
+    if (successActionsToRun.length && !stepFailed) {
       const result = await runActions(successActionsToRun, 'success', executedStepsCount);
       if (result?.shouldEnd) {
         return { shouldEnd: true };

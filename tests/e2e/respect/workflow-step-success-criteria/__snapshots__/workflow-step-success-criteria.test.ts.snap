@@ -1,0 +1,75 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should check the success criteria of a step that calls a workflow and run its failure action 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / check-menu-page-limit 
+ 
+  Running child workflow for the step expect-default-page-limit 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / get-menu-page-limit 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ expect-default-page-limit 
+    ✓ success criteria check - $outputs.pageLimit == 10
+ 
+  Running child workflow for the step expect-wrong-page-limit 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / get-menu-page-limit 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✗ expect-wrong-page-limit 
+    ✗ success criteria check - $outputs.pageLimit == 20
+ 
+  Running failure action handle-wrong-page-limit for the step expect-wrong-page-limit 
+ 
+  Running child workflow for the step reached-on-failure 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / get-menu-page-limit 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+ 
+
+  Failed tests info:
+
+  Workflow name: check-menu-page-limit
+ 
+    stepId - expect-wrong-page-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$outputs.pageLimit == 20"}
+       
+  Summary for workflow-step-success-criteria.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 4 passed, 1 failed, 5 total
+  Checks: 13 passed, 1 failed, 14 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                           │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x workflow-step-success-criteria.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;
