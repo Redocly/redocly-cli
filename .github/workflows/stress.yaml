@@ -46,7 +46,6 @@ jobs:
           npm run compile
 
       - name: Build the base
-        id: base
         env:
           HEAD_REF: ${{ github.head_ref }}
         run: |
@@ -54,10 +53,8 @@ jobs:
             # The release branch is main plus the version changes, so its fork point shows no difference.
             # The latest release shows what a user gets after an upgrade.
             base=$(git describe --tags --abbrev=0 --match '@redocly/cli@*' HEAD)
-            echo "label=\`$base\` (latest release)" >> "$GITHUB_OUTPUT"
           else
             base=$(git merge-base origin/main HEAD)
-            echo "label=\`${base:0:7}\` (fork point from \`main\`)" >> "$GITHUB_OUTPUT"
           fi
           echo "Base: $base"
           git worktree add ../base "$base"
@@ -72,15 +69,11 @@ jobs:
 
       - name: Compare the output
         id: compare
-        env:
-          BASE_LABEL: ${{ steps.base.outputs.label }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         # compare.mjs exits with 1 when the output differs and with 2 when a lint run failed.
         # The step keeps the exit code, so the report is posted before the job fails.
         run: |
           exit_code=0
-          node tests/stress/compare.mjs tests/stress/out/base tests/stress/out/head tests/stress/out/report.md \
-            "$BASE_LABEL" "\`${HEAD_SHA:0:7}\` (this pull request)" || exit_code=$?
+          node tests/stress/compare.mjs tests/stress/out/base tests/stress/out/head tests/stress/out/report.md || exit_code=$?
           echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
 
       - name: Comment PR

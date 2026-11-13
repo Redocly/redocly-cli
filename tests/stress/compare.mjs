@@ -1,5 +1,5 @@
 // Compares the lint output of two CLI builds cell by cell and writes a Markdown report.
-// Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md> [base-label] [head-label]
+// Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md>
 // Exit code: 0 when the output is identical, 1 when it differs, 2 when a lint run wrote no JSON.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,12 +11,9 @@ const STDERR_TAIL_LINES = 40;
 const MAX_REPORT_LENGTH = 60000;
 const README_URL = 'https://github.com/Redocly/redocly-cli/blob/main/tests/stress/README.md';
 
-const [baseDir, headDir, reportPath, baseLabel = 'base build', headLabel = 'head build'] =
-  process.argv.slice(2);
+const [baseDir, headDir, reportPath] = process.argv.slice(2);
 if (!baseDir || !headDir || !reportPath) {
-  process.stderr.write(
-    'Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md> [base-label] [head-label]\n'
-  );
+  process.stderr.write('Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md>\n');
   process.exit(2);
 }
 
@@ -327,7 +324,7 @@ if (failedCells > 0) {
     `✅ **No changes.** The two builds report the same problems in ${cells.length} runs.`
   );
 }
-reportLines.push('', `Base: ${baseLabel}. Head: ${headLabel}.`, '');
+reportLines.push('');
 
 if (failedCells + differingCells === 0) {
   reportLines.push('| API description | Config | Problems |', '| :-- | :-- | --: |');
