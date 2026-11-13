@@ -196,7 +196,7 @@ describe('build-docs', () => {
     await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
-  test('build docs for every API of the config', async () => {
+  test('build docs for every API with docsOutput', async () => {
     const testPath = join(folderPath, 'build-docs-for-multiple-apis');
     const args = getParams(indexEntryPoint, ['build-docs']);
     const result = getCommandOutput(args, { testPath });
@@ -230,9 +230,9 @@ describe('build-docs', () => {
 
   // FIXME: this test says "fails", and its snapshot holds a build of the first API with a deprecation banner.
   // The temporary `getDeprecatedFirstApi` in packages/cli/src/commands/build-docs/index.ts causes that, see the FIXME there.
-  // When that function goes, update the snapshot: it must hold "Two APIs write to the same path".
-  test('build docs fails when two APIs have no docsOutput', async () => {
-    const testPath = join(folderPath, 'build-docs-fails-on-repeated-output');
+  // When that function goes, update the snapshot: it must hold "No API to build".
+  test('build docs fails when no API has docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-fails-without-docs-output');
     const args = getParams(indexEntryPoint, ['build-docs']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));

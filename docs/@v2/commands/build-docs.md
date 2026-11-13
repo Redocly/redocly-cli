@@ -108,8 +108,7 @@ Then run the command without an API:
 redocly build-docs
 ```
 
-In this case, `build-docs` builds every API of the `apis` object, and saves each build to its `docsOutput`, relative to the configuration file.
-An API without `docsOutput` is saved to `redoc-static.html`, so the command fails when two APIs have no `docsOutput`.
+In this case, `build-docs` builds every API that has `docsOutput`, and saves each build to that path, relative to the configuration file.
 The `--output` option works only with an API in the command line, and takes precedence over the `docsOutput` of that API.
 
 ### Use an alternative configuration file
