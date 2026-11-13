@@ -10,7 +10,8 @@ Ensures that `examples` object properties `externalValue` and `value` are mutual
 This rule is deprecated and is an alias of [`spec-example-values`](../oas/spec-example-values.md).
 Its setting in `redocly.yaml` is applied to `spec-example-values`, and the problems are reported under that name.
 The setting covers every check of `spec-example-values`, including the OpenAPI 3.2 field combinations.
-When both names are set, the `spec-example-values` setting is used.
+When both names are set in the same block, the `spec-example-values` setting is used.
+A setting in `rules` overrides the `oas3_0Rules`, `oas3_1Rules`, and `oas3_2Rules` blocks, as for any other rule.
 Replace it with `spec-example-values` in your `redocly.yaml`: the configuration linter warns about the deprecated name.
 {% /admonition %}
 
@@ -19,7 +20,7 @@ Replace it with `spec-example-values` in your `redocly.yaml`: the configuration 
 | 2.0 | ❌            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
-| 3.2 | ❌            |
+| 3.2 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -46,9 +47,9 @@ The intended use of the `value` field is to provide in-line example values, whil
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                              |
+| -------- | ------ | ---------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. |
 
 An example configuration:
 
