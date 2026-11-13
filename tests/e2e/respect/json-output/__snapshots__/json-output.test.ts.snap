@@ -1,0 +1,246 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should write the results of the run to the --json-output file 1`] = `
+"{
+  "files": {
+    "json-output.arazzo.yaml": {
+      "totalRequests": 3,
+      "executedWorkflows": [
+        {
+          "type": "workflow",
+          "workflowId": "search-menu",
+          "startTime": "<time>",
+          "endTime": "<time>",
+          "totalTimeMs": "<time>",
+          "executedSteps": [
+            {
+              "type": "step",
+              "stepId": "search-menu-items",
+              "workflowId": "search-menu",
+              "request": {
+                "method": "get",
+                "url": "https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte",
+                "headers": {
+                  "accept": "application/json, application/problem+json"
+                }
+              },
+              "response": {
+                "statusCode": 200,
+                "body": {
+                  "object": "list",
+                  "page": {
+                    "nextPage": null,
+                    "previousPage": null,
+                    "limit": 10
+                  },
+                  "items": []
+                },
+                "headers": {
+                  "content-type": "application/json; charset=utf-8"
+                },
+                "time": "<time>",
+                "size": 84
+              },
+              "checks": [
+                {
+                  "name": "success criteria check",
+                  "passed": true,
+                  "message": "Checking simple criteria: {\\"condition\\":\\"$statusCode == 200\\"}",
+                  "severity": "error",
+                  "condition": "$statusCode == 200",
+                  "status": "success"
+                },
+                {
+                  "name": "status code check",
+                  "passed": true,
+                  "message": "List of valid response codes are inferred from description \\n\\nExpected value to be in the list:\\n  200, 400, 500\\nReceived:\\n  200",
+                  "condition": "$statusCode in [200, 400, 500]",
+                  "severity": "error",
+                  "status": "success"
+                },
+                {
+                  "name": "content-type check",
+                  "passed": true,
+                  "message": "Content type \\"application/json\\" is described in the schema.",
+                  "severity": "error",
+                  "status": "success"
+                },
+                {
+                  "name": "schema check",
+                  "passed": true,
+                  "message": "",
+                  "severity": "error",
+                  "status": "success"
+                }
+              ],
+              "totalTimeMs": "<time>",
+              "status": "success"
+            },
+            {
+              "type": "workflow",
+              "invocationContext": "Child workflow of step order-attempt",
+              "workflowId": "order-attempt",
+              "stepId": "order-attempt",
+              "startTime": "<time>",
+              "endTime": "<time>",
+              "totalTimeMs": "<time>",
+              "executedSteps": [
+                {
+                  "type": "step",
+                  "stepId": "create-order",
+                  "workflowId": "order-attempt",
+                  "request": {
+                    "method": "post",
+                    "url": "https://api.cafe.redocly.com/orders",
+                    "headers": {
+                      "content-type": "application/json",
+                      "accept": "application/json, application/problem+json"
+                    },
+                    "body": {
+                      "customerName": "respect-e2e-customer"
+                    }
+                  },
+                  "response": {
+                    "statusCode": 401,
+                    "body": {
+                      "type": "about:blank",
+                      "title": "Bearer token is required",
+                      "status": 401,
+                      "instance": "/orders"
+                    },
+                    "headers": {
+                      "content-type": "application/problem+json; charset=utf-8"
+                    },
+                    "time": "<time>",
+                    "size": 91
+                  },
+                  "checks": [
+                    {
+                      "name": "success criteria check",
+                      "passed": false,
+                      "message": "Checking simple criteria: {\\"condition\\":\\"$statusCode == 201\\"}",
+                      "severity": "error",
+                      "condition": "$statusCode == 201",
+                      "status": "error"
+                    },
+                    {
+                      "name": "status code check",
+                      "passed": true,
+                      "message": "List of valid response codes are inferred from description \\n\\nExpected value to be in the list:\\n  201, 400, 401, 403, 500\\nReceived:\\n  401",
+                      "condition": "$statusCode in [201, 400, 401, 403, 500]",
+                      "severity": "error",
+                      "status": "success"
+                    },
+                    {
+                      "name": "content-type check",
+                      "passed": true,
+                      "message": "Content type \\"application/problem+json\\" is described in the schema.",
+                      "severity": "error",
+                      "status": "success"
+                    },
+                    {
+                      "name": "schema check",
+                      "passed": true,
+                      "message": "",
+                      "severity": "error",
+                      "status": "success"
+                    }
+                  ],
+                  "totalTimeMs": "<time>",
+                  "status": "error"
+                }
+              ],
+              "globalTimeoutError": false,
+              "status": "error",
+              "totalRequests": 1
+            }
+          ],
+          "globalTimeoutError": false,
+          "status": "error",
+          "totalRequests": 2
+        },
+        {
+          "type": "workflow",
+          "workflowId": "order-attempt",
+          "startTime": "<time>",
+          "endTime": "<time>",
+          "totalTimeMs": "<time>",
+          "executedSteps": [
+            {
+              "type": "step",
+              "stepId": "create-order",
+              "workflowId": "order-attempt",
+              "request": {
+                "method": "post",
+                "url": "https://api.cafe.redocly.com/orders",
+                "headers": {
+                  "content-type": "application/json",
+                  "accept": "application/json, application/problem+json"
+                },
+                "body": {
+                  "customerName": "respect-e2e-customer"
+                }
+              },
+              "response": {
+                "statusCode": 401,
+                "body": {
+                  "type": "about:blank",
+                  "title": "Bearer token is required",
+                  "status": 401,
+                  "instance": "/orders"
+                },
+                "headers": {
+                  "content-type": "application/problem+json; charset=utf-8"
+                },
+                "time": "<time>",
+                "size": 91
+              },
+              "checks": [
+                {
+                  "name": "success criteria check",
+                  "passed": false,
+                  "message": "Checking simple criteria: {\\"condition\\":\\"$statusCode == 201\\"}",
+                  "severity": "error",
+                  "condition": "$statusCode == 201",
+                  "status": "error"
+                },
+                {
+                  "name": "status code check",
+                  "passed": true,
+                  "message": "List of valid response codes are inferred from description \\n\\nExpected value to be in the list:\\n  201, 400, 401, 403, 500\\nReceived:\\n  401",
+                  "condition": "$statusCode in [201, 400, 401, 403, 500]",
+                  "severity": "error",
+                  "status": "success"
+                },
+                {
+                  "name": "content-type check",
+                  "passed": true,
+                  "message": "Content type \\"application/problem+json\\" is described in the schema.",
+                  "severity": "error",
+                  "status": "success"
+                },
+                {
+                  "name": "schema check",
+                  "passed": true,
+                  "message": "",
+                  "severity": "error",
+                  "status": "success"
+                }
+              ],
+              "totalTimeMs": "<time>",
+              "status": "error"
+            }
+          ],
+          "globalTimeoutError": false,
+          "status": "error",
+          "totalRequests": 1
+        }
+      ],
+      "totalTimeMs": "<time>",
+      "globalTimeoutError": false
+    }
+  },
+  "status": "error",
+  "totalTime": "<time>"
+}"
+`;

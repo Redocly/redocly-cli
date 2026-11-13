@@ -1,0 +1,35 @@
+arazzo: 1.1.0
+info:
+  title: Test the querystring parameter location with invalid parameters
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ./cafe-with-querystring.yaml
+
+workflows:
+  - workflowId: querystring-with-query-api-key
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        parameters:
+          - in: querystring
+            name: filters
+            value: search=mermaid-treasure-latte
+        x-security:
+          - scheme:
+              type: apiKey
+              name: api_key
+              in: query
+            values:
+              apiKey: mermaid-treasure-key
+  - workflowId: querystring-not-a-string
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        parameters:
+          - in: querystring
+            name: filters
+            value: 1
