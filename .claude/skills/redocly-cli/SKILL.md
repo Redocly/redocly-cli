@@ -228,6 +228,7 @@ Inputs that don't match a workflow's `inputs` schema produce a warning before th
 - `bundle` and `join` differ: `bundle` collapses one multi-file API into one file; `join` merges separate APIs into one description.
 - `respect` currently covers only synchronous HTTP flow.
 - A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
+- An `in: querystring` parameter of a `respect` step needs `arazzo: 1.1.0` and sets the whole query string; it cannot be combined with `in: query` parameters.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
 - `bundle` takes a URL: `redocly bundle https://example.com/openapi.yaml -o openapi.yaml` fetches a remote description and its `$ref`s into one local file, with no `curl`. It also fetches `externalValue` URLs and writes no output when one is unreachable; add `--force` to write it anyway.

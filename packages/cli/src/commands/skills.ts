@@ -1,10 +1,11 @@
-import { HandledError, logger } from '@redocly/openapi-core';
+import { logger } from '@redocly/openapi-core';
 import { bold, cyan, gray, green, yellow } from 'colorette';
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { bundledSkills } from '../utils/package.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type SkillsArgv = {
@@ -44,11 +45,8 @@ export const SKILLS_AGENTS: string[] = [
 ];
 
 export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
-  const skillsDir = bundledSkillsDir();
-  const skillNames = readdirSync(skillsDir);
-
   if (argv.list) {
-    listSkills(skillsDir, skillNames);
+    listSkills();
     return;
   }
 
@@ -68,10 +66,19 @@ export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
 
   let changed = 0;
   for (const targetDir of targetDirs) {
-    for (const skillName of skillNames) {
-      const bundled = readFileSync(join(skillsDir, skillName, 'SKILL.md'), 'utf-8');
+    const shownDir = argv.global ? targetDir : relative(cwd, targetDir);
+    // `lstatSync` sees a broken link, `statSync` follows a working link to its folder.
+    const entry = lstatSync(targetDir, { throwIfNoEntry: false });
+    const linkTarget = statSync(targetDir, { throwIfNoEntry: false });
+    if (entry && !linkTarget?.isDirectory()) {
+      logger.warn(`Skipped ${shownDir} because it is not a folder.\n`);
+      continue;
+    }
+
+    for (const skillName of bundledSkills) {
+      const bundled = readSkill(skillName);
       const targetFile = join(targetDir, skillName, 'SKILL.md');
-      const shownPath = argv.global ? targetFile : relative(cwd, targetFile);
+      const shownPath = join(shownDir, skillName, 'SKILL.md');
 
       let status = 'created';
       let color = green;
@@ -107,10 +114,14 @@ export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
   }
 }
 
-function listSkills(skillsDir: string, skillNames: string[]) {
+function readSkill(skillName: string): string {
+  return readFileSync(fileURLToPath(import.meta.resolve(`#skills/${skillName}/SKILL.md`)), 'utf-8');
+}
+
+function listSkills() {
   const width = Math.min(process.stdout.columns || 80, 100) - 4;
-  for (const skillName of skillNames) {
-    const content = readFileSync(join(skillsDir, skillName, 'SKILL.md'), 'utf-8');
+  for (const skillName of bundledSkills) {
+    const content = readSkill(skillName);
     const description = content.match(/^description: (.*)$/m);
     logger.output(`${bold(cyan(skillName))}\n`);
 
@@ -136,21 +147,4 @@ function isAgentSelected(agent: OwnFolderAgent, argv: SkillsArgv, cwd: string): 
     return true;
   }
   return !argv.global && existsSync(join(cwd, agent.projectDir));
-}
-
-/** Beside the bundle in the published package; in `lib/` when you run the CLI from `src`. */
-function bundledSkillsDir(): string {
-  const candidates = [
-    new URL('./skills/', import.meta.url),
-    new URL('../../lib/skills/', import.meta.url),
-  ];
-  for (const candidate of candidates) {
-    const dir = fileURLToPath(candidate);
-    if (existsSync(dir)) {
-      return dir;
-    }
-  }
-  throw new HandledError(
-    'The bundled agent skills are missing. In a checkout of the CLI, run: npm run compile'
-  );
 }

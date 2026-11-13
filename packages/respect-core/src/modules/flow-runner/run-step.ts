@@ -27,12 +27,14 @@ import {
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { Timer } from '../timeout-timer/timer.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { resolveActionInputs } from './resolve-action-inputs.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
 import { checkCriteria } from './success-criteria/index.js';
+
+// the expressions that read the request or the response of a step
+const REQUEST_EXPRESSION = /\$(statusCode|response|request|url|method)\b/;
 
 // oxlint-disable-next-line sonarjs/cognitive-complexity
 export async function runStep({
@@ -56,8 +58,14 @@ export async function runStep({
   retryingStepIds?: string[];
   executedStepsCount: ExecutedStepsCount;
 }): Promise<{ shouldEnd: boolean } | void> {
+  const { executionDeadline } = ctx.options;
+  if (executionDeadline !== undefined && Date.now() >= executionDeadline) {
+    return endStepAtExecutionTimeout(step, ctx, retriesLeft);
+  }
+
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
+
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
@@ -131,32 +139,59 @@ export async function runStep({
 
     ctx.executedSteps.push(stepWorkflowResult);
 
+    const childWorkflowFailed = calculateTotals([stepWorkflowResult]).steps.failed > 0;
+    // the step and its actions read the outputs of the workflow it calls as `$outputs`
+    const childWorkflowOutputs = workflowCtx.$outputs?.[targetWorkflow.workflowId] || {};
+    const stepCtx = { ...ctxWithInputs, $outputs: childWorkflowOutputs };
+
+    // a new list, so a retry does not keep the checks of the previous attempt
+    step.checks = [];
     const outputs: Record<string, any> = {};
-    if (step?.outputs) {
-      try {
-        for (const [outputKey, outputValue] of Object.entries(step.outputs)) {
-          // need to partially emulate $outputs context
-          outputs[outputKey] = evaluateRuntimeExpressionPayload({
-            payload: outputValue,
-            context: {
-              $outputs: workflowCtx.$outputs?.[targetWorkflow.workflowId] || {},
-            } as RuntimeExpressionContext,
-            logger: ctx.options.logger,
-          });
+    try {
+      // a failed child workflow has already failed the step, and its outputs can be unset
+      if (step.successCriteria && !childWorkflowFailed) {
+        for (const criterion of step.successCriteria) {
+          const [requestExpression] =
+            REQUEST_EXPRESSION.exec([criterion.condition, criterion.context].join(' ')) || [];
+
+          if (requestExpression) {
+            step.checks.push({
+              name: CHECKS.SUCCESS_CRITERIA_CHECK,
+              passed: false,
+              message: `${requestExpression} has no value in a step that calls a workflow, because the step sends no request. Check the outputs of the called workflow with $outputs instead.`,
+              severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+              condition: criterion.condition,
+            });
+          } else {
+            step.checks.push(
+              ...checkCriteria({ workflowId, step, criteria: [criterion], ctx: stepCtx })
+            );
+          }
         }
-      } catch (error: any) {
-        const failedCall: Check = {
-          name: CHECKS.UNEXPECTED_ERROR,
-          message: error.message,
-          passed: false,
-          severity: ctx.severity['UNEXPECTED_ERROR'],
-        };
-        step.checks.push(failedCall);
-        // register the step so the failed check is displayed and counted in the totals
-        ctx.executedSteps.push(step);
-        printUnknownStep(step, ctx.options.logger);
       }
 
+      for (const [outputKey, outputValue] of Object.entries(step.outputs || {})) {
+        // need to partially emulate $outputs context
+        outputs[outputKey] = evaluateRuntimeExpressionPayload({
+          payload: outputValue,
+          context: {
+            $outputs: childWorkflowOutputs,
+          } as RuntimeExpressionContext,
+          logger: ctx.options.logger,
+        });
+      }
+    } catch (error: any) {
+      // an invalid criterion or an output without a value fails the step
+      const failedCall: Check = {
+        name: CHECKS.UNEXPECTED_ERROR,
+        message: error.message,
+        passed: false,
+        severity: ctx.severity['UNEXPECTED_ERROR'],
+      };
+      step.checks.push(failedCall);
+    }
+
+    if (step.outputs) {
       // save local $steps context
       ctx.$steps[stepId] = {
         outputs,
@@ -172,10 +207,18 @@ export async function runStep({
       }
     }
 
-    const childWorkflowFailed = calculateTotals([stepWorkflowResult]).steps.failed > 0;
+    if (step.checks.length) {
+      // register the step so its checks are displayed and counted in the totals
+      ctx.executedSteps.push(step);
+      printUnknownStep(step, ctx.options.logger);
+    }
 
-    if (childWorkflowFailed) {
-      const result = await runActions(failureActionsToRun, 'failure', executedStepsCount);
+    const stepFailed =
+      childWorkflowFailed ||
+      !step.checks.every((check) => check.passed || ['off', 'warn'].includes(check.severity));
+
+    if (stepFailed) {
+      const result = await runActions(failureActionsToRun, 'failure', executedStepsCount, stepCtx);
       if (result?.retriesLeft && result.retriesLeft > 0) {
         return result.stepResult;
       }
@@ -184,8 +227,8 @@ export async function runStep({
       }
     }
 
-    if (successActionsToRun.length && !childWorkflowFailed) {
-      const result = await runActions(successActionsToRun, 'success', executedStepsCount);
+    if (successActionsToRun.length && !stepFailed) {
+      const result = await runActions(successActionsToRun, 'success', executedStepsCount, stepCtx);
       if (result?.shouldEnd) {
         return { shouldEnd: true };
       }
@@ -202,19 +245,6 @@ export async function runStep({
       message: `Max steps (${ctx.options.maxSteps}) reached`,
       passed: false,
       severity: ctx.severity['MAX_STEPS_REACHED_ERROR'],
-    });
-    return { shouldEnd: true };
-  }
-
-  if (
-    ctx.options.executionTimeout &&
-    Timer.getInstance(ctx.options.executionTimeout).isTimedOut()
-  ) {
-    step.checks.push({
-      name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-      message: `Global Respect timer reached`,
-      passed: false,
-      severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
     });
     return { shouldEnd: true };
   }
@@ -306,7 +336,9 @@ export async function runStep({
   async function runActions(
     actions: OnFailureObject[] | OnSuccessObject[] = [],
     kind: 'failure' | 'success',
-    executedStepsCount: ExecutedStepsCount
+    executedStepsCount: ExecutedStepsCount,
+    // the context the criteria and the parameters of the actions are evaluated in
+    expressionCtx: TestContext = ctx
   ): Promise<{
     retriesLeft?: number;
     shouldEnd?: boolean;
@@ -348,7 +380,7 @@ export async function runStep({
         workflowId: workflowId,
         step,
         criteria,
-        ctx,
+        ctx: expressionCtx,
       }).every((check) => check.passed);
 
       if (matchesCriteria) {
@@ -390,7 +422,17 @@ export async function runStep({
           }
 
           if (retryAfter) {
-            await delay(retryAfter);
+            const retryWait =
+              executionDeadline === undefined
+                ? retryAfter
+                : Math.min(retryAfter, Math.max(executionDeadline - Date.now(), 0) / 1000);
+            await delay(retryWait);
+            if (retryWait < retryAfter) {
+              return {
+                stepResult: endStepAtExecutionTimeout(step, ctx, retriesLeft),
+                retriesLeft: actionRetriesLeft,
+              };
+            }
           }
 
           if (targetWorkflow || targetStep) {
@@ -405,7 +447,7 @@ export async function runStep({
           if (targetWorkflow) {
             let inputs: Record<string, unknown> | undefined;
             try {
-              inputs = resolveActionInputs({ action, ctx, step, workflowId });
+              inputs = resolveActionInputs({ action, ctx: expressionCtx, step, workflowId });
             } catch (error) {
               return failStepWithActionError(
                 error instanceof Error ? error.message : String(error)
@@ -475,7 +517,7 @@ export async function runStep({
 
           let inputs: Record<string, unknown> | undefined;
           try {
-            inputs = resolveActionInputs({ action, ctx, step, workflowId });
+            inputs = resolveActionInputs({ action, ctx: expressionCtx, step, workflowId });
           } catch (error) {
             return failStepWithActionError(error instanceof Error ? error.message : String(error));
           }
@@ -501,4 +543,28 @@ export async function runStep({
       return { shouldEnd: true };
     }
   }
+}
+
+function endStepAtExecutionTimeout(
+  step: Step,
+  ctx: TestContext,
+  retriesLeft: number | undefined
+): { shouldEnd: boolean } {
+  const timeoutCheck: Check = {
+    name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+    message: `Global Respect timer reached`,
+    passed: false,
+    severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
+  };
+  if (ctx.executedSteps.includes(step)) {
+    // the attempt that sent the request is registered and printed: it becomes the result of the step
+    step.retriesLeft = retriesLeft;
+    step.checks.push(timeoutCheck);
+    printUnknownStep({ ...step, checks: [timeoutCheck] }, ctx.options.logger);
+  } else {
+    const timedOutStep = { ...step, retriesLeft, checks: [...step.checks, timeoutCheck] };
+    ctx.executedSteps.push(timedOutStep);
+    printUnknownStep(timedOutStep, ctx.options.logger);
+  }
+  return { shouldEnd: true };
 }

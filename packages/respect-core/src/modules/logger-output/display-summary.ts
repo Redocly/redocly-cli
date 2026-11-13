@@ -4,7 +4,6 @@ import { outdent } from 'outdent';
 
 import type { ResultsOfTests, RunOptions, WorkflowExecutionResult } from '../../types.js';
 import { getExecutionTime } from '../../utils/time.js';
-import { resolveRunningWorkflows } from '../flow-runner/index.js';
 import { calculateTotals } from './calculate-tests-passed.js';
 import { indent } from './helpers.js';
 
@@ -19,20 +18,7 @@ export function displaySummary({
 }) {
   const { logger } = options;
   const fileName = path.basename(options?.file || '');
-  const workflowArgv = resolveRunningWorkflows(options?.workflow) || [];
-  const skippedWorkflowArgv = resolveRunningWorkflows(options?.skip) || [];
-
-  let executedWorkflows =
-    workflowArgv && workflowArgv.length
-      ? workflows.filter(({ workflowId }) => workflowArgv.includes(workflowId))
-      : workflows;
-
-  executedWorkflows =
-    skippedWorkflowArgv && skippedWorkflowArgv.length
-      ? executedWorkflows.filter(({ workflowId }) => !skippedWorkflowArgv.includes(workflowId))
-      : executedWorkflows;
-
-  const totals = calculateTotals(executedWorkflows);
+  const totals = calculateTotals(workflows);
 
   const executionTime = getExecutionTime(startedAt);
   logger.printNewLine();

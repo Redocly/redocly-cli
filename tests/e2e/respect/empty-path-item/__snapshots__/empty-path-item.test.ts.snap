@@ -1,0 +1,32 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should find an operation listed after an empty path item and an empty operation 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow empty-path-item.arazzo.yaml / list-menu 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for empty-path-item.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                            │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ empty-path-item.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;

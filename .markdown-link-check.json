@@ -10,5 +10,11 @@
     { "pattern": "^https?://localhost" },
     { "pattern": "^https?://127\\.0\\.0\\.1" },
     { "pattern": "^https://github\\.com/CIDgravity/redoc-plugins$" }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^https://github\\.com/Redocly/redocly-cli/(blob|tree)/main/",
+      "replacement": "{{BASEURL}}/"
+    }
   ]
 }
