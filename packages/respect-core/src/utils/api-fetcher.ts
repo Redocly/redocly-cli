@@ -340,6 +340,8 @@ export class ApiFetcher implements IFetcher {
         return scheme?.type === 'http' && scheme?.scheme?.toLowerCase() === 'digest';
       });
 
+    step.requestSent = true;
+
     if (lastDigestSecurityScheme) {
       // FETCH WITH DIGEST AUTH
       // Digest auth perform two requests to establish the connection

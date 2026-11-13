@@ -18,8 +18,7 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
     const steps = flattenNestedSteps(workflow.executedSteps);
     let hasFailedSteps = false;
     for (const step of steps) {
-      // a step that calls a workflow sends no request of its own
-      if (!step.workflowId) {
+      if (step.requestSent) {
         totalRequests++;
       }
       if (step.retriesLeft && step.retriesLeft !== 0) {
