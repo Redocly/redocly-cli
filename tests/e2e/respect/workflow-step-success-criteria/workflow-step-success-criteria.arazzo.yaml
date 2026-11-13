@@ -3,7 +3,8 @@ info:
   title: Success criteria of a step that calls a workflow
   description: >-
     Testing that the success criteria of a step with a workflowId are checked
-    against the outputs of the called workflow.
+    against the outputs of the called workflow, and that a failed criterion,
+    an invalid criterion, or an unresolved output fails the step.
   version: 1.0.0
 
 sourceDescriptions:
@@ -26,12 +27,30 @@ workflows:
           - name: handle-wrong-page-limit
             type: goto
             stepId: reached-on-failure
+            criteria:
+              - condition: $outputs.pageLimit == 10
       - stepId: reached-on-success
         workflowId: get-menu-page-limit
         onSuccess:
           - name: stop
             type: end
       - stepId: reached-on-failure
+        workflowId: get-menu-page-limit
+  - workflowId: check-invalid-criterion
+    steps:
+      - stepId: unknown-expression
+        workflowId: get-menu-page-limit
+        successCriteria:
+          - condition: $unknown == 10
+      - stepId: not-reached
+        workflowId: get-menu-page-limit
+  - workflowId: check-unresolved-output
+    steps:
+      - stepId: missing-output
+        workflowId: get-menu-page-limit
+        outputs:
+          firstItem: $outputs.pageLimit#/items/0
+      - stepId: not-reached
         workflowId: get-menu-page-limit
   - workflowId: get-menu-page-limit
     steps:

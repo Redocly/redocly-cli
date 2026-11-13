@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`should check the success criteria of a step that calls a workflow and run its failure action 1`] = `
+exports[`should fail a step that calls a workflow when its success criteria or outputs fail 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow workflow-step-success-criteria.arazzo.yaml / check-menu-page-limit 
@@ -44,6 +44,40 @@ exports[`should check the success criteria of a step that calls a workflow and r
  
  
  
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / check-invalid-criterion 
+ 
+  Running child workflow for the step unknown-expression 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / get-menu-page-limit 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✗ unknown-expression 
+    ✗ unexpected error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / check-unresolved-output 
+ 
+  Running child workflow for the step missing-output 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / get-menu-page-limit 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✗ missing-output 
+    ✗ unexpected error
+ 
 
   Failed tests info:
 
@@ -52,19 +86,30 @@ exports[`should check the success criteria of a step that calls a workflow and r
     stepId - expect-wrong-page-limit 
     ✗ success criteria check 
       Checking simple criteria: {"condition":"$outputs.pageLimit == 20"}
-       
+      
+  Workflow name: check-invalid-criterion
+ 
+    stepId - unknown-expression 
+    ✗ unexpected error 
+    Reason: Success criteria condition $unknown == 10 is not allowed.
+  Workflow name: check-unresolved-output
+ 
+    stepId - missing-output 
+    ✗ unexpected error 
+    Reason: Error in resolving runtime expression '$outputs.pageLimit#/items/0': JSON Pointer "/items/0" reaches no value. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
   Summary for workflow-step-success-criteria.arazzo.yaml
   
-  Workflows: 1 failed, 1 total
-  Steps: 4 passed, 1 failed, 5 total
-  Checks: 13 passed, 1 failed, 14 total
+  Workflows: 3 failed, 3 total
+  Steps: 6 passed, 3 failed, 9 total
+  Checks: 21 passed, 3 failed, 24 total
   Time: <test>ms 
  
  
 ┌────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                           │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x workflow-step-success-criteria.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+│ x workflow-step-success-criteria.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
 └────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 

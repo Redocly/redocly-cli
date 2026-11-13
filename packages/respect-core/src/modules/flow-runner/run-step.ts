@@ -137,45 +137,43 @@ export async function runStep({
     ctx.executedSteps.push(stepWorkflowResult);
 
     const childWorkflowFailed = calculateTotals([stepWorkflowResult]).steps.failed > 0;
-    // the step reads the outputs of the workflow it calls as `$outputs`
+    // the step and its actions read the outputs of the workflow it calls as `$outputs`
     const childWorkflowOutputs = workflowCtx.$outputs?.[targetWorkflow.workflowId] || {};
+    const stepCtx = { ...ctxWithInputs, $outputs: childWorkflowOutputs };
 
-    // a failed child workflow has already failed the step, and its outputs can be unset
-    const successCriteriaChecks =
-      step.successCriteria && !childWorkflowFailed
-        ? checkCriteria({
-            workflowId,
-            step,
-            criteria: step.successCriteria,
-            ctx: { ...ctxWithInputs, $outputs: childWorkflowOutputs },
-          })
-        : [];
     // a new list, so a retry does not keep the checks of the previous attempt
-    step.checks = [...successCriteriaChecks];
-
+    step.checks = [];
     const outputs: Record<string, any> = {};
-    if (step?.outputs) {
-      try {
-        for (const [outputKey, outputValue] of Object.entries(step.outputs)) {
-          // need to partially emulate $outputs context
-          outputs[outputKey] = evaluateRuntimeExpressionPayload({
-            payload: outputValue,
-            context: {
-              $outputs: childWorkflowOutputs,
-            } as RuntimeExpressionContext,
-            logger: ctx.options.logger,
-          });
-        }
-      } catch (error: any) {
-        const failedCall: Check = {
-          name: CHECKS.UNEXPECTED_ERROR,
-          message: error.message,
-          passed: false,
-          severity: ctx.severity['UNEXPECTED_ERROR'],
-        };
-        step.checks.push(failedCall);
+    try {
+      // a failed child workflow has already failed the step, and its outputs can be unset
+      if (step.successCriteria && !childWorkflowFailed) {
+        step.checks.push(
+          ...checkCriteria({ workflowId, step, criteria: step.successCriteria, ctx: stepCtx })
+        );
       }
 
+      for (const [outputKey, outputValue] of Object.entries(step.outputs || {})) {
+        // need to partially emulate $outputs context
+        outputs[outputKey] = evaluateRuntimeExpressionPayload({
+          payload: outputValue,
+          context: {
+            $outputs: childWorkflowOutputs,
+          } as RuntimeExpressionContext,
+          logger: ctx.options.logger,
+        });
+      }
+    } catch (error: any) {
+      // an invalid criterion or an output without a value fails the step
+      const failedCall: Check = {
+        name: CHECKS.UNEXPECTED_ERROR,
+        message: error.message,
+        passed: false,
+        severity: ctx.severity['UNEXPECTED_ERROR'],
+      };
+      step.checks.push(failedCall);
+    }
+
+    if (step.outputs) {
       // save local $steps context
       ctx.$steps[stepId] = {
         outputs,
@@ -199,12 +197,10 @@ export async function runStep({
 
     const stepFailed =
       childWorkflowFailed ||
-      !successCriteriaChecks.every(
-        (check) => check.passed || ['off', 'warn'].includes(check.severity)
-      );
+      !step.checks.every((check) => check.passed || ['off', 'warn'].includes(check.severity));
 
     if (stepFailed) {
-      const result = await runActions(failureActionsToRun, 'failure', executedStepsCount);
+      const result = await runActions(failureActionsToRun, 'failure', executedStepsCount, stepCtx);
       if (result?.retriesLeft && result.retriesLeft > 0) {
         return result.stepResult;
       }
@@ -214,7 +210,7 @@ export async function runStep({
     }
 
     if (successActionsToRun.length && !stepFailed) {
-      const result = await runActions(successActionsToRun, 'success', executedStepsCount);
+      const result = await runActions(successActionsToRun, 'success', executedStepsCount, stepCtx);
       if (result?.shouldEnd) {
         return { shouldEnd: true };
       }
@@ -322,7 +318,9 @@ export async function runStep({
   async function runActions(
     actions: OnFailureObject[] | OnSuccessObject[] = [],
     kind: 'failure' | 'success',
-    executedStepsCount: ExecutedStepsCount
+    executedStepsCount: ExecutedStepsCount,
+    // the context the criteria and the parameters of the actions are evaluated in
+    expressionCtx: TestContext = ctx
   ): Promise<{
     retriesLeft?: number;
     shouldEnd?: boolean;
@@ -364,7 +362,7 @@ export async function runStep({
         workflowId: workflowId,
         step,
         criteria,
-        ctx,
+        ctx: expressionCtx,
       }).every((check) => check.passed);
 
       if (matchesCriteria) {
@@ -431,7 +429,7 @@ export async function runStep({
           if (targetWorkflow) {
             let inputs: Record<string, unknown> | undefined;
             try {
-              inputs = resolveActionInputs({ action, ctx, step, workflowId });
+              inputs = resolveActionInputs({ action, ctx: expressionCtx, step, workflowId });
             } catch (error) {
               return failStepWithActionError(
                 error instanceof Error ? error.message : String(error)
@@ -501,7 +499,7 @@ export async function runStep({
 
           let inputs: Record<string, unknown> | undefined;
           try {
-            inputs = resolveActionInputs({ action, ctx, step, workflowId });
+            inputs = resolveActionInputs({ action, ctx: expressionCtx, step, workflowId });
           } catch (error) {
             return failStepWithActionError(error instanceof Error ? error.message : String(error));
           }
