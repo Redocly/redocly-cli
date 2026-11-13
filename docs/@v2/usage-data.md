@@ -1,6 +1,7 @@
 ---
 seo:
-  title: Usage data
+  title: Usage data and product metrics in Redocly CLI v2
+  description: Review the anonymized usage data and product metrics collected by Redocly CLI v2, and see how to opt out.
 ---
 
 # Usage data and product metrics
