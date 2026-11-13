@@ -14,6 +14,6 @@ rules:
   no-invalid-parameter-examples: warn
   no-invalid-media-type-examples: warn
   no-invalid-schema-examples: warn
-  no-example-value-and-externalValue: error
+  spec-example-values: error
   no-unresolved-refs: error
   spec-components-invalid-map-name: error

@@ -5,6 +5,16 @@ describe('mergeExtends', () => {
     expect(utils.mergeExtends([]).rules).toEqual({});
   });
 
+  it('should read the deprecated no-example-value-and-externalValue rule as spec-example-values', () => {
+    const merged = utils.mergeExtends([
+      { oas3_1Rules: { 'spec-example-values': 'error' } },
+      { rules: { 'no-example-value-and-externalValue': 'off' } },
+    ]);
+
+    expect(merged.rules).toEqual({ 'spec-example-values': 'off' });
+    expect(merged.oas3_1Rules).toEqual({ 'spec-example-values': 'off' });
+  });
+
   it('should work with configurable rules changing severity', () => {
     expect(
       utils.mergeExtends([

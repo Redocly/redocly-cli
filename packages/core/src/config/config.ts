@@ -39,6 +39,7 @@ import type {
   RuleSettings,
   IgnoreConfig,
 } from './types.js';
+import { renameDeprecatedRules } from './utils.js';
 
 export class Config {
   resolvedConfig: ResolvedConfig;
@@ -86,21 +87,22 @@ export class Config {
       return groupAssertionRules({ rules }, this.plugins);
     };
 
+    const renamedConfig = renameDeprecatedRules(resolvedConfig);
     this.rules = {
-      oas2: group({ ...resolvedConfig.rules, ...resolvedConfig.oas2Rules }),
-      oas3_0: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_0Rules }),
-      oas3_1: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_1Rules }),
-      oas3_2: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_2Rules }),
-      async2: group({ ...resolvedConfig.rules, ...resolvedConfig.async2Rules }),
-      async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
-      arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
-      arazzo1_1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1_1Rules }),
-      overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
-      openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
+      oas2: group({ ...renamedConfig.rules, ...renamedConfig.oas2Rules }),
+      oas3_0: group({ ...renamedConfig.rules, ...renamedConfig.oas3_0Rules }),
+      oas3_1: group({ ...renamedConfig.rules, ...renamedConfig.oas3_1Rules }),
+      oas3_2: group({ ...renamedConfig.rules, ...renamedConfig.oas3_2Rules }),
+      async2: group({ ...renamedConfig.rules, ...renamedConfig.async2Rules }),
+      async3: group({ ...renamedConfig.rules, ...renamedConfig.async3Rules }),
+      arazzo1: group({ ...renamedConfig.rules, ...renamedConfig.arazzo1Rules }),
+      arazzo1_1: group({ ...renamedConfig.rules, ...renamedConfig.arazzo1_1Rules }),
+      overlay1: group({ ...renamedConfig.rules, ...renamedConfig.overlay1Rules }),
+      openrpc1: group({ ...renamedConfig.rules, ...renamedConfig.openrpc1Rules }),
       graphql: group({
         // removing common ref-resolution rules from the GraphQL ruleset:
-        ...omit(resolvedConfig.rules ?? {}, ['no-unresolved-refs']),
-        ...resolvedConfig.graphqlRules,
+        ...omit(renamedConfig.rules ?? {}, ['no-unresolved-refs']),
+        ...renamedConfig.graphqlRules,
       }),
     };
 

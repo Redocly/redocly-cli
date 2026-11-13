@@ -121,7 +121,7 @@ describe('spec-example-values', () => {
     `);
   });
 
-  it('should report a falsy value next to externalValue under the deprecated rule name', async () => {
+  it('should report a falsy value next to externalValue when the deprecated rule name is used', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -152,11 +152,34 @@ describe('spec-example-values', () => {
           ],
           "message": "The \`value\` and \`externalValue\` fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
-          "ruleId": "no-example-value-and-externalValue",
+          "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
         },
       ]
     `);
+  });
+
+  it('should not check the OpenAPI 3.2 fields in an OpenAPI 3.1 description', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          examples:
+            some:
+              value: 12
+              dataValue: 12
+              serializedValue: '12'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-example-values': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

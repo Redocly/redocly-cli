@@ -4,8 +4,9 @@
 ---
 
 Made `spec-example-values` the only rule that checks the field combinations of an Example Object.
-The built-in rulesets now enable it for OpenAPI 3.0 and 3.1 instead of the deprecated `no-example-value-and-externalValue` rule, which stays as an alias and produces a deprecation warning in `redocly.yaml`.
+The built-in rulesets now enable it for OpenAPI 3.0 and 3.1 instead of the deprecated `no-example-value-and-externalValue` rule.
+The deprecated name stays as an alias: its setting in `redocly.yaml` is applied to `spec-example-values`, with a deprecation warning.
 Fixed an issue where an example with `externalValue` and a `value` of `0`, `false`, `null`, or an empty string was not reported, and fixed a typo in the rule messages.
 
-**Note:** problems that the rulesets reported as `no-example-value-and-externalValue` are now reported as `spec-example-values`.
-Rename the rule in your `redocly.yaml` and regenerate the ignore file if it lists the old rule.
+**Note:** these problems are now reported as `spec-example-values` and always point at the field key.
+Rename the rule in your `redocly.yaml`, and regenerate the ignore file if it lists `no-example-value-and-externalValue` or `spec-example-values`.

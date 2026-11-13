@@ -80,7 +80,6 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'operation-operationId-unique': OperationIdUnique as Oas3Rule,
   'operation-parameters-unique': OperationParametersUnique as Oas3Rule,
   'operation-tag-defined': OperationTagDefined as Oas3Rule,
-  'no-example-value-and-externalValue': SpecExampleValues,
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Oas3Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Oas3Rule,
   'no-path-trailing-slash': NoPathTrailingSlash as Oas3Rule,

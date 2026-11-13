@@ -8,8 +8,8 @@ Ensures that `examples` object properties `externalValue` and `value` are mutual
 
 {% admonition type="warning" name="Deprecated" %}
 This rule is deprecated and is an alias of [`spec-example-values`](../oas/spec-example-values.md).
-It runs the same checks and reports the same problems.
-Replace it with `spec-example-values` in your `redocly.yaml`: the built-in rulesets no longer enable this rule, and the configuration linter warns about it.
+Its setting in `redocly.yaml` is applied to `spec-example-values`, and the problems are reported under that name.
+Replace it with `spec-example-values` in your `redocly.yaml`: the configuration linter warns about the deprecated name.
 {% /admonition %}
 
 | OAS | Compatibility |

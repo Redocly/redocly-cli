@@ -71,6 +71,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas3_0Rules?: RuleMap<
     Exclude<
       BuiltInOAS3RuleId,
+      | 'no-example-value-and-externalValue'
       | 'no-mixed-number-range-constraints'
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
@@ -83,6 +84,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas3_1Rules?: RuleMap<
     Exclude<
       BuiltInOAS3RuleId,
+      | 'no-example-value-and-externalValue'
       | 'nullable-type-sibling'
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
