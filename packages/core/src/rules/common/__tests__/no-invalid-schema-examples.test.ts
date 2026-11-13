@@ -52,6 +52,42 @@ describe('no-invalid-schema-examples', () => {
     `);
   });
 
+  it('should not report a decimal example that is a multiple of a decimal multipleOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.3
+        components:
+          schemas:
+            Queue:
+              type: object
+              properties:
+                percent:
+                  type: number
+                  multipleOf: 0.1
+                  example: 98.8
+                price:
+                  type: number
+                  multipleOf: 0.01
+                  example: 4.35
+                wrong:
+                  type: number
+                  multipleOf: 0.1
+                  example: 98.85
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
+    });
+
+    expect(results.map((problem) => problem.location[0].pointer)).toEqual([
+      '#/components/schemas/Queue/properties/wrong/example',
+    ]);
+  });
+
   it('should not report on readOnly/writeOnly properties in schema example', async () => {
     const document = parseYamlToDocument(
       outdent`
