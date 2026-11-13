@@ -62,6 +62,8 @@ export async function runStep({
 
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
+  // a retry copies the previous attempt, which has sent its request
+  step.requestSent = false;
 
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
