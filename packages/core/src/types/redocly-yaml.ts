@@ -447,6 +447,9 @@ const Rules: NodeType = {
   description:
     'The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.',
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
+  deprecatedProperties: {
+    'no-example-value-and-externalValue': { replacement: 'spec-example-values' },
+  },
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
       if (typeof value === 'string') {

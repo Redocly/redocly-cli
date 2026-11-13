@@ -48,7 +48,6 @@ import { ArrayParameterSerialization } from './array-parameter-serialization.js'
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes.js';
 import { ComponentNameUnique } from './component-name-unique.js';
 import { NoEmptyServers } from './no-empty-servers.js';
-import { NoExampleValueAndExternalValue } from './no-example-value-and-externalValue.js';
 import { NoIllogicalCompositionKeywords } from './no-illogical-composition-keywords.js';
 import { ValidContentExamples } from './no-invalid-media-type-examples.js';
 import { NoServerExample } from './no-server-example.com.js';
@@ -81,7 +80,6 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'operation-operationId-unique': OperationIdUnique as Oas3Rule,
   'operation-parameters-unique': OperationParametersUnique as Oas3Rule,
   'operation-tag-defined': OperationTagDefined as Oas3Rule,
-  'no-example-value-and-externalValue': NoExampleValueAndExternalValue,
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Oas3Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Oas3Rule,
   'no-path-trailing-slash': NoPathTrailingSlash as Oas3Rule,

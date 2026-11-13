@@ -33,7 +33,7 @@ rules:
   no-invalid-parameter-examples: warn
   no-invalid-media-type-examples: warn
   no-invalid-schema-examples: warn
-  no-example-value-and-externalValue: error
+  spec-example-values: error
   no-unresolved-refs: error
   spec-components-invalid-map-name: error
 ```
@@ -57,7 +57,7 @@ Here is why each rule is included:
 - `no-invalid-parameter-examples`: ["The example SHOULD match the specified schema and encoding properties if present."](https://spec.openapis.org/oas/latest.html#fixed-fields-9)
 - `no-invalid-media-type-examples`: ["The example object SHOULD be in the correct format as specified by the media type."](https://spec.openapis.org/oas/latest.html#fixed-fields-11)
 - `no-invalid-schema-examples`: ["It is RECOMMENDED that these values be valid against the associated schema."](https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-00#section-9.5)
-- `no-example-value-and-externalValue`: ["The value field and externalValue field are mutually exclusive."](https://spec.openapis.org/oas/latest.html#fixed-fields-15)
+- `spec-example-values`: ["The value field and externalValue field are mutually exclusive."](https://spec.openapis.org/oas/latest.html#fixed-fields-15)
 - `no-unresolved-refs` (debatable): ["The referenced structure MUST be in the form of a Path Item Object."](https://spec.openapis.org/oas/latest.html#fixed-fields-6)
 - `spec-components-invalid-map-name`: ["All the fixed fields declared above are objects that MUST use keys that match the regular expression: ^\[a-zA-Z0-9\.\-\_\]+$."](https://spec.openapis.org/oas/latest.html#fixed-fields-5)
 

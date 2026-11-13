@@ -1,42 +1,27 @@
 import { type Oas3Rule } from '../../visitors.js';
 
+const mutuallyExclusiveFields = [['value', 'externalValue']] as const;
+
+const oas3_2MutuallyExclusiveFields = [
+  ...mutuallyExclusiveFields,
+  ['value', 'dataValue'],
+  ['value', 'serializedValue'],
+  ['externalValue', 'serializedValue'],
+] as const;
+
 export const SpecExampleValues: Oas3Rule = () => {
   return {
-    Example({ value, externalValue, dataValue, serializedValue }, { report, location }) {
-      if (value !== undefined && externalValue !== undefined) {
-        report({
-          message:
-            "The 'value' and 'externalValue' fields of an example object are mutually exclusive.",
-          location: location,
-          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
-        });
-      }
-
-      if (serializedValue !== undefined && externalValue !== undefined) {
-        report({
-          message:
-            "The 'serializedValue' and 'externalValue' fields of an example object are mutually exclusive.",
-          location: location,
-          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
-        });
-      }
-
-      if (value !== undefined && dataValue !== undefined) {
-        report({
-          message:
-            "The 'value' filed must be absent if 'dataValue' is present in an example object.",
-          location: location.child('value').key(),
-          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
-        });
-      }
-
-      if (value !== undefined && serializedValue !== undefined) {
-        report({
-          message:
-            "The 'value' filed must be absent if 'serializedValue' is present in an example object.",
-          location: location.child('value').key(),
-          reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
-        });
+    Example(example, { report, location, specVersion }) {
+      const fieldPairs =
+        specVersion === 'oas3_2' ? oas3_2MutuallyExclusiveFields : mutuallyExclusiveFields;
+      for (const [reportedField, conflictingField] of fieldPairs) {
+        if (example[reportedField] !== undefined && example[conflictingField] !== undefined) {
+          report({
+            message: `The \`${reportedField}\` and \`${conflictingField}\` fields of an Example Object are mutually exclusive.`,
+            location: location.child(reportedField).key(),
+            reference: 'https://redocly.com/docs/cli/rules/oas/spec-example-values',
+          });
+        }
       }
     },
   };

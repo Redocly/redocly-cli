@@ -217,6 +217,16 @@ describe('Config.forAlias', () => {
   });
 });
 
+describe('Config.skipRules', () => {
+  it('should skip spec-example-values by its deprecated name', async () => {
+    const config = await createConfig({ rules: { 'spec-example-values': 'error' } });
+
+    config.skipRules(['no-example-value-and-externalValue']);
+
+    expect(config.rules.oas3_1['spec-example-values']).toEqual('off');
+  });
+});
+
 describe('Config.extendTypes', () => {
   let oas3 = vi.fn();
   let oas2 = vi.fn();

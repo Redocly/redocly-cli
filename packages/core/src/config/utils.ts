@@ -45,6 +45,18 @@ export function prefixRules<
   return res;
 }
 
+export function renameDeprecatedRules<T extends ResolvedGovernanceConfig>(config: T): T {
+  const renamedConfig = { ...config };
+  for (const rulesKey of ['rules', 'oas3_0Rules', 'oas3_1Rules', 'oas3_2Rules'] as const) {
+    const rules = config[rulesKey];
+    if (isPlainObject(rules) && 'no-example-value-and-externalValue' in rules) {
+      const { 'no-example-value-and-externalValue': deprecatedRuleConfig, ...otherRules } = rules;
+      renamedConfig[rulesKey] = { 'spec-example-values': deprecatedRuleConfig, ...otherRules };
+    }
+  }
+  return renamedConfig;
+}
+
 export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
   let recheck: RecheckConfig = { rules: {} };
   const result: Required<ResolvedGovernanceConfig> = {
@@ -93,7 +105,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Diff: {},
   };
 
-  for (const rulesConf of rulesConfList) {
+  for (const rulesConf of rulesConfList.map(renameDeprecatedRules)) {
     if (isPlainObject(rulesConf) && 'extends' in rulesConf && rulesConf.extends !== undefined) {
       throw new Error(
         `'extends' is not supported in shared configs yet:\n${JSON.stringify(rulesConf, null, 2)}`

@@ -87,7 +87,9 @@ export type RuleMap<Key extends string, RuleConfig, T> = Record<
   RuleConfig
 >;
 export type Oas3RuleSet<T = undefined> = RuleMap<
-  BuiltInOAS3RuleId | BuiltInCommonRuleId | 'assertions',
+  | Exclude<BuiltInOAS3RuleId, 'no-example-value-and-externalValue'>
+  | BuiltInCommonRuleId
+  | 'assertions',
   Oas3Rule,
   T
 >;
