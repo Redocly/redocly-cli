@@ -1,4 +1,7 @@
 ---
+seo:
+  title: Redocly CLI v2 changelog
+  description: See the release notes and version history for Redocly CLI v2, including new features, bug fixes, and breaking changes.
 toc:
   maxDepth: 2
 ---

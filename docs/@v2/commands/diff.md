@@ -1,3 +1,9 @@
+---
+seo:
+  title: Compare API descriptions with the diff command
+  description: Compare two API descriptions and list changes with semver impact to catch breaking changes or determine the next version of your API.
+---
+
 # `diff`
 
 ## Introduction
