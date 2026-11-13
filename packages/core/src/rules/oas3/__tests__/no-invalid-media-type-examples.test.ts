@@ -1309,4 +1309,60 @@ describe('no-invalid-media-type-examples', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('should report an invalid value next to a valid dataValue (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                      examples:
+                        mixed:
+                          dataValue:
+                            a: ok
+                          value:
+                            a: 1
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/mixed/value/a",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`a\` property type must be string.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-media-type-examples",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

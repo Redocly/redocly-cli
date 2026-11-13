@@ -6,7 +6,6 @@ import type { ResolvedRefChainHop } from '../resolve.js';
 import type { Async2Operation, Async2OperationTrait } from '../typings/asyncapi2.js';
 import type { Async3Operation, Async3OperationTrait } from '../typings/asyncapi3.js';
 import type {
-  Oas3Example,
   Oas3Schema,
   Oas3Tag,
   Oas3_2Tag,
@@ -16,7 +15,6 @@ import type {
 } from '../typings/openapi.js';
 import type { Oas2Schema, Oas2Tag } from '../typings/swagger.js';
 import { getOwn } from '../utils/get-own.js';
-import { isDefined } from '../utils/is-defined.js';
 import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NonUndefined, UserContext } from '../walk.js';
@@ -286,15 +284,6 @@ export function getSuggest(given: string, variants: string[]): string[] {
 
   // if (bestMatch.distance <= 4) return bestMatch.string;
   return distances.map((d) => d.variant);
-}
-
-export function getExampleValueToValidate(
-  example: unknown
-): { value: unknown; field: 'dataValue' | 'value' } | undefined {
-  if (!isPlainObject<Oas3Example>(example)) return undefined;
-  if (isDefined(example.dataValue)) return { value: example.dataValue, field: 'dataValue' };
-  if (isDefined(example.value)) return { value: example.value, field: 'value' };
-  return undefined;
 }
 
 export function validateExample({
