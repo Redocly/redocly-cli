@@ -18,6 +18,7 @@ import type { Arguments } from 'yargs';
 
 import { bundleTelemetry } from './commands/bundle.js';
 import { loadAndCheckConfig } from './commands/check-config.js';
+import { introspectMcpTelemetry } from './commands/introspect-mcp/telemetry.js';
 import type { CommandArgv, VerifyConfigOptions } from './types.js';
 import {
   ejectGeneratorTelemetry,
@@ -152,6 +153,7 @@ export function commandWrapper<T extends CommandArgv>(
           generate_client: generateClientTelemetry,
           eject_generator: ejectGeneratorTelemetry,
           bundle: bundleTelemetry,
+          introspect_mcp: introspectMcpTelemetry,
         });
       }
       process.once('beforeExit', () => {

@@ -53,7 +53,9 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "devDependencies": {
+    "@modelcontextprotocol/client": "^2.4.0",
     "@modelcontextprotocol/sdk": "^1.32.1",
+    "@modelcontextprotocol/server": "^2.4.0",
     "@opentelemetry/exporter-trace-otlp-http": "0.219.0",
     "@opentelemetry/resources": "2.8.0",
     "@opentelemetry/sdk-trace-node": "2.8.0",
