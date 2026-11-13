@@ -3,14 +3,16 @@ import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { getPlatformSpawnArgs } from '../../utils/platform.js';
+import { getPlatformSpawnArgs, sanitizePath } from '../../utils/platform.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
 import type { PreviewProjectArgv, Product } from './types.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) => {
   const { plan, port } = argv;
-  const projectDir = argv['project-dir'];
+  const { npxExecutableName, shell, sanitize } = getPlatformSpawnArgs();
+
+  const projectDir = resolveProjectDir(argv['project-dir']);
 
   if (argv.product) {
     logger.warn(
@@ -29,11 +31,17 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
   const packageName = PRODUCT_PACKAGES[product];
 
   logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
-  const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
     npxExecutableName,
-    ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
+    [
+      '-y',
+      packageName,
+      'preview',
+      `--plan=${plan}`,
+      `--port=${port || 4000}`,
+      `--project-dir=${sanitize(projectDir, sanitizePath)}`,
+    ],
     {
       stdio: 'inherit',
       cwd: projectDir,
@@ -47,6 +55,25 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
   });
 };
 
+/**
+ * The absolute project directory. `npx` inside an npm workspace starts the command in the
+ * workspace package and leaves the directory it was run from in `INIT_CWD`.
+ */
+const resolveProjectDir = (projectDir: string): string => {
+  const cwd = process.cwd();
+  const initCwd = process.env.INIT_CWD;
+
+  // Only compare cwd and INIT_CWD for `npx`
+  if (process.env.npm_command === 'exec' && initCwd) {
+    const relativeInitCwd = path.relative(cwd, initCwd);
+    if (relativeInitCwd && !relativeInitCwd.startsWith('..') && !path.isAbsolute(relativeInitCwd)) {
+      return path.resolve(initCwd, projectDir);
+    }
+  }
+
+  return path.resolve(cwd, projectDir);
+};
+
 const isValidProduct = (product: string | undefined): product is Product => {
   if (!product) {
     return false;
@@ -57,7 +84,7 @@ const isValidProduct = (product: string | undefined): product is Product => {
 
 /** The product package listed in the project's package.json, or the framework when none is. */
 const tryGetProductFromPackageJson = (projectDir: string): Product => {
-  const packageJsonPath = path.join(process.cwd(), projectDir, 'package.json');
+  const packageJsonPath = path.join(projectDir, 'package.json');
 
   if (existsSync(packageJsonPath)) {
     try {
