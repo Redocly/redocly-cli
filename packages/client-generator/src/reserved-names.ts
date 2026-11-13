@@ -24,6 +24,7 @@ export const WIRING_NAMES = [
   'mergeSetup',
   'ApiError',
   'TimeoutError',
+  'unwrapResult',
   'configure',
   'use',
   'auth',

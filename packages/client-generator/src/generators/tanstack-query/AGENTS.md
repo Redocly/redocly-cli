@@ -26,7 +26,7 @@ query keys. One generator, four framework variants (`react` default, `-vue`,
   out of the call, so `exactOptionalPropertyTypes` holds.
 - **`envelope` is excluded and stripped** — cached data is the plain body.
 - Requires `typescript`, in either error mode. TanStack Query needs a `queryFn` that throws,
-  so over a result-mode client every call goes through the emitted `unwrapResult`: it
+  so over a result-mode client every call goes through the sdk's `unwrapResult`: it
   returns the body and throws `ApiError` for a failed response. The wrapper never restricts
   the error mode the client itself is generated with.
 

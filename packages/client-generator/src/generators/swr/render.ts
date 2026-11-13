@@ -21,7 +21,6 @@ import {
   sdkCallText,
   sdkNamedImportText,
   throwingCallText,
-  UNWRAP_RESULT_SOURCE,
   variablesName,
   wrappableOperations,
 } from '@redocly/client-generator/contracts/typescript';
@@ -46,7 +45,6 @@ export function renderSwrModule(model: ApiModel, opts: SwrOptions): string {
     ...(hasQuery ? ['import useSWR from "swr";'] : []),
     ...(hasMutation ? ['import useSWRMutation from "swr/mutation";'] : []),
     sdkNamedImportText(ops, opts.sdkModule, hasQuery, opts.errorMode),
-    ...(opts.errorMode === 'result' ? [UNWRAP_RESULT_SOURCE] : []),
     ...ops.flatMap((op) =>
       isQuery(op) ? queryBlocks(op, opts.errorMode) : [mutationBlock(op, opts.errorMode)]
     ),
