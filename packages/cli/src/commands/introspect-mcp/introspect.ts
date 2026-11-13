@@ -80,11 +80,8 @@ function connectionAttempts(target: McpTarget): ConnectionAttempt[] {
   }
   const createStreamableHttpTransport = () =>
     new StreamableHTTPClientTransport(target.url, { requestInit: { headers: target.headers } });
-  // Protocol 2026-07-28 replaced the `initialize` handshake with `server/discover`.
-  // In the `auto` mode the client tries `server/discover` first and falls back to `initialize`.
-  // Over HTTP it fails instead when the server answers `server/discover` with a 5xx status
-  // or doesn't answer, so the second attempt sends `initialize` straight away.
-  // The last attempt is the legacy HTTP+SSE transport, as the MCP specification recommends.
+  // The `auto` mode tries `server/discover` of protocol 2026-07-28 and falls back to `initialize`.
+  // Over HTTP it fails on a 5xx status or no answer, so the second attempt sends `initialize`.
   return [
     { createTransport: createStreamableHttpTransport, versionNegotiation: 'auto' },
     {
