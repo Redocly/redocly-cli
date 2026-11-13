@@ -680,6 +680,7 @@ describe('cleanArgs', () => {
       'max-fetch-timeout': 100,
       'execution-timeout': 100,
       'no-secrets-masking': false,
+      'allow-additional-properties': false,
     };
     const result = cleanArgs(parsedArgs, rawInput);
 
@@ -693,6 +694,7 @@ describe('cleanArgs', () => {
         'max-fetch-timeout': 100,
         'execution-timeout': 100,
         'no-secrets-masking': false,
+        'allow-additional-properties': false,
       })
     );
   });

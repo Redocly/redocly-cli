@@ -144,6 +144,7 @@ export type AppOptions = {
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
   noSecretsMasking?: boolean;
+  allowAdditionalProperties?: boolean;
 };
 export type RegexpSuccessCriteria = {
   condition: string;

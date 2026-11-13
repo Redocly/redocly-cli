@@ -30,6 +30,7 @@ export type RespectOptions = {
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
   noSecretsMasking?: boolean;
+  allowAdditionalProperties?: boolean;
 };
 
 export async function run(options: RespectOptions): Promise<RunFileResult[]> {

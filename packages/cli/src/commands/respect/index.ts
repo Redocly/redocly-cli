@@ -36,6 +36,7 @@ export type RespectArgv = {
   'max-fetch-timeout': number;
   'execution-timeout': number;
   'no-secrets-masking': boolean;
+  'allow-additional-properties': boolean;
 };
 
 export async function handleRespect({
@@ -98,6 +99,7 @@ export async function handleRespect({
       fetch: customFetch as unknown as typeof fetch,
       externalRefResolver,
       noSecretsMasking: argv['no-secrets-masking'],
+      allowAdditionalProperties: argv['allow-additional-properties'],
     };
 
     if (options.skip && options.workflow) {

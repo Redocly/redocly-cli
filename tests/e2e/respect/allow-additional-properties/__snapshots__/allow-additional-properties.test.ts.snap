@@ -1,0 +1,115 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should accept response properties that the schema does not describe with --allow-additional-properties 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow allow-additional-properties.arazzo.yaml / list-menu 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for allow-additional-properties.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                        │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ allow-additional-properties.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;
+
+exports[`should fail the schema check on response properties that the schema does not describe 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow allow-additional-properties.arazzo.yaml / list-menu 
+ 
+  ✗ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✗ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: list-menu
+ 
+    stepId - list-menu-items 
+    ✗ schema check 
+      
+      UNEVALUATEDPROPERTIES must NOT have unevaluated properties: "page".
+      
+      > 1 | {
+      | ^
+      > 2 |   "object": "list",
+      | ^^^^^^^^^^^^^^^^^^^
+      > 3 |   "page": {
+      | ^^^^^^^^^^^^^^^^^^^
+      > 4 |     "nextPage": null,
+      | ^^^^^^^^^^^^^^^^^^^
+      > 5 |     "previousPage": null,
+      | ^^^^^^^^^^^^^^^^^^^
+      > 6 |     "limit": 10
+      | ^^^^^^^^^^^^^^^^^^^
+      > 7 |   },
+      | ^^^^^^^^^^^^^^^^^^^
+      > 8 |   "items": []
+      | ^^^^^^^^^^^^^^^^^^^
+      > 9 | }
+      | ^^ 👈🏽  unevaluatedProperties must NOT have unevaluated properties: "page".
+      
+      UNEVALUATEDPROPERTIES must NOT have unevaluated properties: "items".
+      
+      > 1 | {
+      | ^
+      > 2 |   "object": "list",
+      | ^^^^^^^^^^^^^^^^^^^
+      > 3 |   "page": {
+      | ^^^^^^^^^^^^^^^^^^^
+      > 4 |     "nextPage": null,
+      | ^^^^^^^^^^^^^^^^^^^
+      > 5 |     "previousPage": null,
+      | ^^^^^^^^^^^^^^^^^^^
+      > 6 |     "limit": 10
+      | ^^^^^^^^^^^^^^^^^^^
+      > 7 |   },
+      | ^^^^^^^^^^^^^^^^^^^
+      > 8 |   "items": []
+      | ^^^^^^^^^^^^^^^^^^^
+      > 9 | }
+      | ^^ 👈🏽  unevaluatedProperties must NOT have unevaluated properties: "items".
+      
+       
+  Summary for allow-additional-properties.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 failed, 1 total
+  Checks: 3 passed, 1 failed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                        │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x allow-additional-properties.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└─────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;

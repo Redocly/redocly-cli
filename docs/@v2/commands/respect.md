@@ -20,7 +20,7 @@ AsyncAPI source descriptions are not supported either; if you need them, upvote 
 ## Usage
 
 ```sh
-npx @redocly/cli@latest respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input] [-S | --server] [-H | --har-output] [-J | --json-output] [--max-steps] [--max-fetch-timeout] [--execution-timeout] [--severity] [--no-secrets-masking]
+npx @redocly/cli@latest respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input] [-S | --server] [-H | --har-output] [-J | --json-output] [--max-steps] [--max-fetch-timeout] [--execution-timeout] [--severity] [--no-secrets-masking] [--allow-additional-properties]
 ```
 
 ## Options
@@ -137,6 +137,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   The following checks can be configured:
   - `STATUS_CODE_CHECK`: Verifies if the status code returned with API responses matches the statuses described in the provided OpenAPI description.
   - `SCHEMA_CHECK`: Verifies if the response body schema matches what is defined in the provided OpenAPI description.
+    The check also fails when the response has a property that the schema does not describe, unless the schema allows it with `additionalProperties` or `unevaluatedProperties`.
+    To accept such properties, use `--allow-additional-properties`.
   - `SUCCESS_CRITERIA_CHECK`: Verifies if the success criteria defined in the provided Arazzo description has been met.
   - `CONTENT_TYPE_CHECK`: Verifies if the `Content-Type` matches what is defined in the provided OpenAPI description.
 
@@ -206,6 +208,21 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   For example, the following command disables sensitive output masking:
 
   `npx @redocly/cli@latest respect test-file.yaml --no-secrets-masking`
+
+---
+
+- --allow-additional-properties
+- boolean
+- Allows response properties that the schema does not describe.
+  By default, the schema check fails when a response has a property that is not listed in the schema of the OpenAPI description, unless the schema sets `additionalProperties` or `unevaluatedProperties`.
+  This default reports responses that are ahead of the description.
+
+  When this flag is set to `true`, the schema check follows JSON Schema: a property that the schema does not describe is accepted.
+  A schema that sets `additionalProperties: false` or `unevaluatedProperties: false` still rejects it.
+
+  For example, the following command accepts response properties that the description does not list:
+
+  `npx @redocly/cli@latest respect test-file.yaml --allow-additional-properties`
 
 {% /table %}
 

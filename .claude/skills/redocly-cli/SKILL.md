@@ -211,6 +211,7 @@ The platform builds a preview in a few minutes; `redocly project pr status` then
 Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine the steps and success criteria by hand.
 A step that leaves out `parameters` or `requestBody` takes them from the description's examples, or generates them from the schema.
 Inputs that don't match a workflow's `inputs` schema produce a warning before the workflow runs, and the workflow still runs with the inputs as given.
+The schema check fails on a response property that the schema does not describe; `--allow-additional-properties` accepts such properties.
 
 ## Workflow
 

@@ -1175,6 +1175,12 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          'allow-additional-properties': {
+            describe:
+              'Allow response properties that the schema does not describe in the schema check.',
+            type: 'boolean',
+            default: false,
+          },
         });
     },
     async (argv) => {

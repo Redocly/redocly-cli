@@ -16,7 +16,7 @@ import {
   getResponseSchema,
 } from '../../description-parser/index.js';
 
-const ajvStrict = new (Ajv as any)({
+const ajvOptions = {
   schemaId: '$id',
   meta: true,
   allErrors: true,
@@ -29,8 +29,10 @@ const ajvStrict = new (Ajv as any)({
   passContext: true,
   logger: false,
   verbose: true,
-  defaultUnevaluatedProperties: false,
-});
+};
+
+const ajvStrict = new (Ajv as any)({ ...ajvOptions, defaultUnevaluatedProperties: false });
+const ajvAllowingAdditionalProperties = new (Ajv as any)(ajvOptions);
 
 export function checkSchema({
   stepCallCtx,
@@ -86,7 +88,10 @@ function checkSchemaFromDescription({
 
   if (schemaFromDescription && !isSchemaWithCircularRef) {
     try {
-      const validate = ajvStrict.compile(schemaFromDescription as JSONSchemaType<unknown>);
+      const ajv = ctx.options.allowAdditionalProperties
+        ? ajvAllowingAdditionalProperties
+        : ajvStrict;
+      const validate = ajv.compile(schemaFromDescription as JSONSchemaType<unknown>);
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
         passed: validate.call(ajvContext, resultBody),
