@@ -379,7 +379,6 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   const KEYS_TO_CLEAN = [
     'organization',
     'o',
-    'output',
     'input',
     'i',
     'author',
@@ -390,11 +389,13 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
     'server',
     'S',
   ];
+  // `-o` is short for the organization in some commands and for the output path in the others.
+  const isOutputAlias = 'output' in parsedArgs || 'output-file' in parsedArgs;
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[] | object> = {};
 
   for (const [key, value] of Object.entries(parsedArgs)) {
-    if (KEYS_TO_CLEAN.includes(key)) {
+    if (KEYS_TO_CLEAN.includes(key) && !(key === 'o' && isOutputAlias)) {
       commandArguments[key] = SECRET_REPLACEMENT;
       commandInput = replaceArgs(commandInput, value, SECRET_REPLACEMENT);
     } else if (typeof value === 'string') {

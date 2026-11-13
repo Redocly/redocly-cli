@@ -640,7 +640,7 @@ describe('cleanArgs', () => {
     };
     const result = cleanArgs(parsedArgs, rawInput);
     expect(result.raw_input).toEqual(
-      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output *** --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
+      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
     );
     expect(result.arguments).toEqual(
       JSON.stringify({
@@ -655,7 +655,7 @@ describe('cleanArgs', () => {
           },
         },
         config: 'file-yaml',
-        output: '***',
+        output: 'folder',
       })
     );
   });
@@ -737,9 +737,7 @@ describe('cleanArgs', () => {
     const result = cleanArgs(parsedArgs, rawInput);
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml --output=');
-    expect(result.arguments).toEqual(
-      JSON.stringify({ apis: ['file-yaml'], output: '***', o: '***' })
-    );
+    expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '', o: '' }));
   });
 
   it('should not mangle the raw CLI input when a cleaned argument is a single character', () => {
@@ -749,8 +747,18 @@ describe('cleanArgs', () => {
     const result = cleanArgs(parsedArgs, rawInput);
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml -o -');
+    expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '-', o: '-' }));
+  });
+
+  it('should clean the short form of the output option in the same way as the long form', () => {
+    const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '-o', 'fixtures'];
+    const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: 'fixtures', o: 'fixtures' };
+
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly bundle file-yaml -o folder');
     expect(result.arguments).toEqual(
-      JSON.stringify({ apis: ['file-yaml'], output: '***', o: '***' })
+      JSON.stringify({ apis: ['file-yaml'], output: 'folder', o: 'folder' })
     );
   });
 
