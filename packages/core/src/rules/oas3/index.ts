@@ -109,7 +109,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'path-http-verbs-order': PathHttpVerbsOrder as Oas3Rule,
   'no-illogical-composition-keywords': NoIllogicalCompositionKeywords,
   'no-invalid-media-type-examples': ValidContentExamples,
-  'no-identical-paths': NoIdenticalPaths as Oas3Rule,
+  'no-same-paths': NoIdenticalPaths as Oas3Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas3Rule,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-server-variables-empty-enum': NoServerVariablesEmptyEnum,
