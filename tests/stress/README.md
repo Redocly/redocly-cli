@@ -24,13 +24,16 @@ The [comment workflow](../../.github/workflows/stress-comment.yaml) posts its re
 
 ## Read the report
 
-- The first table has one row per cell, with the number of problems from each build.
-- A cell that differs gets a table with one row per rule.
-  A rule with `0` in the `Base` column is new, or reports problems for the first time.
-  A renamed rule shows as two rows: the old name with `0` in `Head`, and the new name with `0` in `Base`.
-- **Added** and **Removed** count the problems that only one build reports.
-- **Changed** counts the problems that both builds report at the same place from the same rule, with a different message, severity, line, or column.
-- The examples show the first problems of each kind per rule, in the format `<file>:<line>:<column> [<severity>] <message>`.
+When the output differs, the report has one table: one row per rule that differs, and one column per cell.
+A value such as `+40/-30/~5` means 40 added, 30 removed, and 5 changed problems.
+
+- An added (`+`) or removed (`-`) problem is a problem that only one build reports.
+- A changed (`~`) problem is a problem that both builds report at the same place from the same rule, with a different message, severity, line, or column.
+- `(new)` marks a rule that reports no problems in the base build.
+  `(removed)` marks a rule that reports no problems in the head build.
+  A renamed rule shows as two rows: the old name with `(removed)`, and the new name with `(new)`.
+- Below the table, each cell that differs has a collapsed block with examples.
+  It shows the first problems of each kind per rule, in the format `<file>:<line>:<column> [<severity>] <message>`.
 
 ## Cells
 

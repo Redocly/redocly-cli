@@ -151,8 +151,12 @@ function getRuleEntry(rules, ruleId) {
   return entry;
 }
 
-// Returns one entry per rule that reports different problems, sorted by rule name.
-function collectDifferingRules(baseProblems, headProblems, diff) {
+function hasDifferences(rule) {
+  return rule.added.length + rule.removed.length + rule.changed.length > 0;
+}
+
+// Returns one entry per rule that reports a problem in one of the builds, sorted by rule name.
+function collectRules(baseProblems, headProblems, diff) {
   const rules = new Map();
   for (const problem of baseProblems) {
     getRuleEntry(rules, problem.ruleId).baseCount++;
@@ -170,18 +174,28 @@ function collectDifferingRules(baseProblems, headProblems, diff) {
     getRuleEntry(rules, change.head.ruleId).changed.push(change);
   }
 
-  const differingRules = [];
-  for (const entry of rules.values()) {
-    if (entry.added.length + entry.removed.length + entry.changed.length > 0) {
-      differingRules.push(entry);
-    }
-  }
-  differingRules.sort((left, right) => left.ruleId.localeCompare(right.ruleId));
-  return differingRules;
+  const sortedRules = [...rules.values()];
+  sortedRules.sort((left, right) => left.ruleId.localeCompare(right.ruleId));
+  return sortedRules;
 }
 
 function formatCount(count) {
   return count.toLocaleString('en-US');
+}
+
+// For example `+40/-30/~5`: 40 added, 30 removed, and 5 changed problems.
+function formatDelta(added, removed, changed) {
+  const parts = [];
+  if (added > 0) {
+    parts.push(`+${formatCount(added)}`);
+  }
+  if (removed > 0) {
+    parts.push(`-${formatCount(removed)}`);
+  }
+  if (changed > 0) {
+    parts.push(`~${formatCount(changed)}`);
+  }
+  return parts.join('/');
 }
 
 // One line in the style of the lint output: <file>:<line>:<column> [<severity>] <message>
@@ -204,15 +218,28 @@ function renderMoreLine(total) {
   return [`  ... and ${formatCount(total - MAX_EXAMPLES_PER_KIND)} more`];
 }
 
-// A `diff` code block. GitHub shows the `-` lines in red and the `+` lines in green.
-function renderExamples(rules) {
+// The examples of one cell: a collapsed `diff` code block with the first problems of each kind per rule.
+// GitHub shows the `-` lines in red and the `+` lines in green.
+function renderCellDetails(cell) {
+  const summaryParts = [];
+  const delta = formatDelta(
+    cell.diff.added.length,
+    cell.diff.removed.length,
+    cell.diff.changed.length
+  );
+  if (delta !== '') {
+    summaryParts.push(delta);
+  }
+  if (cell.base.exitCode !== cell.head.exitCode) {
+    summaryParts.push(`exit code ${cell.base.exitCode} → ${cell.head.exitCode}`);
+  }
   const lines = [
     '<details>',
-    `<summary>Examples (the first ${MAX_EXAMPLES_PER_KIND} of each kind per rule)</summary>`,
+    `<summary>${cell.spec} · ${cell.config}: ${summaryParts.join(', ')}</summary>`,
     '',
     '```diff',
   ];
-  for (const rule of rules) {
+  for (const rule of cell.rules) {
     if (rule.removed.length > 0) {
       lines.push(`@@ ${rule.ruleId}: ${formatCount(rule.removed.length)} removed @@`);
       for (const problem of rule.removed.slice(0, MAX_EXAMPLES_PER_KIND)) {
@@ -251,33 +278,6 @@ function renderStderr(buildName, cell) {
   ];
 }
 
-// The heading, the exit codes, and the table of rules for one cell that differs.
-function renderCellSection(cell) {
-  const lines = [`### ${cell.spec} · \`${cell.config}\``, ''];
-  if (cell.base.exitCode !== cell.head.exitCode) {
-    lines.push(`Exit code: ${cell.base.exitCode} in base, ${cell.head.exitCode} in head.`, '');
-  }
-  if (cell.base.problems === null) {
-    lines.push(...renderStderr('base', cell.base));
-  }
-  if (cell.head.problems === null) {
-    lines.push(...renderStderr('head', cell.head));
-  }
-  if (cell.rules.length > 0) {
-    lines.push(
-      '| Rule | Base | Head | Added | Removed | Changed |',
-      '| :-- | --: | --: | --: | --: | --: |'
-    );
-    for (const rule of cell.rules) {
-      lines.push(
-        `| \`${rule.ruleId}\` | ${formatCount(rule.baseCount)} | ${formatCount(rule.headCount)} | ${formatCount(rule.added.length)} | ${formatCount(rule.removed.length)} | ${formatCount(rule.changed.length)} |`
-      );
-    }
-    lines.push('');
-  }
-  return lines;
-}
-
 const cellNames = fs
   .readdirSync(baseDir)
   .filter((file) => file.endsWith('.json'))
@@ -305,8 +305,10 @@ for (const name of cellNames) {
     failedCells++;
   } else {
     cell.diff = compareProblems(cell.base.problems, cell.head.problems);
-    cell.rules = collectDifferingRules(cell.base.problems, cell.head.problems, cell.diff);
-    cell.differs = cell.base.exitCode !== cell.head.exitCode || cell.rules.length > 0;
+    cell.rules = collectRules(cell.base.problems, cell.head.problems, cell.diff);
+    cell.differs =
+      cell.base.exitCode !== cell.head.exitCode ||
+      cell.diff.added.length + cell.diff.removed.length + cell.diff.changed.length > 0;
     if (cell.differs) {
       differingCells++;
     }
@@ -333,53 +335,103 @@ if (failedCells + differingCells === 0) {
       `| ${cell.spec} | \`${cell.config}\` | ${formatCount(cell.head.problems.length)} |`
     );
   }
-} else {
-  reportLines.push(
-    '| API description | Config | Base | Head | Added | Removed | Changed |',
-    '| :-- | :-- | --: | --: | --: | --: | --: |'
-  );
-  for (const cell of cells) {
-    let baseCount = 'failed';
-    if (cell.base.problems !== null) {
-      baseCount = formatCount(cell.base.problems.length);
+  reportLines.push('');
+}
+
+// One row per rule that differs, and one column per cell.
+const comparedCells = [];
+const ruleTotals = new Map();
+for (const cell of cells) {
+  if (cell.failed) {
+    continue;
+  }
+  comparedCells.push(cell);
+  for (const rule of cell.rules) {
+    let total = ruleTotals.get(rule.ruleId);
+    if (!total) {
+      total = { baseCount: 0, headCount: 0, differs: false };
+      ruleTotals.set(rule.ruleId, total);
     }
-    let headCount = 'failed';
-    if (cell.head.problems !== null) {
-      headCount = formatCount(cell.head.problems.length);
+    total.baseCount += rule.baseCount;
+    total.headCount += rule.headCount;
+    if (hasDifferences(rule)) {
+      total.differs = true;
     }
-    reportLines.push(
-      `| ${cell.spec} | \`${cell.config}\` | ${baseCount} | ${headCount} | ${formatCount(cell.diff.added.length)} | ${formatCount(cell.diff.removed.length)} | ${formatCount(cell.diff.changed.length)} |`
-    );
   }
 }
-reportLines.push('');
+const tableRows = [];
+for (const ruleId of [...ruleTotals.keys()].sort()) {
+  const total = ruleTotals.get(ruleId);
+  if (!total.differs) {
+    continue;
+  }
+  let row = `| \`${ruleId}\``;
+  // A rule that reports problems in one build only is a new, removed, or renamed rule in most cases.
+  if (total.baseCount === 0) {
+    row += ' (new)';
+  }
+  if (total.headCount === 0) {
+    row += ' (removed)';
+  }
+  row += ' |';
+  for (const cell of comparedCells) {
+    let delta = '';
+    for (const rule of cell.rules) {
+      if (rule.ruleId === ruleId) {
+        delta = formatDelta(rule.added.length, rule.removed.length, rule.changed.length);
+      }
+    }
+    row += ` ${delta} |`;
+  }
+  tableRows.push(row);
+}
+if (tableRows.length > 0) {
+  let header = '| Rule |';
+  let divider = '| :-- |';
+  for (const cell of comparedCells) {
+    header += ` ${cell.spec} \`${cell.config}\` |`;
+    divider += ' --: |';
+  }
+  reportLines.push(
+    header,
+    divider,
+    ...tableRows,
+    '',
+    '`+` added, `-` removed, `~` changed (a different message, severity, line, or column).',
+    ''
+  );
+}
+
+for (const cell of cells) {
+  if (!cell.failed) {
+    continue;
+  }
+  reportLines.push(`### ${cell.spec} · \`${cell.config}\``, '');
+  if (cell.base.problems === null) {
+    reportLines.push(...renderStderr('base', cell.base));
+  }
+  if (cell.head.problems === null) {
+    reportLines.push(...renderStderr('head', cell.head));
+  }
+}
 
 const footerLines = [`[How to read this report and run it locally](${README_URL})`, ''];
 
-// The tables always go into the report. The examples go in only while the comment has room for them.
-const sections = [];
+// The examples go into the report only while the comment has room for them.
 let remainingLength =
   MAX_REPORT_LENGTH - reportLines.join('\n').length - footerLines.join('\n').length;
 for (const cell of cells) {
-  if (!cell.failed && !cell.differs) {
+  if (!cell.differs) {
     continue;
   }
-  const section = { tableLines: renderCellSection(cell), exampleLines: [] };
-  if (cell.rules.length > 0) {
-    section.exampleLines = renderExamples(cell.rules);
-  }
-  remainingLength -= section.tableLines.join('\n').length;
-  sections.push(section);
-}
-for (const section of sections) {
-  reportLines.push(...section.tableLines);
-  const examplesLength = section.exampleLines.join('\n').length;
-  if (examplesLength <= remainingLength) {
-    reportLines.push(...section.exampleLines);
-    remainingLength -= examplesLength;
+  const detailLines = renderCellDetails(cell);
+  const detailLength = detailLines.join('\n').length;
+  if (detailLength <= remainingLength) {
+    reportLines.push(...detailLines);
+    remainingLength -= detailLength;
   } else {
     reportLines.push(
-      'The examples do not fit in this comment. Run the comparison locally to see them.',
+      `The examples for ${cell.spec} · ${cell.config} do not fit in this comment. Run the comparison locally to see them.`,
       ''
     );
   }
