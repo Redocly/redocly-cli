@@ -109,9 +109,7 @@ export async function getPageHTML(
       ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
       : undefined);
 
-  const templateSource = customTemplate
-    ? readFileSync(customTemplate, 'utf-8')
-    : DEFAULT_TEMPLATE_SOURCE;
+  const templateSource = customTemplate ? readTemplate(customTemplate) : DEFAULT_TEMPLATE_SOURCE;
   const template = handlebars.compile(templateSource);
 
   const redocBundleUrl = `https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js`;
@@ -145,6 +143,15 @@ export async function getPageHTML(
     title: title || definitionTitle || 'ReDoc documentation',
     templateOptions,
   });
+}
+
+function readTemplate(templatePath: string): string {
+  try {
+    return readFileSync(templatePath, 'utf-8');
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new HandledError(`Cannot read the template file: ${reason}`);
+  }
 }
 
 const redocStandalonePath = fileURLToPath(import.meta.resolve('#redoc.standalone.js'));
