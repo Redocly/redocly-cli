@@ -29,7 +29,6 @@ import {
   hasInputs,
   isQuery,
   throwingCallText,
-  UNWRAP_RESULT_SOURCE,
   variablesName,
   wrappableOperations,
 } from '@redocly/client-generator/contracts/typescript';
@@ -63,7 +62,6 @@ export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): st
   const pagination = opts.pagination ?? new Map();
   const source = [
     importHeader(ops, opts, pagination),
-    ...(opts.errorMode === 'result' ? [UNWRAP_RESULT_SOURCE] : []),
     ...(ops.some((op) => isBodyLinkInfinite(op, pagination)) ? [NEXT_LINK_QUERY] : []),
     ...ops.filter(isQuery).map((op) => queryKeySource(op, opts.queryKeyPrefix)),
     factoriesSource(model, ops, pagination, opts),
@@ -108,8 +106,8 @@ const NEXT_LINK_QUERY =
 
 /**
  * The import header: the option helpers from `@tanstack/${framework}-query` (only the
- * ones used), then the sdk's `client` instance plus the referenced types — and, over a
- * result-mode client, what `unwrapResult` needs.
+ * ones used), then the sdk's `client` instance (plus `unwrapResult` over a result-mode
+ * client) and the referenced types.
  */
 function importHeader(
   ops: OperationModel[],
@@ -120,15 +118,10 @@ function importHeader(
     ...(ops.some((op) => isInfinite(op, pagination)) ? ['infiniteQueryOptions'] : []),
     ...(ops.some(isQuery) ? ['queryOptions'] : []),
   ];
-  const unwraps = opts.errorMode === 'result';
-  const types = [
-    ...ops.filter(hasInputs).map(variablesName),
-    'RequestOptions',
-    ...(unwraps ? ['Result'] : []),
-  ]
+  const types = [...ops.filter(hasInputs).map(variablesName), 'RequestOptions']
     .sort()
     .map((name) => `type ${name}`);
-  const values = unwraps ? ['ApiError', 'client'] : ['client'];
+  const values = opts.errorMode === 'result' ? ['client', 'unwrapResult'] : ['client'];
   const lines = [];
   if (helpers.length > 0) {
     lines.push(`import { ${helpers.join(', ')} } from "@tanstack/${opts.framework}-query";`);

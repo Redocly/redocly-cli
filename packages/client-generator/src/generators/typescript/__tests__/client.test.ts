@@ -437,7 +437,9 @@ describe('runtime: module', () => {
     expect(factory).toContain("import { resolveAuth } from './auth.js';");
     expect(factory).toContain("import { sse } from './sse.js';");
     expect(factory).not.toContain("from './paginate.js'");
-    expect(factory).toContain("export { ApiError, TimeoutError } from './errors.js';");
+    expect(factory).toContain(
+      "export { ApiError, TimeoutError, unwrapResult } from './errors.js';"
+    );
     expect(factory).toContain("export type * from './types.js';");
     // The raw modules keep their imports — nothing is stripped in module mode.
     const send = files.find((file) => file.name === 'send.ts')!.content;

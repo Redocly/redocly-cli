@@ -38,8 +38,6 @@ redocly generate-client openapi.yaml --output src/client.ts --generator typescri
 Some generators need specific options:
 
 - `cli`, `go`, `php`, and `java` work only with `--error-mode throw` (the default).
-- `tanstack-query` and `swr` work with both error modes.
-  See [Error mode with TanStack Query and SWR](#error-mode-with-tanstack-query-and-swr).
 - `transformers` works only with `--date-type Date`.
 
 For sample output, see the [`zod`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/zod), [`tanstack-query`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/tanstack-query), and [`mock`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/mock) examples.

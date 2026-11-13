@@ -91,7 +91,7 @@ function moduleFactory(needs: InlineRuntimeNeeds): string {
   // The client entry re-exports this module, so the factory carries the same public
   // surface the inline embed leaves in module scope (the kept-export set).
   const reexports = [
-    "export { ApiError, TimeoutError } from './errors.js';",
+    "export { ApiError, TimeoutError, unwrapResult } from './errors.js';",
     "export { defaultRetryOn } from './retry.js';",
     ...(needs.setup ? ["export { mergeSetup } from './setup.js';"] : []),
     "export type * from './types.js';",

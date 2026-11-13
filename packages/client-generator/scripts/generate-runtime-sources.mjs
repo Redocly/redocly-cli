@@ -314,7 +314,9 @@ writeFileSync(
 // so comments and formatting survive byte-for-byte.
 const KEEP_EXPORTS = {
   'types.ts': () => true,
-  'errors.ts': (statement) => ts.isClassDeclaration(statement),
+  'errors.ts': (statement) =>
+    ts.isClassDeclaration(statement) ||
+    (ts.isFunctionDeclaration(statement) && statement.name?.text === 'unwrapResult'),
   'retry.ts': (statement) =>
     ts.isFunctionDeclaration(statement) && statement.name?.text === 'defaultRetryOn',
   'setup.ts': () => true,
