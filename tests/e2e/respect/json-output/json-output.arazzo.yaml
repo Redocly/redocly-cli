@@ -13,7 +13,7 @@ sourceDescriptions:
 workflows:
   - workflowId: search-menu
     description: >-
-      A passing step, followed by a step that runs another workflow.
+      A passing step, a step that checks the output of another workflow, and a step that runs a failing workflow.
     steps:
       - stepId: search-menu-items
         operationId: cafe-api.listMenuItems
@@ -23,8 +23,27 @@ workflows:
             value: mermaid-treasure-latte
         successCriteria:
           - condition: $statusCode == 200
+      - stepId: check-page-limit
+        workflowId: get-page-limit
+        successCriteria:
+          - condition: $outputs.pageLimit == 10
       - stepId: order-attempt
         workflowId: order-attempt
+
+  - workflowId: get-page-limit
+    description: >-
+      A workflow with an output, for the criterion of the step that calls it.
+    steps:
+      - stepId: list-menu-items
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
+        outputs:
+          pageLimit: $response.body#/page/limit
+    outputs:
+      pageLimit: $steps.list-menu-items.outputs.pageLimit
 
   - workflowId: order-attempt
     description: >-

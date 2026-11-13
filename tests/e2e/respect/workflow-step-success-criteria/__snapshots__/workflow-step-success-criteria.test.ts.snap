@@ -63,6 +63,23 @@ exports[`should fail a step that calls a workflow when its success criteria or o
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
+  Running workflow workflow-step-success-criteria.arazzo.yaml / check-response-criterion 
+ 
+  Running child workflow for the step status-code-without-request 
+  Running workflow workflow-step-success-criteria.arazzo.yaml / get-menu-page-limit 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✗ status-code-without-request 
+    ✗ success criteria check - $statusCode == 200
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
   Running workflow workflow-step-success-criteria.arazzo.yaml / check-unresolved-output 
  
   Running child workflow for the step missing-output 
@@ -92,6 +109,12 @@ exports[`should fail a step that calls a workflow when its success criteria or o
     stepId - unknown-expression 
     ✗ unexpected error 
     Reason: Success criteria condition $unknown == 10 is not allowed.
+  Workflow name: check-response-criterion
+ 
+    stepId - status-code-without-request 
+    ✗ success criteria check 
+      $statusCode has no value in a step that calls a workflow, because the step sends no request. Check the outputs of the called workflow with $outputs instead.
+      
   Workflow name: check-unresolved-output
  
     stepId - missing-output 
@@ -100,16 +123,16 @@ exports[`should fail a step that calls a workflow when its success criteria or o
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
   Summary for workflow-step-success-criteria.arazzo.yaml
   
-  Workflows: 3 failed, 3 total
-  Steps: 6 passed, 3 failed, 9 total
-  Checks: 21 passed, 3 failed, 24 total
+  Workflows: 4 failed, 4 total
+  Steps: 7 passed, 4 failed, 11 total
+  Checks: 25 passed, 4 failed, 29 total
   Time: <test>ms 
  
  
 ┌────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                           │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x workflow-step-success-criteria.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
+│ x workflow-step-success-criteria.arazzo.yaml                                       │ 4          │ 0       │ 4       │ -        │
 └────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 

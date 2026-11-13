@@ -16,6 +16,8 @@ test('should fail a step that calls a workflow when its success criteria or outp
     '--workflow',
     'check-invalid-criterion',
     '--workflow',
+    'check-response-criterion',
+    '--workflow',
     'check-unresolved-output',
   ]);
 

@@ -33,6 +33,9 @@ import { resolveActionInputs } from './resolve-action-inputs.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
 import { checkCriteria } from './success-criteria/index.js';
 
+// the expressions that read the request or the response of a step
+const REQUEST_EXPRESSION = /\$(statusCode|response|request|url|method)\b/;
+
 // oxlint-disable-next-line sonarjs/cognitive-complexity
 export async function runStep({
   step,
@@ -147,9 +150,24 @@ export async function runStep({
     try {
       // a failed child workflow has already failed the step, and its outputs can be unset
       if (step.successCriteria && !childWorkflowFailed) {
-        step.checks.push(
-          ...checkCriteria({ workflowId, step, criteria: step.successCriteria, ctx: stepCtx })
-        );
+        for (const criterion of step.successCriteria) {
+          const [requestExpression] =
+            REQUEST_EXPRESSION.exec([criterion.condition, criterion.context].join(' ')) || [];
+
+          if (requestExpression) {
+            step.checks.push({
+              name: CHECKS.SUCCESS_CRITERIA_CHECK,
+              passed: false,
+              message: `${requestExpression} has no value in a step that calls a workflow, because the step sends no request. Check the outputs of the called workflow with $outputs instead.`,
+              severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+              condition: criterion.condition,
+            });
+          } else {
+            step.checks.push(
+              ...checkCriteria({ workflowId, step, criteria: [criterion], ctx: stepCtx })
+            );
+          }
+        }
       }
 
       for (const [outputKey, outputValue] of Object.entries(step.outputs || {})) {

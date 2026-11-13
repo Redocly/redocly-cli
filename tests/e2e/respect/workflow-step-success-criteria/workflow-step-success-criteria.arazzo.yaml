@@ -4,7 +4,8 @@ info:
   description: >-
     Testing that the success criteria of a step with a workflowId are checked
     against the outputs of the called workflow, and that a failed criterion,
-    an invalid criterion, or an unresolved output fails the step.
+    an invalid criterion, a criterion that reads the response, or an unresolved
+    output fails the step.
   version: 1.0.0
 
 sourceDescriptions:
@@ -42,6 +43,14 @@ workflows:
         workflowId: get-menu-page-limit
         successCriteria:
           - condition: $unknown == 10
+      - stepId: not-reached
+        workflowId: get-menu-page-limit
+  - workflowId: check-response-criterion
+    steps:
+      - stepId: status-code-without-request
+        workflowId: get-menu-page-limit
+        successCriteria:
+          - condition: $statusCode == 200
       - stepId: not-reached
         workflowId: get-menu-page-limit
   - workflowId: check-unresolved-output

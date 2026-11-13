@@ -88,19 +88,22 @@ function mapJsonStep(
     type: 'step',
     stepId: step.stepId,
     workflowId,
-    request: {
-      method: publicStep?.request?.method || '',
-      url: step.response?.requestUrl || '',
-      headers: publicStep?.request?.header || {},
-      body: publicStep?.request?.body,
-    },
-    response: {
-      statusCode: step.response?.statusCode || 0,
-      body: publicStep?.response?.body,
-      headers: step.response?.header || {},
-      time: step.response?.time || 0,
-      size: step.response?.responseSize,
-    },
+    // a step that calls a workflow sends no request
+    ...(!step.workflowId && {
+      request: {
+        method: publicStep?.request?.method || '',
+        url: step.response?.requestUrl || '',
+        headers: publicStep?.request?.header || {},
+        body: publicStep?.request?.body,
+      },
+      response: {
+        statusCode: step.response?.statusCode || 0,
+        body: publicStep?.response?.body,
+        headers: step.response?.header || {},
+        time: step.response?.time || 0,
+        size: step.response?.responseSize,
+      },
+    }),
     checks: step.checks.map((check) => ({
       ...check,
       status: calculateCheckStatus(check),
