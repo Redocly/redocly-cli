@@ -30,7 +30,7 @@ redocly diff <base> <revision> [--config=<path>] [--extends=<ruleset>]... [--ski
 | Option          | Type     | Description                                                                                                                                                                                    |
 | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | base            | string   | **REQUIRED.** Path, URL, [alias](../configuration/reference/apis.md), or [git revision file](#compare-with-a-git-revision) of the older API description.                                       |
-| revision        | string   | **REQUIRED.** Path, URL, alias, or git revision file of the newer API description.                                                                                                             |
+| revision        | string   | **REQUIRED.** Path, URL, alias, or Git revision file of the newer API description.                                                                                                             |
 | --check-version | boolean  | Fail if `info.version` of the revision is lower than the version that the changes require. See [Check the version](#check-the-version). Default value is `false`.                              |
 | --config        | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                           |
 | --extends       | [string] | Use these rulesets in place of the `extends` list of the configuration file. See [Turn on the diff rules for one run](#turn-on-the-diff-rules-for-one-run).                                    |
@@ -85,9 +85,9 @@ redocly diff main/openapi.yaml openapi.yaml
 To also fail on new features, use `--fail-on=minor`.
 To never fail, use `--fail-on=none`.
 
-### Compare with a git revision
+### Compare with a Git revision
 
-To read a description from git, write the revision, a colon, and the path of the file, as you do for `git show`:
+To read a description from Git, write the revision, a colon, and the path of the file, as you do for `git show`:
 
 ```bash
 redocly diff origin/main:openapi.yaml openapi.yaml
@@ -96,7 +96,7 @@ redocly diff origin/main:openapi.yaml openapi.yaml
 This command compares `openapi.yaml` on the `origin/main` branch with `openapi.yaml` in your working directory.
 
 The revision can be a branch, a tag, or a commit, for example `main`, `v1.0.0`, `HEAD~1`, or `4d6f1c5`.
-The two descriptions can come from git:
+The two descriptions can come from Git:
 
 ```bash
 redocly diff v1.0.0:openapi.yaml v2.0.0:openapi.yaml
