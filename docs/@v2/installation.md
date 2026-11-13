@@ -4,6 +4,7 @@ Choose the most appropriate installation method for your needs:
 
 - [Install locally, using `npm`](#install-locally) to make the `redocly` command available on your system.
 - [Use `npx` to get the tool at runtime](#use-the-command-at-runtime) rather than installing it.
+- [Download a standalone binary](#standalone-binary) that runs without Node.js.
 - The command is also [available through Docker](#docker).
 
 ## Install locally
@@ -41,6 +42,63 @@ For example, to run `redocly lint` on a file named `openapi.yaml`, use the follo
 ```bash
 npx @redocly/cli@latest lint openapi.yaml
 ```
+
+## <a id="standalone-binary"></a>Download a standalone binary
+
+Every Redocly CLI release on the [GitHub releases page](https://github.com/Redocly/redocly-cli/releases) includes standalone binaries for Linux, macOS, and Windows.
+A binary needs no Node.js or npm.
+The `SHA256SUMS` file in the same release lists the SHA-256 checksum of each binary.
+
+| System                                | File                        |
+| ------------------------------------- | --------------------------- |
+| Linux x64                             | `redocly-linux-x64`         |
+| Linux arm64                           | `redocly-linux-arm64`       |
+| Linux x64 with musl, such as Alpine   | `redocly-linux-x64-musl`    |
+| Linux arm64 with musl, such as Alpine | `redocly-linux-arm64-musl`  |
+| macOS with an Intel processor         | `redocly-darwin-x64`        |
+| macOS with an Apple silicon processor | `redocly-darwin-arm64`      |
+| Windows x64                           | `redocly-windows-x64.exe`   |
+| Windows arm64                         | `redocly-windows-arm64.exe` |
+
+To install a binary on Linux or macOS:
+
+1. Download the binary for your system and the checksums file.
+   Replace the version and the file name with the ones you need:
+
+   ```bash
+   VERSION=2.75.0
+   FILE=redocly-linux-x64
+   curl -fLO "https://github.com/Redocly/redocly-cli/releases/download/%40redocly%2Fcli%40$VERSION/$FILE"
+   curl -fLO "https://github.com/Redocly/redocly-cli/releases/download/%40redocly%2Fcli%40$VERSION/SHA256SUMS"
+   ```
+
+1. Check the binary against its checksum:
+
+   ```bash
+   sha256sum --check --ignore-missing SHA256SUMS
+   ```
+
+   On macOS, use `shasum -a 256 --check --ignore-missing SHA256SUMS`.
+
+1. Make the binary executable and move it to a folder on your `PATH`:
+
+   ```bash
+   chmod +x "$FILE"
+   sudo mv "$FILE" /usr/local/bin/redocly
+   ```
+
+1. Run `redocly --version` to confirm the installation.
+
+On Windows, download the `.exe` file and the `SHA256SUMS` file.
+In PowerShell, run `Get-FileHash redocly-windows-x64.exe` and compare the hash with the line for the same file in `SHA256SUMS`.
+Then rename the file to `redocly.exe` and add its folder to your `PATH`.
+
+The macOS binaries are not notarized by Apple.
+MacOS blocks binaries downloaded in a web browser.
+Download the binary with the previously mentioned `curl` command, or remove the block with `xattr -d com.apple.quarantine <file>`.
+
+The `preview`, `eject`, and `translate` commands download their product package from the npm registry and run it on the runtime built into the binary.
+They use the registry configured in your `.npmrc` file.
 
 ## <a id="docker"></a>Run commands inside Docker
 

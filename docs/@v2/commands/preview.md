@@ -4,6 +4,8 @@
 
 The `preview` command starts a local preview server for a Redocly project with the `@redocly/framework` package.
 A project whose `package.json` lists a legacy product package, such as `@redocly/realm`, previews with that package instead.
+Redocly CLI installed from npm runs the package with npx.
+The [standalone binary](../installation.md#standalone-binary) runs it on its built-in runtime, so it needs no Node.js.
 Use the preview server to develop your project locally before deployment.
 
 ## Usage
@@ -81,3 +83,12 @@ npm install -g @redocly/cli@latest
 ```
 
 After installation, the `redocly` command is available globally, which helps avoid npx cache issues.
+
+#### Clear the standalone binary cache
+
+The standalone binary keeps the product package in its own cache instead of the npx cache.
+Clear that cache:
+
+```bash
+BUN_BE_BUN=1 redocly pm cache rm
+```

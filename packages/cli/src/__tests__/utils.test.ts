@@ -27,7 +27,7 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
-import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
+import { sanitizeLocale, sanitizePath, getPackageRunner } from '../utils/platform.js';
 import { cleanArgs } from '../utils/telemetry.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -852,29 +852,51 @@ describe('runtime platform', () => {
     });
   });
 
-  describe('getPlatformSpawnArgs', () => {
-    it('should return args for Windows platform', () => {
+  describe('getPackageRunner', () => {
+    it('should run the package with npx through a shell on Windows', () => {
       vi.spyOn(process, 'platform', 'get').mockReturnValueOnce('win32');
 
-      const result = getPlatformSpawnArgs();
+      const runner = getPackageRunner('@redocly/realm');
 
-      expect(result).toEqual({
-        npxExecutableName: 'npx.cmd',
+      expect(runner).toEqual({
+        command: 'npx.cmd',
+        args: ['-y', '@redocly/realm'],
+        env: process.env,
         sanitize: expect.any(Function),
         shell: true,
       });
+      expect(runner.sanitize('a&&b', sanitizePath)).toBe('ab');
     });
 
-    it('should return args for non-Windows platform', () => {
+    it('should run the package with npx on other platforms', () => {
       vi.spyOn(process, 'platform', 'get').mockReturnValueOnce('linux');
 
-      const result = getPlatformSpawnArgs();
+      const runner = getPackageRunner('@redocly/realm');
 
-      expect(result).toEqual({
-        npxExecutableName: 'npx',
+      expect(runner).toEqual({
+        command: 'npx',
+        args: ['-y', '@redocly/realm'],
+        env: process.env,
         sanitize: expect.any(Function),
         shell: false,
       });
+      expect(runner.sanitize('a&&b', sanitizePath)).toBe('a&&b');
+    });
+
+    it('should run the package with the embedded Bun runtime in the standalone binary', () => {
+      Object.defineProperty(process.versions, 'bun', { value: '1.4.4', configurable: true });
+
+      try {
+        expect(getPackageRunner('@redocly/framework')).toEqual({
+          command: process.execPath,
+          args: ['x', '--bun', '@redocly/framework'],
+          env: { ...process.env, BUN_BE_BUN: '1' },
+          sanitize: expect.any(Function),
+          shell: false,
+        });
+      } finally {
+        Reflect.deleteProperty(process.versions, 'bun');
+      }
     });
   });
 });

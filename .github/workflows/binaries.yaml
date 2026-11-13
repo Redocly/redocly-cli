@@ -1,0 +1,132 @@
+name: Binaries
+
+permissions:
+  contents: read
+
+on:
+  # On a pull request, the binaries are built and smoke-tested but not published.
+  pull_request:
+    types: [opened, synchronize, reopened]
+  # The release workflow calls this after it publishes to npm.
+  workflow_call:
+    inputs:
+      version:
+        description: Version of @redocly/cli whose GitHub release gets the binaries.
+        required: true
+        type: string
+  # Uploads the binaries again, for example when a newer push to main cancelled the release run.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version of @redocly/cli whose GitHub release gets the binaries, for example 2.75.0.
+        required: true
+        type: string
+
+env:
+  REDOCLY_TELEMETRY: 'off'
+
+jobs:
+  build:
+    name: Build ${{ matrix.file }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # The x64 baseline targets also run on CPUs without AVX2.
+        # The musl binaries are smoke-tested in an Alpine container.
+        include:
+          - { file: redocly-linux-x64, target: bun-linux-x64-baseline, runner: ubuntu-latest }
+          - { file: redocly-linux-arm64, target: bun-linux-arm64, runner: ubuntu-24.04-arm }
+          - file: redocly-linux-x64-musl
+            target: bun-linux-x64-musl-baseline
+            runner: ubuntu-latest
+            alpine: true
+          - file: redocly-linux-arm64-musl
+            target: bun-linux-arm64-musl
+            runner: ubuntu-24.04-arm
+            alpine: true
+          - { file: redocly-darwin-x64, target: bun-darwin-x64, runner: macos-15-intel }
+          - { file: redocly-darwin-arm64, target: bun-darwin-arm64, runner: macos-latest }
+          - file: redocly-windows-x64.exe
+            target: bun-windows-x64-baseline
+            runner: windows-latest
+          - file: redocly-windows-arm64.exe
+            target: bun-windows-arm64
+            runner: windows-11-arm
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The Windows runners check out with CRLF line endings, which break the build scripts that parse Markdown.
+      - run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.version && format('@redocly/cli@{0}', inputs.version) || '' }}
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the bundle
+        run: npm run compile
+        env:
+          BUILD_ENV: ${{ inputs.version && 'production' || 'development' }}
+
+      - name: Build the binary
+        run: node packages/cli/scripts/build-binary.mjs ${{ matrix.target }} dist/${{ matrix.file }}
+
+      - name: Smoke test
+        if: ${{ !matrix.alpine }}
+        run: bash tests/smoke/binary/run-smoke.sh dist/${{ matrix.file }}
+
+      - name: Smoke test in Alpine
+        if: ${{ matrix.alpine }}
+        run: >
+          docker run --rm --volume "$PWD:/repo" --workdir /repo alpine:3.22
+          sh -c 'apk add --no-cache bash curl libgcc libstdc++ && bash tests/smoke/binary/run-smoke.sh dist/${{ matrix.file }}'
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ matrix.file }}
+          path: dist/${{ matrix.file }}
+          if-no-files-found: error
+
+      # The binaries bundle the same packages as the npm package, so they ship the same notices.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: ${{ matrix.file == 'redocly-linux-x64' }}
+        with:
+          name: THIRD_PARTY_NOTICES
+          path: packages/cli/THIRD_PARTY_NOTICES
+          if-no-files-found: error
+
+  publish:
+    if: ${{ inputs.version }}
+    needs: build
+    name: Upload to the GitHub release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Write checksums
+        working-directory: dist
+        run: sha256sum redocly-* > SHA256SUMS
+
+      - name: Upload the binaries and checksums
+        run: gh release upload "@redocly/cli@$VERSION" dist/* --clobber --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}

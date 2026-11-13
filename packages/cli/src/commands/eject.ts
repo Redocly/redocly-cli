@@ -1,7 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 import { spawn } from 'node:child_process';
 
-import { getPlatformSpawnArgs, sanitizePath } from '../utils/platform.js';
+import { getPackageRunner, sanitizePath } from '../utils/platform.js';
 import type { CommandArgs } from '../wrapper.js';
 
 export type EjectArgv = {
@@ -12,17 +12,16 @@ export type EjectArgv = {
 };
 
 export const handleEject = async ({ argv }: CommandArgs<EjectArgv>) => {
-  logger.info(`\nLaunching eject using NPX.\n\n`);
-  const { npxExecutableName, sanitize, shell } = getPlatformSpawnArgs();
+  logger.info(`\nLaunching eject.\n\n`);
+  const { command, args, env, sanitize, shell } = getPackageRunner('@redocly/realm');
 
   const path = sanitize(argv.path, sanitizePath);
   const projectDir = sanitize(argv['project-dir'], sanitizePath);
 
   const child = spawn(
-    npxExecutableName,
+    command,
     [
-      '-y',
-      '@redocly/realm',
+      ...args,
       'eject',
       `${argv.type}`,
       path,
@@ -31,6 +30,7 @@ export const handleEject = async ({ argv }: CommandArgs<EjectArgv>) => {
     ],
     {
       stdio: 'inherit',
+      env,
       shell,
     }
   );
