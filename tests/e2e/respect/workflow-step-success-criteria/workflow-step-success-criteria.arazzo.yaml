@@ -1,0 +1,77 @@
+arazzo: 1.0.1
+info:
+  title: Success criteria of a step that calls a workflow
+  description: >-
+    Testing that the success criteria of a step with a workflowId are checked
+    against the outputs of the called workflow, and that a failed criterion,
+    an invalid criterion, a criterion that reads the response, or an unresolved
+    output fails the step.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: check-menu-page-limit
+    steps:
+      - stepId: expect-default-page-limit
+        workflowId: get-menu-page-limit
+        successCriteria:
+          - condition: $outputs.pageLimit == 10
+      - stepId: expect-wrong-page-limit
+        workflowId: get-menu-page-limit
+        successCriteria:
+          - condition: $outputs.pageLimit == 20
+        onFailure:
+          - name: handle-wrong-page-limit
+            type: goto
+            stepId: reached-on-failure
+            criteria:
+              - condition: $outputs.pageLimit == 10
+      - stepId: reached-on-success
+        workflowId: get-menu-page-limit
+        onSuccess:
+          - name: stop
+            type: end
+      - stepId: reached-on-failure
+        workflowId: get-menu-page-limit
+  - workflowId: check-invalid-criterion
+    steps:
+      - stepId: unknown-expression
+        workflowId: get-menu-page-limit
+        successCriteria:
+          - condition: $unknown == 10
+      - stepId: not-reached
+        workflowId: get-menu-page-limit
+  - workflowId: check-response-criterion
+    steps:
+      - stepId: status-code-without-request
+        workflowId: get-menu-page-limit
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: not-reached
+        workflowId: get-menu-page-limit
+  - workflowId: check-unresolved-output
+    steps:
+      - stepId: missing-output
+        workflowId: get-menu-page-limit
+        outputs:
+          firstItem: $outputs.pageLimit#/items/0
+      - stepId: not-reached
+        workflowId: get-menu-page-limit
+  - workflowId: get-menu-page-limit
+    steps:
+      - stepId: list-menu-items
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          pageLimit: $response.body#/page/limit
+    outputs:
+      pageLimit: $steps.list-menu-items.outputs.pageLimit
