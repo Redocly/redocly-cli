@@ -480,13 +480,18 @@ describe('handleIntrospectMcp', () => {
       await handleStatelessRequest(mcpServer, request, response);
     });
     const repeatedCursorServerUrl = await listenOnFreePort(repeatedCursorServer, '/mcp');
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
     try {
       await expect(
-        runIntrospectMcp({ 'server-url': repeatedCursorServerUrl, output: 'openapi.yaml' })
+        runIntrospectMcp({
+          'server-url': repeatedCursorServerUrl,
+          output: join(outputDir, 'openapi.yaml'),
+        })
       ).rejects.toThrow(
         'The MCP server returned the same pagination cursor twice, so its list never ends.'
       );
     } finally {
+      rmSync(outputDir, { recursive: true, force: true });
       await new Promise((resolve) => repeatedCursorServer.close(resolve));
     }
   });
@@ -496,9 +501,14 @@ describe('handleIntrospectMcp', () => {
     const closedServerUrl = await listenOnFreePort(closedServer, '/mcp');
     await new Promise((resolve) => closedServer.close(resolve));
 
-    await expect(
-      runIntrospectMcp({ 'server-url': closedServerUrl, output: 'openapi.yaml' })
-    ).rejects.toThrow(`Failed to connect to the MCP server at ${closedServerUrl}: fetch failed`);
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    try {
+      await expect(
+        runIntrospectMcp({ 'server-url': closedServerUrl, output: join(outputDir, 'openapi.yaml') })
+      ).rejects.toThrow(`Failed to connect to the MCP server at ${closedServerUrl}: fetch failed`);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
   });
 
   it('introspects a server that supports only the 2026-07-28 protocol, which has no initialize handshake', async () => {
