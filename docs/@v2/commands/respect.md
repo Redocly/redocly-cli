@@ -214,10 +214,11 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --allow-additional-properties
 - boolean
 - Allows response properties that the schema does not describe.
-  By default, the schema check fails when a response has a property that is not listed in the schema of the OpenAPI description, unless the schema sets `additionalProperties` or `unevaluatedProperties`.
-  This default reports responses that are ahead of the description.
+  By default, the schema check accepts only the properties that the schema describes.
+  A response with any other property fails the check, which reports a response that is ahead of the description.
+  A schema that sets `additionalProperties` or `unevaluatedProperties` keeps its own setting.
 
-  When this flag is set to `true`, the schema check follows JSON Schema: a property that the schema does not describe is accepted.
+  With this flag, the schema check follows JSON Schema and accepts a property that the schema does not describe.
   A schema that sets `additionalProperties: false` or `unevaluatedProperties: false` still rejects it.
 
   For example, the following command accepts response properties that the description does not list:
