@@ -762,9 +762,17 @@ describe('cleanArgs', () => {
     );
   });
 
-  it('should remove the commit author from parsed args and raw CLI input', () => {
+  it('should remove the commit author and the organization from parsed args and raw CLI input', () => {
     const author = 'Jane Doe <jane.doe@example.com>';
-    const rawInput = ['redocly', 'push', './fixtures/openapi.yaml', '--author', author];
+    const rawInput = [
+      'redocly',
+      'push',
+      './fixtures/openapi.yaml',
+      '-o',
+      'my-org',
+      '--author',
+      author,
+    ];
     const parsedArgs = {
       files: ['./fixtures/openapi.yaml'],
       organization: 'my-org',
@@ -780,7 +788,7 @@ describe('cleanArgs', () => {
 
     const result = cleanArgs(parsedArgs, rawInput);
 
-    expect(result.raw_input).toEqual('redocly push file-yaml --author ***');
+    expect(result.raw_input).toEqual('redocly push file-yaml -o *** --author ***');
     expect(result.arguments).toEqual(
       JSON.stringify({
         files: ['file-yaml'],
