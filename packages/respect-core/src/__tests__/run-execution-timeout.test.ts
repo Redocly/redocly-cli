@@ -130,3 +130,25 @@ describe('run with an execution timeout', () => {
     expect(longResult).toMatchObject([{ hasProblems: false, globalTimeoutError: false }]);
   });
 });
+
+describe('run request count', () => {
+  it('counts no request for the workflows that start after the execution timeout', async () => {
+    const fetch = vi.fn(failingFetch);
+    const options = await runOptions('retry-after-a-minute', 1_000, fetch);
+
+    const result = await run({ ...options, workflow: undefined });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject([{ totalRequests: 1 }]);
+  });
+
+  it('counts no request for a retry that the step limit stops', async () => {
+    const fetch = vi.fn(failingFetch);
+    const options = await runOptions('retry-often', 60_000, fetch);
+
+    const result = await run({ ...options, maxSteps: 2 });
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject([{ totalRequests: 2 }]);
+  });
+});

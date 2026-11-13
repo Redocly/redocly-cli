@@ -103,15 +103,18 @@ async function runWorkflows({
         // an unresolvable or failed dependsOn dependency fails this workflow
         // but must not abort the remaining workflows and files
         const failureTime = performance.now();
+        const failedCheckName = error.globalTimeoutError
+          ? 'GLOBAL_TIMEOUT_ERROR'
+          : 'UNEXPECTED_ERROR';
         // a synthetic step to carry the failed check; it has no operation to call
         const failedStep = {
           stepId: 'dependsOn',
           checks: [
             {
-              name: CHECKS.UNEXPECTED_ERROR,
+              name: CHECKS[failedCheckName],
               message: error.message,
               passed: false,
-              severity: ctx.severity['UNEXPECTED_ERROR'],
+              severity: ctx.severity[failedCheckName],
             },
           ],
         } as Step;

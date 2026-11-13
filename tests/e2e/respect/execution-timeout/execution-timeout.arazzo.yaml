@@ -38,3 +38,11 @@ workflows:
         operationId: $sourceDescriptions.cafe-api.listMenuItems
         successCriteria:
           - condition: $statusCode == 200
+  - workflowId: depend-on-workflow-after-the-timeout
+    description: >-
+      This workflow starts after the execution timeout, so the workflow it depends on sends no request.
+    dependsOn:
+      - list-menu
+    steps:
+      - stepId: get-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
