@@ -9,6 +9,8 @@ Ensures that `examples` object properties `externalValue` and `value` are mutual
 {% admonition type="warning" name="Deprecated" %}
 This rule is deprecated and is an alias of [`spec-example-values`](../oas/spec-example-values.md).
 Its setting in `redocly.yaml` is applied to `spec-example-values`, and the problems are reported under that name.
+The setting covers every check of `spec-example-values`, including the OpenAPI 3.2 field combinations.
+When both names are set, the `spec-example-values` setting is used.
 Replace it with `spec-example-values` in your `redocly.yaml`: the configuration linter warns about the deprecated name.
 {% /admonition %}
 
@@ -108,5 +110,5 @@ requestBody:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-example-value-and-externalValue.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/spec-example-values.ts)
 - [Example object docs](https://redocly.com/docs/openapi-visual-reference/example/)

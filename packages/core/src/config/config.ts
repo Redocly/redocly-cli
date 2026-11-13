@@ -461,7 +461,11 @@ export class Config {
   }
 
   skipRules(rules?: string[]) {
-    for (const ruleId of rules || []) {
+    for (const skippedRuleId of rules || []) {
+      const ruleId =
+        skippedRuleId === 'no-example-value-and-externalValue'
+          ? 'spec-example-values'
+          : skippedRuleId;
       for (const version of specVersions) {
         if (this.rules[version][ruleId]) {
           this.rules[version][ruleId] = 'off';

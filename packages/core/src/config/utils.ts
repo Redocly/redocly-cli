@@ -47,7 +47,7 @@ export function prefixRules<
 
 export function renameDeprecatedRules<T extends ResolvedGovernanceConfig>(config: T): T {
   const renamedConfig = { ...config };
-  for (const rulesKey of ['rules', 'oas3_0Rules', 'oas3_1Rules'] as const) {
+  for (const rulesKey of ['rules', 'oas3_0Rules', 'oas3_1Rules', 'oas3_2Rules'] as const) {
     const rules = config[rulesKey];
     if (rules && 'no-example-value-and-externalValue' in rules) {
       const { 'no-example-value-and-externalValue': deprecatedRuleConfig, ...otherRules } = rules;

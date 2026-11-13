@@ -15,6 +15,22 @@ describe('mergeExtends', () => {
     expect(merged.oas3_1Rules).toEqual({ 'spec-example-values': 'off' });
   });
 
+  it('should read the deprecated rule name in oas3_2Rules and prefer spec-example-values when both names are set', () => {
+    const merged = utils.mergeExtends([
+      {
+        // The type of oas3_2Rules does not list the deprecated name, but a redocly.yaml can contain it.
+        oas3_2Rules: { 'no-example-value-and-externalValue': 'warn' } as Record<string, 'warn'>,
+        oas3_1Rules: {
+          'spec-example-values': 'off',
+          'no-example-value-and-externalValue': 'error',
+        } as Record<string, 'off' | 'error'>,
+      },
+    ]);
+
+    expect(merged.oas3_2Rules).toEqual({ 'spec-example-values': 'warn' });
+    expect(merged.oas3_1Rules).toEqual({ 'spec-example-values': 'off' });
+  });
+
   it('should work with configurable rules changing severity', () => {
     expect(
       utils.mergeExtends([
