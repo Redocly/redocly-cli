@@ -7,6 +7,42 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.79.0 (2026-11-13)
+
+### Minor Changes
+
+- Added the `--extends` option to the experimental `diff` command.
+  The option replaces the `extends` list of the configuration file for one run, so `--extends=diff-recommended` turns on the diff rules without a change to the file.
+- Added support for MCP servers of protocol version `2026-07-28` to the experimental `introspect-mcp` command.
+
+  **Note:** A server that supports both `2026-07-28` and an earlier protocol version is now recorded with `protocolVersion: 2026-07-28`.
+  If `--check` reports the description as out of date, run the command without `--check` and commit the file.
+
+- Added recommendations to the experimental `score` command.
+  It ranks the edits that raise the Agent Readiness score by their simulated impact and displays the score that all safe edits reach together.
+  The JSON output also lists the design findings that no documentation edit fixes.
+- Added support for Git revisions to the experimental `diff` command.
+  An argument in the `<revision>:<path>` form, such as `origin/main:openapi.yaml`, reads the API description and the files it references from that revision.
+
+### Patch Changes
+
+- Fixed an issue where `respect` counted and listed a request twice in the JSON output when the execution timeout ended the retries of a step.
+- Fixed an issue where `respect` waited for a retry or ran a sub-workflow step after the execution timeout, and reported `globalTimeoutError: false` in the JSON output when the timeout ended a retry.
+- Fixed an issue where Respect counted a step that calls a workflow as a request in `totalRequests` of the JSON output when the step reported a failed check of its own.
+- Fixed an issue where Respect skipped the `successCriteria` of a step that calls a workflow with `workflowId`.
+  Respect checks them against the outputs of the called workflow, read as `$outputs`.
+  A failed criterion fails the step and runs its `onFailure` actions.
+  The criteria and the parameters of the step's `onSuccess` and `onFailure` actions read `$outputs` the same way.
+- Fixed an issue where Respect ran the `onSuccess` actions and the next steps after a step that calls a workflow failed to resolve one of its `outputs`.
+  The step runs its `onFailure` actions, and the workflow ends when it has none.
+- Added a link to the `score` command documentation at the end of its output.
+- Changed the `score` command to count error responses only toward error clarity, so the schemas and examples of error responses no longer change the example, documentation, constraint, schema, and dependency metrics of an operation.
+- Fixed an issue where the `score` command lowered the example coverage of operations without a response body and reported missing response examples for them.
+- Fixed an issue where the `score` command counted a shared response or request body only for the first operation that referenced it.
+- Fixed an issue where the `skills` command failed when the `skills` path of an agent, such as `.claude/skills`, was a file or a broken symbolic link.
+  The command skips that path with a warning and installs the skills into the other folders.
+- Updated @redocly/respect-core to v2.79.0.
+
 ## 2.78.0 (2026-11-12)
 
 ### Minor Changes

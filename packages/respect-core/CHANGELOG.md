@@ -1,5 +1,26 @@
 # @redocly/respect-core
 
+## 2.79.0
+
+### Minor Changes
+
+- Added the `composeJsonLogs` function, which builds the JSON logs from the results of `run`.
+- Removed the `RESET_ESCAPE_CODE` export, and the top-level `globalTimeoutError` field of the `JsonLogs` type, which the JSON logs never contained at that level.
+
+### Patch Changes
+
+- Fixed an issue where `respect` runs that overlap in one process reset each other's execution timeout.
+- Fixed an issue where `respect` counted and listed a request twice in the JSON output when the execution timeout ended the retries of a step.
+- Fixed an issue where `respect` waited for a retry or ran a sub-workflow step after the execution timeout, and reported `globalTimeoutError: false` in the JSON output when the timeout ended a retry.
+- Fixed an issue where Respect counted a step that calls a workflow as a request in `totalRequests` of the JSON output when the step reported a failed check of its own.
+- Fixed an issue where Respect skipped the `successCriteria` of a step that calls a workflow with `workflowId`.
+  Respect checks them against the outputs of the called workflow, read as `$outputs`.
+  A failed criterion fails the step and runs its `onFailure` actions.
+  The criteria and the parameters of the step's `onSuccess` and `onFailure` actions read `$outputs` the same way.
+- Fixed an issue where Respect ran the `onSuccess` actions and the next steps after a step that calls a workflow failed to resolve one of its `outputs`.
+  The step runs its `onFailure` actions, and the workflow ends when it has none.
+- Updated @redocly/openapi-core to v2.79.0.
+
 ## 2.78.0
 
 ### Minor Changes
