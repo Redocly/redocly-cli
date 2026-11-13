@@ -143,6 +143,33 @@ it('sendTelemetry includes the number of overlays a bundle run applied', async (
   );
 });
 
+it('sendTelemetry includes the MCP protocol version an introspect-mcp run negotiated', async () => {
+  vi.mocked(respondWithinMs).mockResolvedValue(true);
+
+  await sendTelemetry({
+    config: await createConfig({}),
+    argv: { _: ['introspect-mcp'] } as any,
+    exit_code: 0,
+    execution_time: 1500,
+    spec_version: 'unknown',
+    spec_keyword: undefined,
+    spec_full_version: undefined,
+    respect_x_security_auth_types: undefined,
+    respect_source_description_types: undefined,
+    respect_criterion_object_types: undefined,
+    lint_rules_with_errors: undefined,
+    lint_rules_with_warnings: undefined,
+    lint_rules_with_ignored_problems: undefined,
+    introspect_mcp: { introspect_mcp_protocol_version: '2026-07-28' },
+  });
+
+  expect(mockMapToCloudEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: [expect.objectContaining({ introspect_mcp_protocol_version: '2026-07-28' })],
+    })
+  );
+});
+
 describe('isTelemetryEnabled', () => {
   afterEach(() => {
     vi.unstubAllEnvs();

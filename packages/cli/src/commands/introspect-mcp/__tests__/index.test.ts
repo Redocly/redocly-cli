@@ -19,6 +19,7 @@ import { outdent } from 'outdent';
 
 import type { CommandArgs } from '../../../wrapper.js';
 import { handleIntrospectMcp, type IntrospectMcpCommandArgv } from '../index.js';
+import { introspectMcpTelemetry } from '../telemetry.js';
 
 const CREATE_ORDER_TOOL = {
   name: 'orders/create',
@@ -531,6 +532,7 @@ describe('handleIntrospectMcp', () => {
         version: '4.0.0',
       });
       expect(document['x-mcp'].protocolVersion).toEqual('2026-07-28');
+      expect(introspectMcpTelemetry.introspect_mcp_protocol_version).toEqual('2026-07-28');
       expect(document['x-mcp'].tools).toEqual([
         CREATE_ORDER_TOOL,
         LIST_MENU_TOOL,
