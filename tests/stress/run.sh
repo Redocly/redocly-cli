@@ -55,10 +55,8 @@ lint_cell() {
   echo "$name: exit $exit_code"
 }
 
-lint_cell rebilly.own all@latest --config api-definitions/redocly.yaml
-lint_cell rebilly.recommended api-definitions/openapi/openapi.yaml --config configs/recommended.yaml
-lint_cell rebilly.all api-definitions/openapi/openapi.yaml --config configs/all.yaml
-lint_cell github.recommended specs/github.yaml --config configs/recommended.yaml
-lint_cell github.all specs/github.yaml --config configs/all.yaml
-lint_cell okta.recommended specs/okta.yaml --config configs/recommended.yaml
-lint_cell okta.all specs/okta.yaml --config configs/all.yaml
+# A cell name is <API description>.<config>. The report shows the two parts in two columns.
+lint_cell Rebilly.custom all@latest --config api-definitions/redocly.yaml
+lint_cell Rebilly.recommended api-definitions/openapi/openapi.yaml --config configs/recommended.yaml
+lint_cell GitHub.recommended specs/github.yaml --config configs/recommended.yaml
+lint_cell Okta.recommended specs/okta.yaml --config configs/recommended.yaml

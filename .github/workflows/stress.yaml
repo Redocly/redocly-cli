@@ -1,7 +1,7 @@
 name: Stress test on production specs
 
 # Compares the lint output of a pull request with the output of its fork point from main
-# on Rebilly, GitHub, and Okta. Runs only on pull requests with the `test-major-changes` label.
+# on Rebilly, GitHub, and Okta. A release pull request is compared with the latest release.
 
 permissions:
   contents: read
@@ -9,7 +9,8 @@ permissions:
 
 on:
   pull_request:
-    types: [labeled, unlabeled, synchronize]
+    branches:
+      - main
 
 env:
   CI: true
@@ -22,12 +23,6 @@ concurrency:
 
 jobs:
   compare-output:
-    # A fork pull request gets a read-only token and cannot comment, so same-repository pull requests only.
-    # A `labeled` event counts only for the stress test label itself, not for every label added later.
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      contains(github.event.pull_request.labels.*.name, 'test-major-changes') &&
-      (github.event.action != 'labeled' || github.event.label.name == 'test-major-changes')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -50,11 +45,22 @@ jobs:
           npm ci
           npm run compile
 
-      - name: Build the fork point from main
+      - name: Build the base
+        id: base
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          fork_point=$(git merge-base origin/main HEAD)
-          echo "Fork point: $fork_point"
-          git worktree add ../base "$fork_point"
+          if [ "$HEAD_REF" = "changeset-release/main" ]; then
+            # The release branch is main plus the version changes, so its fork point shows no difference.
+            # The latest release shows what a user gets after an upgrade.
+            base=$(git describe --tags --abbrev=0 --match '@redocly/cli@*' HEAD)
+            echo "label=\`$base\` (latest release)" >> "$GITHUB_OUTPUT"
+          else
+            base=$(git merge-base origin/main HEAD)
+            echo "label=\`${base:0:7}\` (fork point from \`main\`)" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Base: $base"
+          git worktree add ../base "$base"
           cd ../base
           npm ci
           npm run compile
@@ -66,33 +72,36 @@ jobs:
 
       - name: Compare the output
         id: compare
-        # The report is posted before the job fails, so the comment and the red check appear together.
-        continue-on-error: true
-        run: node tests/stress/compare.mjs tests/stress/out/base tests/stress/out/head tests/stress/out/report.md
+        env:
+          BASE_LABEL: ${{ steps.base.outputs.label }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        # compare.mjs exits with 1 when the output differs and with 2 when a lint run failed.
+        # The step keeps the exit code, so the report is posted before the job fails.
+        run: |
+          exit_code=0
+          node tests/stress/compare.mjs tests/stress/out/base tests/stress/out/head tests/stress/out/report.md \
+            "$BASE_LABEL" "\`${HEAD_SHA:0:7}\` (this pull request)" || exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
 
       - name: Comment PR
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           file-path: tests/stress/out/report.md
           comment-tag: stress-test
 
-      - name: Fail when the output differs
-        if: steps.compare.outcome == 'failure'
-        run: exit 1
-
-  report-removed-label:
-    # The compare-output check stays on the commit after the label is removed. This run replaces it.
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.action == 'unlabeled' &&
-      !contains(github.event.pull_request.labels.*.name, 'test-major-changes')
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    steps:
-      - name: Write the report
-        run: |
-          printf '## Stress test on production specs\n\nSkipped: the `test-major-changes` label was removed.\n' > report.md
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+      # A fork pull request gets a read-only token, so stress-comment.yaml posts its report.
+      - name: Upload the report
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          file-path: report.md
-          comment-tag: stress-test
+          name: stress-test-report
+          path: tests/stress/out/report.md
+
+      - name: Fail when the output differs
+        # A release pull request collects the differences that other pull requests already showed,
+        # so only a failed lint run fails it.
+        if: >-
+          steps.compare.outputs.exit_code == '2' ||
+          (steps.compare.outputs.exit_code == '1' && github.head_ref != 'changeset-release/main')
+        run: exit 1

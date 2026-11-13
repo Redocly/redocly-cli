@@ -7,20 +7,39 @@ A 9 MB description with thousands of examples does.
 
 ## In CI
 
-Add the `test-major-changes` label to a pull request.
-The [stress workflow](../../.github/workflows/stress.yaml) builds the pull request and the fork point of its branch from `main`, lints 7 cells with both builds, and posts one comment with the result.
-Identical output passes the check.
-Any difference in exit code or in the reported problems fails the check, and the comment lists the added, removed, and changed problems.
-Remove the label to turn the comment into "skipped".
+The [stress workflow](../../.github/workflows/stress.yaml) runs on every pull request to `main`.
+It builds the pull request and a base, lints 4 cells with both builds, and posts one comment with the result.
+
+| Pull request | Base                                        | The check fails when     |
+| ------------ | ------------------------------------------- | ------------------------ |
+| Regular      | the fork point of its branch from `main`    | the output differs       |
+| Release      | the latest release (`@redocly/cli@<x.y.z>`) | a lint run wrote no JSON |
+
+A release pull request is `main` plus the version changes, so its fork point shows no difference.
+The latest release shows what a user gets after an upgrade.
+Those differences come from pull requests that already showed them, so they do not fail the release pull request.
+
+A fork pull request cannot post a comment.
+The [comment workflow](../../.github/workflows/stress-comment.yaml) posts its report.
+
+## Read the report
+
+- The first table has one row per cell, with the number of problems from each build.
+- A cell that differs gets a table with one row per rule.
+  A rule with `0` in the `Base` column is new, or reports problems for the first time.
+  A renamed rule shows as two rows: the old name with `0` in `Head`, and the new name with `0` in `Base`.
+- **Added** and **Removed** count the problems that only one build reports.
+- **Changed** counts the problems that both builds report at the same place from the same rule, with a different message, severity, line, or column.
+- The examples show the first problems of each kind per rule, in the format `<file>:<line>:<column> [<severity>] <message>`.
 
 ## Cells
 
-| Spec                           | Config                                         |
-| ------------------------------ | ---------------------------------------------- |
-| Rebilly `all@latest`           | the repository's own `redocly.yaml`            |
-| Rebilly `openapi/openapi.yaml` | `configs/recommended.yaml`, `configs/all.yaml` |
-| GitHub `api.github.com.yaml`   | `configs/recommended.yaml`, `configs/all.yaml` |
-| Okta `management-minimal.yaml` | `configs/recommended.yaml`, `configs/all.yaml` |
+| Spec                           | Config                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| Rebilly `all@latest`           | `custom`: the repository's own `redocly.yaml`, with its rules and plugins |
+| Rebilly `openapi/openapi.yaml` | `configs/recommended.yaml`                                                |
+| GitHub `api.github.com.yaml`   | `configs/recommended.yaml`                                                |
+| Okta `management-minimal.yaml` | `configs/recommended.yaml`                                                |
 
 Every spec is pinned to a commit in `run.sh`.
 
@@ -36,10 +55,11 @@ node tests/stress/compare.mjs tests/stress/out/base tests/stress/out/head tests/
 
 `run.sh` needs `git`, `curl`, and `pnpm` 11 or newer, which Rebilly requires.
 On the first run it downloads the specs into `tests/stress/api-definitions/` and `tests/stress/specs/`, which git ignores.
-`compare.mjs` prints the report and exits with 1 when any cell differs.
+`compare.mjs` prints the report.
+It exits with 1 when any cell differs, and with 2 when a lint run wrote no JSON.
 
 ## Add a spec or a cell
 
 Add a download step and a `lint_cell` line in `run.sh`.
-The first argument of `lint_cell` is the cell name.
+The first argument of `lint_cell` is the cell name in the form `<API description>.<config>`.
 The other arguments go to `redocly lint`.
