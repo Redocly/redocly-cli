@@ -228,6 +228,20 @@ describe('diff', () => {
     );
   });
 
+  test('should turn on the rules of the ruleset --extends names', async () => {
+    const testPath = join(__dirname, 'config-file');
+    const args = getParams(indexEntryPoint, [
+      'diff',
+      'base.yaml',
+      'revision.yaml',
+      '--config=lint-only.yaml',
+      '--extends=diff-recommended',
+    ]);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-extends.txt'));
+  });
+
   test('should judge a change with a diff rule from a plugin', async () => {
     const testPath = join(__dirname, 'plugin');
     const args = getParams(indexEntryPoint, ['diff', 'base.yaml', 'revision.yaml']);

@@ -22,7 +22,7 @@ Its behavior, options, rule names, and output formats can change in future relea
 redocly diff <base> <revision>
 redocly diff <base> <revision> [--fail-on=<impact>] [--check-version]
 redocly diff <base> <revision> [--format=<value>] [--output=<path>]
-redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
+redocly diff <base> <revision> [--config=<path>] [--extends=<ruleset>]... [--skip-rule=<rule>]...
 ```
 
 ## Options
@@ -33,6 +33,7 @@ redocly diff <base> <revision> [--config=<path>] [--skip-rule=<rule>]...
 | revision        | string   | **REQUIRED.** Path, URL, or alias of the newer API description.                                                                                                                                |
 | --check-version | boolean  | Fail if `info.version` of the revision is lower than the version that the changes require. See [Check the version](#check-the-version). Default value is `false`.                              |
 | --config        | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                           |
+| --extends       | [string] | Use these rulesets in place of the `extends` list of the configuration file. See [Turn on the diff rules for one run](#turn-on-the-diff-rules-for-one-run).                                    |
 | --fail-on       | string   | Exit with code `1` if a change has this impact or a higher impact. <br /> **Possible values:** `major`, `minor`, `patch`, `none`. Default value is `major`.                                    |
 | --format        | string   | Format for the output. See [Output formats](#output-formats). <br /> **Possible values:** `stylish`, `json`, `markdown`, `html`, `github-actions`, `next-version`. Default value is `stylish`. |
 | --help          | boolean  | Show help.                                                                                                                                                                                     |
@@ -160,6 +161,20 @@ extends:
 diff:
   enum-values-added: minor
 ```
+
+### Turn on the diff rules for one run
+
+The diff rules come from the `diff-recommended` ruleset.
+Without a configuration file, the command uses this ruleset.
+If your configuration file does not have `diff-recommended` in its `extends` list, use the `--extends` option:
+
+```bash
+redocly diff main/openapi.yaml openapi.yaml --extends=diff-recommended
+```
+
+The option replaces the `extends` list of the configuration file for this run.
+The command keeps all other settings of the file, for example the `diff` section.
+To use more than one ruleset, use the option again for each ruleset.
 
 ## Resources
 
