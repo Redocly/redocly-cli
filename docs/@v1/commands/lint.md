@@ -1,3 +1,9 @@
+---
+seo:
+  title: lint command (CLI v1)
+  description: Identify and report problems in OpenAPI or Arazzo descriptions with the Redocly CLI v1 lint command.
+---
+
 # `lint`
 
 ## Introduction

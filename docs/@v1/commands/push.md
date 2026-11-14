@@ -1,3 +1,9 @@
+---
+seo:
+  title: push command (CLI v1)
+  description: Upload and push files from a local directory or CI environment to a Redocly project using the Redocly CLI v1 push command.
+---
+
 # `push`
 
 Use the push command with either the Redocly platform or Workflows families of products.

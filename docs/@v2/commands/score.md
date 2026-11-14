@@ -1,3 +1,9 @@
+---
+seo:
+  title: score command
+  description: Analyze an OpenAPI description and calculate an Agent Readiness score for AI agents with the Redocly CLI score command.
+---
+
 # `score`
 
 ## Introduction

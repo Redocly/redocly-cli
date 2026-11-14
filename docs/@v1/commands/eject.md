@@ -1,3 +1,9 @@
+---
+seo:
+  title: eject command (CLI v1)
+  description: Create a local copy of core theme components in your Redocly project to customize their source code using the CLI v1 eject command.
+---
+
 # `eject`
 
 ## Introduction

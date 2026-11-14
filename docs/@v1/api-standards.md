@@ -1,6 +1,7 @@
 ---
 seo:
-  title: API standards
+  title: API standards and governance (CLI v1)
+  description: Enforce API standards and governance using Redocly CLI v1 rulesets, linting, and decorators for OpenAPI descriptions.
 ---
 
 # API standards and governance
