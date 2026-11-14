@@ -1,4 +1,7 @@
 ---
+seo:
+  title: Redocly CLI v1 commands
+  description: Browse the list of commands available in Redocly CLI v1 for documentation, API management, linting, testing, and platform workflows.
 tocMaxDepth: 2
 ---
 

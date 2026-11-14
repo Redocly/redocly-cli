@@ -1,3 +1,9 @@
+---
+seo:
+  title: preview command (CLI v1)
+  description: Start a local preview server for a Redocly project across different products and plans using the CLI v1 preview command.
+---
+
 # `preview`
 
 ## Introduction
