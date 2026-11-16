@@ -210,6 +210,18 @@ describe('build-docs', () => {
     );
   });
 
+  // FIXME: the snapshot of this test holds a deprecation banner.
+  // The temporary `keepDeprecatedConfigOfFilePath` in packages/cli/src/commands/build-docs/index.ts causes that, see the FIXME there.
+  // When that function goes, update the snapshot: it must hold no deprecation banner.
+  test('build docs writes to redoc-static.html for a file path that matches the root of an API with docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs', 'menu.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'file-path-snapshot.txt')
+    );
+  });
+
   test('build docs writes to --output for an alias with docsOutput', async () => {
     const testPath = join(folderPath, 'build-docs-for-multiple-apis');
     const args = getParams(indexEntryPoint, ['build-docs', 'menu', '--output=output/option.html']);
@@ -336,6 +348,9 @@ describe('build-docs', () => {
       expect(output).toContain(expectedOptions);
     });
 
+    // FIXME: this test and the next one expect the options of the alias for a file path, with a deprecation banner.
+    // The temporary `keepDeprecatedConfigOfFilePath` in packages/cli/src/commands/build-docs/index.ts causes that, see the FIXME there.
+    // When that function goes, each of the two must expect the root options and no deprecation banner.
     test('build docs using the file name (should use the alias config options)', async () => {
       const testPath = join(folderPath, 'build-docs-with-openapi-options');
       const args = getParams(indexEntryPoint, [
@@ -355,6 +370,15 @@ describe('build-docs', () => {
             ║  Learn more: https://redocly.com/redoc-ce                                  ║
             ║                                                                            ║
             ╚════════════════════════════════════════════════════════════════════════════╝
+
+
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                                           ║
+            ║  Deprecated: build-docs applies the settings of the alias API to openapi.yaml, its root.  ║
+            ║  A later release applies the root configuration to a file path.                           ║
+            ║  Pass the alias to keep the settings: redocly build-docs alias                            ║
+            ║                                                                                           ║
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
@@ -386,6 +410,15 @@ describe('build-docs', () => {
             ║  Learn more: https://redocly.com/redoc-ce                                  ║
             ║                                                                            ║
             ╚════════════════════════════════════════════════════════════════════════════╝
+
+
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                                           ║
+            ║  Deprecated: build-docs applies the settings of the alias API to openapi.yaml, its root.  ║
+            ║  A later release applies the root configuration to a file path.                           ║
+            ║  Pass the alias to keep the settings: redocly build-docs alias                            ║
+            ║                                                                                           ║
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-apis-and-root-option.yaml and using 'openapi' options
         Prerendering docs

@@ -34,7 +34,6 @@ export type Entrypoint = {
   path: string;
   alias?: string;
   output?: string;
-  docsOutput?: string;
 };
 export const outputExtensions = ['json', 'yaml', 'yml'] as const;
 export type OutputExtension = (typeof outputExtensions)[number];

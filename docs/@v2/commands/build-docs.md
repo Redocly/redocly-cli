@@ -110,6 +110,7 @@ redocly build-docs
 
 In this case, `build-docs` builds every API that has `docsOutput`, and saves each build to that path, relative to the configuration file.
 The `--output` option works only with an API in the command line, and takes precedence over the `docsOutput` of that API.
+An alias in the command line is saved to its `docsOutput` too, and a file path is saved to `redoc-static.html`.
 
 ### Use an alternative configuration file
 
