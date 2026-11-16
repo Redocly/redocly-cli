@@ -160,20 +160,12 @@ const REF_LOOKUP_KEYS = new Set(['$ref', 'extends']);
 
 // a `./` or `../` path in a referenced local config file is relative to that file: made absolute before the bundler inlines it
 function rebasePathsInRefMap(resolvedRefMap: ResolvedRefMap, rootRef: string): ResolvedRefMap {
-  const localDir = (sourceRef: string) => {
-    const sourcePath = isFileUrl(sourceRef) ? url.fileURLToPath(sourceRef) : sourceRef;
-    return sourceRef === rootRef || isAbsoluteUrl(sourcePath)
-      ? undefined
-      : path.dirname(sourcePath);
-  };
   for (const resolvedRef of resolvedRefMap.values()) {
     if (!resolvedRef.resolved) continue;
-    const dir = localDir(resolvedRef.document.source.absoluteRef);
-    if (dir !== undefined) resolvedRef.node = rebasePaths(resolvedRef.node, dir);
-    for (const hop of resolvedRef.chain ?? []) {
-      const hopDir = localDir(hop.document.source.absoluteRef);
-      if (hopDir !== undefined) hop.node = rebasePaths(hop.node, hopDir);
-    }
+    const sourceRef = resolvedRef.document.source.absoluteRef;
+    if (sourceRef === rootRef || (isAbsoluteUrl(sourceRef) && !isFileUrl(sourceRef))) continue;
+    const sourcePath = isFileUrl(sourceRef) ? url.fileURLToPath(sourceRef) : sourceRef;
+    resolvedRef.node = rebasePaths(resolvedRef.node, path.dirname(sourcePath));
   }
   return resolvedRefMap;
 }
