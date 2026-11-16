@@ -45,6 +45,8 @@ export type NormalizedNodeType = {
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
   // the schema of a `$ref`-ed value that has no node type
   scalar?: NormalizedScalarSchema;
+  // the properties whose schema, or whose list items' schema, has `format: uri-reference`
+  uriReferenceProperties?: string[];
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
@@ -134,6 +136,12 @@ export function normalizeTypes(
         }
       }
       type.properties = mappedProps;
+      const uriReferenceProperties = Object.keys(mappedProps).filter((propName) =>
+        isUriReference(mappedProps[propName])
+      );
+      if (uriReferenceProperties.length) {
+        type.uriReferenceProperties = uriReferenceProperties;
+      }
     }
   }
 
@@ -166,4 +174,11 @@ export function normalizeTypes(
 
 export function isNamedType(t: NormalizedPropType): t is NormalizedNodeType {
   return typeof t?.name === 'string';
+}
+
+function isUriReference(prop: NormalizedPropType | NormalizedResolveTypeFn) {
+  if (typeof prop === 'function' || !prop || isNamedType(prop)) {
+    return false;
+  }
+  return (prop.format ?? prop.items?.format) === 'uri-reference';
 }

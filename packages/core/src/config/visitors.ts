@@ -3,7 +3,6 @@ import * as path from 'node:path';
 import * as url from 'node:url';
 
 import { isAbsoluteUrl, isFileUrl, replaceRef } from '../ref-utils.js';
-import { isNamedType, type NormalizedNodeType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -110,21 +109,14 @@ function getReferencedLocalDir(sourceRef: string, ctx: UserContext): string | un
   return path.dirname(sourcePath);
 }
 
-function isUriReference(schema: NormalizedNodeType['properties'][string] | undefined) {
-  if (typeof schema === 'function' || !schema || isNamedType(schema)) {
-    return false;
-  }
-  return (schema.format ?? schema.items?.format) === 'uri-reference';
-}
-
 // commands resolve paths from the root config folder, so a path from a referenced file is made absolute
 function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
   const sourceDir = getReferencedLocalDir(ctx.location.source.absoluteRef, ctx);
   if (!isPlainObject(node) || sourceDir === undefined) {
     return;
   }
-  for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    if (node[field] !== undefined && isUriReference(schema)) {
+  for (const field of ctx.type.uriReferenceProperties ?? []) {
+    if (node[field] !== undefined) {
       node[field] = resolvePaths(node[field], sourceDir);
     }
   }
@@ -135,7 +127,8 @@ function resolveUriReferenceValue(
   ctx: UserContext,
   resolved: ResolveResult<any>
 ): ResolveResult<any> {
-  if (!resolved.location || !isUriReference(ctx.type.scalar)) {
+  const schema = ctx.type.scalar;
+  if (!resolved.location || (schema?.format ?? schema?.items?.format) !== 'uri-reference') {
     return resolved;
   }
   const sourceDir = getReferencedLocalDir(resolved.location.source.absoluteRef, ctx);
