@@ -53,22 +53,41 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
         if (isRef(node[key])) {
           const resolved = ctx.resolve(node[key]);
           if (isPlainObject(resolved.node) && resolved.node?.[internalFlagProperty]) {
+            noteRemovedSecuritySchemes(ctx.type.name, key, resolved.node);
             delete node[key];
             didDelete = true;
           }
         }
         if (isPlainObject(node[key]) && node[key]?.[internalFlagProperty]) {
+          noteRemovedSecuritySchemes(ctx.type.name, key, node[key]);
           delete node[key];
           didDelete = true;
-        }
-        if (ctx.type.name === 'NamedSecuritySchemes' && !(key in node)) {
-          removedSecuritySchemes.add(key);
         }
       }
     }
 
     if (didDelete && (isEmptyObject(node) || isEmptyArray(node))) {
       delete parent[key];
+    }
+  }
+
+  // Records the security schemes that go away with node[key]: the scheme itself, or every scheme in a removed scheme map.
+  function noteRemovedSecuritySchemes(typeName: string, key: string, removed: unknown) {
+    if (typeName === 'NamedSecuritySchemes') {
+      removedSecuritySchemes.add(key);
+      return;
+    }
+    const schemes =
+      typeName === 'Root' && key === 'components' && isPlainObject(removed)
+        ? removed.securitySchemes
+        : (typeName === 'Root' && key === 'securityDefinitions') ||
+            (typeName === 'Components' && key === 'securitySchemes')
+          ? removed
+          : undefined;
+    if (isPlainObject(schemes) && !isRef(schemes)) {
+      for (const name of Object.keys(schemes)) {
+        if (name !== internalFlagProperty) removedSecuritySchemes.add(name);
+      }
     }
   }
 
