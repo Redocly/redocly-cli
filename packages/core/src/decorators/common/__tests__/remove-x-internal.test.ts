@@ -383,6 +383,76 @@ describe('oas3 remove-x-internal', () => {
 
     `);
   });
+
+  it('should remove security requirements that use a removed security scheme', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        security:
+          - InternalKey: []
+          - ApiKey: []
+        paths:
+          /orders:
+            get:
+              security:
+                - InternalKey: []
+                  ApiKey: []
+                - OAuth: [read]
+            post:
+              security:
+                - InternalKey: []
+          /menu:
+            get:
+              security: []
+        components:
+          securitySchemes:
+            InternalKey:
+              x-internal: true
+              type: apiKey
+              name: X-Internal-Key
+              in: header
+            ApiKey:
+              type: apiKey
+              name: X-Api-Key
+              in: header
+            OAuth:
+              type: oauth2
+              flows: {}
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: { 'remove-x-internal': 'on' },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      security:
+        - ApiKey: []
+      paths:
+        /orders:
+          get:
+            security:
+              - OAuth:
+                  - read
+          post: {}
+        /menu:
+          get:
+            security: []
+      components:
+        securitySchemes:
+          ApiKey:
+            type: apiKey
+            name: X-Api-Key
+            in: header
+          OAuth:
+            type: oauth2
+            flows: {}
+    `);
+  });
 });
 
 describe('oas2 remove-x-internal', () => {
@@ -430,5 +500,52 @@ describe('oas2 remove-x-internal', () => {
               get: {}
 
         `);
+  });
+
+  it('should remove security requirements that use a removed security definition', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        swagger: '2.0'
+        security:
+          - InternalKey: []
+        paths:
+          /orders:
+            get:
+              security:
+                - InternalKey: []
+                - ApiKey: []
+        securityDefinitions:
+          InternalKey:
+            x-internal: true
+            type: apiKey
+            name: X-Internal-Key
+            in: header
+          ApiKey:
+            type: apiKey
+            name: X-Api-Key
+            in: header
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: { 'remove-x-internal': 'on' },
+      }),
+      types: Oas2Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      swagger: '2.0'
+      paths:
+        /orders:
+          get:
+            security:
+              - ApiKey: []
+      securityDefinitions:
+        ApiKey:
+          type: apiKey
+          name: X-Api-Key
+          in: header
+    `);
   });
 });
