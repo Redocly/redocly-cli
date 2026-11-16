@@ -3,5 +3,5 @@
 '@redocly/cli': patch
 ---
 
-Improved the message that the Respect schema check prints when a response schema in the OpenAPI description is not valid.
-The message now names the source description and the location of the schema, and lists every schema that uses `nullable` without `type`.
+Improved the Respect schema check's message for invalid OpenAPI response schemas.
+The message names the source description, the schema location, and lists every schema that uses `nullable` without `type`.
