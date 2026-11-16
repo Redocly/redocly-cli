@@ -85,9 +85,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
           ? removed
           : undefined;
     if (isPlainObject(schemes) && !isRef(schemes)) {
-      for (const name of Object.keys(schemes)) {
-        if (name !== internalFlagProperty) removedSecuritySchemes.add(name);
-      }
+      for (const name of Object.keys(schemes)) removedSecuritySchemes.add(name);
     }
   }
 

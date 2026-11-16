@@ -505,6 +505,55 @@ describe('oas3 remove-x-internal', () => {
     `);
   });
 
+  it('should remove security requirements that use a security scheme referencing an internal one', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /orders:
+            get:
+              security:
+                - Alias: []
+                - ApiKey: []
+        components:
+          securitySchemes:
+            Alias:
+              $ref: '#/components/securitySchemes/InternalKey'
+            InternalKey:
+              x-internal: true
+              type: apiKey
+              name: X-Internal-Key
+              in: header
+            ApiKey:
+              type: apiKey
+              name: X-Api-Key
+              in: header
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: { 'remove-x-internal': 'on' },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      paths:
+        /orders:
+          get:
+            security:
+              - ApiKey: []
+      components:
+        securitySchemes:
+          ApiKey:
+            type: apiKey
+            name: X-Api-Key
+            in: header
+    `);
+  });
+
   it('should remove security requirements that use schemes from a removed securitySchemes map', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
