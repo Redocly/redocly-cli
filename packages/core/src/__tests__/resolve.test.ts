@@ -434,13 +434,24 @@ describe('collect refs', () => {
     expect(resolved.node).toEqual({ type: 'string' });
   });
 
-  it('should not decode a root document path', () => {
+  it('should prefer a file whose name has a literal percent-encoded sequence', () => {
+    // `split` writes this file name and the same text as the `$ref`.
+    const base = path.join(__dirname, 'fixtures/resolve/openapi.yaml');
+    const literalPath = path.join(__dirname, 'fixtures/resolve/menu%20items_{id}.yaml');
+    const resolver = new BaseResolver();
+
+    expect(resolver.resolveExternalRef(base, './menu%20items_{id}.yaml')).toBe(literalPath);
+    // An overlay writes the resolved path back as a `$ref`, which then resolves to the same file.
+    expect(resolver.resolveExternalRef(base, './menu%2520items_{id}.yaml')).toBe(literalPath);
+  });
+
+  it('should keep the path as written when no file matches', () => {
     const resolver = new BaseResolver();
     expect(resolver.resolveExternalRef(null, 'my%20api.yaml')).toBe(
       path.resolve(process.cwd(), 'my%20api.yaml')
     );
     expect(resolver.resolveExternalRef('/specs/openapi.yaml', 'my%20api.yaml')).toBe(
-      path.resolve('/specs', 'my api.yaml')
+      path.resolve('/specs', 'my%20api.yaml')
     );
   });
 

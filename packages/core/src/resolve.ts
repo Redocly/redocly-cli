@@ -18,6 +18,7 @@ import {
   isExternalValue,
   isRefWithSiblings,
   Location,
+  safeDecodeURIComponent,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
@@ -99,15 +100,6 @@ export function makeDocumentFromString<T = unknown>(
   }
 }
 
-// A `$ref` is a URI, so `paths/users_%7Bid%7D.yaml` points to the file `paths/users_{id}.yaml`.
-function decodeRefPath(ref: string): string {
-  try {
-    return decodeURIComponent(ref);
-  } catch {
-    return ref;
-  }
-}
-
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
   // Local files that overlays add to a remote API description. Any other `file:` URL is followed
@@ -129,12 +121,14 @@ export class BaseResolver {
       return new URL(ref, base).href;
     }
 
-    if (!base) {
-      // A root document or config file path comes from the file system, not from a `$ref`.
-      return path.resolve(process.cwd(), ref);
+    const filePath = path.resolve(base ? path.dirname(base) : process.cwd(), ref);
+    if (!base || !ref.includes('%') || fs.existsSync(filePath)) {
+      return filePath;
     }
 
-    return path.resolve(path.dirname(base), decodeRefPath(ref));
+    // A `$ref` is a URI, so `users_%7Bid%7D.yaml` can point to the file `users_{id}.yaml`.
+    const decodedPath = path.resolve(path.dirname(base), safeDecodeURIComponent(ref));
+    return fs.existsSync(decodedPath) ? decodedPath : filePath;
   }
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {

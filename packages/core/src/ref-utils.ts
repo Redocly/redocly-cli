@@ -53,10 +53,14 @@ export function unescapePointerFragment(fragment: string): string {
   const unescaped =
     fragment.indexOf('~') === -1 ? fragment : fragment.replaceAll('~1', '/').replaceAll('~0', '~');
 
+  return safeDecodeURIComponent(unescaped);
+}
+
+export function safeDecodeURIComponent(value: string): string {
   try {
-    return decodeURIComponent(unescaped);
-  } catch (e) {
-    return unescaped;
+    return decodeURIComponent(value);
+  } catch {
+    return value;
   }
 }
 
