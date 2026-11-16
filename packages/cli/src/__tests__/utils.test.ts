@@ -588,7 +588,7 @@ describe('cleanArgs', () => {
       '--input=some-input',
       '--mtls={"https://example.com": {"clientCert": "some-client-cert", "clientKey": "some-client-key", "caCert": "some-ca-cert"}}',
     ];
-    const result = cleanArgs(parsedArgs, rawArgs);
+    const result = cleanArgs(parsedArgs, rawArgs, {});
     expect(result.arguments).toEqual(
       JSON.stringify({
         config: 'file-yaml',
@@ -638,7 +638,7 @@ describe('cleanArgs', () => {
       config: 'fixtures/redocly.yaml',
       output: 'fixtures',
     };
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, {});
     expect(result.raw_input).toEqual(
       'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
     );
@@ -681,7 +681,7 @@ describe('cleanArgs', () => {
       'execution-timeout': 100,
       'no-secrets-masking': false,
     };
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, { server: ['S'], S: ['server'] });
 
     expect(result.raw_input).toEqual('redocly respect file-yaml --server *** -S ***');
     expect(result.arguments).toEqual(
@@ -714,7 +714,7 @@ describe('cleanArgs', () => {
       extends: 'minimal',
       'skip-rule': ['operation-4xx-response'],
     };
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, {});
 
     expect(result.raw_input).toEqual(
       'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
@@ -734,7 +734,7 @@ describe('cleanArgs', () => {
     const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '--output='];
     const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: '', o: '' };
 
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, { output: ['o'], o: ['output'] });
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml --output=');
     expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '', o: '' }));
@@ -744,7 +744,7 @@ describe('cleanArgs', () => {
     const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '-o', '-'];
     const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: '-', o: '-' };
 
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, { output: ['o'], o: ['output'] });
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml -o -');
     expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '-', o: '-' }));
@@ -754,7 +754,7 @@ describe('cleanArgs', () => {
     const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '-o', 'fixtures'];
     const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: 'fixtures', o: 'fixtures' };
 
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, { output: ['o'], o: ['output'] });
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml -o folder');
     expect(result.arguments).toEqual(
@@ -786,7 +786,12 @@ describe('cleanArgs', () => {
       message: 'Update the docs',
     };
 
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, {
+      organization: ['o'],
+      o: ['organization'],
+      author: ['a'],
+      a: ['author'],
+    });
 
     expect(result.raw_input).toEqual('redocly push file-yaml -o *** --author ***');
     expect(result.arguments).toEqual(

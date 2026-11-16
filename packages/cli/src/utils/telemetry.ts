@@ -36,6 +36,13 @@ type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number]
 
 const SECRET_REPLACEMENT = '***';
 
+// The names that each option of the running command goes by, as yargs resolves them.
+let optionAliases: Record<string, string[]> = {};
+
+export function setOptionAliases(aliases: Record<string, string[]>) {
+  optionAliases = aliases;
+}
+
 export function isTelemetryEnabled(config?: Config): boolean {
   return process.env.REDOCLY_TELEMETRY !== 'off' && config?.resolvedConfig.telemetry !== 'off';
 }
@@ -108,7 +115,7 @@ export async function sendTelemetry({
         uri: `urn:redocly:cli:command:${command}`,
         logged_in: logged_in ? 'yes' : 'no',
         command,
-        ...cleanArgs(args, process.argv.slice(2)),
+        ...cleanArgs(args, process.argv.slice(2), optionAliases),
         node_version: process.version,
         npm_version: getNpmVersion(),
         version,
@@ -375,27 +382,26 @@ function collectSensitiveValues(
   return values;
 }
 
-export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
+export function cleanArgs(
+  parsedArgs: CommandArgv,
+  rawArgv: string[],
+  aliases: Record<string, string[]>
+) {
   const KEYS_TO_CLEAN = [
     'organization',
-    'o',
     'input',
-    'i',
     'author',
-    'a',
     'clientCert',
     'clientKey',
     'caCert',
     'server',
-    'S',
   ];
-  // `-o` is short for the organization in some commands and for the output path in the others.
-  const isOutputAlias = 'output' in parsedArgs || 'output-file' in parsedArgs;
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[] | object> = {};
 
   for (const [key, value] of Object.entries(parsedArgs)) {
-    if (KEYS_TO_CLEAN.includes(key) && !(key === 'o' && isOutputAlias)) {
+    const optionNames = [key, ...(aliases[key] ?? [])];
+    if (optionNames.some((optionName) => KEYS_TO_CLEAN.includes(optionName))) {
       commandArguments[key] = SECRET_REPLACEMENT;
       commandInput = replaceArgs(commandInput, value, SECRET_REPLACEMENT);
     } else if (typeof value === 'string') {
