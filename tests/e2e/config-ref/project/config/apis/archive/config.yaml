@@ -1,0 +1,2 @@
+root: ../orders/orders.yaml
+output: ../../generated/archive.yaml

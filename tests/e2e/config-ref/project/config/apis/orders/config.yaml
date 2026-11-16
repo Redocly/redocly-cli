@@ -1,0 +1,4 @@
+root: ./orders.yaml
+output: ../../generated/orders.yaml
+overlays:
+  - ../../../overlays/public.yaml

@@ -6,7 +6,7 @@ import * as url from 'node:url';
 import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
 import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
+import { isAbsoluteUrl, isFileUrl } from '../ref-utils.js';
 import {
   resolveDocument,
   BaseResolver,
@@ -120,7 +120,7 @@ export async function resolveConfig({
 
   const bundledConfig = bundleConfig(
     rootDocument,
-    deepCloneMapWithJSON(resolvedRefMap),
+    rebasePathsInRefMap(deepCloneMapWithJSON(resolvedRefMap), rootDocument.source.absoluteRef),
     resolvedPlugins,
     skipPluginEval
   );
@@ -153,6 +153,44 @@ export async function resolveConfig({
     resolvedRefMap,
     plugins: resolvedPlugins,
   };
+}
+
+// `$ref` and `extends` values are lookup keys of the resolved ref map, so they are left as written
+const REF_LOOKUP_KEYS = new Set(['$ref', 'extends']);
+
+// a `./` or `../` path in a referenced local config file is relative to that file: made absolute before the bundler inlines it
+function rebasePathsInRefMap(resolvedRefMap: ResolvedRefMap, rootRef: string): ResolvedRefMap {
+  const localDir = (sourceRef: string) => {
+    const sourcePath = isFileUrl(sourceRef) ? url.fileURLToPath(sourceRef) : sourceRef;
+    return sourceRef === rootRef || isAbsoluteUrl(sourcePath)
+      ? undefined
+      : path.dirname(sourcePath);
+  };
+  for (const resolvedRef of resolvedRefMap.values()) {
+    if (!resolvedRef.resolved) continue;
+    const dir = localDir(resolvedRef.document.source.absoluteRef);
+    if (dir !== undefined) resolvedRef.node = rebasePaths(resolvedRef.node, dir);
+    for (const hop of resolvedRef.chain ?? []) {
+      const hopDir = localDir(hop.document.source.absoluteRef);
+      if (hopDir !== undefined) hop.node = rebasePaths(hop.node, hopDir);
+    }
+  }
+  return resolvedRefMap;
+}
+
+function rebasePaths(value: unknown, dir: string): unknown {
+  if (isString(value)) {
+    return value.startsWith('./') || value.startsWith('../') ? path.resolve(dir, value) : value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => rebasePaths(item, dir));
+  }
+  if (isPlainObject(value)) {
+    for (const key of Object.keys(value)) {
+      if (!REF_LOOKUP_KEYS.has(key)) value[key] = rebasePaths(value[key], dir);
+    }
+  }
+  return value;
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {
