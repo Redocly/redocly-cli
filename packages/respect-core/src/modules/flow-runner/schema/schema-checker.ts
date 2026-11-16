@@ -2,6 +2,7 @@ import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/a
 import {
   escapePointerFragment,
   getTypes,
+  isPlainObject,
   normalizeTypes,
   normalizeVisitors,
   Source,
@@ -145,7 +146,8 @@ function findNullableWithoutType(schema: Oas3Schema, schemaPointer: string): str
   const pointers: string[] = [];
   const visitor: Oas3Visitor = {
     Schema(schemaNode, { location }) {
-      if ('nullable' in schemaNode && !('type' in schemaNode)) {
+      // A schema can be a boolean, such as `not: false`.
+      if (isPlainObject(schemaNode) && 'nullable' in schemaNode && !('type' in schemaNode)) {
         pointers.push(
           location.pointer === '#/' ? schemaPointer : schemaPointer + location.pointer.slice(1)
         );

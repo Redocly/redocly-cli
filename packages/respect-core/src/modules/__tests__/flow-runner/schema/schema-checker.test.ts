@@ -379,6 +379,46 @@ describe('checkSchema', () => {
     ]);
   });
 
+  it('should list a schema with nullable without type when the response schema has boolean schemas', () => {
+    const result = checkSchema({
+      stepCallCtx,
+      descriptionOperation: {
+        path: '/breeds',
+        method: 'get',
+        descriptionName: 'cats',
+        responses: {
+          '200': {
+            description: 'successful operation',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  not: false,
+                  allOf: [true],
+                  properties: { breed: { nullable: true } },
+                },
+              },
+            },
+          },
+        },
+      },
+      ctx,
+      ajvContext: { apiContext: 'response' },
+    });
+
+    expect(result[2]).toEqual({
+      message: [
+        "The response can't be checked because the schema in the `cats` description is not valid.",
+        '`nullable` is used without `type` at:',
+        '- #/paths/~1breeds/get/responses/200/content/application~1json/schema/properties/breed',
+        'Add `type` next to `nullable`, or remove `nullable`.',
+      ].join('\n'),
+      name: CHECKS.SCHEMA_CHECK,
+      passed: false,
+      severity: 'error',
+    });
+  });
+
   describe('writeOnly handling via ajvContext', () => {
     const writeOnlyDescriptionOperation = {
       ...descriptionOperation,
