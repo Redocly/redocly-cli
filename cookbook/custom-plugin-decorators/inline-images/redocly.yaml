@@ -1,0 +1,5 @@
+plugins:
+  - inline-images.js
+
+decorators:
+  inline-images/descriptions: on

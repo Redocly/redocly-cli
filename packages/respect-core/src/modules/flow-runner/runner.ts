@@ -131,7 +131,7 @@ async function runWorkflows({
           totalTimeMs: 0,
           executedSteps: [failedStep],
           ctx,
-          globalTimeoutError: false,
+          globalTimeoutError: error.globalTimeoutError,
         });
         continue;
       }
@@ -261,8 +261,10 @@ export async function runWorkflow({
     }
   }
 
-  const hasFailedTimeoutSteps = workflow.steps.some((step) =>
-    step.checks?.some((check) => !check.passed && check.name == CHECKS.GLOBAL_TIMEOUT_ERROR)
+  const hasFailedTimeoutSteps = runCtx.executedSteps.some((entry) =>
+    isWorkflowExecutionResult(entry)
+      ? entry.globalTimeoutError
+      : entry.checks.some((check) => !check.passed && check.name === CHECKS.GLOBAL_TIMEOUT_ERROR)
   );
 
   // workflow level outputs
@@ -329,7 +331,14 @@ export async function runWorkflow({
 // Thrown when a dependsOn entry cannot be resolved to a workflow or a dependency
 // workflow fails. Handled per workflow in runWorkflows so one broken dependency
 // doesn't abort the rest of the run.
-class WorkflowDependencyError extends Error {}
+class WorkflowDependencyError extends Error {
+  globalTimeoutError: boolean;
+
+  constructor(message: string, globalTimeoutError = false) {
+    super(message);
+    this.globalTimeoutError = globalTimeoutError;
+  }
+}
 
 async function handleDependsOn({
   workflow,
@@ -382,7 +391,8 @@ async function handleDependsOn({
     throw new WorkflowDependencyError(
       `Dependent workflows of workflow ${red(workflow.workflowId)} have failed steps: ${red(
         failedDependencies.join(', ')
-      )}.`
+      )}.`,
+      dependenciesWorkflows.some((dependencyWorkflow) => dependencyWorkflow.globalTimeoutError)
     );
   }
 }

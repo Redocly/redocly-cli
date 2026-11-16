@@ -21,6 +21,7 @@ function makeOp(path: string, method: string, refs: string[]): OperationMetrics 
     constraintCount: 0,
     requestExamplePresent: false,
     responseExamplePresent: false,
+    responseBodyPresent: true,
     structuredErrorResponseCount: 0,
     totalErrorResponses: 0,
     ambiguousIdentifierCount: 0,

@@ -1,0 +1,42 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should check the content type of a response described by the default response 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow default-response-content-type.arazzo.yaml / list-menu 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+    ✓ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [200, default]
+    ✗ content-type check
+ 
+
+  Failed tests info:
+
+  Workflow name: list-menu
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ content-type check 
+      Content type application/problem+json for 400 response is not described in the schema.
+      Expected content types: application/json.
+       
+  Summary for default-response-content-type.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 failed, 1 total
+  Checks: 2 passed, 1 failed, 3 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                          │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x default-response-content-type.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└───────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;

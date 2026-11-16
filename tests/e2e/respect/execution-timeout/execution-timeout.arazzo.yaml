@@ -1,0 +1,40 @@
+arazzo: 1.0.1
+info:
+  title: Execution timeout
+  description: Testing the `--execution-timeout` option with the Redocly Cafe API example.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: retry-after-a-minute
+    description: >-
+      The success criterion never passes, so the step waits a minute for a retry.
+      The execution timeout ends the wait, and the step is not sent again.
+    steps:
+      - stepId: list-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 999
+        onFailure:
+          - type: retry
+            name: retry-later
+            retryAfter: 60
+            retryLimit: 3
+  - workflowId: run-workflow-after-the-timeout
+    description: >-
+      This workflow starts after the execution timeout, so its step doesn't run the workflow.
+    steps:
+      - stepId: run-list-menu
+        workflowId: list-menu
+  - workflowId: list-menu
+    description: >-
+      This workflow starts after the execution timeout, so its step sends no request.
+    steps:
+      - stepId: list-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200

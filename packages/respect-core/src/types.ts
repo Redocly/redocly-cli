@@ -60,12 +60,16 @@ export type AdditionalParameterProperties = {
   schema?: Record<string, any>;
   example?: unknown;
   examples?: Record<string, Oas3Example>;
+  content?: Record<
+    string,
+    { schema?: unknown; example?: unknown; examples?: Record<string, Oas3Example> }
+  >;
   allowReserved?: boolean;
 };
 type ExtendedParameter<T> = T & AdditionalParameterProperties;
 export type Parameter = ExtendedParameter<ArazzoParameter>;
 export type ResolvedParameter = Parameter & {
-  in?: 'header' | 'query' | 'path' | 'cookie';
+  in?: 'header' | 'query' | 'querystring' | 'path' | 'cookie';
   name: string;
 };
 export type VerboseLog = {
@@ -90,6 +94,7 @@ export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
 export type RunOptions = Omit<RespectOptions, 'files'> & {
   file: string;
+  executionDeadline?: number;
   testDescription?: TestDescription;
   input?: string | string[];
   server?: string | string[];
@@ -129,7 +134,7 @@ export type AppOptions = {
   severity?: string | string[];
   maxSteps: number;
   maxFetchTimeout: number;
-  executionTimeout?: number;
+  executionDeadline?: number;
   config: Config;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
   fetch: typeof fetch;
@@ -350,7 +355,6 @@ export type JsonLogs = {
   >;
   status: string;
   totalTime: number;
-  globalTimeoutError: boolean;
 };
 
 export type DescriptionChecks = {

@@ -1,0 +1,47 @@
+arazzo: 1.0.1
+info:
+  title: Execution timeout
+  version: 1.0.0
+sourceDescriptions:
+  - name: cafe
+    type: openapi
+    url: ../../../../resources/cafe.yaml
+workflows:
+  - workflowId: retry-after-a-minute
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: retry-later
+            type: retry
+            retryAfter: 60
+            retryLimit: 3
+  - workflowId: run-retry-after-a-minute
+    steps:
+      - stepId: run-retry-workflow
+        workflowId: retry-after-a-minute
+  - workflowId: depends-on-retry-after-a-minute
+    dependsOn:
+      - retry-after-a-minute
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+  - workflowId: retry-often
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: retry-soon
+            type: retry
+            retryAfter: 0.02
+            retryLimit: 30
+  - workflowId: single-call
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200

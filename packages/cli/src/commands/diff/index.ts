@@ -1,22 +1,29 @@
 import {
   AbortFlowError,
-  BaseResolver,
   diffDocuments,
   HandledError,
   formatProblems,
   getTotals,
   logger,
+  type Config,
   type JudgedChange,
 } from '@redocly/openapi-core';
 import { green } from 'colorette';
 import { writeFileSync } from 'node:fs';
 
-import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
+import type { Entrypoint } from '../../types.js';
+import {
+  getAliasOrPath,
+  getFallbackApisOrExit,
+  handleError,
+  printExecutionTime,
+} from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { checkVersion } from './check-version.js';
 import { getDiffFailure } from './fail-on.js';
 import { printGithubActions } from './format/github-actions.js';
 import { diffReportFormats } from './format/index.js';
+import { GitRevisionResolver, isGitRevisionFile, locateRevisionFile } from './git-revision.js';
 import type { DiffArgv } from './types.js';
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
@@ -28,18 +35,23 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   const startedAt = performance.now();
 
-  const [{ path: basePath }, { path: revisionPath, alias: revisionAlias }] =
-    await getFallbackApisOrExit([argv.base, argv.revision], config);
+  const [{ path: basePath }, { path: revisionPath, alias: revisionAlias }] = await Promise.all(
+    [argv.base, argv.revision].map((api) => findEntrypoint(api, config))
+  );
 
   const diffConfig = config.forAlias(revisionAlias);
   diffConfig.skipDiffRules(argv['skip-rule']);
 
   // One resolver loads both documents and resolves their `$ref`s, as lint does.
-  const externalRefResolver = new BaseResolver(config.resolve);
+  const externalRefResolver = new GitRevisionResolver(config.resolve);
   const load = async (documentPath: string) => {
-    const document = await externalRefResolver.resolveDocument(null, documentPath, true);
-    if (document instanceof Error) throw document;
-    return document;
+    try {
+      const document = await externalRefResolver.resolveDocument(null, documentPath, true);
+      if (document instanceof Error) throw document;
+      return document;
+    } catch (error) {
+      handleError(error, documentPath);
+    }
   };
   const [base, revision] = await Promise.all([load(basePath), load(revisionPath)]);
 
@@ -61,7 +73,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   const impacts = diffConfig.diff[result.specVersions.revision];
   if (impacts && Object.values(impacts).every((impact) => impact === 'off')) {
     logger.warn(
-      '⚠️  No diff rules are on, so the command cannot find breaking changes. Add diff-recommended to extends in your configuration file.\n'
+      '⚠️  No diff rules are on, so the command cannot find breaking changes. If your configuration file does not have diff-recommended in extends, add it there or use --extends=diff-recommended.\n'
     );
   }
 
@@ -99,11 +111,25 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   logger.info(green('✅ Diff passed.\n'));
 }
 
+// An alias or an existing file wins over a git revision, so an argument that named one still does.
+async function findEntrypoint(api: string, config: Config): Promise<Entrypoint> {
+  if (!config.resolvedConfig.apis?.[api] && isGitRevisionFile(api)) {
+    const { revisionFile, localPath } = await locateRevisionFile(api);
+    // The settings of an API apply to its root file in every revision.
+    return { path: revisionFile, alias: getAliasOrPath(config, localPath).alias };
+  }
+
+  const [entrypoint] = await getFallbackApisOrExit([api], config);
+
+  return entrypoint;
+}
+
 function byPathAndProperty(left: JudgedChange, right: JudgedChange): number {
   if (left.path !== right.path) return left.path < right.path ? -1 : 1;
 
   const leftProperty = left.kind === 'modified' ? left.property : '';
   const rightProperty = right.kind === 'modified' ? right.property : '';
+
   if (leftProperty !== rightProperty) return leftProperty < rightProperty ? -1 : 1;
 
   return 0;

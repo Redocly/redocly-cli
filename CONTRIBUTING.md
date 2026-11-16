@@ -412,6 +412,7 @@ npx markdown-link-check --config .markdown-link-check.json docs
 ```
 
 Use relative file paths when pointing to local files, and absolute links when pointing to external ones.
+A link to a file of this repository on GitHub, such as `https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/...`, is checked against your checkout, so it can point to a file that the pull request adds.
 Take care when renaming pages or titles.
 
 ## Contribute to the Cookbook

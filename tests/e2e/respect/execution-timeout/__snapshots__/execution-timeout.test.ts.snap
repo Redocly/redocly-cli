@@ -1,0 +1,71 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should end a retry wait at the execution timeout and run no step after it 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow execution-timeout.arazzo.yaml / retry-after-a-minute 
+ 
+  ✗ GET /menu - step list-menu-items 
+    ✗ success criteria check - $statusCode == 999
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✗ list-menu-items 
+    ✗ global timeout error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow execution-timeout.arazzo.yaml / run-workflow-after-the-timeout 
+ 
+  ✗ run-list-menu 
+    ✗ global timeout error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow execution-timeout.arazzo.yaml / list-menu 
+ 
+  ✗ list-menu-items 
+    ✗ global timeout error
+ 
+
+  Failed tests info:
+
+  Workflow name: retry-after-a-minute
+ 
+    stepId - list-menu-items 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 999"}
+       
+    ✗ global timeout error 
+    Reason: Global Respect timer reached
+  Workflow name: run-workflow-after-the-timeout
+ 
+    stepId - run-list-menu 
+    ✗ global timeout error 
+    Reason: Global Respect timer reached
+  Workflow name: list-menu
+ 
+    stepId - list-menu-items 
+    ✗ global timeout error 
+    Reason: Global Respect timer reached 
+  Summary for execution-timeout.arazzo.yaml
+  
+  Workflows: 3 failed, 3 total
+  Steps: 3 failed, 3 total
+  Checks: 3 passed, 4 failed, 7 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x execution-timeout.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
+└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;

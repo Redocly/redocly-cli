@@ -1,5 +1,37 @@
 # @redocly/cli
 
+## 2.78.0
+
+### Minor Changes
+
+- Added the `spec-querystring-parameters` rule for Arazzo 1.1.0 descriptions.
+  The rule reports a step that has more than one `querystring` parameter or mixes `querystring` with `query` parameters, counting the parameters of its workflow.
+- Added a warning to the `respect` command for workflow inputs that don't match the workflow's `inputs` schema.
+  The workflow still runs with the inputs as given.
+- Added support for the `querystring` parameter location of Arazzo 1.1.0 and OpenAPI 3.2 to the `respect` command.
+  A step or workflow parameter with `in: querystring` sets the whole query string of the request.
+  A step without `parameters` takes a required `querystring` parameter from the OpenAPI description, the same way as the other parameters.
+- Updated redoc to v3.1.0.
+
+### Patch Changes
+
+- Fixed an issue where a Respect step that uses an AsyncAPI source description failed with `Unknown description name`.
+  The step now reports that Respect does not support AsyncAPI yet and links the Redocly CLI repository to upvote or open an issue.
+- Fixed an issue where `respect` skipped the content type check for a response described only by the `default` response.
+- Fixed an issue where `respect` failed to find an operation by `operationId` when an empty path item or an empty operation came before it in the OpenAPI description.
+- Fixed an issue where `respect` failed when a workflow `inputs` schema had a `default` at its top level or at the top of `env`, or used a keyword that JSON Schema does not define, such as `example` or an `x-` extension.
+- Fixed an issue where `respect` did not mask `format: password` fields of a request body or a response described under a wildcard media type, such as `*/*` or `application/*`.
+- Fixed an issue where `respect` checked a response against the first matching wildcard media type instead of the most specific one.
+  `application/*` wins over `*/*` regardless of their order.
+- Fixed an issue where `respect` did not evaluate a runtime expression embedded in a string value inside other braces, such as `'{"search":"{$inputs.search}"}'`.
+  A `$faker` call in such a value no longer removes the surrounding braces.
+- Fixed an issue where `respect` did not apply its own lint rules, such as `no-criteria-xpath` and the `x-security` rules, to Arazzo 1.1.0 descriptions.
+- Fixed an issue where `respect` failed the status code check and skipped the content type and schema checks for a response described with a status code range, such as `2XX`.
+- Fixed an issue where Respect printed a secret path parameter of an `x-operation` URL unmasked in the request URL of the `--verbose` output.
+- Updated @redocly/openapi-core to v2.78.0.
+- Updated @redocly/platform-integration to v2.78.0.
+- Updated @redocly/respect-core to v2.78.0.
+
 ## 2.77.0
 
 ### Minor Changes
