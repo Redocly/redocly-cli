@@ -234,9 +234,7 @@ components:
         ticketType:
           $ref: '#/components/schemas/1.0.0_TicketType'
         eventId:
-          description: >-
-            Unique identifier for a special event. Required if purchasing
-            tickets for the museum's special events.
+          description: Unique identifier for a special event. Required if purchasing tickets for the museum's special events.
           $ref: '#/components/schemas/1.0.0_1.0.0_EventId'
         ticketDate:
           description: Date that the ticket is valid for.
@@ -256,9 +254,7 @@ components:
         ticketType:
           $ref: '#/components/schemas/1.2.0_TicketType'
         eventId:
-          description: >-
-            Unique identifier for a special event. Required if purchasing
-            tickets for the museum's special events.
+          description: Unique identifier for a special event. Required if purchasing tickets for the museum's special events.
           $ref: '#/components/schemas/1.2.0_1.2.0_EventId'
         ticketDate:
           description: Date that the ticket is valid for.
