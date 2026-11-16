@@ -14,7 +14,12 @@ describe('calculateTotals', () => {
       workflowId: 'get-menu-page-limit',
       stepId: 'expect-default-page-limit',
       executedSteps: [
-        { stepId: 'list-menu-items', operationId: 'listMenuItems', checks: [passedCheck] },
+        {
+          stepId: 'list-menu-items',
+          operationId: 'listMenuItems',
+          checks: [passedCheck],
+          requestSent: true,
+        },
       ],
     } as unknown as WorkflowExecutionResult;
     const workflowStep = {
