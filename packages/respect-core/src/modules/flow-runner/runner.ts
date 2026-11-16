@@ -131,7 +131,7 @@ async function runWorkflows({
           workflowId: workflow.workflowId,
           startTime: failureTime,
           endTime: failureTime,
-          totalTimeMs: 0,
+          totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
           executedSteps: [...ctx.executedSteps, failedStep],
           ctx,
           globalTimeoutError: error.globalTimeoutError,

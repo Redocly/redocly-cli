@@ -168,3 +168,12 @@ describe('run request count', () => {
     expect(result).toMatchObject([{ hasProblems: false, totalRequests: 3 }]);
   });
 });
+
+describe('run workflow time', () => {
+  it('includes the time of a failed dependsOn workflow in the workflow that depends on it', async () => {
+    const result = await run(await runOptions('depends-on-single-call', 60_000, failingFetch));
+
+    const [dependentWorkflow] = result[0].executedWorkflows;
+    expect(dependentWorkflow.totalTimeMs).toBeGreaterThan(0);
+  });
+});
