@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/recommended
+seo:
+  title: Recommended ruleset in Redocly CLI
+  description: Check the rules and severity levels included in the Redocly CLI recommended ruleset for OpenAPI and Arazzo.
 ---
 
 # Recommended ruleset

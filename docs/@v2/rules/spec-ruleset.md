@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/spec
+seo:
+  title: Spec ruleset in Redocly CLI
+  description: Enforce strict specification compliance for OpenAPI and Arazzo descriptions with the spec ruleset in Redocly CLI.
 ---
 
 # Spec ruleset
