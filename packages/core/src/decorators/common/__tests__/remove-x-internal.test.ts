@@ -513,8 +513,9 @@ describe('oas3 remove-x-internal', () => {
           /orders:
             get:
               security:
-                - Alias: []
                 - ApiKey: []
+                - Alias: []
+                - InternalKey: []
         components:
           securitySchemes:
             Alias:
