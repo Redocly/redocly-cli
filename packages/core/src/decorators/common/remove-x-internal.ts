@@ -7,6 +7,12 @@ import type { UserContext } from '../../walk.js';
 
 const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 
+type SecurityRequirementList = {
+  list: Record<string, string[]>[];
+  parent: UserContext['parent'];
+  key: UserContext['key'];
+};
+
 export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
   internalFlagProperty = DEFAULT_INTERNAL_PROPERTY_NAME,
 }) => {
@@ -55,6 +61,9 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
           delete node[key];
           didDelete = true;
         }
+        if (ctx.type.name === 'NamedSecuritySchemes' && !(key in node)) {
+          removedSecuritySchemes.add(key);
+        }
       }
     }
 
@@ -63,8 +72,35 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
     }
   }
 
+  function removeInternalSecurityRequirements({ list, parent, key }: SecurityRequirementList) {
+    // A requirement lists schemes that must all be used together, so it can't be kept without one of them.
+    let didDelete = false;
+    for (let i = 0; i < list.length; i++) {
+      if (Object.keys(list[i]).some((name) => removedSecuritySchemes.has(name))) {
+        list.splice(i, 1);
+        didDelete = true;
+        i--;
+      }
+    }
+    if (didDelete && isEmptyArray(list)) {
+      delete parent[key];
+    }
+  }
+
   let originalMapping: Record<string, string> = {};
+  const removedSecuritySchemes = new Set<string>();
+  const securityRequirementLists: SecurityRequirementList[] = [];
   return {
+    Root: {
+      leave: () => {
+        securityRequirementLists.forEach(removeInternalSecurityRequirements);
+      },
+    },
+    SecurityRequirementList: {
+      enter: (list: Record<string, string[]>[], { parent, key }: UserContext) => {
+        securityRequirementLists.push({ list, parent, key });
+      },
+    },
     DiscriminatorMapping: {
       enter: (mapping: Record<string, string>) => {
         originalMapping = JSON.parse(JSON.stringify(mapping));

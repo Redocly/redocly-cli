@@ -2,6 +2,7 @@
 
 Removes nodes that have a specific flag property.
 Nodes that don't have the flag property defined are not impacted.
+When a security scheme is removed, any security requirement that uses it is removed too.
 
 ## API design principles
 
