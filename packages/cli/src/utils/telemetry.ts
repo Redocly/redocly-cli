@@ -36,7 +36,6 @@ type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number]
 
 const SECRET_REPLACEMENT = '***';
 
-// The names that each option of the running command goes by, as yargs resolves them.
 let optionAliases: Record<string, string[]> = {};
 
 export function setOptionAliases(aliases: Record<string, string[]>) {
