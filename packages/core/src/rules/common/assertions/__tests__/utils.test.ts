@@ -4,7 +4,7 @@ import { type Source } from '../../../../resolve.js';
 import { getIntersectionLength } from '../../../../utils/get-intersection-length.js';
 import { isOrdered } from '../../../../utils/is-ordered.js';
 import { type Assertion, type AssertionDefinition } from '../index.js';
-import { buildVisitorObject, runAssertion } from '../utils.js';
+import { buildSubjectVisitor, buildVisitorObject, runAssertion } from '../utils.js';
 
 describe('Oas3 assertions', () => {
   describe('Utils', () => {
@@ -136,6 +136,20 @@ describe('Oas3 assertions', () => {
           )
         ).toThrow(
           "rule/test -> where -> [0]: The 'disallowed' assertion can't be used on properties. Please remove the 'property' key."
+        );
+      });
+    });
+
+    describe('buildSubjectVisitor', () => {
+      it('should throw for a misused assertion when the rule is built', () => {
+        expect(() =>
+          buildSubjectVisitor('rule/test', {
+            assertionId: 'rule/test',
+            subject: { type: 'Operation' },
+            assertions: { nonEmpty: true },
+          } as Assertion)
+        ).toThrow(
+          "rule/test: The 'nonEmpty' assertion can't be used on all keys. Please provide a single property."
         );
       });
     });

@@ -161,24 +161,18 @@ export function buildVisitorObject(
 
   for (let index = 0; index < context.length; index++) {
     const assertionDefinitionNode = context[index];
+    const wherePath = `${assertion.assertionId} -> where -> [${index}]`;
 
     if (!isString(assertionDefinitionNode.subject?.type)) {
-      throw new Error(
-        `${assertion.assertionId} -> where -> [${index}]: 'type' (String) is required`
-      );
+      throw new Error(`${wherePath}: 'type' (String) is required`);
     }
 
     if (!isPlainObject(assertionDefinitionNode.assertions)) {
-      throw new Error(
-        `${assertion.assertionId} -> where -> [${index}]: 'assertions' (Object) is required`
-      );
+      throw new Error(`${wherePath}: 'assertions' (Object) is required`);
     }
 
     const locatorPredicates = getPredicatesFromLocators(assertionDefinitionNode.subject);
-    const assertsToApply = getAssertsToApply(
-      assertionDefinitionNode,
-      `${assertion.assertionId} -> where -> [${index}]`
-    );
+    const assertsToApply = getAssertsToApply(assertionDefinitionNode, wherePath);
 
     const skipFunction = (node: unknown, key: string | number, ctx: SkipFunctionContext): boolean =>
       !locatorPredicates.every((predicate) => predicate(key)) ||
@@ -216,6 +210,8 @@ export function buildVisitorObject(
 }
 
 export function buildSubjectVisitor(assertId: string, assertion: Assertion): VisitFunction<any> {
+  const assertsToApply = getAssertsToApply(assertion, assertId);
+
   return (node: any, ctx: UserContext) => {
     const properties = getAssertionProperties(assertion);
 
@@ -224,10 +220,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
         ', '
       )} didn't meet the assertions: ${assertionMessageTemplates.problems}`.replace(/ +/g, ' ');
 
-    const problems = applyAssertions(assertion, getAssertsToApply(assertion, assertId), {
-      ...ctx,
-      node,
-    });
+    const problems = applyAssertions(assertion, assertsToApply, { ...ctx, node });
 
     if (problems.length) {
       for (const problemGroup of groupProblemsByLocation(problems)) {
