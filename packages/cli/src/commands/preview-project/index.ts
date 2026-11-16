@@ -3,15 +3,13 @@ import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { getPlatformSpawnArgs, sanitizePath } from '../../utils/platform.js';
+import { getPlatformSpawnArgs } from '../../utils/platform.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
 import type { PreviewProjectArgv, Product } from './types.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) => {
   const { plan, port } = argv;
-  const { npxExecutableName, shell, sanitize } = getPlatformSpawnArgs();
-
   const projectDir = resolveProjectDir(argv['project-dir']);
 
   if (argv.product) {
@@ -31,6 +29,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
   const packageName = PRODUCT_PACKAGES[product];
 
   logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
+  const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
     npxExecutableName,
@@ -40,7 +39,8 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
       'preview',
       `--plan=${plan}`,
       `--port=${port || 4000}`,
-      `--project-dir=${sanitize(projectDir, sanitizePath)}`,
+      // The Windows spawn goes through a shell, where a path with spaces needs quotes.
+      `--project-dir=${shell ? `"${projectDir}"` : projectDir}`,
     ],
     {
       stdio: 'inherit',
