@@ -108,7 +108,11 @@ describe('run with an execution timeout', () => {
     );
 
     expect(result).toMatchObject([
-      { globalTimeoutError: true, executedWorkflows: [{ globalTimeoutError: true }] },
+      {
+        globalTimeoutError: true,
+        totalRequests: 1,
+        executedWorkflows: [{ globalTimeoutError: true }],
+      },
     ]);
   });
 
@@ -149,5 +153,30 @@ describe('run request count', () => {
 
     expect(fetch).toHaveBeenCalledTimes(2);
     expect(result).toMatchObject([{ totalRequests: 2 }]);
+  });
+
+  it('counts the requests of a dependsOn workflow each time it runs', async () => {
+    const fetch = vi.fn(async () => Response.json(EMPTY_MENU));
+    const options = await runOptions(undefined, 60_000, fetch);
+
+    const result = await run({
+      ...options,
+      workflow: ['single-call', 'depends-on-single-call'],
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(result).toMatchObject([{ hasProblems: false, totalRequests: 3 }]);
+  });
+});
+
+describe('run workflow time', () => {
+  it('includes the time of a failed dependsOn workflow in the workflow that depends on it', async () => {
+    const result = await run(await runOptions('depends-on-single-call', 60_000, failingFetch));
+
+    const [dependentWorkflow] = result[0].executedWorkflows;
+    expect(dependentWorkflow.executedSteps[0]).toMatchObject({
+      workflowId: 'single-call',
+      totalTimeMs: dependentWorkflow.totalTimeMs,
+    });
   });
 });

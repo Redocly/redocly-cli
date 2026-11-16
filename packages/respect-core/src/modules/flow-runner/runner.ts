@@ -131,8 +131,8 @@ async function runWorkflows({
           workflowId: workflow.workflowId,
           startTime: failureTime,
           endTime: failureTime,
-          totalTimeMs: 0,
-          executedSteps: [failedStep],
+          totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
+          executedSteps: [...ctx.executedSteps, failedStep],
           ctx,
           globalTimeoutError: error.globalTimeoutError,
         });
@@ -381,10 +381,15 @@ async function handleDependsOn({
         workflowInput: resolvedWorkflow,
         ctx: workflowCtx,
         skipLineSeparator: true,
+        invocationContext: `Dependency of workflow ${workflow.workflowId}`,
         executedStepsCount,
       });
     })
   );
+
+  // the dependency runs are entries of the dependent workflow, like the workflows its steps call,
+  // so their requests, steps, and checks are in its results
+  ctx.executedSteps.push(...dependenciesWorkflows);
 
   const failedDependencies = dependenciesWorkflows
     .filter((dependencyWorkflow) => calculateTotals([dependencyWorkflow]).steps.failed > 0)
