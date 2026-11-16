@@ -28,6 +28,19 @@ exports[`should end a retry wait at the execution timeout and run no step after 
   ✗ list-menu-items 
     ✗ global timeout error
  
+ 
+  Running required workflow for depend-on-workflow-after-the-timeout
+  Running workflow execution-timeout.arazzo.yaml / list-menu 
+ 
+  ✗ list-menu-items 
+    ✗ global timeout error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow execution-timeout.arazzo.yaml / depend-on-workflow-after-the-timeout 
+ 
+  ✗ dependsOn 
+    ✗ global timeout error
 
   Failed tests info:
 
@@ -48,19 +61,24 @@ exports[`should end a retry wait at the execution timeout and run no step after 
  
     stepId - list-menu-items 
     ✗ global timeout error 
-    Reason: Global Respect timer reached 
+    Reason: Global Respect timer reached
+  Workflow name: depend-on-workflow-after-the-timeout
+ 
+    stepId - dependsOn 
+    ✗ global timeout error 
+    Reason: Dependent workflows of workflow depend-on-workflow-after-the-timeout have failed steps: list-menu. 
   Summary for execution-timeout.arazzo.yaml
   
-  Workflows: 3 failed, 3 total
-  Steps: 3 failed, 3 total
-  Checks: 3 passed, 4 failed, 7 total
+  Workflows: 4 failed, 4 total
+  Steps: 4 failed, 4 total
+  Checks: 3 passed, 5 failed, 8 total
   Time: <test>ms 
  
  
 ┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x execution-timeout.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
+│ x execution-timeout.arazzo.yaml                                       │ 4          │ 0       │ 4       │ -        │
 └───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 

@@ -18,13 +18,13 @@ const SILENT_LOGGER: LoggerInterface = {
 };
 
 async function runOptions(
-  workflowId: string,
+  workflowId: string | undefined,
   executionTimeout: number,
   fetch: typeof globalThis.fetch
 ): Promise<RespectOptions> {
   return {
     files: [ARAZZO_FILE],
-    workflow: [workflowId],
+    workflow: workflowId ? [workflowId] : undefined,
     config: await createConfig({}),
     maxSteps: 100,
     maxFetchTimeout: 40_000,
@@ -128,5 +128,26 @@ describe('run with an execution timeout', () => {
 
     expect(checkNames(shortResult)).toContain(CHECKS.GLOBAL_TIMEOUT_ERROR);
     expect(longResult).toMatchObject([{ hasProblems: false, globalTimeoutError: false }]);
+  });
+});
+
+describe('run request count', () => {
+  it('counts no request for the workflows that start after the execution timeout', async () => {
+    const fetch = vi.fn(failingFetch);
+
+    const result = await run(await runOptions(undefined, 1_000, fetch));
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject([{ totalRequests: 1 }]);
+  });
+
+  it('counts no request for a retry that the step limit stops', async () => {
+    const fetch = vi.fn(failingFetch);
+    const options = await runOptions('retry-often', 60_000, fetch);
+
+    const result = await run({ ...options, maxSteps: 2 });
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject([{ totalRequests: 2 }]);
   });
 });
