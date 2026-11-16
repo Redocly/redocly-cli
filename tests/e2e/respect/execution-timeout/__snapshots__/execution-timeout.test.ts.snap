@@ -64,14 +64,17 @@ exports[`should end a retry wait at the execution timeout and run no step after 
     Reason: Global Respect timer reached
   Workflow name: depend-on-workflow-after-the-timeout
  
+    stepId - list-menu-items 
+    ✗ global timeout error 
+    Reason: Global Respect timer reached 
     stepId - dependsOn 
     ✗ global timeout error 
     Reason: Dependent workflows of workflow depend-on-workflow-after-the-timeout have failed steps: list-menu. 
   Summary for execution-timeout.arazzo.yaml
   
   Workflows: 4 failed, 4 total
-  Steps: 4 failed, 4 total
-  Checks: 3 passed, 5 failed, 8 total
+  Steps: 5 failed, 5 total
+  Checks: 3 passed, 6 failed, 9 total
   Time: <test>ms 
  
  
