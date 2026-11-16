@@ -40,4 +40,29 @@ describe('calculateTotals', () => {
     expect(totals.steps).toMatchObject({ passed: 2, failed: 0, total: 2 });
     expect(totals.checks).toMatchObject({ passed: 2, failed: 0, total: 2 });
   });
+
+  it('should count each step with a warning when a nested workflow has a step with the same id', () => {
+    const warningCheck = {
+      name: 'STATUS_CODE_CHECK',
+      passed: false,
+      severity: 'warn',
+    } as unknown as Check;
+
+    const dependencyRun = {
+      type: 'workflow',
+      workflowId: 'list-menu',
+      executedSteps: [{ stepId: 'list-menu-items', checks: [warningCheck] }],
+    } as unknown as WorkflowExecutionResult;
+    const ownStep = { stepId: 'list-menu-items', checks: [warningCheck] } as unknown as Step;
+
+    const totals = calculateTotals([
+      {
+        type: 'workflow',
+        workflowId: 'depends-on-list-menu',
+        executedSteps: [dependencyRun, ownStep],
+      } as unknown as WorkflowExecutionResult,
+    ]);
+
+    expect(totals.steps).toMatchObject({ warnings: 2, total: 2 });
+  });
 });

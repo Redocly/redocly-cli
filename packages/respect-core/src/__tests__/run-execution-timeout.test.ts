@@ -174,6 +174,9 @@ describe('run workflow time', () => {
     const result = await run(await runOptions('depends-on-single-call', 60_000, failingFetch));
 
     const [dependentWorkflow] = result[0].executedWorkflows;
-    expect(dependentWorkflow.totalTimeMs).toBeGreaterThan(0);
+    expect(dependentWorkflow.executedSteps[0]).toMatchObject({
+      workflowId: 'single-call',
+      totalTimeMs: dependentWorkflow.totalTimeMs,
+    });
   });
 });
