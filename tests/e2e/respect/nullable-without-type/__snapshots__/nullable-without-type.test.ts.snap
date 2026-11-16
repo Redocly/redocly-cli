@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should name the response schemas that use nullable without type 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow nullable-without-type.arazzo.yaml / list-menu 
+ 
+  ✗ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✗ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: list-menu
+ 
+    stepId - list-menu-items 
+    ✗ schema check 
+      The response can't be checked because the schema in the \`cafe-api\` description is not valid.
+      \`nullable\` is used without \`type\` at:
+      - #/paths/~1menu/get/responses/200/content/application~1json/schema/properties/page
+      - #/paths/~1menu/get/responses/200/content/application~1json/schema/properties/items/items
+      Add \`type\` next to \`nullable\`, or remove \`nullable\`.
+       
+  Summary for nullable-without-type.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 failed, 1 total
+  Checks: 3 passed, 1 failed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x nullable-without-type.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└───────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;

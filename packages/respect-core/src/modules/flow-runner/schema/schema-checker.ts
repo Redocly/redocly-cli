@@ -1,4 +1,14 @@
 import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
+import {
+  escapePointerFragment,
+  getTypes,
+  normalizeTypes,
+  normalizeVisitors,
+  Source,
+  walkDocument,
+  type Oas3Schema,
+  type Oas3Visitor,
+} from '@redocly/openapi-core';
 import { blue, dim, red, yellow, green } from 'colorette';
 
 import {
@@ -70,13 +80,14 @@ function checkSchemaFromDescription({
   ajvContext,
 }: DescriptionChecks & { ctx: TestContext; ajvContext?: AjvContext }): void {
   const { body: resultBody } = $response;
-  const schemaFromDescription = $response?.contentType
+  const responseSchema = $response?.contentType
     ? getResponseSchema({
         statusCode: $response.statusCode,
         contentType: $response.contentType,
         descriptionResponses: descriptionOperation?.responses,
       })
     : undefined;
+  const schemaFromDescription = responseSchema?.schema;
   const isSchemaWithCircularRef = checkCircularRefsInSchema(schemaFromDescription);
 
   if (isSchemaWithCircularRef) {
@@ -84,7 +95,7 @@ function checkSchemaFromDescription({
     ctx.options.logger.printNewLine();
   }
 
-  if (schemaFromDescription && !isSchemaWithCircularRef) {
+  if (responseSchema && !isSchemaWithCircularRef) {
     try {
       const validate = ajvStrict.compile(schemaFromDescription as JSONSchemaType<unknown>);
       checks.push({
@@ -100,14 +111,60 @@ function checkSchemaFromDescription({
         severity: ctx.severity['SCHEMA_CHECK'],
       });
     } catch (error: any) {
+      const { path, method, descriptionName } = descriptionOperation;
+      const schemaPointer = `#/${['paths', path, method, ...responseSchema.path]
+        .map(escapePointerFragment)
+        .join('/')}`;
+      const nullablePointers = findNullableWithoutType(schemaFromDescription, schemaPointer);
+      const reason = nullablePointers.length
+        ? [
+            '`nullable` is used without `type` at:',
+            ...nullablePointers.map((pointer) => `- ${pointer}`),
+            'Add `type` next to `nullable`, or remove `nullable`.',
+          ]
+        : [`Schema: ${schemaPointer}`, `Reason: ${error.message as string}`];
+
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
         passed: false,
-        message: `Ajv error: ${error.message as string}`,
+        message: [
+          `The response can't be checked because the schema in the \`${descriptionName}\` description is not valid.`,
+          ...reason,
+        ].join('\n'),
         severity: ctx.severity['SCHEMA_CHECK'],
       });
     }
   }
+}
+
+// Ajv does not say which schema it refused, so the walker finds every schema with this problem.
+// Ajv reads every schema as JSON Schema 2020-12, the dialect of the OpenAPI 3.1 Schema type.
+function findNullableWithoutType(schema: Oas3Schema, schemaPointer: string): string[] {
+  const specVersion = 'oas3_1';
+  const types = normalizeTypes(getTypes(specVersion));
+  const pointers: string[] = [];
+  const visitor: Oas3Visitor = {
+    Schema(schemaNode, { location }) {
+      if ('nullable' in schemaNode && !('type' in schemaNode)) {
+        pointers.push(
+          location.pointer === '#/' ? schemaPointer : schemaPointer + location.pointer.slice(1)
+        );
+      }
+    },
+  };
+
+  walkDocument({
+    document: { source: new Source(schemaPointer, ''), parsed: schema },
+    rootType: types.Schema,
+    normalizedVisitors: normalizeVisitors(
+      [{ severity: 'error', ruleId: 'nullable-type-sibling', visitor }],
+      types
+    ),
+    resolvedRefMap: new Map(),
+    ctx: { problems: [], specVersion, visitorsData: {} },
+  });
+
+  return pointers;
 }
 
 function checkStatusCodeFromDescription({

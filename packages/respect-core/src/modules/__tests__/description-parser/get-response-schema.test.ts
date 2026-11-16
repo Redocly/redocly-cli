@@ -26,7 +26,7 @@ describe('getResponseSchema', () => {
     expect(result).toBeUndefined();
   });
 
-  it('should return the schema for the given statusCode and contentType', () => {
+  it('should return the schema and its path for the given statusCode and contentType', () => {
     const result = getResponseSchema({
       statusCode: 200,
       contentType: 'application/json',
@@ -40,7 +40,10 @@ describe('getResponseSchema', () => {
         },
       },
     });
-    expect(result).toEqual({ type: 'object' });
+    expect(result).toEqual({
+      schema: { type: 'object' },
+      path: ['responses', '200', 'content', 'application/json', 'schema'],
+    });
   });
 
   it('should return the schema for the default response if statusCode is not found', () => {
@@ -57,7 +60,7 @@ describe('getResponseSchema', () => {
         },
       },
     });
-    expect(result).toEqual({ type: 'object' });
+    expect(result?.schema).toEqual({ type: 'object' });
   });
 
   it('should prefer the explicit status code over its range, and the range over the default response', () => {
@@ -69,12 +72,15 @@ describe('getResponseSchema', () => {
 
     expect(
       getResponseSchema({ statusCode: 200, contentType: 'application/json', descriptionResponses })
+        ?.schema
     ).toEqual({ title: 'explicit' });
     expect(
       getResponseSchema({ statusCode: 201, contentType: 'application/json', descriptionResponses })
+        ?.schema
     ).toEqual({ title: 'range' });
     expect(
       getResponseSchema({ statusCode: 404, contentType: 'application/json', descriptionResponses })
+        ?.schema
     ).toEqual({ title: 'default' });
   });
 
@@ -109,7 +115,7 @@ describe('getResponseSchema', () => {
         },
       },
     });
-    expect(result).toEqual({ type: 'object' });
+    expect(result?.schema).toEqual({ type: 'object' });
   });
 
   it('should return undefined if neither statusCode nor default response is found', () => {
