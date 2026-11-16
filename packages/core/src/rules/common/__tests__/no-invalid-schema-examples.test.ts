@@ -83,9 +83,28 @@ describe('no-invalid-schema-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
     });
 
-    expect(results.map((problem) => problem.location[0].pointer)).toEqual([
-      '#/components/schemas/Queue/properties/wrong/example',
-    ]);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/components/schemas/Queue/properties/wrong",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/Queue/properties/wrong/example",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: must be multiple of 0.1.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-schema-examples",
+          "ruleId": "no-invalid-schema-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should not report on readOnly/writeOnly properties in schema example', async () => {

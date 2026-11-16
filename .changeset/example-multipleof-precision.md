@@ -3,4 +3,6 @@
 '@redocly/cli': patch
 ---
 
-Fixed an issue where example validation reported a decimal value, such as `98.8`, as not a multiple of a decimal `multipleOf`, such as `0.1`.
+Fixed an issue where the `no-invalid-schema-examples`, `no-invalid-media-type-examples`, and `no-invalid-parameter-examples` rules reported a valid decimal example.
+
+**Note:** The rules now accept a value that differs from a multiple by less than one millionth of `multipleOf`, such as `1.0000001` for `multipleOf: 1`.
