@@ -195,8 +195,8 @@ const Workflow: NodeType = {
   description:
     'Describes the steps to be taken across one or more APIs to achieve an objective. The workflow object MAY define inputs needed in order to execute workflow steps, where the defined steps represent a call to an API operation or another workflow, and a set of outputs.',
 };
-const Workflows: NodeType = listOf('Workflow');
-const Steps: NodeType = listOf('Step');
+const Workflows: NodeType = listOf('Workflow', { minItems: 1 });
+const Steps: NodeType = listOf('Step', { minItems: 1 });
 const Step: NodeType = {
   properties: {
     stepId: {

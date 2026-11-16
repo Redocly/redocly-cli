@@ -40,6 +40,11 @@ export const Struct:
             from: refLocation,
           });
           ignoreNextVisitorsOnNode();
+        } else if (type.minItems !== undefined && node.length < type.minItems) {
+          report({
+            message: `The \`${key}\` list must have at least ${type.minItems} ${type.minItems === 1 ? 'entry' : 'entries'}.`,
+            from: refLocation,
+          });
         }
         return;
       } else if (nodeType !== 'object') {
