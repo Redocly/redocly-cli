@@ -18,13 +18,13 @@ const SILENT_LOGGER: LoggerInterface = {
 };
 
 async function runOptions(
-  workflowId: string,
+  workflowId: string | undefined,
   executionTimeout: number,
   fetch: typeof globalThis.fetch
 ): Promise<RespectOptions> {
   return {
     files: [ARAZZO_FILE],
-    workflow: [workflowId],
+    workflow: workflowId ? [workflowId] : undefined,
     config: await createConfig({}),
     maxSteps: 100,
     maxFetchTimeout: 40_000,
@@ -134,9 +134,8 @@ describe('run with an execution timeout', () => {
 describe('run request count', () => {
   it('counts no request for the workflows that start after the execution timeout', async () => {
     const fetch = vi.fn(failingFetch);
-    const options = await runOptions('retry-after-a-minute', 1_000, fetch);
 
-    const result = await run({ ...options, workflow: undefined });
+    const result = await run(await runOptions(undefined, 1_000, fetch));
 
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(result).toMatchObject([{ totalRequests: 1 }]);
