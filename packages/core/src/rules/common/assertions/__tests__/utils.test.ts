@@ -122,7 +122,7 @@ describe('Oas3 assertions', () => {
             subject: { type: 'Operation', property: 'tags' },
             assertions: { disallowed: ['get'] },
           },
-        ] as AssertionDefinition[];
+        ] as unknown as AssertionDefinition[];
 
         expect(() =>
           buildVisitorObject(
@@ -147,7 +147,7 @@ describe('Oas3 assertions', () => {
             assertionId: 'rule/test',
             subject: { type: 'Operation' },
             assertions: { nonEmpty: true },
-          } as Assertion)
+          } as unknown as Assertion)
         ).toThrow(
           "rule/test: The 'nonEmpty' assertion can't be used on all keys. Please provide a single property."
         );
