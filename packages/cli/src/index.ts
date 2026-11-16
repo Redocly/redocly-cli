@@ -50,9 +50,9 @@ dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
 cacheLatestVersion();
 
-// TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 const cli = yargs(hideBin(process.argv));
 
+// TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 cli
   .version(false)
