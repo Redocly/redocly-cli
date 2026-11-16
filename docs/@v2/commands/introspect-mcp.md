@@ -1,3 +1,9 @@
+---
+seo:
+  title: Introspect MCP servers with the introspect-mcp command
+  description: Analyze a running Model Context Protocol (MCP) server and record its tools, prompts, and resources in an OpenAPI description.
+---
+
 # `introspect-mcp`
 
 The `introspect-mcp` command analyzes a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/platform/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
