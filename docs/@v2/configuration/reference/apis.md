@@ -62,7 +62,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - docsOutput
 - Output file path
-- When running `build-docs` without specifying an API, the docs of this API are saved to this location.
+- When running `build-docs` without an API or with the alias of this API, and without `--output`, the docs of this API are saved to this location.
   The path is relative to the configuration file.
   See [Build docs for several APIs](../../commands/build-docs.md#build-docs-for-several-apis).
 
