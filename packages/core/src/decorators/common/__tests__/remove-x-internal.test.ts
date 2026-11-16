@@ -418,6 +418,10 @@ describe('oas3 remove-x-internal', () => {
             OAuth:
               type: oauth2
               flows: {}
+          schemas:
+            OAuth:
+              x-internal: true
+              type: object
       `
     );
     const { bundle: res } = await bundleDocument({
