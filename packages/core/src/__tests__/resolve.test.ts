@@ -435,7 +435,8 @@ describe('collect refs', () => {
   });
 
   it('should prefer a file whose name has a literal percent-encoded sequence', () => {
-    // `split` writes this file name and the same text as the `$ref`.
+    // `split` writes this file name and the same text as the `$ref`. The decoded name
+    // `menu items_{id}.yaml` exists too, so the literal one has to win.
     const base = path.join(__dirname, 'fixtures/resolve/openapi.yaml');
     const literalPath = path.join(__dirname, 'fixtures/resolve/menu%20items_{id}.yaml');
     const resolver = new BaseResolver();

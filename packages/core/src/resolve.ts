@@ -122,13 +122,14 @@ export class BaseResolver {
     }
 
     const filePath = path.resolve(base ? path.dirname(base) : process.cwd(), ref);
-    if (!base || !ref.includes('%') || fs.existsSync(filePath)) {
+    // `fs` is not available in the browser build.
+    if (!base || !ref.includes('%') || fs?.existsSync?.(filePath)) {
       return filePath;
     }
 
     // A `$ref` is a URI, so `users_%7Bid%7D.yaml` can point to the file `users_{id}.yaml`.
     const decodedPath = path.resolve(path.dirname(base), safeDecodeURIComponent(ref));
-    return fs.existsSync(decodedPath) ? decodedPath : filePath;
+    return fs?.existsSync?.(decodedPath) ? decodedPath : filePath;
   }
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
