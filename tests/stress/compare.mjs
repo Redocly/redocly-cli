@@ -1,6 +1,3 @@
-// Compares the lint output of two CLI builds cell by cell and writes a Markdown report.
-// Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md>
-// Exit code: 0 when the output is identical, 1 when it differs, 2 when a lint run wrote no JSON.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -46,12 +43,10 @@ function getPosition(problem) {
   return `${location.start.line}:${location.start.col}-${location.end.line}:${location.end.col}`;
 }
 
-// Where the problem is and which rule reports it.
 function placeKey(problem) {
   return `${getLocation(problem)}\n${problem.ruleId}`;
 }
 
-// The place plus the message.
 function identityKey(problem) {
   return `${placeKey(problem)}\n${problem.message}`;
 }
@@ -154,7 +149,6 @@ function hasDifferences(rule) {
   return rule.added.length + rule.removed.length + rule.changed.length > 0;
 }
 
-// Returns one entry per rule that reports a problem in one of the builds, sorted by rule name.
 function collectRules(baseProblems, headProblems, diff) {
   const rules = new Map();
   for (const problem of baseProblems) {
@@ -182,7 +176,6 @@ function formatCount(count) {
   return count.toLocaleString('en-US');
 }
 
-// For example `+40/-30/~5`: 40 added, 30 removed, and 5 changed problems.
 function formatDelta(added, removed, changed) {
   const parts = [];
   if (added > 0) {
@@ -197,7 +190,6 @@ function formatDelta(added, removed, changed) {
   return parts.join('/');
 }
 
-// One line in the style of the lint output: <file>:<line>:<column> [<severity>] <message>
 function formatProblem(problem) {
   let message = problem.message.replace(/\r?\n/g, ' ');
   if (message.length > MAX_MESSAGE_LENGTH) {
@@ -217,8 +209,6 @@ function renderMoreLine(total) {
   return [`  ... and ${formatCount(total - MAX_EXAMPLES_PER_KIND)} more`];
 }
 
-// The examples of one cell: a collapsed `diff` code block with the first problems of each kind per rule.
-// GitHub shows the `-` lines in red and the `+` lines in green.
 function renderCellDetails(cell) {
   const summaryParts = [];
   const delta = formatDelta(
@@ -337,7 +327,6 @@ if (failedCells + differingCells === 0) {
   reportLines.push('');
 }
 
-// One row per rule that differs, and one column per cell.
 const comparedCells = [];
 const ruleTotals = new Map();
 for (const cell of cells) {
@@ -412,7 +401,6 @@ if (tableRows.length > 0) {
   footerLines.push('`~` changed: a different message, severity, line, or column.', '');
 }
 
-// The examples go into the report only while the comment has room for them.
 let remainingLength =
   MAX_REPORT_LENGTH - reportLines.join('\n').length - footerLines.join('\n').length;
 for (const cell of cells) {

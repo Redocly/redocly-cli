@@ -1,7 +1,4 @@
 #!/bin/bash
-# Lints the production specs with one CLI build and writes one report per cell.
-# Usage: bash tests/stress/run.sh <path-to-cli-index.js> <output-dir>
-# Run it once per build, then compare the two output directories with compare.mjs.
 
 set -eo pipefail
 
@@ -14,10 +11,8 @@ cli="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 mkdir -p "$2"
 out="$(cd "$2" && pwd)"
 
-# Every lint runs from this directory, so the file paths in the output are the same for both builds.
 cd "$(dirname "$0")"
 
-# Pinned sources. Change a commit here when a repository rewrites its history.
 rebilly_commit=68fd73321e5997ad4dc916417433e2d46be51f08
 github_commit=9f6ad3b0ba6f7ef9619adb7135a1a56de62ed2d3
 okta_commit=74fcd17fad54332caee96ebbb11fd7f203b03e4f
@@ -27,7 +22,6 @@ if [ ! -d api-definitions ]; then
 fi
 git -C api-definitions -c advice.detachedHead=false checkout --quiet "$rebilly_commit"
 if [ ! -d api-definitions/node_modules ]; then
-  # Rebilly's plugins need their dependencies. The repository requires pnpm 11 or newer.
   (cd api-definitions && pnpm install)
 fi
 
@@ -42,10 +36,8 @@ fi
 export REDOCLY_TELEMETRY=off
 export REDOCLY_SUPPRESS_UPDATE_NOTICE=true
 export NO_COLOR=1
-# A FORCE_COLOR from the caller shell would override NO_COLOR.
 unset FORCE_COLOR
 
-# Writes <name>.json, <name>.stderr, and <name>.exit for one cell.
 lint_cell() {
   local name="$1"
   shift
@@ -55,7 +47,6 @@ lint_cell() {
   echo "$name: exit $exit_code"
 }
 
-# A cell name is <API description>.<config>. The report shows the two parts in two columns.
 lint_cell Rebilly.custom all@latest --config api-definitions/redocly.yaml
 lint_cell Rebilly.recommended api-definitions/openapi/openapi.yaml --config configs/recommended.yaml
 lint_cell GitHub.recommended specs/github.yaml --config configs/recommended.yaml

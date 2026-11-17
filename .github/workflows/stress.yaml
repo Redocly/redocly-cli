@@ -1,8 +1,5 @@
 name: Stress test on production specs
 
-# Compares the lint output of a pull request with the output of its fork point from main
-# on Rebilly, GitHub, and Okta. A release pull request is compared with the latest release.
-
 permissions:
   contents: read
   pull-requests: write
@@ -16,7 +13,6 @@ env:
   CI: true
   REDOCLY_TELEMETRY: off
 
-# One run per pull request at a time. A new push cancels the run of the old commit.
 concurrency:
   group: stress-${{ github.event.pull_request.number }}
   cancel-in-progress: true

@@ -1,7 +1,5 @@
 name: Stress test comment
 
-# Comments on fork pull requests only. Same-repository pull requests get the comment from stress.yaml.
-
 on:
   workflow_run:
     workflows: ['Stress test on production specs']
