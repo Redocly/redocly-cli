@@ -309,9 +309,8 @@ While the server runs, start a consumer with the async `runTsx` or `runCommand`,
 
 ### Stress tests
 
-The stress test posts the differences in lint output on production API descriptions as a comment on every pull request.
-Make sure that you intend every difference in the comment.
-See [tests/stress/README.md](./tests/stress/README.md) for details.
+The stress test compares the lint output of a pull request with a base build on production API descriptions.
+See [tests/stress/README.md](./tests/stress/README.md).
 
 ### Smoke tests
 
