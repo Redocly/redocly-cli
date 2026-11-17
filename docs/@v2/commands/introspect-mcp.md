@@ -21,6 +21,12 @@ The command reaches the MCP server in one of two ways:
   The process inherits your environment.
   Servers that read API keys from environment variables work as they do in your shell.
 
+The command supports MCP servers of protocol version `2026-07-28` and of the earlier versions.
+It first asks the server to describe itself with the `server/discover` request.
+When the server doesn't support that request, fails it, or doesn't answer it, the command falls back to the `initialize` handshake of the earlier protocol versions.
+With `--command`, this check runs in a separate short-lived process, so the command starts the local server twice.
+A server of an earlier protocol version that doesn't answer unknown requests makes the command wait up to a minute before the fallback.
+
 If the output file doesn't exist, the command creates a minimal OpenAPI 3.1 description scaffolded from the server's implementation info and instructions.
 Review and complete the `info` section afterward.
 If the file exists, the command updates it in place:

@@ -189,6 +189,12 @@ cli
             array: true,
             type: 'string',
           },
+          extends: {
+            description: 'Override extends configurations (defaults or config file settings).',
+            requiresArg: true,
+            array: true,
+            type: 'string',
+          },
         }),
     async (argv) => {
       const { handleDiff } = await import('./commands/diff/index.js');

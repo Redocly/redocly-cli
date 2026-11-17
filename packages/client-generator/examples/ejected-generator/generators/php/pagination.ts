@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.10.0 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.10.2 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -10,6 +10,7 @@ import {
   type DateType,
   jsonSuccessSchema,
   type OperationModel,
+  getOperationId,
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
@@ -34,7 +35,7 @@ export function writePhpPaginationWrappers(
   const name = ident;
 
   const writeCall = () => {
-    printer.line(`$op = self::OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+    printer.line(`$op = self::OPERATIONS[${phpString(getOperationId(op))}];`);
     printer.line('$base = [];');
     for (const { php, wire, value } of args.queryArgs) {
       printer.block(

@@ -5,7 +5,7 @@
 With the `preview-docs` command, you can generate documentation previews for API descriptions on your local machine.
 Use the previews to develop your API descriptions locally before deployment.
 
-If you have a license key or API key configured, the output is a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). Otherwise, it is a preview of [Redoc community edition](https://redocly.com/redoc/).
+If you have a license key or API key configured, the output is a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). Otherwise, it is a preview of [Redoc community edition](https://redocly.com/redoc-ce).
 
 {% admonition type="success" name="Tip" %}
 To preview docs using the premium Redocly API reference docs, you must first authenticate to the API registry with the [`login`](./login.md) command.

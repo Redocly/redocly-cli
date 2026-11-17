@@ -1,0 +1,28 @@
+info
+  · patch  modified  version
+      at revision.yaml:2:31
+
+GET /menu
+  ✖ major  modified  parameters/0 · required
+      `limit` query parameter became required. (parameter-became-required)
+      at revision.yaml:8:47
+  · patch  modified  summary
+      at revision.yaml:6:16
+
+/orders/{orderId}
+  ✖ major  removed
+      Path `/orders/{orderId}` was removed. (path-removed)
+      at base.yaml:12:5
+
+/specials
+  ✔ minor  added
+      at revision.yaml:12:5
+
+2 major, 1 minor, 2 patch.
+
+
+./tests/e2e/diff/config-file/base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 2 major changes.
+
+Exit code: 1

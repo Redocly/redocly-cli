@@ -20,6 +20,7 @@ import type { Arguments } from 'yargs';
 
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import type { BundleTelemetry } from '../commands/bundle.js';
+import type { IntrospectMcpTelemetry } from '../commands/introspect-mcp/telemetry.js';
 import type { CommandArgv } from '../types.js';
 import type {
   EjectGeneratorTelemetry,
@@ -63,6 +64,7 @@ export async function sendTelemetry({
   generate_client,
   eject_generator,
   bundle,
+  introspect_mcp,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -80,6 +82,7 @@ export async function sendTelemetry({
   generate_client?: GenerateClientTelemetry;
   eject_generator?: EjectGeneratorTelemetry;
   bundle?: BundleTelemetry;
+  introspect_mcp?: IntrospectMcpTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -175,6 +178,8 @@ export async function sendTelemetry({
         eject_generator_to_version: eject_generator?.eject_generator_to_version,
         // bundle usage (a count only — never overlay paths or contents).
         bundle_overlays_count: bundle?.bundle_overlays_count,
+        // introspect-mcp usage (the protocol version only — never the server URL or command).
+        introspect_mcp_protocol_version: introspect_mcp?.introspect_mcp_protocol_version,
       },
     ];
 

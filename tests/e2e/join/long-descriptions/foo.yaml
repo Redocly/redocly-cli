@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Foo Example OpenAPI 3 definition.
+  description: Information about an API whose description is longer than eighty characters on one line.
+servers:
+  - url: 'https://redocly.com/v1'
+paths:
+  /pets:
+    get:
+      summary: Test summary
+      operationId: exampleFoo
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time. The maximum is 100 and the default is 20 items.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: example description

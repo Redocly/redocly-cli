@@ -48,14 +48,18 @@ exports[`should fail the workflow whose dependsOn workflow has failed steps and 
       
   Workflow name: workflow-with-failing-depends-on
  
+    stepId - list-menu-items 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 500"}
+       
     stepId - dependsOn 
     ✗ unexpected error 
     Reason: Dependent workflows of workflow workflow-with-failing-depends-on have failed steps: failing-dependency. 
   Summary for workflow-depends-on-failed.arazzo.yaml
   
   Workflows: 1 passed, 2 failed, 3 total
-  Steps: 1 passed, 2 failed, 3 total
-  Checks: 7 passed, 2 failed, 9 total
+  Steps: 1 passed, 3 failed, 4 total
+  Checks: 10 passed, 3 failed, 13 total
   Time: <test>ms 
  
  
