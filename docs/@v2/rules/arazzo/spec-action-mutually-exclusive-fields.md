@@ -10,10 +10,15 @@ A success or failure action must use only one of the `stepId` and `workflowId` f
 
 The Arazzo specification defines two fields that point a success or failure action to its target: `stepId` and `workflowId`.
 These fields are mutually exclusive: an action transfers to a step of the current workflow or to another workflow, not to both.
-This rule reports an action that uses both fields at the same time.
+The `spec-action-mutually-exclusive-fields` rule reports an action that uses both fields at the same time.
 
-The rule checks the actions in the `onSuccess` and `onFailure` lists of a step, in the `successActions` and `failureActions` lists of a workflow, and in the `successActions` and `failureActions` maps of the `components` object.
-It applies to every action type, because the specification does not limit the requirement to `goto` actions.
+The rule checks the actions in:
+
+- the `onSuccess` and `onFailure` lists of a step
+- the `successActions` and `failureActions` lists of a workflow
+- the `successActions` and `failureActions` maps of the `components` object
+
+The rule applies to every action type, because the specification does not limit the requirement to `goto` actions.
 
 ## Configuration
 
