@@ -682,6 +682,99 @@ describe('oas3 remove-x-internal', () => {
       components: {}
     `);
   });
+
+  it('should remove security requirements from a security list referenced with $ref', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /orders:
+            get:
+              security:
+                $ref: '#/x-security'
+        x-security:
+          - InternalKey: []
+          - ApiKey: []
+        components:
+          securitySchemes:
+            InternalKey:
+              x-internal: true
+              type: apiKey
+              name: X-Internal-Key
+              in: header
+            ApiKey:
+              type: apiKey
+              name: X-Api-Key
+              in: header
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: { 'remove-x-internal': 'on' },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      paths:
+        /orders:
+          get:
+            security:
+              $ref: '#/x-security'
+      x-security:
+        - ApiKey: []
+      components:
+        securitySchemes:
+          ApiKey:
+            type: apiKey
+            name: X-Api-Key
+            in: header
+    `);
+  });
+
+  it('should leave security requirement entries that are not objects untouched', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        security:
+          - null
+        paths:
+          /orders:
+            get:
+              security:
+                - null
+                - InternalKey: []
+        components:
+          securitySchemes:
+            InternalKey:
+              x-internal: true
+              type: apiKey
+              name: X-Internal-Key
+              in: header
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: { 'remove-x-internal': 'on' },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      security:
+        - null
+      paths:
+        /orders:
+          get:
+            security:
+              - null
+      components: {}
+    `);
+  });
 });
 
 describe('oas2 remove-x-internal', () => {

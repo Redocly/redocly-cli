@@ -105,7 +105,11 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
     // A requirement lists schemes that must all be used together, so it can't be kept without one of them.
     let didDelete = false;
     for (let i = 0; i < list.length; i++) {
-      if (Object.keys(list[i]).some((name) => removedSecuritySchemes.has(name))) {
+      const requirement = list[i];
+      if (
+        isPlainObject(requirement) &&
+        Object.keys(requirement).some((name) => removedSecuritySchemes.has(name))
+      ) {
         list.splice(i, 1);
         didDelete = true;
         i--;
