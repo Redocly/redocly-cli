@@ -33,10 +33,10 @@ export function toHeaderRecord(headers: RequestInit['headers']): Record<string, 
     return record;
   }
   if (Array.isArray(headers)) return Object.fromEntries(headers);
-  // Node's `HeadersInit` also allows a list of values per name; `fetch` joins them with `, `.
+  // Node's `HeadersInit` also allows a list of values per name; `fetch` converts it to a string.
   const record: Record<string, string> = {};
   for (const [key, value] of Object.entries(headers)) {
-    record[key] = typeof value === 'string' ? value : Array.from(value).join(', ');
+    record[key] = String(value);
   }
   return record;
 }
