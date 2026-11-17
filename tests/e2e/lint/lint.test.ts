@@ -37,6 +37,16 @@ describe('lint', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('lint Arazzo description with a malformed sourceDescriptions list', async () => {
+    const dirName = 'arazzo-malformed-source-descriptions';
+    const testPath = join(__dirname, `${dirName}`);
+
+    const args = getParams(indexEntryPoint, ['lint', 'cafe-workflows.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test('arazzo-type-extensions-with-plugin', async () => {
     const dirName = 'arazzo-type-extensions-with-plugin';
     const testPath = join(__dirname, `${dirName}`);

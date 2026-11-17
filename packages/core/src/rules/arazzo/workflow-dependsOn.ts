@@ -9,7 +9,7 @@ export const WorkflowDependsOn: Arazzo1Rule = () => {
     SourceDescriptions: {
       enter(sourceDescriptions) {
         for (const sourceDescription of sourceDescriptions) {
-          existingSourceDescriptions.add(sourceDescription.name);
+          existingSourceDescriptions.add(sourceDescription?.name);
         }
       },
     },

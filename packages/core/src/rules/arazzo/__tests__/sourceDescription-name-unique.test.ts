@@ -78,4 +78,53 @@ describe('Arazzo sourceDescription-name-unique', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('should leave a `null` item of sourceDescriptions to the struct rule', async () => {
+    const documentWithNullSourceDescription = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Redocly Cafe ordering workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - null
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: cafe-api.listMenuItems
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithNullSourceDescription,
+      config: await createConfig({
+        rules: { struct: 'error', 'sourceDescription-name-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/sourceDescriptions/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Expected type \`ArazzoSourceDescription\` (object) but got \`null\`",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

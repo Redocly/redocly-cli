@@ -1,0 +1,18 @@
+arazzo: 1.0.1
+info:
+  title: Redocly Cafe ordering workflows
+  version: 1.0.0
+
+sourceDescriptions:
+  - null
+  - name: cafe-api
+    type: openapi
+    url: ../../../../resources/cafe.yaml
+
+workflows:
+  - workflowId: list-menu
+    steps:
+      - stepId: list-menu-items
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
