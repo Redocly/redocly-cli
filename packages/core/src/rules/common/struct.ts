@@ -42,7 +42,7 @@ export const Struct:
           ignoreNextVisitorsOnNode();
         } else if (type.minItems !== undefined && node.length < type.minItems) {
           report({
-            message: `The \`${key}\` list must have at least ${type.minItems} ${type.minItems === 1 ? 'entry' : 'entries'}.`,
+            message: `The \`${key}\` list must have at least ${type.minItems === 1 ? 'one entry' : `${type.minItems} entries`}.`,
             from: refLocation,
           });
         }

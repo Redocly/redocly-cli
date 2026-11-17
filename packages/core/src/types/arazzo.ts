@@ -227,6 +227,7 @@ const Step: NodeType = {
     successCriteria: listOf('CriterionObject', {
       description:
         'A list of assertions to determine the success of the step. Each assertion is described using a Criterion Object. All assertions MUST be satisfied for the step to be deemed successful.',
+      minItems: 1,
     }),
     onSuccess: 'OnSuccessActionList',
     onFailure: 'OnFailureActionList',
@@ -400,6 +401,7 @@ const SuccessActionObject: NodeType = {
     criteria: listOf('CriterionObject', {
       description:
         'A list of assertions to determine if this action SHALL be executed. Each assertion is described using a Criterion Object. All criteria assertions MUST be satisfied for the action to be executed.',
+      minItems: 1,
     }),
   },
   required: ['type', 'name'],
