@@ -17,12 +17,11 @@ function readCell(dir, name) {
   const exitCode = fs.readFileSync(path.join(dir, `${name}.exit`), 'utf8').trim();
   const stderr = fs.readFileSync(path.join(dir, `${name}.stderr`), 'utf8');
   const stdout = fs.readFileSync(path.join(dir, `${name}.json`), 'utf8');
-  // A crashed run leaves empty or partial stdout.
   let problems = null;
   try {
     problems = JSON.parse(stdout).problems;
   } catch {
-    problems = null;
+    // A crashed run leaves empty or partial stdout.
   }
   return { exitCode, stderr, problems };
 }
@@ -295,9 +294,7 @@ for (const name of cellNames) {
   } else {
     cell.diff = compareProblems(cell.base.problems, cell.head.problems);
     cell.rules = collectRules(cell.base.problems, cell.head.problems, cell.diff);
-    cell.differs =
-      cell.base.exitCode !== cell.head.exitCode ||
-      cell.diff.added.length + cell.diff.removed.length + cell.diff.changed.length > 0;
+    cell.differs = cell.base.exitCode !== cell.head.exitCode || hasDifferences(cell.diff);
     if (cell.differs) {
       differingCells++;
     }

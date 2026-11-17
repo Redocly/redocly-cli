@@ -309,11 +309,9 @@ While the server runs, start a consumer with the async `runTsx` or `runCommand`,
 
 ### Stress tests
 
-The stress test compares the lint output of a pull request with the output of its fork point from `main` on three production API descriptions: Rebilly, GitHub, and Okta.
-It runs in CI on every pull request and posts the result as a comment.
-The check fails when the output differs, so make sure that every difference in the comment is intended.
-A release pull request is compared with the latest release, and differences do not fail it.
-See [tests/stress/README.md](./tests/stress/README.md) to read the report and to run the same comparison locally.
+The stress test posts the differences in lint output on production API descriptions as a comment on every pull request.
+Make sure that you intend every difference in the comment.
+See [tests/stress/README.md](./tests/stress/README.md) for details.
 
 ### Smoke tests
 
