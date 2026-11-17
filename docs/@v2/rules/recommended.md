@@ -32,6 +32,7 @@ Errors:
 - [sourceDescription-name-unique](./arazzo/sourceDescription-name-unique.md)
 - [sourceDescription-type](./arazzo/sourceDescription-type.md)
 - [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md)
+- [spec-action-stepId-defined](./arazzo/spec-action-stepId-defined.md)
 - [spec-action-mutually-exclusive-fields](./arazzo/spec-action-mutually-exclusive-fields.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
 - [spec-example-values](./oas/spec-example-values.md)

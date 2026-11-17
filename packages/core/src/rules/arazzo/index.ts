@@ -21,6 +21,7 @@ import { ParametersUnique } from './parameters-unique.js';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique.js';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique.js';
 import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty.js';
+import { SpecActionStepIdDefined } from './spec-action-stepId-defined.js';
 import { SpecActionMutuallyExclusiveFields } from './spec-action-mutually-exclusive-fields.js';
 import { SpecOutputsInvalidMapName } from './spec-outputs-invalid-map-name.js';
 import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
@@ -53,6 +54,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'sourceDescription-name-unique': SourceDescriptionsNameUnique,
   'sourceDescription-type': SourceDescriptionType,
   'sourceDescriptions-not-empty': SourceDescriptionsNotEmpty,
+  'spec-action-stepId-defined': SpecActionStepIdDefined,
   'spec-action-mutually-exclusive-fields': SpecActionMutuallyExclusiveFields,
   'spec-outputs-invalid-map-name': SpecOutputsInvalidMapName,
   'spec-sourceDescriptions-defined': SpecSourceDescriptionsDefined,
