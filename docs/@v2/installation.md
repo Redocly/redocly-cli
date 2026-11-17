@@ -4,7 +4,7 @@ Choose the most appropriate installation method for your needs:
 
 - [Install locally, using `npm`](#install-locally) to make the `redocly` command available on your system.
 - [Use `npx` to get the tool at runtime](#use-the-command-at-runtime) rather than installing it.
-- [Download a standalone binary](#standalone-binary) that runs without Node.js.
+- [Download a standalone binary](#download-a-standalone-binary) that runs without Node.js.
 - The command is also [available through Docker](#docker).
 
 ## Install locally
@@ -43,9 +43,9 @@ For example, to run `redocly lint` on a file named `openapi.yaml`, use the follo
 npx @redocly/cli@latest lint openapi.yaml
 ```
 
-## <a id="standalone-binary"></a>Download a standalone binary
+## Download a standalone binary
 
-Every Redocly CLI release on the [GitHub releases page](https://github.com/Redocly/redocly-cli/releases) includes standalone binaries for Linux, macOS, and Windows.
+Starting with version 2.80.0, every Redocly CLI release on the [GitHub releases page](https://github.com/Redocly/redocly-cli/releases) includes standalone binaries for Linux, macOS, and Windows.
 A binary needs no Node.js or npm.
 The `SHA256SUMS` file in the same release lists the SHA-256 checksum of each binary.
 
@@ -60,13 +60,16 @@ The `SHA256SUMS` file in the same release lists the SHA-256 checksum of each bin
 | Windows x64                           | `redocly-windows-x64.exe`   |
 | Windows arm64                         | `redocly-windows-arm64.exe` |
 
+The musl binaries need the C++ standard library.
+On Alpine, install it with `apk add libstdc++`.
+
 To install a binary on Linux or macOS:
 
 1. Download the binary for your system and the checksums file.
    Replace the version and the file name with the ones you need:
 
    ```bash
-   VERSION=2.75.0
+   VERSION=2.80.0
    FILE=redocly-linux-x64
    curl -fLO "https://github.com/Redocly/redocly-cli/releases/download/%40redocly%2Fcli%40$VERSION/$FILE"
    curl -fLO "https://github.com/Redocly/redocly-cli/releases/download/%40redocly%2Fcli%40$VERSION/SHA256SUMS"

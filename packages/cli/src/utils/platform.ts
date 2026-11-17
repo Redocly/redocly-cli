@@ -14,6 +14,10 @@ export const sanitizeLocale = (input: string): string => {
   return input.replace(/[^a-zA-Z0-9@._-]/g, '');
 };
 
+// `scripts/build-binary.mjs` defines this constant, so it exists only in the standalone binary.
+declare const REDOCLY_STANDALONE_BINARY: true;
+export const isStandaloneBinary = typeof REDOCLY_STANDALONE_BINARY !== 'undefined';
+
 /**
  * The command that runs a product package, such as `@redocly/framework`, and downloads it when needed.
  * The standalone binary embeds Bun and has no npx next to it, so it runs the package with `bun x`

@@ -7,9 +7,9 @@ import {
   AbortFlowError,
 } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
+import { createParentDirectory } from '../../utils/miscellaneous.js';
 import { type CommandArgs } from '../../wrapper.js';
 import { describeXMcpChanges } from './check.js';
 import { introspectMcpServer, type McpTarget } from './introspect.js';
@@ -158,7 +158,7 @@ export async function handleIntrospectMcp({
   const content = outputFile.endsWith('.json')
     ? JSON.stringify(openapiDocument, null, 2) + '\n'
     : stringifyYaml(openapiDocument);
-  mkdirSync(dirname(outputFile), { recursive: true });
+  createParentDirectory(outputFile);
   writeFileSync(outputFile, content);
 
   logger.info(

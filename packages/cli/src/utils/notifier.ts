@@ -10,6 +10,7 @@ import { renderBanner } from './banner.js';
 import { DEFAULT_FETCH_TIMEOUT } from './constants.js';
 import { cleanColors } from './miscellaneous.js';
 import { version, name } from './package.js';
+import { isStandaloneBinary } from './platform.js';
 
 // Each user sees an announcement once, until its text changes.
 const ANNOUNCEMENT = [
@@ -62,7 +63,7 @@ const showUpdateBanner = (latest: string) => {
   logger.info(
     renderBanner([
       `A new version of ${cyan('Redocly CLI')} (${green(latest)}) is available.`,
-      process.versions.bun
+      isStandaloneBinary
         ? `Download it: ${cyan(`https://github.com/Redocly/redocly-cli/releases/tag/%40redocly%2Fcli%40${latest}`)}`
         : `Update now: \`${cyan('npm i -g @redocly/cli@latest')}\`.`,
       `Changelog: https://redocly.com/docs/cli/changelog/`,
