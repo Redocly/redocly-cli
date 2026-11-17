@@ -34,6 +34,7 @@ jobs:
       matrix:
         # The x64 baseline targets also run on CPUs without AVX2.
         # The musl binaries are smoke-tested in an Alpine container.
+        # The framework that `preview` runs depends on libsql, which has no Windows arm64 build.
         include:
           - { file: redocly-linux-x64, target: bun-linux-x64-baseline, runner: ubuntu-latest }
           - { file: redocly-linux-arm64, target: bun-linux-arm64, runner: ubuntu-24.04-arm }
@@ -53,6 +54,7 @@ jobs:
           - file: redocly-windows-arm64.exe
             target: bun-windows-arm64
             runner: windows-11-arm
+            skip-preview: true
     defaults:
       run:
         shell: bash
@@ -87,6 +89,8 @@ jobs:
       - name: Smoke test
         if: ${{ !matrix.alpine }}
         run: bash tests/smoke/binary/run-smoke.sh dist/${{ matrix.file }}
+        env:
+          SKIP_PREVIEW: ${{ matrix.skip-preview && 'true' || '' }}
 
       - name: Smoke test in Alpine
         if: ${{ matrix.alpine }}

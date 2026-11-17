@@ -102,6 +102,7 @@ Download the binary with the previously mentioned `curl` command, or remove the 
 
 The `preview`, `eject`, and `translate` commands download their product package from the npm registry and run it on the runtime built into the binary.
 They use the registry configured in your `.npmrc` file.
+`preview` doesn't run on Windows arm64, because the framework depends on a database library with no build for that platform.
 
 ## <a id="docker"></a>Run commands inside Docker
 

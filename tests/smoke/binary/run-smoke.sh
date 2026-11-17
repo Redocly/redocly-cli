@@ -51,6 +51,10 @@ if grep -q 'Unknown word: This' <<< "$recheck_output"; then
 fi
 cd ..
 
+if [ "${SKIP_PREVIEW:-}" = true ]; then
+  exit 0
+fi
+
 mkdir preview && printf '# Smoke test\n' > preview/index.md
 "$binary" preview --project-dir=preview --plan=pro --port=4555 > preview.log 2>&1 &
 for _ in $(seq 1 300); do
