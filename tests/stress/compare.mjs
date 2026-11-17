@@ -9,7 +9,6 @@ const MAX_MESSAGE_LENGTH = 200;
 const STDERR_TAIL_LINES = 40;
 // GitHub rejects a comment that is longer than 65536 characters.
 const MAX_REPORT_LENGTH = 60000;
-const README_URL = 'https://github.com/Redocly/redocly-cli/blob/main/tests/stress/README.md';
 
 const [baseDir, headDir, reportPath] = process.argv.slice(2);
 if (!baseDir || !headDir || !reportPath) {
@@ -392,14 +391,7 @@ if (tableRows.length > 0) {
     header += ` ${cell.spec} \`${cell.config}\` |`;
     divider += ' --: |';
   }
-  reportLines.push(
-    header,
-    divider,
-    ...tableRows,
-    '',
-    '`+` added, `-` removed, `~` changed (a different message, severity, line, or column).',
-    ''
-  );
+  reportLines.push(header, divider, ...tableRows, '');
 }
 
 for (const cell of cells) {
@@ -415,7 +407,10 @@ for (const cell of cells) {
   }
 }
 
-const footerLines = [`[How to read this report and run it locally](${README_URL})`, ''];
+const footerLines = [];
+if (tableRows.length > 0) {
+  footerLines.push('`~` changed: a different message, severity, line, or column.', '');
+}
 
 // The examples go into the report only while the comment has room for them.
 let remainingLength =
