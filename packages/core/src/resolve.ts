@@ -415,6 +415,28 @@ export async function resolveDocument(opts: {
         });
         resolvePromises.push(promise);
       }
+
+      // load the OpenAPI source description of an Arazzo document, so that rules can read its operations
+      if (type.name === 'OpenAPISourceDescription' && typeof node.url === 'string') {
+        const promise = followRef(
+          rootNodeDocument,
+          { $ref: node.url },
+          {
+            prev: null,
+            node,
+          }
+        ).then((resolvedRef) => {
+          if (resolvedRef.resolved) {
+            resolveRefsInParallel(
+              resolvedRef.node,
+              resolvedRef.document,
+              resolvedRef.nodePointer,
+              unknownType
+            );
+          }
+        });
+        resolvePromises.push(promise);
+      }
     }
 
     async function followRef(

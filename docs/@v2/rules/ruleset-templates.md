@@ -167,6 +167,7 @@ rules:
   spec-outputs-invalid-map-name: warn
   spec-querystring-parameters: warn
   spec-step-mutually-exclusive-fields: warn
+  spec-step-operationId-resolved: warn
   stepId-unique: error
   struct: error
   workflowId-unique: error
@@ -399,6 +400,7 @@ rules:
   spec-outputs-invalid-map-name: error
   spec-querystring-parameters: error
   spec-step-mutually-exclusive-fields: error
+  spec-step-operationId-resolved: error
   step-onFailure-unique: warn
   step-onSuccess-unique: warn
   stepId-unique: error
