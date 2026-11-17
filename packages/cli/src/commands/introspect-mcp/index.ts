@@ -13,6 +13,7 @@ import { dirname } from 'node:path';
 import { type CommandArgs } from '../../wrapper.js';
 import { describeXMcpChanges } from './check.js';
 import { introspectMcpServer, type McpTarget } from './introspect.js';
+import { introspectMcpTelemetry } from './telemetry.js';
 import { updateDescription } from './update-description.js';
 
 export type IntrospectMcpCommandArgv = {
@@ -109,6 +110,7 @@ export async function handleIntrospectMcp({
     )
   );
   const snapshot = await introspectMcpServer(target, version);
+  introspectMcpTelemetry.introspect_mcp_protocol_version = snapshot.protocolVersion;
 
   const isNewDocument = !existsSync(outputFile);
   let existingDocument: Record<string, unknown> | undefined;

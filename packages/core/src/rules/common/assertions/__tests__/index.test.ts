@@ -3,7 +3,6 @@ import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
 import { createConfig } from '../../../../config/index.js';
 import { lintDocument } from '../../../../lint.js';
-import { colorOptions } from '../../../../logger.js';
 import { BaseResolver } from '../../../../resolve.js';
 import { Assertions } from '../index.js';
 
@@ -62,10 +61,6 @@ const opts = {
 };
 
 describe('Oas3 assertions', () => {
-  beforeAll(() => {
-    colorOptions.enabled = false;
-  });
-
   it('should return the right visitor structure', () => {
     const visitors = Assertions(opts as any);
     expect(visitors).toMatchInlineSnapshot(`

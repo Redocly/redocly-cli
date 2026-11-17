@@ -1,5 +1,5 @@
 import { logger, HandledError, type Config } from '@redocly/openapi-core';
-import { getReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { getPlatformUrl, RedoclyOAuthClient } from '@redocly/platform-integration';
 import { green } from 'colorette';
 
 import { printDeviceCode } from '../../utils/print-device-code.js';
@@ -9,10 +9,10 @@ export async function handleLoginAndFetchToken(
   version: string,
   verbose = false
 ): Promise<string | null> {
-  const reuniteUrl = getReuniteUrl(config, config.resolvedConfig?.residency);
+  const platformUrl = getPlatformUrl(config, config.resolvedConfig?.residency);
 
   const oauthClient = new RedoclyOAuthClient(version);
-  let accessToken = await oauthClient.getAccessToken(reuniteUrl);
+  let accessToken = await oauthClient.getAccessToken(platformUrl);
 
   if (accessToken) {
     if (verbose) {
@@ -26,16 +26,16 @@ export async function handleLoginAndFetchToken(
   }
 
   try {
-    await oauthClient.login(reuniteUrl, printDeviceCode);
+    await oauthClient.login(platformUrl, printDeviceCode);
     logger.output(green('✅ Logged in\n\n'));
-    accessToken = await oauthClient.getAccessToken(reuniteUrl);
+    accessToken = await oauthClient.getAccessToken(platformUrl);
   } catch (error) {
     if (verbose) {
       logger.error(`❌ Login failed.\n`);
       logger.error(`Error details: ${error.message}\n`);
     }
     throw new HandledError(
-      `Login failed. Please try again or check your connection to ${reuniteUrl}.`
+      `Login failed. Please try again or check your connection to ${platformUrl}.`
     );
   }
 

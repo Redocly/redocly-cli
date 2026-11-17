@@ -7,7 +7,7 @@
   "references": [
     { "path": "../core" },
     { "path": "../respect-core" },
-    { "path": "../reunite-integration" },
+    { "path": "../platform-integration" },
     { "path": "../client-generator" }
   ],
   "include": ["src/**/*.ts"],

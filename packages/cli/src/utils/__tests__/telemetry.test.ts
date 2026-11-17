@@ -1,5 +1,5 @@
 import { createConfig } from '@redocly/openapi-core';
-import { RedoclyOAuthClient, getReuniteUrl } from '@redocly/reunite-integration';
+import { RedoclyOAuthClient, getPlatformUrl } from '@redocly/platform-integration';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
@@ -14,7 +14,7 @@ const mockOtelSend = vi.hoisted(() => vi.fn());
 vi.mock('@redocly/cli-otel', () => ({ CloudEvents: { mapToCloudEvent: mockMapToCloudEvent } }));
 vi.mock('../otel.js', () => ({ otelTelemetry: { send: mockOtelSend } }));
 vi.mock('../network-check.js');
-vi.mock('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration');
 vi.mock('node:child_process', async (importOriginal) => {
   const actual = await importOriginal<typeof childProcess>();
   return { ...actual, execSync: vi.fn(actual.execSync) };
@@ -48,7 +48,7 @@ it('sendTelemetry calls all telemetry functions', async () => {
 
   expect(respondWithinMs).toHaveBeenCalled();
   expect(RedoclyOAuthClient).toHaveBeenCalled();
-  expect(getReuniteUrl).toHaveBeenCalled();
+  expect(getPlatformUrl).toHaveBeenCalled();
   expect(mockMapToCloudEvent).toHaveBeenCalledWith(expect.objectContaining({ env: 'development' }));
   expect(mockOtelSend).toHaveBeenCalled();
 });
@@ -140,6 +140,33 @@ it('sendTelemetry includes the number of overlays a bundle run applied', async (
 
   expect(mockMapToCloudEvent).toHaveBeenCalledWith(
     expect.objectContaining({ data: [expect.objectContaining({ bundle_overlays_count: 2 })] })
+  );
+});
+
+it('sendTelemetry includes the MCP protocol version an introspect-mcp run negotiated', async () => {
+  vi.mocked(respondWithinMs).mockResolvedValue(true);
+
+  await sendTelemetry({
+    config: await createConfig({}),
+    argv: { _: ['introspect-mcp'] } as any,
+    exit_code: 0,
+    execution_time: 1500,
+    spec_version: 'unknown',
+    spec_keyword: undefined,
+    spec_full_version: undefined,
+    respect_x_security_auth_types: undefined,
+    respect_source_description_types: undefined,
+    respect_criterion_object_types: undefined,
+    lint_rules_with_errors: undefined,
+    lint_rules_with_warnings: undefined,
+    lint_rules_with_ignored_problems: undefined,
+    introspect_mcp: { introspect_mcp_protocol_version: '2026-07-28' },
+  });
+
+  expect(mockMapToCloudEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: [expect.objectContaining({ introspect_mcp_protocol_version: '2026-07-28' })],
+    })
   );
 });
 

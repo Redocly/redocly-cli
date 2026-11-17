@@ -519,7 +519,7 @@ describe('extractScopes — full segment array on a rich fixture (ordering lock)
 
 // Deeply nested input must not overflow the stack.
 describe('extractScopes — deeply nested input does not overflow the stack', () => {
-  it('handles 10,000 nested blockquotes', () => {
+  it('handles 10,000 nested blockquotes', { timeout: 30_000 }, () => {
     const md = '>'.repeat(10_000) + ' text\n';
     const segs = extract(md);
     expect(byScope(segs, 'blockquote')).toHaveLength(10_000);

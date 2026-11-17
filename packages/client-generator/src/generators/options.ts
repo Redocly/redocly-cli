@@ -3,9 +3,10 @@
 // typo in the config fails with the generator name and the offending key instead of
 // reaching `run` — and a generator reads its options without re-checking them.
 
-import { isPlainObject, logger } from '@redocly/openapi-core';
+import { isPlainObject } from '@redocly/openapi-core';
 
 import { NotSupportedError } from '../errors.js';
+import { reportFinding } from '../findings.js';
 import type {
   GeneratorDescriptor,
   GeneratorOptionSchema,
@@ -27,9 +28,11 @@ export function resolveGeneratorOptions(
     const values = configured?.[name];
     if (schema === undefined) {
       if (values !== undefined) {
-        logger.warn(
-          `generate-client: the "${name}" generator declares no options, so client.options.${name} is ignored.\n`
-        );
+        reportFinding({
+          kind: 'option-ignored',
+          message: `the "${name}" generator declares no options, so client.options.${name} is ignored.`,
+          operations: [],
+        });
       }
       resolved.set(name, {});
       continue;

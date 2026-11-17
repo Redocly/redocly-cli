@@ -1,12 +1,12 @@
 import { logger } from '@redocly/openapi-core';
-import type * as ReuniteIntegration from '@redocly/reunite-integration';
-import { RedoclyOAuthClient } from '@redocly/reunite-integration';
+import type * as PlatformIntegration from '@redocly/platform-integration';
+import { RedoclyOAuthClient } from '@redocly/platform-integration';
 import { Readable } from 'node:stream';
 
 import { handleProjectGitCredentials } from '../git-credentials.js';
 
-vi.mock('@redocly/reunite-integration', async () => ({
-  ...(await vi.importActual<typeof ReuniteIntegration>('@redocly/reunite-integration')),
+vi.mock('@redocly/platform-integration', async () => ({
+  ...(await vi.importActual<typeof PlatformIntegration>('@redocly/platform-integration')),
   RedoclyOAuthClient: vi.fn(),
 }));
 
@@ -39,7 +39,7 @@ describe('handleProjectGitCredentials', () => {
     process.env = originalEnv;
   });
 
-  it('answers with the login token for the Reunite host', async () => {
+  it('answers with the login token for the Redocly platform host', async () => {
     await expect(credential('get')).resolves.toBe('username=redocly\npassword=token-123\n');
     expect(RedoclyOAuthClient).toHaveBeenCalledWith('2.0.0');
     expect(getAccessToken).toHaveBeenCalledWith('https://app.cloud.redocly.com');
@@ -61,7 +61,7 @@ describe('handleProjectGitCredentials', () => {
     );
   });
 
-  it('gives nothing for a host that is not a valid Reunite URL', async () => {
+  it('gives nothing for a host that is not a valid Redocly platform URL', async () => {
     await expect(credential('get', 'protocol=http\nhost=example.com\n')).resolves.toBe('');
     expect(getAccessToken).not.toHaveBeenCalled();
   });

@@ -4,7 +4,7 @@ import {
   getDomain,
   getMostUrgentSunsetWarning,
   getPushStatus,
-  ReuniteApiError,
+  PlatformApiError,
   waitForDeployment,
   type BuildType,
   type DeploymentStatus,
@@ -13,7 +13,7 @@ import {
   type ScorecardItem,
   type SunsetWarning,
   type ProjectRefResolution,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import * as colors from 'colorette';
 
 import { printExecutionTime } from '../utils/miscellaneous.js';
@@ -92,7 +92,7 @@ export async function handlePushStatus({
       : await getPushStatus(statusOptions);
 
     printPushStatus({ buildType: 'preview', spinner, push, continueOnDeployFailures });
-    printScorecard(push.status.preview.scorecard);
+    printChecks(push.status.preview);
 
     if (wait && push.isMainBranch && push.status.preview.deploy.status === 'success') {
       push = await waitForDeployment({
@@ -105,7 +105,7 @@ export async function handlePushStatus({
 
     if (push.isMainBranch) {
       printPushStatus({ buildType: 'production', spinner, push, continueOnDeployFailures });
-      printScorecard(push.status.production.scorecard);
+      printChecks(push.status.production);
     }
     printPushStatusInfo({ organization, project, pushId, startedAt });
 
@@ -117,22 +117,22 @@ export async function handlePushStatus({
   } catch (err) {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
 
-    handleReuniteError('✗ Failed to get push status.', err);
+    handlePlatformError('✗ Failed to get push status.', err);
   } finally {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
     printSunsetWarning('push-status', sunsetWarnings);
   }
 }
 
-export function handleReuniteError(
+export function handlePlatformError(
   message: string,
-  error: ReuniteApiError | DeploymentError | Error
+  error: PlatformApiError | DeploymentError | Error
 ): never {
   if (error instanceof DeploymentError) {
     throw new HandledError(error.message);
   }
 
-  if (error instanceof ReuniteApiError) {
+  if (error instanceof PlatformApiError) {
     throw new HandledError(`${message} Reason: ${error.message} (status: ${error.status})\n`);
   }
 
@@ -205,8 +205,7 @@ function printPushStatus({
     );
   } else {
     displayDeploymentAndBuildStatus({
-      status: push.status[buildType].deploy.status,
-      url: push.status[buildType].deploy.url,
+      deploymentStatus: push.status[buildType],
       buildType,
       spinner,
       continueOnDeployFailures,
@@ -214,40 +213,58 @@ function printPushStatus({
   }
 }
 
-function printScorecard(scorecard?: ScorecardItem[]) {
-  if (!scorecard || scorecard.length === 0) {
+function printChecks({ scorecard, linkCheck }: DeploymentStatusResponse) {
+  printCheckSection('Scorecard', scorecard);
+  printCheckSection('Link check', linkCheck ? [linkCheck] : []);
+}
+
+function printCheckSection(title: string, checks: ScorecardItem[]) {
+  if (checks.length === 0) {
     return;
   }
-  logger.output(`\n${colors.magenta('Scorecard')}:`);
-  for (const scorecardItem of scorecard) {
+  logger.output(`\n${colors.magenta(title)}:`);
+  for (const check of checks) {
     logger.output(`
-    ${colors.magenta('Name')}: ${scorecardItem.name}
-    ${colors.magenta('Status')}: ${scorecardItem.status}
-    ${colors.magenta('URL')}: ${colors.cyan(scorecardItem.url)}
-    ${colors.magenta('Description')}: ${scorecardItem.description}\n`);
+    ${colors.magenta('Name')}: ${check.name}
+    ${colors.magenta('Status')}: ${check.status}
+    ${colors.magenta('URL')}: ${colors.cyan(check.url)}
+    ${colors.magenta('Description')}: ${check.description}\n`);
   }
   logger.output(`\n`);
 }
 
+function getFailedChecksMessage({ scorecard, linkCheck }: DeploymentStatusResponse): string {
+  const failedChecks = [...scorecard, ...(linkCheck ? [linkCheck] : [])].filter(
+    (check) => check.status === 'failed'
+  );
+
+  if (failedChecks.length === 0) {
+    return '';
+  }
+
+  const lines = failedChecks.map((check) => `  ${check.name}: ${check.description}`);
+
+  return `\n${colors.magenta('Failed checks')}:\n${lines.join('\n')}`;
+}
+
 function displayDeploymentAndBuildStatus({
-  status,
-  url,
+  deploymentStatus,
   spinner,
   buildType,
   continueOnDeployFailures,
 }: {
-  status: DeploymentStatus;
-  url: string | null;
+  deploymentStatus: DeploymentStatusResponse;
   spinner: Spinner;
   buildType: BuildType;
   continueOnDeployFailures: boolean;
 }) {
+  const { status, url } = deploymentStatus.deploy;
   const message = getMessage({ status, url, buildType });
 
   spinner.stop();
 
   if (status === 'failed' && !continueOnDeployFailures) {
-    throw new DeploymentError(message);
+    throw new DeploymentError(`${message}${getFailedChecksMessage(deploymentStatus)}`);
   }
 
   logger.output(message);

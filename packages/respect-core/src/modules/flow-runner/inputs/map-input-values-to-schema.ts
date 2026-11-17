@@ -6,16 +6,22 @@ type MappedValue = {
   [key: string]: any;
 };
 
-export function resolveInputValuesToSchema(value: any, schema: InputSchema): MappedValue {
+export function resolveInputValuesToSchema(
+  value: any,
+  schema: InputSchema,
+  onInvalid?: (problems: string) => void
+): MappedValue {
   if (!schema || Object.keys(schema).length === 0) {
     return {};
   }
 
   const ajv = new (Ajv as any)({
+    allErrors: true,
     useDefaults: true,
     removeAdditional: 'all',
     coerceTypes: true,
     strictTypes: false,
+    strictSchema: false,
   });
 
   // Add custom formats
@@ -28,7 +34,10 @@ export function resolveInputValuesToSchema(value: any, schema: InputSchema): Map
   const validate = ajv.compile(schema);
   const result = { ...value };
 
-  validate(result);
+  // Defaults, coercion, and removal of extra properties happen first, so only the problems the user has to fix are reported.
+  if (!validate(result) && onInvalid) {
+    onInvalid(ajv.errorsText(validate.errors, { dataVar: 'inputs' }));
+  }
 
   return result;
 }

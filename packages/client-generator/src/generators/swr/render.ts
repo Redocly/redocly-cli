@@ -8,7 +8,7 @@
 // `swr`/`swr/mutation` are the consumer's peer; the sdk stays dependency-free.
 // Source-text templates throughout.
 
-import type { ApiModel, OperationModel } from '@redocly/client-generator';
+import type { ApiModel, GeneratorInput, OperationModel } from '@redocly/client-generator';
 import {
   hasInputs,
   isQuery,
@@ -20,6 +20,7 @@ import {
 import { pascalCase } from '@redocly/client-generator/printers/typescript';
 
 export type SwrOptions = {
+  reportFinding: GeneratorInput['reportFinding'];
   /** Import specifier for the sdk entry the operation functions/types live in. */
   sdkModule: string;
   /** How the sdk function takes its inputs — must match the generated client. */
@@ -27,7 +28,7 @@ export type SwrOptions = {
 
 /** Render the full SWR module source. `''` when there are no wrappable operations. */
 export function renderSwrModule(model: ApiModel, opts: SwrOptions): string {
-  const ops = wrappableOperations(model, 'swr');
+  const ops = wrappableOperations(model, 'swr', opts.reportFinding);
   if (ops.length === 0) return '';
   const hasQuery = ops.some(isQuery);
   const hasMutation = ops.some((op) => !isQuery(op));

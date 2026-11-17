@@ -4,10 +4,13 @@
 // answers in each wrapper would put the SDK's calling convention in several places,
 // which is exactly the drift this module exists to prevent.
 
-import { logger } from '@redocly/openapi-core';
-
+import type { GeneratorInput } from '../generators/types.js';
 import { operationSignature } from '../generators/typescript/operation-signature.js';
-import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
+import {
+  type ApiModel,
+  type OperationModel,
+  getOperationId,
+} from '../intermediate-representation/model.js';
 
 /**
  * The operations a wrapper generator can wrap, with skips reported to the user under
@@ -20,24 +23,32 @@ import type { ApiModel, OperationModel } from '../intermediate-representation/mo
  *   so the import would resolve to the schema (a wrong/broken type). The sdk function still
  *   works; renaming the schema or the operation restores the wrapper.
  */
-export function wrappableOperations(model: ApiModel, label: string): OperationModel[] {
+export function wrappableOperations(
+  model: ApiModel,
+  label: string,
+  reportFinding: GeneratorInput['reportFinding']
+): OperationModel[] {
   const all = model.services.flatMap((s) => s.operations);
   const sse = all.filter((op) => op.sse !== undefined);
   if (sse.length > 0) {
-    logger.warn(
-      `generate-client: ${label} skipped ${sse.length} server-sent-events operation(s) — iterate the sdk's exported async generators directly: ${sse
+    reportFinding({
+      kind: 'operation-skipped',
+      message: `${label} skipped ${sse.length} server-sent-events operation(s) — iterate the sdk's exported async generators directly: ${sse
         .map((op) => op.name)
-        .join(', ')}.\n`
-    );
+        .join(', ')}.`,
+      operations: sse.map(getOperationId),
+    });
   }
   const schemaNames = new Set(model.schemas.map((s) => s.name));
   const clashing = all.filter((op) => op.sse === undefined && collides(op, schemaNames));
   if (clashing.length > 0) {
-    logger.warn(
-      `generate-client: ${label} skipped ${clashing.length} operation(s) whose variables type name collides with a schema — rename the schema or the operation: ${clashing
+    reportFinding({
+      kind: 'operation-skipped',
+      message: `${label} skipped ${clashing.length} operation(s) whose variables type name collides with a schema — rename the schema or the operation: ${clashing
         .map((op) => op.name)
-        .join(', ')}.\n`
-    );
+        .join(', ')}.`,
+      operations: clashing.map(getOperationId),
+    });
   }
   return all.filter((op) => op.sse === undefined && !collides(op, schemaNames));
 }

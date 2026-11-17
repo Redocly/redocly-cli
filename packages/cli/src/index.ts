@@ -186,6 +186,12 @@ yargs(hideBin(process.argv))
             array: true,
             type: 'string',
           },
+          extends: {
+            description: 'Override extends configurations (defaults or config file settings).',
+            requiresArg: true,
+            array: true,
+            type: 'string',
+          },
         }),
     async (argv) => {
       const { handleDiff } = await import('./commands/diff/index.js');
@@ -1329,6 +1335,12 @@ yargs(hideBin(process.argv))
           },
           config: {
             describe: 'Path to the config file.',
+            type: 'string',
+            requiresArg: true,
+          },
+          report: {
+            describe:
+              'Path of a JSON file to write with the warnings of the run and the operations of each API.',
             type: 'string',
             requiresArg: true,
           },

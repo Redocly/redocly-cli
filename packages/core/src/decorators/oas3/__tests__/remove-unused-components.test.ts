@@ -345,17 +345,16 @@ describe('oas3 remove-unused-components', () => {
                 '200':
                   description: OK
                   content:
-                    $ref: '#/components/mediaTypes/JsonPets'
+                    application/json:
+                      $ref: '#/components/mediaTypes/JsonPets'
         components:
           mediaTypes:
             JsonPets:
-              'application/json':
-                schema:
-                  $ref: '#/components/schemas/Pet'
+              schema:
+                $ref: '#/components/schemas/Pet'
             UnusedMediaType:
-              'application/json':
-                schema:
-                  type: string
+              schema:
+                type: string
           schemas:
             Pet:
               type: object
@@ -382,7 +381,9 @@ describe('oas3 remove-unused-components', () => {
               '200': {
                 description: 'OK',
                 content: {
-                  $ref: '#/components/mediaTypes/JsonPets',
+                  'application/json': {
+                    $ref: '#/components/mediaTypes/JsonPets',
+                  },
                 },
               },
             },
@@ -392,10 +393,8 @@ describe('oas3 remove-unused-components', () => {
       components: {
         mediaTypes: {
           JsonPets: {
-            'application/json': {
-              schema: {
-                $ref: '#/components/schemas/Pet',
-              },
+            schema: {
+              $ref: '#/components/schemas/Pet',
             },
           },
         },

@@ -1,3 +1,5 @@
+import type { SdkUsageAggregatedMessage } from '@redocly/cli-otel/lib/generated-async-redocly-cli/messages/SdkUsageAggregatedMessage.js';
+
 import type { Middleware, SettledCall } from '../../../runtime-contract.js';
 
 const GENERATOR_VERSION: string = 'dev';
@@ -5,6 +7,7 @@ const DEFAULT_ENDPOINT = 'https://otel.cloud.redocly.com/v1/traces';
 const EVENT_TYPE = 'com.redocly.sdkUsage.aggregated';
 const SEND_TIMEOUT_MS = 3000;
 const SERVICE_NAME = 'redocly-sdk';
+const CROCKFORD_BASE32 = '0123456789abcdefghjkmnpqrstvwxyz';
 
 type StatusClass = '2xx' | '3xx' | '4xx' | '5xx' | 'network_error' | 'timeout' | 'aborted';
 type LatencyBucket = 'lt_100ms' | 'lt_300ms' | 'lt_1s' | 'lt_3s' | 'lt_10s' | 'gte_10s';
@@ -27,16 +30,17 @@ const LATENCY_BUCKETS: Array<{ bucket: LatencyBucket; belowMs: number }> = [
   { bucket: 'gte_10s', belowMs: Infinity },
 ];
 
-export type SdkUsageEvent = {
-  id: string;
-  type: typeof EVENT_TYPE;
-  source: string;
-  time: string;
-  data: {
-    usage: Record<string, string | number>;
-    sdk: Record<string, string>;
-  };
-};
+// The package root does not export the message types, so they come from their own file.
+// The prepare script inlines them.
+export type {
+  BaseEventMessage,
+  SdkUsageAggregatedMessage,
+} from '@redocly/cli-otel/lib/generated-async-redocly-cli/messages/SdkUsageAggregatedMessage.js';
+
+/** The `com.redocly.sdkUsage.aggregated` CloudEvent. The OpenTelemetry collector sets `env`. */
+export type SdkUsageEvent = Omit<SdkUsageAggregatedMessage, 'env'>;
+type OperationItem = SdkUsageEvent['data'][0];
+type SdkItem = SdkUsageEvent['data'][1];
 
 export type TelemetryOptions = {
   sdkName: string;
@@ -106,8 +110,10 @@ export function telemetry(options: TelemetryOptions): Middleware {
     runtime = 'deno';
     runtimeVersion = versions.deno;
   }
-  const sdk: Record<string, string> = {
-    name: options.sdkName,
+  const sdk: SdkItem = {
+    id: options.sdkName,
+    object: 'sdk',
+    uri: `urn:redocly:cli:sdk:typescript:${options.sdkName}`,
     version: options.sdkVersion,
     generator_version: GENERATOR_VERSION,
     language: 'typescript',
@@ -131,7 +137,7 @@ export function telemetry(options: TelemetryOptions): Middleware {
     if (timer !== undefined) clearTimeout(timer);
     timer = undefined;
     activeWindows.delete(flushWindow);
-    const events = toEvents(counts, windowStart, Date.now() - windowStart, options.sdkName, sdk);
+    const events = toEvents(counts, windowStart, Date.now() - windowStart, sdk);
     const sentCounts = counts;
     const sentWindowStart = windowStart;
     counts = new Map();
@@ -200,7 +206,9 @@ function emptyCounts(): OperationCounts {
 
 function record(operation: OperationCounts, call: SettledCall): void {
   operation.calls += 1;
-  operation.attempts += call.attempts;
+  // A call aborted before its first attempt settles with 0 attempts. It counts as 1, as in the
+  // other languages, so the attempts of an event are never fewer than its calls.
+  operation.attempts += Math.max(call.attempts, 1);
   operation.durationSumMs += call.durationMs;
   operation.status[statusClass(call)] += 1;
   for (const { bucket, belowMs } of LATENCY_BUCKETS) {
@@ -240,13 +248,14 @@ function toEvents(
   counts: Map<string, OperationCounts>,
   windowStart: number,
   windowMs: number,
-  source: string,
-  sdk: Record<string, string>
+  sdk: SdkItem
 ): SdkUsageEvent[] {
   const events: SdkUsageEvent[] = [];
   for (const [operationId, operation] of counts) {
-    const usage: Record<string, string | number> = {
-      operation_id: operationId,
+    const operationItem: OperationItem = {
+      id: operationId,
+      object: 'operation',
+      uri: `${sdk.uri}:operation:${operationId}`,
       window_ms: windowMs,
       calls: operation.calls,
       attempts: operation.attempts,
@@ -255,24 +264,44 @@ function toEvents(
     for (const statusClass of STATUS_CLASSES) {
       const count = operation.status[statusClass];
       if (count > 0) {
-        usage[`status_${statusClass}`] = count;
+        operationItem[`status_${statusClass}`] = count;
       }
     }
     for (const { bucket } of LATENCY_BUCKETS) {
       const count = operation.latency[bucket];
       if (count > 0) {
-        usage[`latency_${bucket}`] = count;
+        operationItem[`latency_${bucket}`] = count;
       }
     }
     events.push({
-      id: `evt_${randomHex(16)}`,
+      id: eventId(),
+      object: 'event',
+      specversion: '1.0',
+      datacontenttype: 'application/json; charset=utf-8',
       type: EVENT_TYPE,
-      source,
+      source: 'urn:redocly:cli',
       time: new Date(windowStart).toISOString(),
-      data: { usage, sdk },
+      origin: 'redocly-sdk',
+      category: 'product',
+      signal: 'metric',
+      data: [operationItem, sdk],
     });
   }
   return events;
+}
+
+/** `evt_` and a lowercase ULID: 10 characters of the time in milliseconds, then 16 random ones. */
+function eventId(): string {
+  let time = Date.now();
+  let id = '';
+  for (let index = 0; index < 10; index++) {
+    id = CROCKFORD_BASE32[time % 32] + id;
+    time = Math.floor(time / 32);
+  }
+  for (const byte of crypto.getRandomValues(new Uint8Array(16))) {
+    id += CROCKFORD_BASE32[byte % 32];
+  }
+  return `evt_${id}`;
 }
 
 async function sendOtlp(endpoint: string, events: SdkUsageEvent[]): Promise<void> {
@@ -316,24 +345,32 @@ function toOtlpRequest(events: SdkUsageEvent[]) {
   const spans = [];
   for (const event of events) {
     const timeUnixNano = `${Date.parse(event.time)}000000`;
+    // The attributes that `processCloudEventAttributes` of @redocly/cli-otel gives for the event.
     const attributes: OtlpAttribute[] = [
       attribute('cloudevents.event_id', event.id),
       attribute('cloudevents.event_type', event.type),
       attribute('cloudevents.event_source', event.source),
-      attribute('cloudevents.event_spec_version', '1.0'),
-      attribute('cloudevents.event_data_content_type', 'application/json; charset=utf-8'),
+      attribute('cloudevents.event_spec_version', event.specversion),
+      attribute('cloudevents.event_data_content_type', event.datacontenttype),
       attribute('cloudevents.event_time', event.time),
-      attribute('cloudevents.event_subject', ''),
-      attribute('cloudevents.event_origin', SERVICE_NAME),
-      attribute('cloudevents.event_object', 'event'),
-      attribute('cloudevents.event_category', 'product'),
-      attribute('cloudevents.event_signal', 'metric'),
+      attribute('cloudevents.event_subject', event.data[0].id),
+      attribute('cloudevents.event_origin', event.origin),
+      attribute('cloudevents.event_object', event.object),
+      attribute('cloudevents.event_category', event.category),
+      attribute('cloudevents.event_signal', event.signal),
+      attribute('cloudevents.event_request_id', ''),
     ];
-    for (const [key, value] of Object.entries(event.data.usage)) {
-      attributes.push(attribute(`cloudevents.event_data.usage.${key}`, value));
+    for (const item of event.data) {
+      for (const [key, value] of Object.entries(item)) {
+        if (value !== undefined) {
+          attributes.push(attribute(`cloudevents.event_data.${item.object}.${key}`, value));
+        }
+      }
     }
-    for (const [key, value] of Object.entries(event.data.sdk)) {
-      attributes.push(attribute(`cloudevents.event_data.sdk.${key}`, value));
+    for (const item of event.data) {
+      attributes.push(attribute(`cloudevents.event_subjects.${item.object}.id`, item.id));
+      attributes.push(attribute(`cloudevents.event_subjects.${item.object}.object`, item.object));
+      attributes.push(attribute(`cloudevents.event_subjects.${item.object}.uri`, item.uri));
     }
     spans.push({
       traceId: randomHex(16),

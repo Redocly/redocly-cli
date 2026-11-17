@@ -60,11 +60,26 @@ describe('runtime-sources', () => {
     );
   });
 
-  it('the embedded telemetry source matches telemetry.ts', () => {
+  it('the embedded telemetry source inlines the event type from @redocly/cli-otel', () => {
     const source = readFileSync(
       join(pkgSrc, 'generators', 'typescript', 'telemetry', 'telemetry.ts'),
       'utf-8'
     );
-    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toBe(source);
+    expect(TELEMETRY_RUNTIME_SOURCE).not.toContain("from '@redocly/cli-otel/");
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
+      'export type SdkUsageAggregatedMessage = BaseEventMessage & {'
+    );
+    // The module's own code is the source file's, byte-for-byte, around the re-export that the
+    // declarations replace.
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
+      between(source, 'const GENERATOR_VERSION', '\n\n// The package root does not export')
+    );
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toContain(
+      between(
+        source,
+        '/** The `com.redocly.sdkUsage.aggregated` CloudEvent.',
+        '\n\nfunction randomHex'
+      )
+    );
   });
 });

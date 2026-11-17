@@ -1,0 +1,8 @@
+
+
+  Generating client for cafe... 
+generate-client: schema "Error" is a name a generated client already declares, so it is emitted as "Error_2" — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate.
+
+Client successfully generated: 1 file (89331 bytes) at <output>/client.ts.
+
+Exit code: 0

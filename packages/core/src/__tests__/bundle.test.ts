@@ -248,18 +248,18 @@ describe('bundle', () => {
                 '200':
                   description: OK
                   content:
-                    $ref: '#/components/mediaTypes/Test'
+                    application/json:
+                      $ref: '#/components/mediaTypes/Test'
         components:
           mediaTypes:
             Test:
-              'application/json':
-                schema:
-                  $ref: '#/components/schemas/User'
-                examples:
-                  example1:
-                    value:
-                      id: 1
-                      name: John
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: John
           schemas:
             User:
               type: object
@@ -289,18 +289,18 @@ describe('bundle', () => {
               '200':
                 description: OK
                 content:
-                  $ref: '#/components/mediaTypes/Test'
+                  application/json:
+                    $ref: '#/components/mediaTypes/Test'
       components:
         mediaTypes:
           Test:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                example1:
-                  value:
-                    id: 1
-                    name: John
+            schema:
+              $ref: '#/components/schemas/User'
+            examples:
+              example1:
+                value:
+                  id: 1
+                  name: John
         schemas:
           User:
             type: object
@@ -312,7 +312,7 @@ describe('bundle', () => {
     `);
   });
 
-  it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
+  it('should inline external media type refs (OAS 3.2)', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/external-media-types.yaml'),
@@ -328,20 +328,30 @@ describe('bundle', () => {
               '200':
                 description: OK
                 content:
-                  $ref: '#/components/mediaTypes/testMediaType'
-      components:
-        mediaTypes:
-          testMediaType:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-              examples:
-                Test:
-                  value:
-                    id: 1
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                    examples:
+                      Test:
+                        value:
+                          id: 1
+              '201':
+                description: Created
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                    examples:
+                      Test:
+                        value:
+                          id: 1
+      components: {}
     `);
   });
 

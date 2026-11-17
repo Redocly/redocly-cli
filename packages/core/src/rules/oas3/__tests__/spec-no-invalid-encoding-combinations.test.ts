@@ -98,4 +98,57 @@ describe('spec-no-invalid-encoding-combinations', () => {
       ]
     `);
   });
+
+  it('should report on invalid encoding combinations in a nested Encoding Object', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /test:
+            post:
+              requestBody:
+                content:
+                  multipart/form-data:
+                    schema:
+                      type: object
+                      properties:
+                        addresses:
+                          type: array
+                    encoding:
+                      addresses:
+                        contentType: multipart/mixed
+                        encoding:
+                          street:
+                            contentType: text/plain
+                        itemEncoding:
+                          contentType: text/plain
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-no-invalid-encoding-combinations': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/post/requestBody/content/multipart~1form-data/encoding/addresses/encoding",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The 'encoding' field cannot be used together with 'prefixEncoding' or 'itemEncoding'.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/spec-no-invalid-encoding-combinations",
+          "ruleId": "spec-no-invalid-encoding-combinations",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

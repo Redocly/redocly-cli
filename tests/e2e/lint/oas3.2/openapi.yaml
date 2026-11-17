@@ -91,6 +91,25 @@ paths:
                 $comment: A single data image from the device
               itemEncoding: # Should allow itemEncoding
                 contentType: image/jpg
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  addresses:
+                    type: array
+              encoding:
+                addresses:
+                  contentType: multipart/mixed
+                  prefixEncoding: # Should allow prefixEncoding in an Encoding Object
+                    - contentType: text/plain
+                  itemEncoding: # Should allow itemEncoding in an Encoding Object
+                    contentType: text/plain
+                    encoding: # Should allow encoding in an Encoding Object
+                      street:
+                        contentType: text/plain
+                        wrong: Should catch wrong fields in a nested Encoding Object!
+            application/jsonl:
+              $ref: '#/components/mediaTypes/StreamingPets'
   /querystring:
     parameters:
       - in: querystring
@@ -121,6 +140,11 @@ paths:
               bar: true
             serializedValue: foo=a+%2B+b&bar=true
 components:
+  mediaTypes:
+    StreamingPets: # Should allow a Media Type Object in components
+      itemSchema:
+        type: object
+      wrong: Should catch wrong fields in a Media Type Object in components!
   securitySchemes:
     petstore_auth:
       type: oauth2

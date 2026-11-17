@@ -6,14 +6,14 @@ import {
   pushFiles,
   type FileToUpload,
   type SunsetWarning,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 import { green } from 'colorette';
 
 import { printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 import {
   handlePushStatus,
-  handleReuniteError,
+  handlePlatformError,
   printSlugDeprecation,
   printSunsetWarning,
 } from './push-status.js';
@@ -101,7 +101,7 @@ export async function handlePush({
     projectId = push.projectId;
   } catch (err) {
     printSunsetWarning('push', sunsetWarnings);
-    handleReuniteError('✗ File upload failed.', err);
+    handlePlatformError('✗ File upload failed.', err);
   }
 
   for (const file of files) {

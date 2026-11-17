@@ -1,7 +1,8 @@
 # `push-status`
 
 This command is used with the Redocly platform only.
-It provides details about files, deployments, and API scorecards, using a `<pushId>` that is returned by an earlier `push` command.
+It provides details about files, deployments, API scorecards, and link checker results, using a `<pushId>` that is returned by an earlier `push` command.
+When a deployment fails, the command lists the failed checks.
 
 The `push-status` command can be used whenever the application or process executing a `push` command (without `--wait-for-deployment` option) returns the `pushId`.
 This identifier can be used by subsequent systems to perform custom logic when the deployment is completed.

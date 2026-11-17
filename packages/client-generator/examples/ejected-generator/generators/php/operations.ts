@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.8.1 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.10.2 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -15,6 +15,7 @@ import {
   type OperationModel,
   sseResponse,
   uniqueIdentifiers,
+  getOperationId,
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
@@ -100,7 +101,7 @@ function writeRequestSetup(
   model: ApiModel,
   args: MethodArgs
 ): void {
-  printer.line(`$op = self::OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+  printer.line(`$op = self::OPERATIONS[${phpString(getOperationId(op))}];`);
   printer.line(
     `[$authHeaders, $query, $cookies] = resolveAuth(${phpSecurityArg(op, model)}, $this->config->auth);`
   );

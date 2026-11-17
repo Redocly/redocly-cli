@@ -1,0 +1,7 @@
+# Picked with --config in place of redocly.yaml: the alias has a name that looks like a file
+# in a git revision.
+extends:
+  - diff-recommended
+apis:
+  cafe:v1:
+    root: base.yaml

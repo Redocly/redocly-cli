@@ -1,6 +1,7 @@
 import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { PYTHON_CAFE } from '../../__tests__/fixtures/cafe-models.js';
 import { generatorInput } from '../../__tests__/fixtures/generator-input.js';
+import { GENERATOR_VERSION } from '../../compatibility.js';
 import { pythonGenerator as pythonGeneratorEntry } from '../index.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
@@ -198,5 +199,24 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('def live_server(organization_id: str = "unknown") -> str:');
     expect(out).toContain('def sandbox_server(organization_id: str = "unknown") -> str:');
     expect(out).toContain('return "https://api.cafe.example/organizations/" + organization_id');
+  });
+});
+
+describe('pythonGenerator: telemetry option', () => {
+  it('writes <module>_telemetry.py beside an unchanged client', () => {
+    const input = {
+      model: PYTHON_CAFE,
+      outputPath: '/out/rebilly-core.client.ts',
+      outputMode: 'single' as const,
+    };
+    const withTelemetry = pythonGenerator({ ...input, emit: { telemetry: 'on' } });
+    const withoutTelemetry = pythonGenerator({ ...input, emit: {} });
+
+    expect(withTelemetry.map((file) => file.path)).toEqual([
+      '/out/rebilly_core_client.py',
+      '/out/rebilly_core_client_telemetry.py',
+    ]);
+    expect(withTelemetry[0].content).toBe(withoutTelemetry[0].content);
+    expect(withTelemetry[1].content).toContain(`GENERATOR_VERSION = "${GENERATOR_VERSION}"`);
   });
 });

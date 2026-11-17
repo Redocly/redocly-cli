@@ -191,6 +191,56 @@ Read [what's new in Redoc 3](https://redocly.com/blog/redoc-3-whats-new) for det
 
 To keep the Redoc 2 output, pin `@redocly/cli` to the version you used before, or use Redocly CLI v1: `npx @redocly/cli@v1-archive build-docs openapi.yaml`.
 
+### Changes in `bundle` component naming (since v2.27.1)
+
+When two referenced components share a name but have different content, the [`bundle`](../commands/bundle.md) command renames one of them.
+Redocly CLI v1 prefixed the file name to the component name.
+Since v2.27.1, `bundle` adds a numeric suffix instead.
+
+For example, the root document defines an `Order` schema and references a different `Order` from another file:
+
+```yaml
+# openapi.yaml
+paths:
+  /orders:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas.yaml#/Order
+components:
+  schemas:
+    Order:
+      type: object
+```
+
+```yaml
+# schemas.yaml
+Order:
+  type: object
+  properties:
+    coffee:
+      type: string
+```
+
+In the bundled output, Redocly CLI v1 names the second schema `schemas_Order`, and v2 names it `Order-2`:
+
+```yaml
+components:
+  schemas:
+    Order:
+      type: object
+    schemas_Order: # Order-2 in v2
+      type: object
+      properties:
+        coffee:
+          type: string
+```
+
+The change applies to every component type and changes the `$ref` paths in the bundled output.
+To control the names, see [Configure the component names strategy](../commands/bundle.md#configure-the-component-names-strategy) and [Configure component renaming conflicts](../commands/bundle.md#configure-component-renaming-conflicts).
+
 ### Platform changes
 
 - **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Redocly platform](https://app.cloud.redocly.com/).

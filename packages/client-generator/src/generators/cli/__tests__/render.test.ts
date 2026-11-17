@@ -1,7 +1,7 @@
-import { logger } from '@redocly/openapi-core';
-
+import { reportFinding } from '../../../findings.js';
 import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { resolveModelPagination } from '../../../pagination.js';
+import type { GenerateClientFinding } from '../../../types.js';
 import { commandData, renderCliModule, renderComposedCliEntry } from '../render.js';
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
@@ -222,6 +222,7 @@ describe('commandData', () => {
 
 describe('renderCliModule', () => {
   const options = {
+    reportFinding,
     stem: 'client',
     importExt: 'js',
     zodSelected: false,
@@ -277,18 +278,23 @@ describe('renderCliModule', () => {
     };
   }
 
-  it('warns when an operation is named after a tag, naming how it resolves', () => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+  it('reports the commands named after a tag, with how each resolves and its operation ID', () => {
+    const findings: GenerateClientFinding[] = [];
+    const collecting = {
+      ...options,
+      reportFinding: (finding: GenerateClientFinding) => findings.push(finding),
+    };
 
-    renderCliModule(modelWithOperationNamedOrders(['Reports']), options);
-    expect(warn.mock.lastCall?.[0]).toContain('orders (run it as "reports orders")');
+    renderCliModule(modelWithOperationNamedOrders(['Reports']), collecting);
+    renderCliModule(modelWithOperationNamedOrders([]), collecting);
+    renderCliModule(MODEL, collecting);
 
-    renderCliModule(modelWithOperationNamedOrders([]), options);
-    expect(warn.mock.lastCall?.[0]).toContain('orders (keeps the bare word');
-
-    renderCliModule(MODEL, options);
-    expect(warn).toHaveBeenCalledTimes(2);
-    warn.mockRestore();
+    expect(findings).toHaveLength(2);
+    expect(findings[0].message).toContain('orders (run it as "reports orders")');
+    expect(findings[1]).toEqual(
+      expect.objectContaining({ kind: 'command-shadowed', operations: ['getOrder'] })
+    );
+    expect(findings[1].message).toContain('orders (keeps the bare word');
   });
 });
 

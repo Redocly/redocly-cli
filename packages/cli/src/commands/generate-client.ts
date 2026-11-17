@@ -1,5 +1,7 @@
 import type {
   GenerateClientConfig,
+  GenerateClientFinding,
+  GenerateClientResult,
   generateClient as generateClientFunction,
   mergeConfig as mergeConfigFunction,
 } from '@redocly/client-generator';
@@ -43,6 +45,16 @@ export type GenerateClientCommandArgv = {
   docs?: boolean;
   generator?: string[];
   setup?: string;
+  report?: string;
+};
+
+/** The `--report` file: what each API of a successful run produced, for tools that act on a generation. */
+type GenerationReport = {
+  apis: Array<{
+    name: string;
+    operations: GenerateClientResult['operations'];
+    findings: GenerateClientFinding[];
+  }>;
 };
 
 // Two+ letter scheme, so Windows drive paths (`C:\...`) don't match.
@@ -94,6 +106,7 @@ type GenerationRun = {
   seenOutputs: Set<string>;
   /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
   composable: Array<{ alias: string; cliPath: string }>;
+  report: GenerationReport;
 };
 
 export async function handleGenerateClient({
@@ -157,6 +170,7 @@ export async function handleGenerateClient({
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
     composable: [],
+    report: { apis: [] },
   };
 
   for (const entry of entrypoints) {
@@ -175,6 +189,20 @@ export async function handleGenerateClient({
   ) {
     await writeComposedCliEntry(topLevelClient.cliOutput, run);
   }
+
+  if (argv.report !== undefined) {
+    await writeReport(resolvePath(argv.report), run.report);
+  }
+}
+
+async function writeReport(reportPath: string, report: GenerationReport): Promise<void> {
+  try {
+    await mkdir(dirname(reportPath), { recursive: true });
+    await writeFile(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new HandledError(`\n❌  Could not write the report to ${reportPath}.\n   ${message}\n`);
+  }
 }
 
 async function generateApiClient(
@@ -188,6 +216,7 @@ async function generateApiClient(
     toolkit,
     seenOutputs,
     composable,
+    report,
   }: GenerationRun
 ): Promise<void> {
   const { path, alias } = entry;
@@ -227,6 +256,7 @@ async function generateApiClient(
 
   try {
     logger.info(gray(`\n  Generating client for ${name}... \n`));
+    const findings: GenerateClientFinding[] = [];
     const result = await toolkit.generateClient({
       ...clientConfig,
       api: path,
@@ -234,7 +264,9 @@ async function generateApiClient(
       config: aliasConfig,
       configDir,
       collectSpecData,
+      onFinding: (finding) => findings.push(finding),
     });
+    report.apis.push({ name, operations: result.operations, findings });
     // The emitted module decides what composes: `cli` reaches a run as a built-in
     // name, a path to an ejected copy, or another generator's prerequisite.
     const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));

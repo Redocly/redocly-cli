@@ -19,6 +19,7 @@ describe('lint-config', () => {
     { dirName: 'config-with-refs', option: 'warn' },
     { dirName: 'config-with-refs-extended', option: 'error' },
     { dirName: 'config-structure', option: 'error' },
+    { dirName: 'deprecated-properties', option: null },
   ];
 
   const validOpenapiFile = join(__dirname, '__fixtures__/valid-openapi.yaml');

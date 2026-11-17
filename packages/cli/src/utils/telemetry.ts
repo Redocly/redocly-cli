@@ -20,6 +20,7 @@ import type { Arguments } from 'yargs';
 
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import type { BundleTelemetry } from '../commands/bundle.js';
+import type { IntrospectMcpTelemetry } from '../commands/introspect-mcp/telemetry.js';
 import type { CommandArgv } from '../types.js';
 import type {
   EjectGeneratorTelemetry,
@@ -57,6 +58,7 @@ export async function sendTelemetry({
   generate_client,
   eject_generator,
   bundle,
+  introspect_mcp,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -74,6 +76,7 @@ export async function sendTelemetry({
   generate_client?: GenerateClientTelemetry;
   eject_generator?: EjectGeneratorTelemetry;
   bundle?: BundleTelemetry;
+  introspect_mcp?: IntrospectMcpTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -90,10 +93,10 @@ export async function sendTelemetry({
       $0: _,
       ...args
     } = argv as Exact<Arguments<CommandArgv>>;
-    const { RedoclyOAuthClient, getReuniteUrl } = await import('@redocly/reunite-integration');
+    const { RedoclyOAuthClient, getPlatformUrl } = await import('@redocly/platform-integration');
     const oauthClient = new RedoclyOAuthClient(version);
-    const reuniteUrl = getReuniteUrl(config, args.residency);
-    const logged_in = await oauthClient.isAuthorized(reuniteUrl);
+    const platformUrl = getPlatformUrl(config, args.residency);
+    const logged_in = await oauthClient.isAuthorized(platformUrl);
     let anonymous_id = getCachedAnonymousId();
     if (!anonymous_id) {
       anonymous_id = `ann_${ulid()}`;
@@ -169,6 +172,8 @@ export async function sendTelemetry({
         eject_generator_to_version: eject_generator?.eject_generator_to_version,
         // bundle usage (a count only — never overlay paths or contents).
         bundle_overlays_count: bundle?.bundle_overlays_count,
+        // introspect-mcp usage (the protocol version only — never the server URL or command).
+        introspect_mcp_protocol_version: introspect_mcp?.introspect_mcp_protocol_version,
       },
     ];
 

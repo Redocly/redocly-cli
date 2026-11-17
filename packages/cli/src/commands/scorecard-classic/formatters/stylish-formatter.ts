@@ -1,5 +1,5 @@
 import { logger, getLineColLocation, pluralize } from '@redocly/openapi-core';
-import type { ScorecardProblem } from '@redocly/reunite-integration';
+import type { ScorecardProblem } from '@redocly/platform-integration';
 import { gray, yellow, red, cyan, bold, white } from 'colorette';
 
 function formatStylishProblem(

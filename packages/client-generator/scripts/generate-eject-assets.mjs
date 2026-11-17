@@ -76,7 +76,7 @@ async function loadBuiltinMeta() {
             namespace: 'unused-at-build-time',
           }));
           pluginBuild.onLoad({ filter: /.*/, namespace: 'unused-at-build-time' }, () => ({
-            contents: 'export const logger = {};',
+            contents: 'export const logger = {}; export const isPlainObject = () => false;',
           }));
         },
       },

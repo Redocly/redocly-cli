@@ -3,7 +3,7 @@ import { isPlainObject } from '@redocly/openapi-core';
 import { type AdditionalParameterProperties } from '../../types.js';
 
 export type ParameterWithIn = {
-  in: 'header' | 'query' | 'path' | 'cookie';
+  in: 'header' | 'query' | 'querystring' | 'path' | 'cookie';
   name: string;
   value: string | number | boolean;
 } & AdditionalParameterProperties;
@@ -23,6 +23,6 @@ export function isParameterWithIn(parameter: unknown): parameter is ParameterWit
     isPlainObject(parameter) &&
     'in' in parameter &&
     typeof parameter.in === 'string' &&
-    ['header', 'query', 'path', 'cookie'].includes(parameter.in)
+    ['header', 'query', 'querystring', 'path', 'cookie'].includes(parameter.in)
   );
 }

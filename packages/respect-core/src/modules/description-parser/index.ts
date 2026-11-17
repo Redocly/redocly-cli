@@ -6,3 +6,4 @@ export * from './get-operation-by-id.js';
 export * from './get-operation-by-path.js';
 export * from './get-response-schema.js';
 export * from './get-request-body-schema.js';
+export * from './resolve-content-by-type.js';

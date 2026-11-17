@@ -15,8 +15,9 @@ import { renderSwrModule } from './render.ts';
  * multi-file barrel at the output anchor either way. Emits nothing when there are
  * no operations.
  */
-export const swrGenerator: Generator = ({ model, output, banner, emit }) => {
+export const swrGenerator: Generator = ({ model, output, banner, emit, reportFinding }) => {
   const content = renderSwrModule(model, {
+    reportFinding,
     sdkModule: `./${output.stem}.${emit.importExt ?? 'js'}`,
   });
   if (content === '') return [];

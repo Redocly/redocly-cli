@@ -150,17 +150,16 @@ describe('Oas3 no-unused-components', () => {
                 '200':
                   description: OK
                   content:
-                    $ref: '#/components/mediaTypes/used'
+                    application/json:
+                      $ref: '#/components/mediaTypes/used'
         components:
           mediaTypes:
             unused:
-              'application/json':
-                schema:
-                  type: string
+              schema:
+                type: string
             used:
-              'application/json':
-                schema:
-                  type: object
+              schema:
+                type: object
       `,
       'foobar.yaml'
     );

@@ -1,0 +1,613 @@
+asyncapi: '2.6.0'
+id: 'urn:com:redocly:cafe:kitchen'
+info:
+  title: Redocly Cafe Kitchen
+  version: '1.0.0'
+  description: |
+    Demo event-driven API for cafe operators (not customers) to follow orders and run the kitchen in real time.
+
+    ### Check out its features:
+
+    * Start or cancel the preparation of a specific order ☕
+    * Report how much of a specific order is ready 🍰
+    * Receive real-time estimates of the wait time for an order 📈
+
+  termsOfService: https://redocly.com/subscription-agreement
+  contact:
+    name: API Support
+    url: https://redocly.com/contact-us/
+    email: team@redocly.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+tags:
+  - name: Authorization
+    externalDocs:
+      description: Create a client to demo the API.
+      url: https://cafe.redocly.com/openapi/cafe
+  - name: Kitchen
+    description: Order preparation operations.
+    externalDocs:
+      url: 'https://cafe.redocly.com/openapi/cafe'
+  - name: Orders
+  - name: Products
+    description: Operations related to products.
+  - name: Statistics
+    externalDocs:
+      url: 'https://cafe.redocly.com/openapi/cafe'
+externalDocs:
+  description: Redocly Cafe REST API reference
+  url: https://cafe.redocly.com/openapi/cafe
+defaultContentType: application/json
+
+servers:
+  production:
+    url: events.cafe.redocly.com:{port}
+    protocol: mqtt
+    description: |
+      Private server that requires authorization.
+      Once the socket is open you can subscribe to private order channels by sending an authenticated subscribe request message.
+
+      The API client must request an access token from the Redocly Cafe token endpoint (`https://api.cafe.redocly.com/oauth2/token`) to connect to private channels. For more details read https://cafe.redocly.com/openapi/cafe
+
+      The resulting token must be provided in the "token" field of any new private channel subscription:
+      ```json
+      {
+        "event": "subscribe",
+        "subscription":
+        {
+          "name": "orders",
+          "token": "WW91ciBhdXRoZW50aWNhdGlvbiB0b2tlbiBnb2VzIGhlcmUu"
+        }
+      }
+      ```
+
+      ```elixir
+      defmodule Kitchen do
+        def order_up do
+          IO.puts("Order up!")
+        end
+      end
+      ```
+    variables:
+      port:
+        description: Secure connection (TLS) is available through port 8883.
+        default: '1883'
+        enum:
+          - '1883'
+          - '8883'
+    tags:
+      - name: 'env:production'
+    security:
+      - ApiKey: []
+      - OAuth2:
+          - orders:read
+          - orders:write
+          - kitchen:write
+      - OpenIdConnect: []
+  local-mqtt:
+    url: mqtt://localhost
+    protocol: mqtt
+    description: |
+      Local kitchen broker
+
+      ```csharp
+      using System;
+
+      namespace Kitchen
+      {
+        class Program
+        {
+          static void Main(string[] args)
+          {
+            Console.WriteLine("Order up!");
+          }
+        }
+      }
+      ```
+    bindings:
+      mqtt:
+        clientId: kitchen-display
+        cleanSession: false
+        keepAlive: 60
+        bindingVersion: 0.1.0
+        lastWill:
+          topic: cafe/kitchen/lastwill
+          qos: 1
+          message: The kitchen display went offline.
+          retain: false
+  local-amqp:
+    url: amqp://localhost:{port}
+    protocol: amqp
+    description: Local AMQP broker for order commands.
+    protocolVersion: '0.9.1'
+    variables:
+      port:
+        enum:
+          - '15672'
+          - '5672'
+  local-kafka:
+    url: localhost:{port}
+    protocol: kafka
+    description: Local Kafka broker for order events.
+    variables:
+      port:
+        default: '9092'
+
+channels:
+  cafe/orders/{orderId}/wait-time/measured:
+    x-security:
+      $ref: '#/components/securitySchemes/OAuth2/flows/clientCredentials'
+    description: The topic on which estimated wait times may be produced and consumed.
+    parameters:
+      orderId:
+        $ref: '#/components/parameters/OrderId'
+    servers:
+      - production
+      - local-kafka
+    subscribe:
+      summary: Receive the estimated wait time for a particular order.
+      operationId: receiveWaitTimeMeasurement
+      externalDocs:
+        description: Find more info here
+        url: https://cafe.redocly.com/openapi/cafe
+      traits:
+        - $ref: '#/components/operationTraits/Kafka'
+      message:
+        $ref: '#/components/messages/WaitTimeMeasured'
+      bindings:
+        mqtt:
+          qos: 1
+          bindingVersion: 0.1.0
+        http:
+          type: request
+          method: GET
+          query:
+            type: object
+            required:
+              - locationId
+            properties:
+              locationId:
+                type: number
+                minimum: 1
+                description: ID of the cafe location.
+            additionalProperties: false
+
+  cafe/orders/{orderId}/preparation/start/:
+    parameters:
+      orderId:
+        $ref: '#/components/parameters/OrderId'
+    servers:
+      - production
+      - local-amqp
+    publish:
+      operationId: startPreparation
+      security:
+        - OAuth2:
+            - orders:write
+      externalDocs:
+        description: Find more info here
+        url: https://cafe.redocly.com/openapi/cafe
+      traits:
+        - $ref: '#/components/operationTraits/Kafka'
+      message:
+        $ref: '#/components/messages/PreparationCommand'
+
+  cafe/orders/{orderId}/preparation/cancel:
+    parameters:
+      orderId:
+        $ref: '#/components/parameters/OrderId'
+    publish:
+      traits:
+        - $ref: '#/components/operationTraits/Kafka'
+      message:
+        $ref: '#/components/messages/PreparationCommand'
+
+  cafe/orders/{orderId}/progress:
+    parameters:
+      orderId:
+        $ref: '#/components/parameters/OrderId'
+    servers:
+      - production
+      - local-amqp
+    publish:
+      operationId: reportOrderProgress
+      traits:
+        - $ref: '#/components/operationTraits/Kafka'
+      message:
+        $ref: '#/components/messages/OrderProgress'
+
+components:
+  messages:
+    WaitTimeMeasured:
+      messageId: waitTimeMeasured
+      name: waitTimeMeasured
+      title: Wait time measured
+      summary: Inform about the estimated wait time for a particular order.
+      contentType: application/json
+      correlationId:
+        $ref: '#/components/correlationIds/SentAtCorrelator'
+      externalDocs:
+        url: 'https://cafe.redocly.com/openapi/cafe'
+      traits:
+        - $ref: '#/components/messageTraits/CommonHeaders'
+      payload:
+        $ref: '#/components/schemas/WaitTimeMeasuredPayload'
+      bindings:
+        mqtt:
+          bindingVersion: 0.1.0
+      examples:
+        - headers:
+            kitchen-station: 12
+          payload:
+            waitMinutes: 1
+            sentAt: '2020-01-31T13:24:53Z'
+        - headers:
+            kitchen-station: 13
+        - payload:
+            waitMinutes: 3
+            sentAt: '2020-10-31T13:24:53Z'
+      x-kitchen-display:
+        type: object
+        properties:
+          station:
+            type: string
+          priority:
+            type: integer
+            minimum: 0
+      x-kitchen-area: bar
+      x-kitchen-counters:
+        - 'espresso-bar'
+        - 'pastry-counter'
+    MenuSync:
+      payload:
+        type: object
+        properties:
+          menuItemIds:
+            type: string
+        example:
+          menuItemIds: 'prd_01h1s5z6vf2mm1mz3hevnn9va7, prd_01h1s5z6vf2mm1mz3hevnn9va8'
+    PreparationCommand:
+      title: Start or cancel preparation
+      summary: Command the kitchen to start or cancel preparing a particular order.
+      payload:
+        $ref: '#/components/schemas/PreparationCommandPayload'
+      headers:
+        type: object
+        properties:
+          $ref: '#/components/schemas/KitchenHeaders'
+    OrderProgress:
+      name: orderProgress
+      title: Order progress
+      summary: Report how much of a particular order is ready.
+      correlationId:
+        $ref: '#/components/correlationIds/SentAtCorrelator'
+      externalDocs:
+        url: 'https://cafe.redocly.com/openapi/cafe'
+      tags:
+        - name: Beverages
+          externalDocs:
+            description: Drinks on the menu.
+            url: https://cafe.redocly.com/openapi/cafe
+        - name: Desserts
+          description: Desserts on the menu.
+          externalDocs:
+            url: 'https://cafe.redocly.com/openapi/cafe'
+        - name: Pastries
+        - name: Preparation
+          description: Order preparation steps.
+        - name: Progress
+          externalDocs:
+            url: 'https://cafe.redocly.com/openapi/cafe'
+      traits:
+        - $ref: '#/components/messageTraits/CommonHeaders'
+      payload:
+        $ref: '#/components/schemas/OrderProgressPayload'
+
+  schemas:
+    WaitTimeMeasuredPayload:
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: Order ID. Unique identifier prefixed with `ord_`.
+          pattern: ^ord_[0-9abcdefghjkmnpqrstvwxyz]{26}$
+        waitMinutes:
+          type: integer
+          description: Estimated wait time in minutes.
+          writeOnly: true
+          oneOf:
+            - minimum: 0
+              maximum: 5
+            - minimum: 10
+              maximum: 20
+          externalDocs:
+            url: 'https://cafe.redocly.com/openapi/cafe'
+        sentAt:
+          $ref: '#/components/schemas/SentAt'
+        loyaltyPoints:
+          type: integer
+          description: Loyalty points the customer earns for the order.
+          minimum: 1
+          maximum: 1000
+          if:
+            minimum: 100
+          then:
+            multipleOf: 100
+          else:
+            if:
+              minimum: 10
+            then:
+              multipleOf: 10
+        payment:
+          $ref: '#/components/schemas/Payment'
+        notes: true
+        internalNotes: false
+        tableNumber:
+          minimum: 1
+          maximum: 100
+      required:
+        - waitMinutes
+      x-kitchen-display:
+        type: object
+        properties:
+          station:
+            type: string
+          priority:
+            type: integer
+            minimum: 0
+      x-kitchen-area: bar
+      x-kitchen-counters:
+        - 'espresso-bar'
+        - 'pastry-counter'
+    PreparationCommandPayload:
+      type: object
+      properties:
+        command:
+          type: string
+          enum:
+            - start
+            - cancel
+          description: Whether to start or cancel preparing the order.
+        sentAt:
+          $ref: '#/components/schemas/SentAt'
+        trayLayout:
+          $ref: '#/components/schemas/TrayLayout'
+      additionalProperties:
+        type: string
+
+    OrderProgressPayload:
+      type: object
+      properties:
+        percentage:
+          type: integer
+          description: Percentage of the order that is ready.
+          minimum: 0
+          maximum: 100
+          readOnly: true
+        sentAt:
+          $ref: '#/components/schemas/SentAt'
+        priority:
+          type: integer
+          not:
+            minimum: 3
+      patternProperties:
+        ^note_:
+          type: string
+        ^count_:
+          type: integer
+      additionalProperties: false
+    SentAt:
+      type: string
+      format: date-time
+      description: Date and time when the message was sent.
+    MenuItemPrice:
+      type: [string, number]
+    Customer:
+      type: object
+      propertyNames:
+        format: email
+      properties:
+        customerName:
+          type: string
+    PickupSlot:
+      type: object
+      properties:
+        pickupTime:
+          type: string
+          format: time
+    OrderPickup:
+      oneOf:
+        - $ref: '#/components/schemas/Customer'
+        - $ref: '#/components/schemas/PickupSlot'
+    OrderHandoff:
+      anyOf:
+        - $ref: '#/components/schemas/Customer'
+        - $ref: '#/components/schemas/PickupSlot'
+    OrderReceipt:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+        - $ref: '#/components/schemas/PickupSlot'
+    MenuItemPrices:
+      type: array
+      contains:
+        type: integer
+    Payment:
+      type: object
+      properties:
+        customerName:
+          type: string
+        cardNumber:
+          type: integer
+        billingAddress:
+          type: string
+        receiptEmail:
+          type: string
+      required:
+        - customerName
+      dependencies:
+        cardNumber:
+          properties:
+            billingAddress:
+              type: string
+            billingAddress2:
+              type: string
+          required:
+            - billingAddress
+          dependencies:
+            billingAddress2:
+              properties:
+                billingAddress3:
+                  type: string
+              required:
+                - billingAddress3
+
+    SubscriptionStatus:
+      type: object
+      oneOf:
+        - properties:
+            channelID:
+              type: integer
+              description: Channel ID on successful subscription, applicable to public messages only.
+            channelName:
+              type: string
+              description: Channel name on successful subscription. For 'orders' and 'progress' payloads, the order ID is added as a suffix.
+        - properties:
+            errorMessage:
+              type: string
+      properties:
+        event:
+          type: string
+          const: subscriptionStatus
+        subscription:
+          type: object
+          properties:
+            orderId:
+              type: string
+            interval:
+              type: string
+          required:
+            - name
+      required:
+        - event
+
+    TrayLayout:
+      type: object
+      properties:
+        levels:
+          $ref: '#/components/schemas/TrayLevels'
+        slotsPerLevel:
+          $ref: '#/components/schemas/TraySlots'
+
+    TrayLevels:
+      description: >
+        This attribute indicates whether the order is served on a tray and how
+        many levels the tray has.
+      type: integer
+      default: -1
+      examples:
+        - 2
+      oneOf:
+        - const: -1
+          description: 'NoTray: The order is served without a tray.'
+        - const: 0
+          description: 'OneOrMoreLevels: The tray has one or more levels.'
+        - const: 1
+          description: 'OneLevel: The tray has one level.'
+        - const: 2
+          description: 'The tray has two levels.'
+
+    TraySlots:
+      type: array
+      items:
+        type: integer
+        minimum: 0
+      examples:
+        - [3, 5]
+
+    KitchenHeaders:
+      Etag:
+        type: string
+        description: |
+          Version of the order that the command applies to.
+          The kitchen ignores a command whose ETag does not match the current
+          version of the order, so two operators cannot change the same order
+          at the same time.
+        example: 411a
+      Idempotency-Key:
+        description: Unique key that prevents the kitchen from processing the same command twice.
+        type: string
+        example: 5f0c6b2e-7c1a-4b8e-9d2f-1a3e4c5b6d7f
+
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: user
+      description: Provide your API key as the user and leave the password empty.
+    OAuth2:
+      type: oauth2
+      description: OAuth2 authorization for kitchen access.
+      flows:
+        implicit:
+          authorizationUrl: 'https://api.cafe.redocly.com/oauth2/authorize'
+          scopes:
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
+        password:
+          tokenUrl: 'https://api.cafe.redocly.com/oauth2/token'
+          scopes:
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
+        clientCredentials:
+          tokenUrl: 'https://api.cafe.redocly.com/oauth2/token'
+          scopes:
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
+        authorizationCode:
+          authorizationUrl: 'https://api.cafe.redocly.com/oauth2/authorize'
+          tokenUrl: 'https://api.cafe.redocly.com/oauth2/token'
+          refreshUrl: 'https://api.cafe.redocly.com/oauth2/refresh'
+          scopes:
+            'orders:read': Read access to order events
+            'orders:write': Write access to orders (start, cancel)
+            'kitchen:write': Write access to order progress
+    OpenIdConnect:
+      type: openIdConnect
+      openIdConnectUrl: 'https://api.cafe.redocly.com/.well-known/openid-configuration'
+
+  parameters:
+    OrderId:
+      description: Order ID. Unique identifier prefixed with `ord_`.
+      schema:
+        type: string
+      location: '$message.payload#/orderId'
+
+  correlationIds:
+    SentAtCorrelator:
+      description: Data from message payload used as correlation ID
+      location: $message.payload#/sentAt
+
+  messageTraits:
+    CommonHeaders:
+      headers:
+        type: object
+        properties:
+          kitchen-station:
+            type: integer
+            minimum: 0
+            maximum: 100
+            description: Number of the kitchen station that sent the message.
+        required:
+          - kitchen-station
+
+  operationTraits:
+    Kafka:
+      bindings:
+        kafka:
+          clientId:
+            type: string
+            enum:
+              - cafe-kitchen

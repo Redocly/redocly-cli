@@ -1,16 +1,16 @@
 import {
   collectFilesToPush,
   pushFiles,
-  ReuniteApiError,
+  PlatformApiError,
   waitForDeployment,
   type PushResponse,
   type UpsertRemoteResponse,
-} from '@redocly/reunite-integration';
+} from '@redocly/platform-integration';
 
 import { handlePush, type PushArgv } from '../push.js';
 
-vi.mock('@redocly/reunite-integration', async () => {
-  const actual = await vi.importActual('@redocly/reunite-integration');
+vi.mock('@redocly/platform-integration', async () => {
+  const actual = await vi.importActual('@redocly/platform-integration');
   return { ...actual, collectFilesToPush: vi.fn(), pushFiles: vi.fn(), waitForDeployment: vi.fn() };
 });
 
@@ -108,8 +108,8 @@ describe('handlePush()', () => {
     expect(pushFiles).toHaveBeenCalledWith(expect.objectContaining({ replace: true }));
   });
 
-  it('reports a Reunite API error as a handled error', async () => {
-    vi.mocked(pushFiles).mockRejectedValue(new ReuniteApiError('Deprecated.', 412));
+  it('reports a Redocly platform API error as a handled error', async () => {
+    vi.mocked(pushFiles).mockRejectedValue(new PlatformApiError('Deprecated.', 412));
 
     await expect(handlePush({ argv, config, version })).rejects.toThrow(
       '✗ File upload failed. Reason: Deprecated. (status: 412)'
@@ -145,7 +145,7 @@ describe('handlePush()', () => {
   it('prints the sunset warning even when the upload fails', async () => {
     vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
       onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });
-      throw new ReuniteApiError('Failed to fetch default branch. Unauthorized.', 401);
+      throw new PlatformApiError('Failed to fetch default branch. Unauthorized.', 401);
     });
 
     await expect(handlePush({ argv, config, version })).rejects.toThrow('✗ File upload failed.');
