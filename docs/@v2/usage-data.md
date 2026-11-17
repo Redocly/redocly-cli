@@ -18,12 +18,12 @@ When a command is run, the following data is collected:
 - CLI version
 - Node.js and NPM versions
 - whether the `redocly.yaml` configuration file exists
-- how many APIs the configuration file declares, how many of them have the API file of the command line as their `root`, and which options such an API sets — never their names, paths, or values
+- how the command line arguments relate to the `apis` section of the configuration file — never names, paths, or values
 - API specification type and version
 - names of lint rules that reported errors, warnings, or ignored problems
 - Arazzo x-security authentication types
 - for `generate-client` and `eject-generator`: which built-in generators and toolkit helpers are used, coarse outcome categories, and the toolkit versions involved — never file contents, paths, or names you chose
-- for `bundle`: how many overlays are applied — never their paths or contents — and whether the `output` of an API overrides `--output`
+- for `bundle`: how many overlays are applied — never their paths or contents
 - for `introspect-mcp`: the MCP protocol version of the server — never its URL or command
 - platform (Linux, macOS, Windows)
 - anonymous ID (a randomly generated identifier that doesn't contain personal information)
