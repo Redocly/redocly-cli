@@ -13,6 +13,6 @@ workflows:
   - workflowId: list-menu
     steps:
       - stepId: list-menu-items
-        operationId: cafe-api.listMenuItems
+        operationId: listMenuItems
         successCriteria:
           - condition: $statusCode == 200

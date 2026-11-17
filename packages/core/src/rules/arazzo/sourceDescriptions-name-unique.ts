@@ -10,7 +10,7 @@ export const SourceDescriptionsNameUnique: Arazzo1Rule = () => {
         if (!sourceDescriptions.length) return;
         for (const sourceDescription of sourceDescriptions) {
           const name = sourceDescription?.name;
-          if (!name) continue;
+          if (typeof name !== 'string') continue;
           if (seenSourceDescriptions.has(name)) {
             report({
               message: 'The `name` must be unique amongst all SourceDescriptions.',

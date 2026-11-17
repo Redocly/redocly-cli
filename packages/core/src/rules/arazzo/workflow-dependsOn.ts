@@ -16,7 +16,7 @@ export const WorkflowDependsOn: Arazzo1Rule = () => {
     Workflows: {
       enter(workflows) {
         for (const workflow of workflows) {
-          existingWorkflowIds.add(workflow.workflowId);
+          existingWorkflowIds.add(workflow?.workflowId);
         }
       },
     },
@@ -26,6 +26,7 @@ export const WorkflowDependsOn: Arazzo1Rule = () => {
 
         const seenWorkflow = new Set();
         for (const item of workflow.dependsOn) {
+          if (typeof item !== 'string') continue;
           // Possible dependsOn workflow pattern: $sourceDescriptions.<name>.<workflowId>
           if (item.startsWith('$sourceDescriptions.')) {
             const sourceDescriptionName = item.split('.')[1];

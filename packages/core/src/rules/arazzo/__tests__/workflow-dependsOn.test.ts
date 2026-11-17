@@ -271,7 +271,7 @@ describe('Arazzo workflow-dependsOn', () => {
           - workflowId: list-menu
             steps:
               - stepId: list-menu-items
-                operationId: cafe-api.listMenuItems
+                operationId: listMenuItems
       `,
       'arazzo.yaml'
     );
@@ -297,6 +297,86 @@ describe('Arazzo workflow-dependsOn', () => {
           ],
           "message": "Expected type \`ArazzoSourceDescription\` (object) but got \`null\`",
           "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should leave a `null` item of workflows and of dependsOn to the struct rule', async () => {
+    const documentWithNullWorkflow = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Redocly Cafe ordering workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - null
+          - workflowId: list-menu
+            dependsOn:
+              - null
+              - place-order
+            steps:
+              - stepId: list-menu-items
+                operationId: listMenuItems
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithNullWorkflow,
+      config: await createConfig({
+        rules: { struct: 'error', 'workflow-dependsOn': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Expected type \`Workflow\` (object) but got \`null\`",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/1/dependsOn/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`null\`.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/1/dependsOn/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Workflow place-order must be defined in workflows.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/workflow-dependson",
+          "ruleId": "workflow-dependsOn",
           "severity": "error",
           "suggest": [],
         },

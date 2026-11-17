@@ -91,12 +91,17 @@ export function commandWrapper<T extends CommandArgv>(
       }
 
       if (getMajorSpecVersion(specVersion as SpecVersion) === 'arazzo1') {
-        try {
-          collectXSecurityAuthTypes(document, respectXSecurityAuthTypes);
-          collectSourceDescriptionTypes(document, respectSourceDescriptionTypes);
-          collectCriterionObjectTypes(document, respectCriterionObjectTypes);
-        } catch (err) {
-          // The description is not validated yet: a malformed one is for the command to report.
+        const collectors = [
+          () => collectXSecurityAuthTypes(document, respectXSecurityAuthTypes),
+          () => collectSourceDescriptionTypes(document, respectSourceDescriptionTypes),
+          () => collectCriterionObjectTypes(document, respectCriterionObjectTypes),
+        ];
+        for (const collect of collectors) {
+          try {
+            collect();
+          } catch (err) {
+            // The description is not validated yet: a malformed one is for the command to report.
+          }
         }
       }
     };
