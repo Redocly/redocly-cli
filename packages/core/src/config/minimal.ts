@@ -329,6 +329,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'sourceDescription-name-unique': 'off',
     'sourceDescription-type': 'off',
     'sourceDescriptions-not-empty': 'off',
+    'spec-querystring-parameters': 'warn',
     'spec-step-mutually-exclusive-fields': 'warn',
     'step-onFailure-unique': 'off',
     'step-onSuccess-unique': 'off',

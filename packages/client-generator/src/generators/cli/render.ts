@@ -17,6 +17,7 @@ import {
   type GeneratorInput,
   type ParamModel,
   type SchemaModel,
+  getOperationId,
 } from '@redocly/client-generator';
 import { flatInputShape } from '@redocly/client-generator/contracts/typescript';
 
@@ -215,7 +216,7 @@ function warnShadowedCommands(
   const shadowedNames = new Set(shadowed.map((command) => command.name));
   const operationIds = allOperations(model.services)
     .filter((operation) => shadowedNames.has(operation.name))
-    .map((operation) => operation.specName ?? operation.name);
+    .map(getOperationId);
   reportFinding({
     kind: 'command-shadowed',
     message: `cli reads a leading group name as the group, so ${shadowed.length} operation(s) named after a tag resolve unusually — rename the operation or the tag: ${shadowed

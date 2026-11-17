@@ -11,14 +11,17 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
   let failedWorkflows = 0;
   const workflowsWithWarningsStepsChecks = new Set();
   let failedSteps = 0;
-  const skippedSteps = new Set();
-  const warningsSteps = new Set();
+  // every executed step is an object of its own, also when a nested workflow has a step with the same id
+  const skippedSteps = new Set<Step>();
+  const warningsSteps = new Set<Step>();
 
   for (const workflow of workflows) {
     const steps = flattenNestedSteps(workflow.executedSteps);
     let hasFailedSteps = false;
     for (const step of steps) {
-      totalRequests++;
+      if (step.requestSent) {
+        totalRequests++;
+      }
       if (step.retriesLeft && step.retriesLeft !== 0) {
         continue; // do not count retried steps as a step
       }
@@ -32,11 +35,11 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
             case 'warn':
               totalWarnings++;
               workflowsWithWarningsStepsChecks.add(workflow.workflowId);
-              warningsSteps.add(workflow.workflowId + ':' + step.stepId);
+              warningsSteps.add(step);
               break;
             case 'off':
               totalSkipped++;
-              skippedSteps.add(workflow.workflowId + ':' + step.stepId);
+              skippedSteps.add(step);
               break;
             default:
               failedChecks++;
