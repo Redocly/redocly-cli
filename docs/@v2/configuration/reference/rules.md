@@ -24,8 +24,13 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 
 {% /table %}
 
-To configure rules for a specific specification version, use one of the specification-specific rule sections instead of `rules`.
-They accept the same options and rule objects:
+<details>
+<summary>Specification-specific rule sections</summary>
+
+Redocly CLI applies each rule in `rules` to the specifications that the rule supports, so `rules` is enough in most cases.
+However, to limit a rule to one specification version, configure it under one of the following keys instead of `rules`.
+The rule must support that version.
+The keys accept the same options and rule objects:
 
 - `oas2Rules`
 - `oas3_0Rules`
@@ -38,6 +43,8 @@ They accept the same options and rule objects:
 - `overlay1Rules`
 - `openrpc1Rules`
 - `graphqlRules`
+
+</details>
 
 ### Rule object
 
