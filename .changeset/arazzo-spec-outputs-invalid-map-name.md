@@ -1,6 +1,7 @@
 ---
 '@redocly/openapi-core': minor
 '@redocly/cli': minor
+'@redocly/respect-core': minor
 ---
 
 Added the `spec-outputs-invalid-map-name` rule for Arazzo descriptions.

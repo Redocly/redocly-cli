@@ -1,7 +1,8 @@
+import { COMPONENT_NAME_CHARS } from '../../oas-types.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-const OUTPUT_NAME_PATTERN = /^[a-zA-Z0-9_.-]+$/;
+const OUTPUT_NAME_PATTERN = new RegExp(`^[${COMPONENT_NAME_CHARS}]+$`);
 
 export const SpecOutputsInvalidMapName: Arazzo1Rule = () => {
   return {

@@ -16,9 +16,9 @@ This rule reports each output name of a workflow or a step that does not match t
 
 ## Configuration
 
-| Option   | Type   | Description                                             |
-| -------- | ------ | ------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off`. |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 

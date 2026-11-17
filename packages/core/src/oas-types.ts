@@ -55,7 +55,7 @@ export const specVersions = [
 ] as const;
 export type SpecVersion = (typeof specVersions)[number];
 
-/** Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs. */
+/** Characters allowed in a Components Object key by the OpenAPI and AsyncAPI specs, and in an Arazzo output name. */
 export const COMPONENT_NAME_CHARS = 'a-zA-Z0-9\\.\\-_';
 
 export type SpecMajorVersion =
