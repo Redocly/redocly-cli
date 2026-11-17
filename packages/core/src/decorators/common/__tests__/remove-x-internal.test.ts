@@ -29,7 +29,9 @@ describe('oas3 remove-x-internal', () => {
       document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: await createConfig({
-        decorators: { 'remove-x-internal': { internalFlagProperty: 'removeit' } },
+        decorators: {
+          'remove-x-internal': { internalFlagProperty: 'removeit' },
+        },
       }),
       types: Oas3Types,
     });
@@ -628,6 +630,55 @@ describe('oas3 remove-x-internal', () => {
           get:
             security:
               - {}
+      components: {}
+    `);
+  });
+
+  it('should remove every security property that shares an emptied security requirement list', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        security: &internal
+          - InternalKey: []
+        paths:
+          /orders:
+            get:
+              security: *internal
+            post:
+              security: *internal
+          /menu:
+            get:
+              security: &public []
+            post:
+              security: *public
+        components:
+          securitySchemes:
+            InternalKey:
+              x-internal: true
+              type: apiKey
+              name: X-Internal-Key
+              in: header
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: { 'remove-x-internal': 'on' },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      paths:
+        /orders:
+          get: {}
+          post: {}
+        /menu:
+          get:
+            security: &ref_0 []
+          post:
+            security: *ref_0
       components: {}
     `);
   });

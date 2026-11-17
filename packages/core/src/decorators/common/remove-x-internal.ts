@@ -89,7 +89,19 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
     }
   }
 
-  function removeInternalSecurityRequirements({ list, parent, key }: SecurityRequirementList) {
+  // Records node.security. The walker enters a list shared by several parents (e.g. a YAML alias) only once, so lists are collected from their parents.
+  function noteSecurityRequirementList(node: unknown, ctx: UserContext) {
+    if (!isPlainObject(node) || !node.security) return;
+    const list = ctx.resolve(node.security).node;
+    if (Array.isArray(list)) {
+      securityRequirementLists.push({ list, parent: node, key: 'security' });
+    }
+  }
+
+  function removeInternalSecurityRequirements(
+    list: Record<string, string[]>[],
+    emptiedLists: Set<Record<string, string[]>[]>
+  ) {
     // A requirement lists schemes that must all be used together, so it can't be kept without one of them.
     let didDelete = false;
     for (let i = 0; i < list.length; i++) {
@@ -100,7 +112,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
       }
     }
     if (didDelete && isEmptyArray(list)) {
-      delete parent[key];
+      emptiedLists.add(list);
     }
   }
 
@@ -109,14 +121,19 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
   const securityRequirementLists: SecurityRequirementList[] = [];
   return {
     Root: {
+      enter: noteSecurityRequirementList,
       leave: () => {
-        securityRequirementLists.forEach(removeInternalSecurityRequirements);
+        const lists = new Set(securityRequirementLists.map(({ list }) => list));
+        const emptiedLists = new Set<Record<string, string[]>[]>();
+        lists.forEach((list) => removeInternalSecurityRequirements(list, emptiedLists));
+        // Every parent of an emptied list loses the property, so it falls back to the root security.
+        for (const { list, parent, key } of securityRequirementLists) {
+          if (emptiedLists.has(list)) delete parent[key];
+        }
       },
     },
-    SecurityRequirementList: {
-      enter: (list: Record<string, string[]>[], { parent, key }: UserContext) => {
-        securityRequirementLists.push({ list, parent, key });
-      },
+    Operation: {
+      enter: noteSecurityRequirementList,
     },
     DiscriminatorMapping: {
       enter: (mapping: Record<string, string>) => {
