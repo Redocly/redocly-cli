@@ -1,17 +1,11 @@
-import type {
-  OnFailureObject,
-  OnSuccessObject,
-  SourceDescription,
-  Step,
-} from '../../typings/arazzo.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 // The name in `$sourceDescriptions.<name>.<reference>` and in `{$sourceDescriptions.<name>.url}#/paths/...`
 const SOURCE_DESCRIPTION_REFERENCE = /\$sourceDescriptions\.([^.}#]+)/;
 
+// The `spec-step-operationId-resolved` rule checks `operationId`.
 const STEP_REFERENCE_FIELDS = [
-  'operationId',
   'operationPath',
   'channelPath', // added in Arazzo 1.1
   'workflowId',
@@ -39,36 +33,29 @@ export const SpecSourceDescriptionsDefined: Arazzo1Rule = () => {
   }
 
   return {
-    SourceDescriptions: {
-      enter(sourceDescriptions: SourceDescription[]) {
-        for (const sourceDescription of sourceDescriptions) {
-          sourceDescriptionNames.add(sourceDescription.name);
-        }
-      },
+    SourceDescriptions(sourceDescriptions) {
+      for (const sourceDescription of sourceDescriptions) {
+        const name = sourceDescription?.name;
+        if (typeof name === 'string') sourceDescriptionNames.add(name);
+      }
     },
-    Step: {
-      enter(step: Step, ctx: UserContext) {
-        for (const field of STEP_REFERENCE_FIELDS) {
-          checkReference(step[field], ctx, [field]);
-        }
+    Step(step, ctx) {
+      for (const field of STEP_REFERENCE_FIELDS) {
+        checkReference(step[field], ctx, [field]);
+      }
 
-        // added in Arazzo 1.1
-        if (Array.isArray(step.dependsOn)) {
-          for (const [index, dependency] of step.dependsOn.entries()) {
-            checkReference(dependency, ctx, ['dependsOn', index]);
-          }
+      // added in Arazzo 1.1
+      if (Array.isArray(step.dependsOn)) {
+        for (const [index, dependency] of step.dependsOn.entries()) {
+          checkReference(dependency, ctx, ['dependsOn', index]);
         }
-      },
+      }
     },
-    SuccessActionObject: {
-      enter(action: OnSuccessObject, ctx: UserContext) {
-        checkReference(action.workflowId, ctx, ['workflowId']);
-      },
+    SuccessActionObject(action, ctx) {
+      checkReference(action.workflowId, ctx, ['workflowId']);
     },
-    FailureActionObject: {
-      enter(action: OnFailureObject, ctx: UserContext) {
-        checkReference(action.workflowId, ctx, ['workflowId']);
-      },
+    FailureActionObject(action, ctx) {
+      checkReference(action.workflowId, ctx, ['workflowId']);
     },
   };
 };

@@ -8,18 +8,19 @@ Requires a `$sourceDescriptions.<name>` reference to use the `name` of a source 
 
 ## Design principles
 
-A step points to an operation or a workflow of a source description with a runtime expression, such as `$sourceDescriptions.<name>.<operationId>`.
+A step points to an operation or a workflow of a source description with a runtime expression, such as `$sourceDescriptions.<name>.<workflowId>`.
 The Arazzo specification requires the referenced operation or workflow to exist in one of the `sourceDescriptions`.
 A reference with a name that is not in the `sourceDescriptions` list cannot be resolved, so the step cannot run.
 
 This rule reports such a reference in the following fields:
 
-- `operationId`, `operationPath`, and `workflowId` of a step.
+- `operationPath` and `workflowId` of a step.
 - `workflowId` of a success or a failure action.
 - `channelPath` and `dependsOn` of a step (Arazzo 1.1).
 
 The rule checks only the name of the source description.
 It does not check that the operation or the workflow exists in that source description.
+The `spec-step-operationId-resolved` rule checks the `operationId` of a step.
 The [workflow-dependsOn](./workflow-dependsOn.md) rule checks the references in the `dependsOn` list of a workflow.
 
 ## Configuration
@@ -54,8 +55,8 @@ sourceDescriptions:
 workflows:
   - workflowId: place-order
     steps:
-      - stepId: list-menu-items
-        operationId: $sourceDescriptions.bakery-api.listMenuItems
+      - stepId: create-order
+        operationPath: '{$sourceDescriptions.bakery-api.url}#/paths/~1orders/post'
 ```
 
 Example of a **correct** reference to a defined source description:
@@ -68,8 +69,8 @@ sourceDescriptions:
 workflows:
   - workflowId: place-order
     steps:
-      - stepId: list-menu-items
-        operationId: $sourceDescriptions.cafe-api.listMenuItems
+      - stepId: create-order
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1orders/post'
 ```
 
 ## Related rules

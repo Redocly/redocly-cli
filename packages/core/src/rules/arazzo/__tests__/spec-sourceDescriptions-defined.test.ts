@@ -20,8 +20,6 @@ describe('Arazzo spec-sourceDescriptions-defined', () => {
         workflows:
           - workflowId: place-order
             steps:
-              - stepId: list-menu-items
-                operationId: $sourceDescriptions.bakery-api.listMenuItems
               - stepId: create-order
                 operationPath: '{$sourceDescriptions.bakery-api.url}#/paths/~1orders/post'
               - stepId: track-order
@@ -51,7 +49,7 @@ describe('Arazzo spec-sourceDescriptions-defined', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/steps/0/operationId",
+              "pointer": "#/workflows/0/steps/0/operationPath",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
@@ -65,21 +63,7 @@ describe('Arazzo spec-sourceDescriptions-defined', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/steps/1/operationPath",
-              "reportOnKey": false,
-              "source": "arazzo.yaml",
-            },
-          ],
-          "message": "Source description \`bakery-api\` is not defined in \`sourceDescriptions\`.",
-          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-sourcedescriptions-defined",
-          "ruleId": "spec-sourceDescriptions-defined",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "location": [
-            {
-              "pointer": "#/workflows/0/steps/2/workflowId",
+              "pointer": "#/workflows/0/steps/1/workflowId",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
@@ -93,7 +77,7 @@ describe('Arazzo spec-sourceDescriptions-defined', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/steps/2/onSuccess/0/workflowId",
+              "pointer": "#/workflows/0/steps/1/onSuccess/0/workflowId",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
@@ -107,7 +91,7 @@ describe('Arazzo spec-sourceDescriptions-defined', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/steps/2/onFailure/0/workflowId",
+              "pointer": "#/workflows/0/steps/1/onFailure/0/workflowId",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
