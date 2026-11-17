@@ -213,8 +213,7 @@ export async function sendTelemetry({
   }
 }
 
-// Compares the API arguments of the command line with the `apis` of the configuration file.
-// The result holds counts and option names of the configuration schema, and no path or alias.
+// Counts and option names of the configuration schema only — never a path or an alias.
 function describeApiArguments(config: Config | undefined, apiArguments: string[]) {
   const writtenConfig = config?.document?.parsed;
   if (config === undefined || !isPlainObject(writtenConfig)) {
