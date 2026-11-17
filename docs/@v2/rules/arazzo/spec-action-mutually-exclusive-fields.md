@@ -22,9 +22,9 @@ The rule applies to every action type, because the specification does not limit 
 
 ## Configuration
 
-| Option   | Type   | Description                                             |
-| -------- | ------ | ------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off`. |
+| Option   | Type   | Description                                              |
+| -------- | ------ | -------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `off`. |
 
 An example configuration:
 
