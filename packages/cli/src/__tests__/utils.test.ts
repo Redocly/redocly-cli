@@ -809,7 +809,10 @@ describe('writeToFileByExtension', () => {
 
   it('should call stringifyYaml function', () => {
     writeToFileByExtension('test data', 'test.yaml');
-    expect(openapiCore.stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
+    expect(openapiCore.stringifyYaml).toHaveBeenCalledWith('test data', {
+      noRefs: false,
+      lineWidth: -1,
+    });
     expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
   });
 
