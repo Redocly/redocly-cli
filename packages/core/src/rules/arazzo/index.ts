@@ -30,6 +30,7 @@ import { WorkflowDependsOn } from './workflow-dependsOn.js';
 import { WorkflowIdUnique } from './workflowId-unique.js';
 
 export const rules: Arazzo1RuleSet<'built-in'> = {
+  struct: Struct as Arazzo1Rule,
   assertions: Assertions as Arazzo1Rule,
   'criteria-unique': CriteriaUnique,
   'no-criteria-xpath': NoCriteriaXpath,
@@ -53,7 +54,6 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'step-onFailure-unique': StepOnFailureUnique,
   'step-onSuccess-unique': StepOnSuccessUnique,
   'stepId-unique': StepIdUnique,
-  struct: Struct as Arazzo1Rule,
   'workflow-dependsOn': WorkflowDependsOn,
   'workflowId-unique': WorkflowIdUnique,
   'x-security-scheme-name-reference': XSecuritySchemeNameReference,
