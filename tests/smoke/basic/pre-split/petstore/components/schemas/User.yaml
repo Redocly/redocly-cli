@@ -28,9 +28,7 @@ properties:
     example: john.smith@example.com
   password:
     type: string
-    description: >-
-      User password, MUST contain a mix of upper and lower case letters, as well
-      as digits
+    description: User password, MUST contain a mix of upper and lower case letters, as well as digits
     format: password
     minLength: 8
     pattern: /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/

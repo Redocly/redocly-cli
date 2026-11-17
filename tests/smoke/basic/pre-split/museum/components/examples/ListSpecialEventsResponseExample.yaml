@@ -3,9 +3,7 @@ value:
   - eventId: f3e0e76e-e4a8-466e-ab9c-ae36c15b8e97
     name: Sasquatch Ballet
     location: Seattle... probably
-    eventDescription: >-
-      They're big, they're hairy, but they're also graceful. Come learn how the
-      biggest feet can have the lightest touch.
+    eventDescription: They're big, they're hairy, but they're also graceful. Come learn how the biggest feet can have the lightest touch.
     dates:
       - '2023-12-15'
       - '2023-12-22'
@@ -38,9 +36,7 @@ value:
   - eventId: dad4bce8-f5cb-4078-a211-995864315e39
     name: Mermaid Treasure Identification and Analysis
     location: Room Sea-12
-    eventDescription: >-
-      Join us as we review and classify a rare collection of 20 thingamabobs,
-      gadgets, gizmos, whoosits, and whatsits — kindly donated by Ariel.
+    eventDescription: Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits — kindly donated by Ariel.
     dates:
       - '2023-09-05'
       - '2023-09-08'
@@ -57,9 +53,7 @@ value:
   - eventId: 3be6453c-03eb-4357-ae5a-984a0e574a54
     name: Pirate Coding Workshop
     location: Computer Room
-    eventDescription: >-
-      Captain Blackbeard shares his love of the C...language. And possibly
-      Arrrrr (R lang).
+    eventDescription: Captain Blackbeard shares his love of the C...language. And possibly Arrrrr (R lang).
     dates:
       - '2023-10-29'
       - '2023-10-30'

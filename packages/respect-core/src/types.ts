@@ -88,6 +88,7 @@ type AdditionalStepProps = {
   request?: RequestContext;
   checks: Check[];
   retriesLeft?: number;
+  requestSent?: boolean;
 };
 
 export type Step = ArazzoStep & AdditionalStepProps;

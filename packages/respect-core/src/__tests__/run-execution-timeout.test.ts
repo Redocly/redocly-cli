@@ -18,13 +18,13 @@ const SILENT_LOGGER: LoggerInterface = {
 };
 
 async function runOptions(
-  workflowId: string,
+  workflowId: string | undefined,
   executionTimeout: number,
   fetch: typeof globalThis.fetch
 ): Promise<RespectOptions> {
   return {
     files: [ARAZZO_FILE],
-    workflow: [workflowId],
+    workflow: workflowId ? [workflowId] : undefined,
     config: await createConfig({}),
     maxSteps: 100,
     maxFetchTimeout: 40_000,
@@ -108,7 +108,11 @@ describe('run with an execution timeout', () => {
     );
 
     expect(result).toMatchObject([
-      { globalTimeoutError: true, executedWorkflows: [{ globalTimeoutError: true }] },
+      {
+        globalTimeoutError: true,
+        totalRequests: 1,
+        executedWorkflows: [{ globalTimeoutError: true }],
+      },
     ]);
   });
 
@@ -128,5 +132,51 @@ describe('run with an execution timeout', () => {
 
     expect(checkNames(shortResult)).toContain(CHECKS.GLOBAL_TIMEOUT_ERROR);
     expect(longResult).toMatchObject([{ hasProblems: false, globalTimeoutError: false }]);
+  });
+});
+
+describe('run request count', () => {
+  it('counts no request for the workflows that start after the execution timeout', async () => {
+    const fetch = vi.fn(failingFetch);
+
+    const result = await run(await runOptions(undefined, 1_000, fetch));
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject([{ totalRequests: 1 }]);
+  });
+
+  it('counts no request for a retry that the step limit stops', async () => {
+    const fetch = vi.fn(failingFetch);
+    const options = await runOptions('retry-often', 60_000, fetch);
+
+    const result = await run({ ...options, maxSteps: 2 });
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject([{ totalRequests: 2 }]);
+  });
+
+  it('counts the requests of a dependsOn workflow each time it runs', async () => {
+    const fetch = vi.fn(async () => Response.json(EMPTY_MENU));
+    const options = await runOptions(undefined, 60_000, fetch);
+
+    const result = await run({
+      ...options,
+      workflow: ['single-call', 'depends-on-single-call'],
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(result).toMatchObject([{ hasProblems: false, totalRequests: 3 }]);
+  });
+});
+
+describe('run workflow time', () => {
+  it('includes the time of a failed dependsOn workflow in the workflow that depends on it', async () => {
+    const result = await run(await runOptions('depends-on-single-call', 60_000, failingFetch));
+
+    const [dependentWorkflow] = result[0].executedWorkflows;
+    expect(dependentWorkflow.executedSteps[0]).toMatchObject({
+      workflowId: 'single-call',
+      totalTimeMs: dependentWorkflow.totalTimeMs,
+    });
   });
 });

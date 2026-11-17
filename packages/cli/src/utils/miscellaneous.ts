@@ -252,7 +252,7 @@ export function writeToFileByExtension(data: unknown, filePath: string, noRefs?:
 }
 
 export function writeYaml(data: any, filename: string, noRefs = false) {
-  const content = stringifyYaml(data, { noRefs });
+  const content = dumpBundle(data, 'yaml', !noRefs);
 
   if (process.env.NODE_ENV === 'test') {
     logger.info(content);

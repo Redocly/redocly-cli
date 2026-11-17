@@ -45,3 +45,9 @@ workflows:
         operationId: listMenuItems
         successCriteria:
           - condition: $statusCode == 200
+  - workflowId: depends-on-single-call
+    dependsOn:
+      - single-call
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems

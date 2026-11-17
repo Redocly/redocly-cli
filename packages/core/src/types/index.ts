@@ -29,6 +29,7 @@ export type NodeType = {
   properties: Record<string, PropType | ResolveTypeFn>;
   additionalProperties?: PropType | ResolveTypeFn;
   items?: PropType | ResolveTypeFn;
+  minItems?: number;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
@@ -49,6 +50,7 @@ export type NormalizedNodeType = {
   uriReferenceProperties?: string[];
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;
+  minItems?: number;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
@@ -64,7 +66,7 @@ type NormalizedResolveTypeFn = (value: any, key: string) => NormalizedPropType;
 
 export function listOf(
   typeName: string,
-  opts: { name?: string; description?: string; documentationLink?: string } = {}
+  opts: { name?: string; description?: string; documentationLink?: string; minItems?: number } = {}
 ) {
   return {
     name: `${typeName}List`,
