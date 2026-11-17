@@ -6,17 +6,25 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { createMcpHandler, Server as DiscoverMcpServer } from '@modelcontextprotocol/server';
 import { parseYaml, AbortFlowError } from '@redocly/openapi-core';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { createServer, type Server as HttpServer } from 'node:http';
+import {
+  createServer,
+  type IncomingMessage,
+  type Server as HttpServer,
+  type ServerResponse,
+} from 'node:http';
 import { type AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { text } from 'node:stream/consumers';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
 import type { CommandArgs } from '../../../wrapper.js';
 import { handleIntrospectMcp, type IntrospectMcpCommandArgv } from '../index.js';
+import { introspectMcpTelemetry } from '../telemetry.js';
 
 const CREATE_ORDER_TOOL = {
   name: 'orders/create',
@@ -70,6 +78,30 @@ function buildMcpServer() {
   return mcpServer;
 }
 
+// Answers one request the way a stateless Streamable HTTP MCP server does: with a fresh transport.
+async function handleStatelessRequest(
+  mcpServer: McpServer,
+  request: IncomingMessage,
+  response: ServerResponse,
+  parsedBody?: unknown
+) {
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true,
+  });
+  response.on('close', () => {
+    transport.close();
+    mcpServer.close();
+  });
+  await mcpServer.connect(transport);
+  await transport.handleRequest(request, response, parsedBody);
+}
+
+async function listenOnFreePort(server: HttpServer, path: string): Promise<string> {
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  return `http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`;
+}
+
 let httpServer: HttpServer;
 let serverUrl: string;
 let lastAuthHeader: string | string[] | undefined;
@@ -79,19 +111,9 @@ beforeAll(async () => {
   httpServer = createServer(async (request, response) => {
     lastAuthHeader = request.headers['x-cafe-auth'] ?? lastAuthHeader;
     const mcpServer = buildMcpServer();
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined,
-      enableJsonResponse: true,
-    });
-    response.on('close', () => {
-      transport.close();
-      mcpServer.close();
-    });
-    await mcpServer.connect(transport);
-    await transport.handleRequest(request, response);
+    await handleStatelessRequest(mcpServer, request, response);
   });
-  await new Promise<void>((resolve) => httpServer.listen(0, '127.0.0.1', resolve));
-  serverUrl = `http://127.0.0.1:${(httpServer.address() as AddressInfo).port}/mcp`;
+  serverUrl = await listenOnFreePort(httpServer, '/mcp');
 });
 
 afterAll(async () => {
@@ -327,21 +349,9 @@ describe('handleIntrospectMcp', () => {
         { capabilities: { tools: {} } }
       );
       mcpServer.setRequestHandler(ListToolsRequestSchema, () => ({ tools: [] }));
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: undefined,
-        enableJsonResponse: true,
-      });
-      response.on('close', () => {
-        transport.close();
-        mcpServer.close();
-      });
-      await mcpServer.connect(transport);
-      await transport.handleRequest(request, response);
+      await handleStatelessRequest(mcpServer, request, response);
     });
-    await new Promise<void>((resolve) => emptyToolsServer.listen(0, '127.0.0.1', resolve));
-    const emptyToolsServerUrl = `http://127.0.0.1:${
-      (emptyToolsServer.address() as AddressInfo).port
-    }/mcp`;
+    const emptyToolsServerUrl = await listenOnFreePort(emptyToolsServer, '/mcp');
     const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
     const outputFile = join(outputDir, 'openapi.yaml');
     writeFileSync(
@@ -411,8 +421,7 @@ describe('handleIntrospectMcp', () => {
         response.writeHead(405).end();
       }
     });
-    await new Promise<void>((resolve) => sseHttpServer.listen(0, '127.0.0.1', resolve));
-    const sseServerUrl = `http://127.0.0.1:${(sseHttpServer.address() as AddressInfo).port}/sse`;
+    const sseServerUrl = await listenOnFreePort(sseHttpServer, '/sse');
     const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
     const outputFile = join(outputDir, 'openapi.yaml');
     try {
@@ -430,6 +439,145 @@ describe('handleIntrospectMcp', () => {
       rmSync(outputDir, { recursive: true, force: true });
       await Promise.all([...sseTransports.values()].map((transport) => transport.close()));
       await new Promise((resolve) => sseHttpServer.close(resolve));
+    }
+  });
+
+  it('falls back to the initialize handshake when the server fails the server/discover request', async () => {
+    const failingDiscoverServer = createServer(async (request, response) => {
+      const body = await text(request);
+      const message = body ? JSON.parse(body) : undefined;
+      if (message?.method === 'server/discover') {
+        response.writeHead(500).end();
+        return;
+      }
+      const mcpServer = buildMcpServer();
+      await handleStatelessRequest(mcpServer, request, response, message);
+    });
+    const failingDiscoverServerUrl = await listenOnFreePort(failingDiscoverServer, '/mcp');
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    const outputFile = join(outputDir, 'openapi.yaml');
+    try {
+      await runIntrospectMcp({ 'server-url': failingDiscoverServerUrl, output: outputFile });
+
+      const document = parseYaml(readFileSync(outputFile, 'utf-8')) as Record<string, any>;
+      expect(document['x-mcp'].tools).toEqual([CREATE_ORDER_TOOL, LIST_MENU_TOOL]);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+      await new Promise((resolve) => failingDiscoverServer.close(resolve));
+    }
+  });
+
+  it('fails when the server returns the same pagination cursor twice', async () => {
+    const repeatedCursorServer = createServer(async (request, response) => {
+      const mcpServer = new McpServer(
+        { name: 'cafe-mcp', version: '3.2.1' },
+        { capabilities: { tools: {} } }
+      );
+      mcpServer.setRequestHandler(ListToolsRequestSchema, () => ({
+        tools: [LIST_MENU_TOOL],
+        nextCursor: 'page-2',
+      }));
+      await handleStatelessRequest(mcpServer, request, response);
+    });
+    const repeatedCursorServerUrl = await listenOnFreePort(repeatedCursorServer, '/mcp');
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    try {
+      await expect(
+        runIntrospectMcp({
+          'server-url': repeatedCursorServerUrl,
+          output: join(outputDir, 'openapi.yaml'),
+        })
+      ).rejects.toThrow(
+        'The MCP server returned the same pagination cursor twice, so its list never ends.'
+      );
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+      await new Promise((resolve) => repeatedCursorServer.close(resolve));
+    }
+  });
+
+  it('reports the connection error when the server cannot be reached', async () => {
+    const closedServer = createServer();
+    const closedServerUrl = await listenOnFreePort(closedServer, '/mcp');
+    await new Promise((resolve) => closedServer.close(resolve));
+
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    try {
+      await expect(
+        runIntrospectMcp({ 'server-url': closedServerUrl, output: join(outputDir, 'openapi.yaml') })
+      ).rejects.toThrow(`Failed to connect to the MCP server at ${closedServerUrl}: fetch failed`);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
+  });
+
+  it('introspects a server that supports only the 2026-07-28 protocol, which has no initialize handshake', async () => {
+    // The SDK client drops a tool with an invalid `x-mcp-header` from its own tool list.
+    const invalidHeaderTool = {
+      name: 'orders/list',
+      description: 'List the orders.',
+      inputSchema: {
+        type: 'object' as const,
+        properties: { region: { type: 'string', 'x-mcp-header': 'Bad Region' } },
+      },
+    };
+    const discoverOnlyHandler = createMcpHandler(
+      () => {
+        const mcpServer = new DiscoverMcpServer(
+          { name: 'discover-cafe-mcp', version: '4.0.0' },
+          {
+            capabilities: { tools: {}, prompts: {}, resources: {} },
+            instructions: 'Manage the cafe menu.',
+          }
+        );
+        mcpServer.setRequestHandler('tools/list', (listRequest) =>
+          listRequest.params?.cursor === 'page-2'
+            ? { tools: [LIST_MENU_TOOL, invalidHeaderTool] }
+            : { tools: [CREATE_ORDER_TOOL], nextCursor: 'page-2' }
+        );
+        mcpServer.setRequestHandler('prompts/list', () => ({ prompts: [DAILY_SPECIAL_PROMPT] }));
+        mcpServer.setRequestHandler('resources/list', () => ({ resources: [MENU_RESOURCE] }));
+        return mcpServer;
+      },
+      // Reject the `initialize` handshake of the earlier protocol versions.
+      { legacy: 'reject' }
+    );
+    // The handler takes a web Request, so the node:http request is converted to one.
+    const discoverOnlyServer = createServer(async (request, response) => {
+      const handlerResponse = await discoverOnlyHandler.fetch(
+        new Request(`http://${request.headers.host}${request.url}`, {
+          method: request.method,
+          headers: request.headers as Record<string, string>,
+          body: request.method === 'POST' ? await text(request) : undefined,
+        })
+      );
+      response.writeHead(handlerResponse.status, Object.fromEntries(handlerResponse.headers));
+      response.end(Buffer.from(await handlerResponse.arrayBuffer()));
+    });
+    const discoverOnlyServerUrl = await listenOnFreePort(discoverOnlyServer, '/mcp');
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    const outputFile = join(outputDir, 'openapi.yaml');
+    try {
+      await runIntrospectMcp({ 'server-url': discoverOnlyServerUrl, output: outputFile });
+
+      const document = parseYaml(readFileSync(outputFile, 'utf-8')) as Record<string, any>;
+      expect(document.info).toEqual({
+        title: 'discover-cafe-mcp',
+        description: 'Manage the cafe menu.',
+        version: '4.0.0',
+      });
+      expect(document['x-mcp'].protocolVersion).toEqual('2026-07-28');
+      expect(introspectMcpTelemetry.introspect_mcp_protocol_version).toEqual('2026-07-28');
+      expect(document['x-mcp'].tools).toEqual([
+        CREATE_ORDER_TOOL,
+        LIST_MENU_TOOL,
+        invalidHeaderTool,
+      ]);
+      expect(document['x-mcp'].prompts).toEqual([DAILY_SPECIAL_PROMPT]);
+      expect(document['x-mcp'].resources).toEqual([MENU_RESOURCE]);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+      await new Promise((resolve) => discoverOnlyServer.close(resolve));
     }
   });
 });

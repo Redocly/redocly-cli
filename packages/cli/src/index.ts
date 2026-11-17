@@ -41,6 +41,7 @@ import { handleSkills, SKILLS_AGENTS, type SkillsArgv } from './commands/skills.
 import { outputExtensions } from './types.js';
 import { cacheLatestVersion, notify } from './utils/notifier.js';
 import { version } from './utils/package.js';
+import { setOptionAliases } from './utils/telemetry.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { commandWrapper } from './wrapper.js';
@@ -49,9 +50,11 @@ dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
 cacheLatestVersion();
 
+const cli = yargs(hideBin(process.argv));
+
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-yargs(hideBin(process.argv))
+cli
   .scriptName('redocly')
   .version(false)
   .option('version', { type: 'boolean', description: 'Show version number.', global: false })
@@ -184,6 +187,12 @@ yargs(hideBin(process.argv))
           },
           'skip-rule': {
             description: 'Ignore certain rules.',
+            array: true,
+            type: 'string',
+          },
+          extends: {
+            description: 'Override extends configurations (defaults or config file settings).',
+            requiresArg: true,
             array: true,
             type: 'string',
           },
@@ -1749,4 +1758,9 @@ yargs(hideBin(process.argv))
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
   .middleware([notify])
+  .middleware(() => {
+    if (cli.parsed) {
+      setOptionAliases(cli.parsed.aliases);
+    }
+  })
   .strict().argv;
