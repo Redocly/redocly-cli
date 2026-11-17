@@ -1,5 +1,6 @@
 import { CloudEvents, type EventPayload, type EventType } from '@redocly/cli-otel';
 import {
+  ConfigTypes,
   getMajorSpecVersion,
   isAbsoluteUrl,
   isPlainObject,
@@ -14,7 +15,7 @@ import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import * as os from 'node:os';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
@@ -27,7 +28,7 @@ import type {
   GenerateClientTelemetry,
 } from './client-generator-telemetry.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
-import type { ExitCode } from './miscellaneous.js';
+import { getConfigDirectory, type ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
 
@@ -110,6 +111,7 @@ export async function sendTelemetry({
     }
 
     const majorSpecVersion = getMajorSpecVersion(spec_version as SpecVersion);
+    const apiArguments = args.apis ?? (args.api === undefined ? [] : [args.api]);
     const eventData: EventPayload<EventType> = [
       {
         id: command,
@@ -127,6 +129,7 @@ export async function sendTelemetry({
         environment_ci: process.env.CI,
         environment: process.env.REDOCLY_ENVIRONMENT,
         has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
+        ...describeApiArguments(config, apiArguments),
         spec_version,
         spec_keyword,
         spec_full_version,
@@ -178,6 +181,11 @@ export async function sendTelemetry({
         eject_generator_to_version: eject_generator?.eject_generator_to_version,
         // bundle usage (a count only — never overlay paths or contents).
         bundle_overlays_count: bundle?.bundle_overlays_count,
+        // FIXME: remove this line with `getBundleOutputOverridesCliFlag`.
+        bundle_output_overrides_cli_flag:
+          command === 'bundle' && args.output
+            ? getBundleOutputOverridesCliFlag(config, apiArguments)
+            : undefined,
         // introspect-mcp usage (the protocol version only — never the server URL or command).
         introspect_mcp_protocol_version: introspect_mcp?.introspect_mcp_protocol_version,
       },
@@ -203,6 +211,52 @@ export async function sendTelemetry({
   } catch (err) {
     // Do nothing.
   }
+}
+
+// Compares the API arguments of the command line with the `apis` of the configuration file.
+// The result holds counts and option names of the configuration schema, and no path or alias.
+function describeApiArguments(config: Config | undefined, apiArguments: string[]) {
+  const writtenConfig = config?.document?.parsed;
+  if (config === undefined || !isPlainObject(writtenConfig)) {
+    return {};
+  }
+  // The resolved APIs carry the defaults, so the settings come from the file as written.
+  const writtenApis = isPlainObject(writtenConfig.apis) ? writtenConfig.apis : {};
+  const apis = config.resolvedConfig.apis ?? {};
+  const configDir = getConfigDirectory(config);
+  const aliasesOfPaths = apiArguments
+    .filter((apiArgument) => apis[apiArgument] === undefined)
+    .map((path) =>
+      Object.keys(apis).filter((alias) => resolve(configDir, apis[alias].root) === resolve(path))
+    );
+  // A command applies the settings of the first alias whose `root` is the path.
+  const appliedApis = aliasesOfPaths
+    .flatMap(([firstAlias]) => firstAlias ?? [])
+    .map((alias) => writtenApis[alias])
+    .filter(isPlainObject);
+  return {
+    apis_count: Object.keys(apis).length,
+    api_path_alias_count: aliasesOfPaths.length
+      ? Math.max(...aliasesOfPaths.map((aliases) => aliases.length))
+      : undefined,
+    api_path_alias_settings: appliedApis.length
+      ? JSON.stringify(
+          Object.keys(ConfigTypes.ConfigApisProperties.properties).filter(
+            (setting) => setting !== 'root' && appliedApis.some((api) => setting in api)
+          )
+        )
+      : undefined,
+  };
+}
+
+// FIXME: remove this function when `--output` wins over the `output` of an API in the `bundle` command.
+// Until then, the `output` of an API overrides `--output`, and this field shows how many runs the change affects.
+function getBundleOutputOverridesCliFlag(
+  config: Config | undefined,
+  apiArguments: string[]
+): 'yes' | undefined {
+  const apis = config?.resolvedConfig.apis ?? {};
+  return apiArguments.some((alias) => apis[alias]?.output) ? 'yes' : undefined;
 }
 
 export function collectSourceDescriptionTypes(
