@@ -178,7 +178,7 @@ export function isNamedType(t: NormalizedPropType): t is NormalizedNodeType {
   return typeof t?.name === 'string';
 }
 
-function isUriReference(prop: NormalizedPropType | NormalizedResolveTypeFn) {
+export function isUriReference(prop: NormalizedPropType | NormalizedResolveTypeFn) {
   if (typeof prop === 'function' || !prop || isNamedType(prop)) {
     return false;
   }

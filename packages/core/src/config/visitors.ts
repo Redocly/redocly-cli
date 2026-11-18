@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import * as url from 'node:url';
 
 import { isAbsoluteUrl, isFileUrl, replaceRef } from '../ref-utils.js';
+import { isUriReference } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -127,8 +128,7 @@ function resolveUriReferenceValue(
   ctx: UserContext,
   resolved: ResolveResult<any>
 ): ResolveResult<any> {
-  const schema = ctx.type.scalar;
-  if (!resolved.location || (schema?.format ?? schema?.items?.format) !== 'uri-reference') {
+  if (!resolved.location || !isUriReference(ctx.type.scalar)) {
     return resolved;
   }
   const sourceDir = getReferencedLocalDir(resolved.location.source.absoluteRef, ctx);
