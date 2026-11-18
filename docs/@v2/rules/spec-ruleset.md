@@ -38,6 +38,7 @@ All the rules are of severity `error`:
 - [spec-action-mutually-exclusive-fields](./arazzo/spec-action-mutually-exclusive-fields.md)
 - [spec-querystring-parameters (Arazzo)](./arazzo/spec-querystring-parameters.md)
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md)
+- [spec-step-operationId-resolved](./arazzo/spec-step-operationId-resolved.md)
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
 - [stepId-unique](./arazzo/stepId-unique.md)
