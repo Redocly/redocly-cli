@@ -32,6 +32,7 @@ All the rules are of severity `error`:
 - [spec-example-values](./oas/spec-example-values.md)
 - [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
+- [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md)
 - [spec-ref-siblings](./oas/spec-ref-siblings.md)
 - [spec-strict-refs](./oas/spec-strict-refs.md)
 - [spec-querystring-parameters (Arazzo)](./arazzo/spec-querystring-parameters.md)

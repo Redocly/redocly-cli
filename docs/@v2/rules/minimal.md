@@ -44,6 +44,7 @@ Warnings:
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
 - [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
+- [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md)
 - [tag-description](./oas/tag-description.md)
 
 A copy-pastable version of this ruleset is available as a [ruleset template](./ruleset-templates.md).
