@@ -12,7 +12,7 @@ The Arazzo specification defines the `operationId` of a step as the name of an e
 A step that names an operation that does not exist cannot be executed.
 A typo in the `operationId`, or an operation renamed in the API description, otherwise stays unnoticed until the workflow runs.
 
-This rule loads each source description with the `openapi` type and reads the `operationId` of the operations under its `paths`.
+The `spec-step-operationId-resolved` rule loads each source description with the `openapi` type and reads the `operationId` of the operations under its `paths`.
 It reports a step when:
 
 - The `operationId` is not defined in any of the source descriptions.
@@ -22,13 +22,14 @@ It reports a step when:
 The rule also accepts the `<name>.<operationId>` short form that Respect supports in addition to the specification.
 
 The rule does not report a step when it cannot read the operations it has to check:
-a source description file that cannot be loaded, or a source description with the `asyncapi` type.
+- A source description file that cannot be loaded.
+- A source description with the `asyncapi` type.
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                 |
+| -------- | ------ | ------------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `error` (in `recommended` configuration). |
 
 An example configuration:
 
