@@ -27,7 +27,7 @@ describe('Arazzo spec-step-workflowId-defined', () => {
               - stepId: order
                 workflowId: submit-order
               - stepId: pay
-                workflowId: $sourceDescriptions.payments.pay-for-order
+                workflowId: $sourceDescriptions.payments
               - stepId: review
                 workflowId: $sourceDescriptions.cafe-api.review-order
       `,
@@ -66,7 +66,7 @@ describe('Arazzo spec-step-workflowId-defined', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The source description \`payments\` is not defined in \`sourceDescriptions\`.",
+          "message": "The reference \`$sourceDescriptions.payments\` must have the form \`$sourceDescriptions.<name>.<workflowId>\`.",
           "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-step-workflowid-defined",
           "ruleId": "spec-step-workflowId-defined",
           "severity": "error",

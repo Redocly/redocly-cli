@@ -1,14 +1,15 @@
 import type { Arazzo1Rule } from '../../visitors.js';
-import type { UserContext } from '../../walk.js';
 
 export const SpecStepWorkflowIdDefined: Arazzo1Rule = () => {
   const workflowIds = new Set<string>();
-  const sourceDescriptionTypes = new Map<string, string>();
+  const nonArazzoSourceNames = new Set<string>();
 
   return {
     SourceDescriptions(sourceDescriptions) {
       for (const sourceDescription of sourceDescriptions) {
-        sourceDescriptionTypes.set(sourceDescription?.name, sourceDescription?.type);
+        if (sourceDescription?.type !== 'arazzo') {
+          nonArazzoSourceNames.add(sourceDescription?.name);
+        }
       }
     },
     Workflows(workflows) {
@@ -16,7 +17,7 @@ export const SpecStepWorkflowIdDefined: Arazzo1Rule = () => {
         workflowIds.add(workflow?.workflowId);
       }
     },
-    Step(step, { report, location }: UserContext) {
+    Step(step, { report, location }) {
       const stepWorkflowId = step.workflowId;
       if (typeof stepWorkflowId !== 'string') return;
 
@@ -29,13 +30,14 @@ export const SpecStepWorkflowIdDefined: Arazzo1Rule = () => {
 
       // A workflow of another Arazzo document: $sourceDescriptions.<name>.<workflowId>
       if (stepWorkflowId.startsWith('$sourceDescriptions.')) {
-        const sourceName = stepWorkflowId.split('.')[1];
+        const [, sourceName, workflowId] = stepWorkflowId.split('.');
 
-        if (!sourceDescriptionTypes.has(sourceName)) {
+        if (!sourceName || !workflowId) {
           reportUndefined(
-            `The source description \`${sourceName}\` is not defined in \`sourceDescriptions\`.`
+            `The reference \`${stepWorkflowId}\` must have the form \`$sourceDescriptions.<name>.<workflowId>\`.`
           );
-        } else if (sourceDescriptionTypes.get(sourceName) !== 'arazzo') {
+        } else if (nonArazzoSourceNames.has(sourceName)) {
+          // The `spec-sourceDescriptions-defined` rule reports a source description that is not defined.
           reportUndefined(
             `The source description \`${sourceName}\` must have the \`arazzo\` type to contain workflows.`
           );

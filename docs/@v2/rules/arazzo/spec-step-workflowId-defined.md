@@ -15,8 +15,9 @@ A tool cannot run a step that points to a missing workflow.
 The `spec-step-workflowId-defined` rule checks both forms of the field:
 
 - A plain `workflowId` must match a workflow in the `workflows` list of the same document.
-- A `$sourceDescriptions.<name>.<workflowId>` expression must name a source description that is defined in `sourceDescriptions` and has the `arazzo` type.
+- A reference to a workflow of another Arazzo document must have the form `$sourceDescriptions.<name>.<workflowId>`, and the source description it names must have the `arazzo` type.
 
+The [spec-sourceDescriptions-defined](./spec-sourceDescriptions-defined.md) rule reports a reference to a source description that is not defined.
 The rule does not open the other Arazzo document, so it does not check that the workflow exists there.
 
 ## Configuration
@@ -80,6 +81,7 @@ workflows:
 
 ## Related rules
 
+- [spec-sourceDescriptions-defined](./spec-sourceDescriptions-defined.md)
 - [spec-step-mutually-exclusive-fields](./spec-step-mutually-exclusive-fields.md)
 - [workflowId-unique](./workflowId-unique.md)
 - [workflow-dependsOn](./workflow-dependsOn.md)
