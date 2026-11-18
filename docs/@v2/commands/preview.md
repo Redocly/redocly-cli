@@ -4,8 +4,8 @@
 
 The `preview` command starts a local preview server for a Redocly project with the `@redocly/framework` package.
 A project whose `package.json` lists a legacy product package, such as `@redocly/realm`, previews with that package instead.
-Redocly CLI installed from npm runs the package with npx.
-The [standalone binary](../installation.md#download-a-standalone-binary) runs it on its built-in runtime, so it needs no Node.js.
+Redocly CLI installed from npm runs the package with `npx`.
+The [standalone binary](../installation.md#download-a-standalone-binary) runs it on its built-in runtime, so it doesn't need Node.js.
 Use the preview server to develop your project locally before deployment.
 
 ## Usage
@@ -38,7 +38,7 @@ redocly preview --plan=pro
 
 ### Specify project directory
 
-By default, the preview command uses the current directory.
+By default, the `preview` command uses the current directory.
 To specify another directory, provide a path relative to the current directory using the `--project-dir` option:
 
 ```bash
@@ -72,7 +72,13 @@ Clear the npx cache:
 npm cache clean --force
 ```
 
-After clearing the cache, try running the preview command again.
+An **Internal Server Error** page when running the `preview` command is often caused by a corrupted or outdated `npx` cache.
+The `preview` command uses `npx` internally to launch `@redocly/framework`, and a cached package can sometimes cause issues.
+
+#### Clear the `npx` cache
+
+Clear the `npx` cache:
+
 
 #### Install Redocly CLI globally
 
