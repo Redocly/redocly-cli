@@ -1,4 +1,4 @@
-import { fetchRemoteScorecardAndPlugins } from '../fetch-scorecard.js';
+import { fetchRemoteScorecardAndPlugins, RemoteScorecardError } from '../fetch-scorecard.js';
 
 describe('fetchRemoteScorecardAndPlugins', () => {
   const mockFetch = vi.fn();
@@ -255,5 +255,30 @@ describe('fetchRemoteScorecardAndPlugins', () => {
         headers: { Authorization: `Bearer ${apiKey}` },
       })
     );
+  });
+
+  it.each([
+    ['forbidden', { status: 403 }],
+    ['not-found', { status: 404 }],
+    ['unreachable', { status: 503 }],
+    ['not-configured', { status: 200, json: async () => ({ id: 'project-123', config: {} }) }],
+  ])('should report the %s reason', async (reason, response) => {
+    mockFetch.mockResolvedValueOnce(response);
+
+    const error = await fetchRemoteScorecardAndPlugins({
+      projectUrl: validProjectUrl,
+      auth: testToken,
+    }).catch((error) => error);
+
+    expect(error).toBeInstanceOf(RemoteScorecardError);
+    expect(error.reason).toBe(reason);
+  });
+
+  it('should report a network error as unreachable', async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken })
+    ).rejects.toMatchObject({ reason: 'unreachable', message: 'fetch failed' });
   });
 });

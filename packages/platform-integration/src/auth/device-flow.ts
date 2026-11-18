@@ -1,6 +1,6 @@
 import * as childProcess from 'node:child_process';
 
-import { PlatformApiClient } from '../api/api-client.js';
+import { PlatformApiClient, PlatformApiError } from '../api/api-client.js';
 import { DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 
 export type Credentials = {
@@ -30,7 +30,8 @@ export class RedoclyOAuthDeviceFlow {
   }
 
   // `onDeviceCode` gets the URL and code to show the user before the browser opens and polling starts.
-  async run(onDeviceCode?: (code: DeviceCode) => void) {
+  // `openBrowser` replaces the default browser launcher, for example in an editor extension.
+  async run(onDeviceCode?: (code: DeviceCode) => void, openBrowser?: (url: string) => void) {
     const code = await this.getDeviceCode();
 
     onDeviceCode?.({
@@ -39,7 +40,7 @@ export class RedoclyOAuthDeviceFlow {
       userCode: code.userCode,
     });
 
-    this.openBrowser(code.verificationUriComplete);
+    this.openBrowser(code.verificationUriComplete, openBrowser);
 
     const accessToken = await this.pollingAccessToken(
       code.deviceCode,
@@ -50,36 +51,34 @@ export class RedoclyOAuthDeviceFlow {
     return this.withResidency(accessToken);
   }
 
-  private openBrowser(url: string) {
+  private openBrowser(url: string, open: (url: string) => void = spawnBrowser) {
+    // The residency URL is configurable, so the response is untrusted: open only http(s) URLs.
     if (!/^https?:\/\//.test(url)) {
       return;
     }
 
-    // The residency URL is configurable, so the response is untrusted: pass the URL as an argument, never through a shell.
-    const [command, args] =
-      process.platform === 'win32'
-        ? ['rundll32', ['url.dll,FileProtocolHandler', url]]
-        : process.platform === 'darwin'
-          ? ['open', [url]]
-          : ['xdg-open', [url]];
-
-    childProcess
-      .spawn(command, args, { stdio: 'ignore', detached: true })
-      .on('error', () => {
-        // silently fail if browser cannot be opened
-      })
-      .unref();
+    open(url);
   }
 
-  async verifyToken(accessToken: string): Promise<boolean> {
+  // `expired` only when the platform answers 401: any other failure is `unreachable`.
+  async verifyToken(accessToken: string): Promise<'valid' | 'expired' | 'unreachable'> {
     try {
-      const response = await this.sendRequest('/session', 'GET', undefined, {
+      const response = await this.fetchApi('/session', 'GET', undefined, {
         Cookie: `accessToken=${accessToken};`,
       });
 
-      return !!response.user;
+      if (response.status === 401) {
+        return 'expired';
+      }
+
+      if (!response.ok) {
+        return 'unreachable';
+      }
+
+      const session = await response.json();
+      return session.user ? 'valid' : 'expired';
     } catch {
-      return false;
+      return 'unreachable';
     }
   }
 
@@ -94,12 +93,19 @@ export class RedoclyOAuthDeviceFlow {
     }
   }
 
+  // Throws `PlatformApiError` with the HTTP status when the platform rejects the refresh token.
   async refreshToken(refreshToken?: string) {
-    const response = await this.sendRequest(`/device-rotate-token`, 'POST', {
+    const httpResponse = await this.fetchApi(`/device-rotate-token`, 'POST', {
       grant_type: 'refresh_token',
       client_name: this.clientName,
       refresh_token: refreshToken,
     });
+
+    if (!httpResponse.ok) {
+      throw new PlatformApiError('Failed to refresh token', httpResponse.status);
+    }
+
+    const response = await httpResponse.json();
 
     if (!response.access_token) {
       throw new Error('Failed to refresh token');
@@ -176,17 +182,25 @@ export class RedoclyOAuthDeviceFlow {
     body: Record<string, unknown> | undefined = undefined,
     headers: Record<string, string> = {}
   ) {
-    const url = `${this.baseUrl}/api${path}`;
-    const response = await this.apiClient.request(url, {
+    const response = await this.fetchApi(path, method, body, headers);
+    if (response.status === 204) {
+      return { success: true };
+    }
+    return await response.json();
+  }
+
+  private fetchApi(
+    path: string,
+    method: string,
+    body: Record<string, unknown> | undefined,
+    headers: Record<string, string> = {}
+  ): Promise<Response> {
+    return this.apiClient.request(`${this.baseUrl}/api${path}`, {
       body: body ? JSON.stringify(body) : body,
       method,
       headers: { 'Content-Type': 'application/json', ...headers },
       timeout: DEFAULT_FETCH_TIMEOUT,
     });
-    if (response.status === 204) {
-      return { success: true };
-    }
-    return await response.json();
   }
 
   private withResidency(credentials: Credentials): Credentials {
@@ -195,4 +209,21 @@ export class RedoclyOAuthDeviceFlow {
       residency: this.baseUrl,
     };
   }
+}
+
+// Passes the URL as an argument, never through a shell.
+function spawnBrowser(url: string) {
+  const [command, args] =
+    process.platform === 'win32'
+      ? ['rundll32', ['url.dll,FileProtocolHandler', url]]
+      : process.platform === 'darwin'
+        ? ['open', [url]]
+        : ['xdg-open', [url]];
+
+  childProcess
+    .spawn(command, args, { stdio: 'ignore', detached: true })
+    .on('error', () => {
+      // silently fail if browser cannot be opened
+    })
+    .unref();
 }
