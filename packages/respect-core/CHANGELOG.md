@@ -1,5 +1,25 @@
 # @redocly/respect-core
 
+## 2.80.0
+
+### Minor Changes
+
+- Added the `spec-action-mutually-exclusive-fields` rule for Arazzo descriptions.
+  The rule reports a success or failure action that uses both `stepId` and `workflowId`.
+- Added the `spec-outputs-invalid-map-name` rule for Arazzo descriptions.
+  The rule reports a workflow or step output name that does not match the regular expression `^[a-zA-Z0-9\.\-_]+$`, as the Arazzo specification requires.
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule didn't report an empty `successCriteria` list of an Arazzo step or an empty `criteria` list of a success action.
+- Fixed an issue where the `struct` rule didn't report an Arazzo workflow with an empty `steps` list.
+- Fixed an issue where the `struct` rule didn't report an Arazzo description with an empty `workflows` list.
+- Fixed an issue where Respect left the runs of the workflows from a `dependsOn` list out of the results.
+- Fixed an issue where `respect` reported `unexpected error` instead of `global timeout error` for a workflow when the execution timeout stopped a workflow from its `dependsOn` list.
+- Fixed an issue where `respect` reported a valid decimal value, such as `98.8` for `multipleOf: 0.1`, in a response or in workflow inputs.
+- Fixed an issue where `respect` counted steps that sent no request, such as the steps skipped after the execution timeout, in `totalRequests` of the JSON output.
+- Updated @redocly/openapi-core to v2.80.0.
+
 ## 2.79.0
 
 ### Minor Changes
