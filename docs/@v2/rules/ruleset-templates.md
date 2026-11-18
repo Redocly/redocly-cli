@@ -163,6 +163,7 @@ rules:
   no-enum-type-mismatch: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  spec-action-mutually-exclusive-fields: warn
   spec-outputs-invalid-map-name: warn
   spec-querystring-parameters: warn
   spec-step-mutually-exclusive-fields: warn
@@ -394,6 +395,7 @@ rules:
   sourceDescription-name-unique: error
   sourceDescription-type: error
   sourceDescriptions-not-empty: error
+  spec-action-mutually-exclusive-fields: error
   spec-outputs-invalid-map-name: error
   spec-querystring-parameters: error
   spec-step-mutually-exclusive-fields: error

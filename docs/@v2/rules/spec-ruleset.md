@@ -35,6 +35,7 @@ All the rules are of severity `error`:
 - [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md)
 - [spec-ref-siblings](./oas/spec-ref-siblings.md)
 - [spec-strict-refs](./oas/spec-strict-refs.md)
+- [spec-action-mutually-exclusive-fields](./arazzo/spec-action-mutually-exclusive-fields.md)
 - [spec-querystring-parameters (Arazzo)](./arazzo/spec-querystring-parameters.md)
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md)
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
