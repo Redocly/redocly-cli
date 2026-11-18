@@ -36,13 +36,20 @@ export function expectTscPasses(args: string[], cwd: string = repoRoot): void {
   expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
 }
 
-/** Write the shared strict tsconfig into `dir`, checking only the `include` files. */
-export function writeStrictTsconfig(dir: string, include: string[] = ['**/*.ts']): void {
-  writeFileSync(
-    join(dir, 'tsconfig.json'),
-    JSON.stringify({ ...STRICT_TSCONFIG, include }),
-    'utf-8'
-  );
+/**
+ * Write the shared strict tsconfig into `dir`, checking only the `include` files.
+ * `compilerOptions` overrides single options, for example `lib`.
+ */
+export function writeStrictTsconfig(
+  dir: string,
+  include: string[] = ['**/*.ts'],
+  compilerOptions: Record<string, unknown> = {}
+): void {
+  const tsconfig = {
+    compilerOptions: { ...STRICT_TSCONFIG.compilerOptions, ...compilerOptions },
+    include,
+  };
+  writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(tsconfig), 'utf-8');
 }
 
 /** Write the shared strict tsconfig into `dir` and assert that it type-checks. */
