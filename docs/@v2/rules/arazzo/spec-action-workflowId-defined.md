@@ -23,6 +23,7 @@ It checks an action from `components` once, where the action is defined.
 The rule does not check the `workflowId` of an action with the `end` type, because the field is not relevant there.
 The rule does not open the other Arazzo document, so it does not check that the workflow exists there.
 The [spec-sourceDescriptions-defined](./spec-sourceDescriptions-defined.md) rule reports a source description name that is not defined.
+The [sourceDescription-type](./sourceDescription-type.md) rule reports a source description without a `type`.
 
 ## Configuration
 

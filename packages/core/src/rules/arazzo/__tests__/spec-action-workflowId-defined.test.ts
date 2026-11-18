@@ -83,7 +83,7 @@ describe('Arazzo spec-action-workflowId-defined', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`workflowId\` \`$sourceDescriptions.payments\` must have the \`$sourceDescriptions.<name>.<workflowId>\` form.",
+          "message": "The reference \`$sourceDescriptions.payments\` must have the form \`$sourceDescriptions.<name>.<workflowId>\`.",
           "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-action-workflowid-defined",
           "ruleId": "spec-action-workflowId-defined",
           "severity": "error",
@@ -135,12 +135,18 @@ describe('Arazzo spec-action-workflowId-defined', () => {
           - name: payments
             type: arazzo
             url: payments.arazzo.yaml
+          - name: loyalty
+            url: loyalty.arazzo.yaml
         workflows:
           - workflowId: place-order
             successActions:
               - name: continue-to-payment
                 type: goto
                 workflowId: $sourceDescriptions.payments.pay-for-order
+              # The sourceDescription-type rule reports a source description without a type.
+              - name: add-loyalty-points
+                type: goto
+                workflowId: $sourceDescriptions.loyalty.add-points
             steps:
               - stepId: create-order
                 operationId: cafe-api.createOrder
