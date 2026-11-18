@@ -12,7 +12,7 @@ A step points to an operation or a workflow of a source description with a runti
 The Arazzo specification requires the referenced operation or workflow to exist in one of the `sourceDescriptions`.
 A reference with a name that is not in the `sourceDescriptions` list cannot be resolved, so the step cannot run.
 
-This rule reports such a reference in the following fields:
+The `spec-sourceDescriptions-defined` rule reports such a reference in the following fields:
 
 - `operationPath` and `workflowId` of a step.
 - `workflowId` of a success or a failure action.
@@ -25,9 +25,9 @@ The [workflow-dependsOn](./workflow-dependsOn.md) rule checks the references in 
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                 |
+| -------- | ------ | ------------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `error` (in `recommended` configuration). |
 
 An example configuration:
 
