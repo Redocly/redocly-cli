@@ -84,11 +84,15 @@ export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint 
     : {
         path: aliasOrPath,
         // find alias by path, take the first match
-        alias:
-          Object.entries(config.resolvedConfig.apis || {}).find(([_alias, api]) => {
-            return resolve(configDir, api.root) === resolve(aliasOrPath);
-          })?.[0] ?? undefined,
+        alias: findAliasesByRoot(config, aliasOrPath)[0],
       };
+}
+
+export function findAliasesByRoot(config: Config, path: string): string[] {
+  const configDir = getConfigDirectory(config);
+  return Object.entries(config.resolvedConfig.apis || {})
+    .filter(([_alias, api]) => resolve(configDir, api.root) === resolve(path))
+    .map(([alias]) => alias);
 }
 
 async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
