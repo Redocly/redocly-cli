@@ -21,9 +21,9 @@ The rule does not open the other Arazzo document, so it does not check that the 
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                 |
+| -------- | ------ | ------------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `error` (in `recommended` configuration). |
 
 An example configuration:
 
