@@ -40,6 +40,7 @@ Errors:
 - [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md)
 - [spec-querystring-parameters (Arazzo)](./arazzo/spec-querystring-parameters.md)
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md)
+- [spec-step-operationId-resolved](./arazzo/spec-step-operationId-resolved.md)
 - [stepId-unique](./arazzo/stepId-unique.md)
 - [struct](./common/struct.md)
 - [workflow-dependsOn](./arazzo/workflow-dependsOn.md)

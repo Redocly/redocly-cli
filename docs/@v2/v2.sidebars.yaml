@@ -207,6 +207,7 @@
             - page: rules/arazzo/spec-outputs-invalid-map-name.md
             - page: rules/arazzo/spec-querystring-parameters.md
             - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
+            - page: rules/arazzo/spec-step-operationId-resolved.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
             - page: rules/arazzo/step-onSuccess-unique.md
