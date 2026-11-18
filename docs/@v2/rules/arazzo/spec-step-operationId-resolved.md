@@ -16,6 +16,8 @@ The `spec-step-operationId-resolved` rule loads each source description with the
 It reports a step when:
 
 - The `operationId` is not defined in any of the source descriptions.
+- The `operationId` is defined in more than one source description.
+  Use the `$sourceDescriptions.<name>.<operationId>` form to pick one.
 - The `operationId` uses the `$sourceDescriptions.<name>.<operationId>` form, and the source description `<name>` does not define the operation.
 - The `operationId` uses the `$sourceDescriptions.<name>.<operationId>` form, and `<name>` is not in the `sourceDescriptions` list.
 

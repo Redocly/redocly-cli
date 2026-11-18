@@ -97,6 +97,57 @@ describe('Arazzo spec-step-operationId-resolved', () => {
     `);
   });
 
+  it('reports a plain operationId that several source descriptions define', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe-split/cafe.yaml
+          - name: cafe-bundled-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: list-menu-items
+                operationId: listMenuItems
+              - stepId: list-menu-items-from-one-source
+                operationId: $sourceDescriptions.cafe-api.listMenuItems
+      `,
+      path.join(resourcesDir, 'arazzo.yaml')
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-step-operationId-resolved': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results, resourcesDir)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/operationId",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The operation \`listMenuItems\` is defined in several source descriptions: cafe-api, cafe-bundled-api. Use \`$sourceDescriptions.<name>.listMenuItems\` to pick one.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-step-operationid-resolved",
+          "ruleId": "spec-step-operationId-resolved",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('does not report when the source description cannot be loaded', async () => {
     const document = parseYamlToDocument(
       outdent`

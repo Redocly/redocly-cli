@@ -1,5 +1,4 @@
 import type { Arazzo1Rule } from '../../visitors.js';
-import type { UserContext } from '../../walk.js';
 
 export const SPEC_STEP_OPERATION_ID_RESOLVED_RULE_ID = 'spec-step-operationId-resolved';
 
@@ -13,7 +12,7 @@ export const SpecStepOperationIdResolved: Arazzo1Rule = () => {
   const operationIdsBySourceName = new Map<string, Set<string> | undefined>();
 
   return {
-    SourceDescriptions(sourceDescriptions, { getVisitorData }: UserContext) {
+    SourceDescriptions(sourceDescriptions, { getVisitorData }) {
       // the visitor data is an untyped store, so its shape is asserted here
       const { operationIdsBySourceUrl } = getVisitorData() as SpecStepOperationIdResolvedData;
 
@@ -32,7 +31,7 @@ export const SpecStepOperationIdResolved: Arazzo1Rule = () => {
         }
       }
     },
-    Step(step, { report, location }: UserContext) {
+    Step(step, { report, location }) {
       const stepOperationId = step.operationId;
       if (typeof stepOperationId !== 'string') return;
 
@@ -60,9 +59,19 @@ export const SpecStepOperationIdResolved: Arazzo1Rule = () => {
         return;
       }
 
-      const isDefinedOrCannotBeChecked = [...operationIdsBySourceName.values()].some(
-        (operationIds) => !operationIds || operationIds.has(stepOperationId)
+      const sourceNamesWithOperation = [...operationIdsBySourceName.keys()].filter((sourceName) =>
+        operationIdsBySourceName.get(sourceName)?.has(stepOperationId)
       );
+      if (sourceNamesWithOperation.length > 1) {
+        reportUnresolved(
+          `The operation \`${stepOperationId}\` is defined in several source descriptions: ${sourceNamesWithOperation.join(', ')}. Use \`$sourceDescriptions.<name>.${stepOperationId}\` to pick one.`
+        );
+        return;
+      }
+
+      const isDefinedOrCannotBeChecked =
+        sourceNamesWithOperation.length === 1 ||
+        [...operationIdsBySourceName.values()].some((operationIds) => !operationIds);
       if (isDefinedOrCannotBeChecked) return;
 
       // Respect also accepts the short form <sourceDescriptionName>.<operationId>
