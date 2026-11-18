@@ -183,6 +183,8 @@ const builtInArazzo1Rules = [
   'stepId-unique',
   'sourceDescription-name-unique',
   'sourceDescriptions-not-empty',
+  'spec-action-mutually-exclusive-fields',
+  'spec-outputs-invalid-map-name',
   'spec-querystring-parameters',
   'spec-step-mutually-exclusive-fields',
   'workflow-dependsOn',

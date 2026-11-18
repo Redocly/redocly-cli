@@ -1,5 +1,12 @@
 # @redocly/client-generator
 
+## 0.10.3
+
+### Patch Changes
+
+- Fixed type errors in the generated TypeScript client when a project's `tsconfig.json` didn't include the `DOM` lib.
+- Updated @redocly/openapi-core to v2.80.0.
+
 ## 0.10.2
 
 ### Patch Changes

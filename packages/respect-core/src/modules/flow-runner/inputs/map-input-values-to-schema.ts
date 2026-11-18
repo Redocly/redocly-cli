@@ -22,6 +22,8 @@ export function resolveInputValuesToSchema(
     coerceTypes: true,
     strictTypes: false,
     strictSchema: false,
+    // Without it, `98.8` fails `multipleOf: 0.1` because of floating point division.
+    multipleOfPrecision: 6,
   });
 
   // Add custom formats

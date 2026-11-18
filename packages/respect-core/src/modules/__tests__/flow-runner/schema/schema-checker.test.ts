@@ -470,6 +470,48 @@ describe('checkSchema', () => {
     });
   });
 
+  describe('decimal multipleOf', () => {
+    const multipleOfDescriptionOperation = {
+      ...descriptionOperation,
+      responses: {
+        '200': {
+          description: 'successful operation',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { percent: { type: 'number', multipleOf: 0.1 } },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const checkPercent = (percent: number) =>
+      checkSchema({
+        stepCallCtx: {
+          ...stepCallCtx,
+          $response: {
+            body: { percent },
+            statusCode: 200,
+            header: new Headers({ 'content-type': 'application/json' }),
+            contentType: 'application/json',
+          },
+        } as unknown as StepCallContext,
+        descriptionOperation: multipleOfDescriptionOperation,
+        ctx,
+      }).find((c) => c.name === CHECKS.SCHEMA_CHECK);
+
+    it('accepts a decimal value that is a multiple of a decimal multipleOf', () => {
+      expect(checkPercent(98.8)?.passed).toBe(true);
+    });
+
+    it('still reports a decimal value that is not a multiple', () => {
+      expect(checkPercent(98.85)?.passed).toBe(false);
+    });
+  });
+
   it('should return empty checks if no response available', () => {
     const stepCtx = {
       $request: {
