@@ -148,6 +148,8 @@ export class SchemaValidator {
       discriminator: true,
       coerceTypes: options?.coerceTypes ? 'array' : false,
       validateFormats: true,
+      // Without it, `98.8` fails `multipleOf: 0.1` because of floating point division.
+      multipleOfPrecision: 6,
       verbose: true,
       formats: {
         // Some specs misuse `format: "enum"` instead of the `enum` keyword.

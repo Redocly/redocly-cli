@@ -94,4 +94,87 @@ describe('Arazzo stepId-unique', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('should leave a malformed `steps` list to the struct rule', async () => {
+    const documentWithMalformedSteps = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Redocly Cafe ordering workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps: {}
+          - workflowId: place-order
+            steps:
+              - null
+          - workflowId: get-order
+            steps:
+              - stepId: get-order
+                operationId: getOrderById
+              - stepId: get-order
+                operationId: getOrderById
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithMalformedSteps,
+      config: await createConfig({
+        rules: { struct: 'error', 'stepId-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Expected type \`Steps\` (array) but got \`object\`",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/1/steps/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Expected type \`Step\` (object) but got \`null\`",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/2/steps/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`stepId\` must be unique amongst all steps described in the workflow.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/stepid-unique",
+          "ruleId": "stepId-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

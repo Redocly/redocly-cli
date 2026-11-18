@@ -8,14 +8,10 @@ properties:
   timeOpen:
     type: string
     pattern: ^([01]\d|2[0-3]):?([0-5]\d)$
-    description: >-
-      Time the museum opens on a specific date. Uses 24 hour time format
-      (`HH:mm`).
+    description: Time the museum opens on a specific date. Uses 24 hour time format (`HH:mm`).
     example: '09:00'
   timeClose:
-    description: >-
-      Time the museum closes on a specific date. Uses 24 hour time format
-      (`HH:mm`).
+    description: Time the museum closes on a specific date. Uses 24 hour time format (`HH:mm`).
     type: string
     pattern: ^([01]\d|2[0-3]):?([0-5]\d)$
     example: '18:00'
