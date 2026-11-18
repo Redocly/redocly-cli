@@ -163,8 +163,8 @@ rules:
   no-enum-type-mismatch: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
-  spec-action-stepId-defined: warn
   spec-action-mutually-exclusive-fields: warn
+  spec-action-stepId-defined: warn
   spec-outputs-invalid-map-name: warn
   spec-querystring-parameters: warn
   spec-sourceDescriptions-defined: warn
@@ -398,8 +398,8 @@ rules:
   sourceDescription-name-unique: error
   sourceDescription-type: error
   sourceDescriptions-not-empty: error
-  spec-action-stepId-defined: error
   spec-action-mutually-exclusive-fields: error
+  spec-action-stepId-defined: error
   spec-outputs-invalid-map-name: error
   spec-querystring-parameters: error
   spec-sourceDescriptions-defined: error

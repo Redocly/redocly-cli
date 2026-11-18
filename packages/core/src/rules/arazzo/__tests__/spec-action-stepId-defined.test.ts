@@ -121,6 +121,93 @@ describe('Arazzo spec-action-stepId-defined', () => {
     `);
   });
 
+  it('should check the steps and the actions behind a $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Redocly Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: list-menu-items
+                operationId: listMenuItems
+                onSuccess:
+                  $ref: '#/x-shared/continue-to-order'
+              - $ref: '#/x-shared/create-order-step'
+          - workflowId: repeat-order
+            steps:
+              - stepId: list-orders
+                operationId: listOrders
+                onSuccess:
+                  $ref: '#/x-shared/continue-to-order'
+                onFailure:
+                  - reference: $components.failureActions.retry-menu
+        components:
+          failureActions:
+            retry-menu:
+              $ref: '#/x-shared/retry-menu'
+        x-shared:
+          continue-to-order:
+            - name: continue-to-order
+              type: goto
+              stepId: create-order
+          create-order-step:
+            stepId: create-order
+            operationId: createOrder
+          retry-menu:
+            name: retry-menu
+            type: retry
+            stepId: list-menu-items
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-action-stepId-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/x-shared/continue-to-order/0/stepId",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`stepId\` "create-order" must reference a step defined in the current workflow.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-action-stepid-defined",
+          "ruleId": "spec-action-stepId-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/1/steps/0/onFailure/0/reference",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`stepId\` "list-menu-items" must reference a step defined in the current workflow.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-action-stepid-defined",
+          "ruleId": "spec-action-stepId-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should not report actions that reference a step of the current workflow', async () => {
     const document = parseYamlToDocument(
       outdent`

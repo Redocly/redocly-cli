@@ -22,9 +22,9 @@ To transfer to a step of another workflow, reference that workflow with the `wor
 
 ## Configuration
 
-| Option   | Type   | Description                                              |
-| -------- | ------ | -------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default: `off`. |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
