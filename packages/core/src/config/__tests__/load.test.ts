@@ -2705,58 +2705,124 @@ describe('loadConfig', () => {
     });
   });
 
-  it('should resolve file paths from referenced config files to absolute paths', async () => {
+  describe('file paths in referenced config files', () => {
     const fixtureDir = path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths');
     const absolute = (relativePath: string) => path.join(fixtureDir, relativePath);
-    const { resolvedConfig } = await loadConfig({
-      configPath: path.join(fixtureDir, 'redocly.yaml'),
+    const loadFilePathsConfig = async () => {
+      const { resolvedConfig } = await loadConfig({
+        configPath: path.join(fixtureDir, 'redocly.yaml'),
+      });
+      return resolvedConfig;
+    };
+
+    it('should keep the paths written in the root config', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.inline).toMatchObject({ root: './openapi.yaml', output: './dist/inline.yaml' });
     });
 
-    expect(resolvedConfig.apis).toMatchObject({
-      inline: { root: './openapi.yaml', output: './dist/inline.yaml' },
-      'one-level': {
+    it('should resolve the paths of a referenced object from the folder of its file', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.['one-level']).toMatchObject({
         root: absolute('nested/openapi.yaml'),
         output: absolute('nested/dist/openapi.yaml'),
         overlays: [absolute('nested/overlays/add-servers.yaml')],
         clientOutput: absolute('nested/client.ts'),
-        client: {
-          setup: absolute('nested/setup.mjs'),
-          cliOutput: absolute('nested/deep/cli/index.ts'),
-        },
-        rules: { 'operation-description': 'error', 'operation-summary': 'warn' },
-      },
-      chained: { root: absolute('nested/deep/openapi.yaml') },
-      reused: {
+      });
+    });
+
+    it('should resolve a path that leaves the folder of the referenced file', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.['parent-dir']).toMatchObject({
+        root: absolute('specs/openapi.yaml'),
+        output: absolute('nested/dist/out.yaml'),
+      });
+    });
+
+    it('should resolve the paths at the end of a $ref chain from the last file', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.chained).toMatchObject({ root: absolute('nested/deep/openapi.yaml') });
+    });
+
+    it('should resolve an object that several $refs point to', async () => {
+      const { apis, openapi } = await loadFilePathsConfig();
+
+      expect(apis?.reused).toMatchObject({
         root: absolute('nested/openapi.yaml'),
         output: absolute('nested/dist/openapi.yaml'),
-      },
-      untouched: {
+      });
+      expect(apis?.['shared-openapi'].openapi).toEqual({
+        htmlTemplate: absolute('nested/template.html'),
+      });
+      expect(openapi).toEqual({ htmlTemplate: absolute('nested/template.html') });
+    });
+
+    it('should keep a field next to a $ref in the root config as written', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.sibling).toMatchObject({
+        root: absolute('nested/openapi.yaml'),
+        output: './dist/sibling.yaml',
+      });
+    });
+
+    it('should resolve a field next to a $ref in a referenced file from that file', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.['one-level'].client).toEqual({
+        setup: absolute('nested/setup.mjs'),
+        cliOutput: absolute('nested/deep/cli/index.ts'),
+      });
+    });
+
+    it('should resolve a $ref on the path option itself from the referenced file', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.['direct-ref']).toMatchObject({ root: absolute('nested/openapi.yaml') });
+      expect(apis?.['list-ref']).toMatchObject({
+        root: './openapi.yaml',
+        overlays: [absolute('nested/overlays/add-servers.yaml')],
+      });
+    });
+
+    it('should keep URLs, absolute paths and empty values', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.untouched).toMatchObject({
         root: 'https://example.com/openapi.yaml',
         output: '/absolute/dist/openapi.yaml',
         clientOutput: '',
-      },
-      'parent-dir': {
-        root: absolute('specs/openapi.yaml'),
-        output: absolute('nested/dist/out.yaml'),
-      },
-      sibling: { root: absolute('nested/openapi.yaml'), output: './dist/sibling.yaml' },
-      // a reused object is resolved once
-      'shared-openapi': { openapi: { htmlTemplate: absolute('nested/template.html') } },
-      // a `$ref` on the field itself
-      'direct-ref': { root: absolute('nested/openapi.yaml') },
-      'list-ref': {
-        root: './openapi.yaml',
-        overlays: [absolute('nested/overlays/add-servers.yaml')],
-      },
+      });
     });
-    expect(resolvedConfig.client).toEqual({
-      setup: absolute('nested/setup.mjs'),
-      cliOutput: absolute('nested/cli/index.ts'),
-      goPackage: './not-a-path',
+
+    it('should resolve only the options that are file paths', async () => {
+      const { client } = await loadFilePathsConfig();
+
+      expect(client).toEqual({
+        setup: absolute('nested/setup.mjs'),
+        cliOutput: absolute('nested/cli/index.ts'),
+        goPackage: './not-a-path',
+      });
     });
-    expect(resolvedConfig).toMatchObject({
-      openapi: { htmlTemplate: absolute('nested/template.html') },
-      recheck: { markdoc: { extend: { tagsFile: absolute('nested/tags.js') } } },
+
+    it('should resolve a path option nested in a referenced section', async () => {
+      const { recheck } = await loadFilePathsConfig();
+
+      expect(recheck).toMatchObject({
+        markdoc: { extend: { tagsFile: absolute('nested/tags.js') } },
+      });
+    });
+
+    it('should resolve extends of a referenced object from the folder of its file', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.['one-level'].rules).toEqual({
+        'operation-description': 'error',
+        'operation-summary': 'warn',
+      });
     });
   });
 
