@@ -140,8 +140,14 @@ export class RedoclyOAuthClient {
         return { status: 'offline' };
       }
 
-      if (error.status === 400) {
-        await this.removeCredentials();
+      // Keep the credentials when a login replaced them while the refresh was in flight.
+      if (
+        error.status === 400 &&
+        (await this.readCredentials())?.refresh_token === credentials.refresh_token
+      ) {
+        await this.removeCredentials().catch(() => {
+          // The session is expired either way.
+        });
       }
 
       return { status: 'session-expired' };

@@ -244,6 +244,36 @@ describe('RedoclyOAuthClient', () => {
       expect(store.delete).toHaveBeenCalled();
     });
 
+    it('keeps the credentials that a login saved while the refresh was in flight', async () => {
+      mockDeviceFlow({
+        verifyToken: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn(async () => {
+          mockDeviceFlow({
+            run: vi.fn().mockResolvedValue({ ...credentials, refresh_token: 'login-refresh' }),
+          });
+          await storeClient.login(mockBaseUrl);
+          throw new PlatformApiError('Failed', 400);
+        }),
+      });
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'session-expired',
+      });
+      expect(store.delete).not.toHaveBeenCalled();
+    });
+
+    it('returns session-expired when the credentials cannot be removed', async () => {
+      mockDeviceFlow({
+        verifyToken: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn().mockRejectedValue(new PlatformApiError('Failed', 400)),
+      });
+      vi.mocked(store.delete).mockRejectedValue(new Error('EACCES: permission denied'));
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'session-expired',
+      });
+    });
+
     it('keeps the credentials when the refresh fails with 5xx', async () => {
       mockDeviceFlow({
         verifyToken: vi.fn().mockResolvedValue('expired'),
