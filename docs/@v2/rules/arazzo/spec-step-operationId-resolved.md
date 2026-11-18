@@ -22,6 +22,7 @@ It reports a step when:
 The rule also accepts the `<name>.<operationId>` short form that Respect supports in addition to the specification.
 
 The rule does not report a step when it cannot read the operations it has to check:
+
 - A source description file that cannot be loaded.
 - A source description with the `asyncapi` type.
 

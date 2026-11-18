@@ -1,7 +1,12 @@
-import { isRef } from '../../ref-utils.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Arazzo1Rule } from '../../visitors.js';
-import type { NonUndefined, ResolveFn, UserContext } from '../../walk.js';
+import type { UserContext } from '../../walk.js';
+
+export const SPEC_STEP_OPERATION_ID_RESOLVED_RULE_ID = 'spec-step-operationId-resolved';
+
+// `lintDocument` loads the OpenAPI source descriptions and stores their operation ids by `url`
+export type SpecStepOperationIdResolvedData = {
+  operationIdsBySourceUrl?: Map<string, Set<string>>;
+};
 
 export const SpecStepOperationIdResolved: Arazzo1Rule = () => {
   // `undefined` marks a source description whose operations cannot be read
@@ -9,12 +14,17 @@ export const SpecStepOperationIdResolved: Arazzo1Rule = () => {
 
   return {
     SourceDescriptions: {
-      enter(sourceDescriptions, { resolve }: UserContext) {
+      enter(sourceDescriptions, { getVisitorData }: UserContext) {
+        // the visitor data is an untyped store, so its shape is asserted here
+        const { operationIdsBySourceUrl } = getVisitorData() as SpecStepOperationIdResolvedData;
+
         for (const sourceDescription of sourceDescriptions) {
+          if (typeof sourceDescription?.name !== 'string') continue;
+
           if (sourceDescription.type === 'openapi') {
             operationIdsBySourceName.set(
               sourceDescription.name,
-              collectOperationIds(sourceDescription.url, resolve)
+              operationIdsBySourceUrl?.get(sourceDescription.url)
             );
           } else if (sourceDescription.type === 'arazzo') {
             operationIdsBySourceName.set(sourceDescription.name, new Set());
@@ -69,31 +79,3 @@ export const SpecStepOperationIdResolved: Arazzo1Rule = () => {
     },
   };
 };
-
-function collectOperationIds(sourceDescriptionUrl: string, resolve: ResolveFn) {
-  const { node: description, location } = resolve<NonUndefined>({ $ref: sourceDescriptionUrl });
-  if (!location || !isPlainObject(description)) return undefined;
-
-  const operationIds = new Set<string>();
-  const paths = isPlainObject(description.paths) ? description.paths : {};
-
-  for (const pathItemOrRef of Object.values(paths)) {
-    const pathItem = isRef(pathItemOrRef)
-      ? resolve<NonUndefined>(pathItemOrRef, location.source.absoluteRef).node
-      : pathItemOrRef;
-    if (!isPlainObject(pathItem)) continue;
-
-    // `additionalOperations` holds the operations with a custom HTTP method in OpenAPI 3.2
-    const additionalOperations = isPlainObject(pathItem.additionalOperations)
-      ? pathItem.additionalOperations
-      : {};
-
-    for (const operation of [...Object.values(pathItem), ...Object.values(additionalOperations)]) {
-      if (isPlainObject(operation) && typeof operation.operationId === 'string') {
-        operationIds.add(operation.operationId);
-      }
-    }
-  }
-
-  return operationIds;
-}

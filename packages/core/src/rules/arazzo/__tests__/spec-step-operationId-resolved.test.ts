@@ -125,4 +125,34 @@ describe('Arazzo spec-step-operationId-resolved', () => {
 
     expect(results).toEqual([]);
   });
+
+  it('does not load the source descriptions when the rule is off', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe-split/cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: list-menu-items
+                operationId: listMenuItems
+      `,
+      path.join(resourcesDir, 'arazzo.yaml')
+    );
+    const externalRefResolver = new BaseResolver();
+
+    await lintDocument({
+      externalRefResolver,
+      document,
+      config: await createConfig({ rules: { 'spec-step-operationId-resolved': 'off' } }),
+    });
+
+    expect(externalRefResolver.getFiles()).toEqual(new Set());
+  });
 });
