@@ -12,13 +12,13 @@ The Arazzo specification defines `outputs` as a map between a friendly name and 
 The name must use only letters, digits, dots, hyphens, and underscores.
 Other parts of the description refer to an output by its name in a runtime expression, such as `$steps.create-order.outputs.orderId`.
 A name with a space or another character outside the pattern cannot be referenced that way.
-This rule reports each output name of a workflow or a step that does not match the pattern.
+The `spec-outputs-invalid-map-name` rule reports each output name of a workflow or a step that does not match the pattern.
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                 |
+| -------- | ------ | ------------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `error` (in `recommended` configuration). |
 
 An example configuration:
 
