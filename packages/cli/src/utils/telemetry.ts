@@ -15,7 +15,7 @@ import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import * as os from 'node:os';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
@@ -28,7 +28,7 @@ import type {
   GenerateClientTelemetry,
 } from './client-generator-telemetry.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
-import { getConfigDirectory, type ExitCode } from './miscellaneous.js';
+import { findAliasesByRoot, type ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
 
@@ -222,12 +222,9 @@ function describeApiArguments(config: Config | undefined, apiArguments: string[]
   // The resolved APIs carry the defaults, so the settings come from the file as written.
   const writtenApis = isPlainObject(writtenConfig.apis) ? writtenConfig.apis : {};
   const apis = config.resolvedConfig.apis ?? {};
-  const configDir = getConfigDirectory(config);
   const aliasesOfPaths = apiArguments
     .filter((apiArgument) => apis[apiArgument] === undefined)
-    .map((path) =>
-      Object.keys(apis).filter((alias) => resolve(configDir, apis[alias].root) === resolve(path))
-    );
+    .map((path) => findAliasesByRoot(config, path));
   // A command applies the settings of the first alias whose `root` is the path.
   const appliedApis = aliasesOfPaths
     .flatMap(([firstAlias]) => firstAlias ?? [])
@@ -235,6 +232,7 @@ function describeApiArguments(config: Config | undefined, apiArguments: string[]
     .filter(isPlainObject);
   return {
     apis_count: Object.keys(apis).length,
+    // With several paths, the highest count, so a value above 1 means an ambiguous path.
     api_path_alias_count: aliasesOfPaths.length
       ? Math.max(...aliasesOfPaths.map((aliases) => aliases.length))
       : undefined,
@@ -255,7 +253,7 @@ function getBundleOutputOverridesCliFlag(
   apiArguments: string[]
 ): 'yes' | undefined {
   const apis = config?.resolvedConfig.apis ?? {};
-  return apiArguments.some((alias) => apis[alias]?.output) ? 'yes' : undefined;
+  return apiArguments.length === 1 && apis[apiArguments[0]]?.output ? 'yes' : undefined;
 }
 
 export function collectSourceDescriptionTypes(
