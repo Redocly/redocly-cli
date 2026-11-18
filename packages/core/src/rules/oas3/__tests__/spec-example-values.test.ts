@@ -69,7 +69,7 @@ describe('spec-example-values', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The \`value\` and \`dataValue\` fields of an Example Object are mutually exclusive.",
+          "message": "The 'value' and 'dataValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -83,7 +83,7 @@ describe('spec-example-values', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The \`value\` and \`serializedValue\` fields of an Example Object are mutually exclusive.",
+          "message": "The 'value' and 'serializedValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -97,7 +97,7 @@ describe('spec-example-values', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The \`externalValue\` and \`serializedValue\` fields of an Example Object are mutually exclusive.",
+          "message": "The 'externalValue' and 'serializedValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -111,7 +111,7 @@ describe('spec-example-values', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The \`value\` and \`externalValue\` fields of an Example Object are mutually exclusive.",
+          "message": "The 'value' and 'externalValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -121,7 +121,7 @@ describe('spec-example-values', () => {
     `);
   });
 
-  it('should report a falsy value next to externalValue when the deprecated rule name is used', async () => {
+  it('should report a falsy value next to externalValue', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -137,7 +137,7 @@ describe('spec-example-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'no-example-value-and-externalValue': 'error' } }),
+      config: await createConfig({ rules: { 'spec-example-values': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -150,7 +150,7 @@ describe('spec-example-values', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The \`value\` and \`externalValue\` fields of an Example Object are mutually exclusive.",
+          "message": "The 'value' and 'externalValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -158,28 +158,5 @@ describe('spec-example-values', () => {
         },
       ]
     `);
-  });
-
-  it('should not check the OpenAPI 3.2 fields in an OpenAPI 3.1 description', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        openapi: 3.1.0
-        components:
-          examples:
-            some:
-              value: 12
-              dataValue: 12
-              serializedValue: '12'
-      `,
-      'foobar.yaml'
-    );
-
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({ rules: { 'spec-example-values': 'error' } }),
-    });
-
-    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

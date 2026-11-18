@@ -237,7 +237,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'security-scopes-defined': 'off',
     'spec-components-invalid-map-name': 'warn',
     'spec-discriminator-defaultMapping': 'off',
-    'spec-example-values': 'off',
+    'spec-example-values': 'warn',
     'spec-no-invalid-encoding-combinations': 'warn',
     'spec-no-invalid-tag-parents': 'warn',
     'spec-querystring-parameters': 'error',

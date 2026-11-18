@@ -43,6 +43,7 @@ rules:
   path-parameters-defined: warn
   security-defined: warn
   spec-components-invalid-map-name: warn
+  spec-example-values: warn
   spec-no-invalid-encoding-combinations: warn
   spec-no-invalid-tag-parents: warn
   struct: error
