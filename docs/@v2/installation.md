@@ -45,7 +45,7 @@ npx @redocly/cli@latest lint openapi.yaml
 
 ## Download a standalone binary
 
-Starting with version 2.80.0, every Redocly CLI release on the [GitHub releases page](https://github.com/Redocly/redocly-cli/releases) includes standalone binaries for Linux, macOS, and Windows.
+Starting with version 2.81.0, every Redocly CLI release on the [GitHub releases page](https://github.com/Redocly/redocly-cli/releases) includes standalone binaries for Linux, macOS, and Windows.
 A binary doesn't need Node.js or npm.
 The `SHA256SUMS` file in the same release lists the SHA-256 checksum of each binary.
 
@@ -69,7 +69,7 @@ To install a binary on Linux or macOS:
    Replace the version and the file name with the ones you need:
 
    ```bash
-   VERSION=2.80.0
+   VERSION=2.81.0
    FILE=redocly-linux-x64
    curl -fLO "https://github.com/Redocly/redocly-cli/releases/download/%40redocly%2Fcli%40$VERSION/$FILE"
    curl -fLO "https://github.com/Redocly/redocly-cli/releases/download/%40redocly%2Fcli%40$VERSION/SHA256SUMS"

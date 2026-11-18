@@ -61,17 +61,6 @@ This command starts the preview on port 8888, so you can access the docs at `htt
 
 ### Internal Server Error
 
-An **Internal Server Error** page when running the preview command is often caused by a corrupted or outdated npx cache.
-The preview command uses npx internally to launch `@redocly/framework`, and a cached package can sometimes cause issues.
-
-#### Clear the npx cache
-
-Clear the npx cache:
-
-```bash
-npm cache clean --force
-```
-
 An **Internal Server Error** page when running the `preview` command is often caused by a corrupted or outdated `npx` cache.
 The `preview` command uses `npx` internally to launch `@redocly/framework`, and a cached package can sometimes cause issues.
 
@@ -79,6 +68,11 @@ The `preview` command uses `npx` internally to launch `@redocly/framework`, and 
 
 Clear the `npx` cache:
 
+```bash
+npm cache clean --force
+```
+
+After clearing the cache, try running the `preview` command again.
 
 #### Install Redocly CLI globally
 
