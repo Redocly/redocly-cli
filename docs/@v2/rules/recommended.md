@@ -33,6 +33,7 @@ Errors:
 - [sourceDescription-type](./arazzo/sourceDescription-type.md)
 - [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md)
 - [spec-action-mutually-exclusive-fields](./arazzo/spec-action-mutually-exclusive-fields.md)
+- [spec-action-stepId-defined](./arazzo/spec-action-stepId-defined.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
 - [spec-example-values](./oas/spec-example-values.md)
 - [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)

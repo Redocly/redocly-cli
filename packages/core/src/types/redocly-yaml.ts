@@ -184,6 +184,7 @@ const builtInArazzo1Rules = [
   'sourceDescription-name-unique',
   'sourceDescriptions-not-empty',
   'spec-action-mutually-exclusive-fields',
+  'spec-action-stepId-defined',
   'spec-outputs-invalid-map-name',
   'spec-sourceDescriptions-defined',
   'spec-querystring-parameters',
