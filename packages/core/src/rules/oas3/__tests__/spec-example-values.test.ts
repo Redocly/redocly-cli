@@ -45,10 +45,9 @@ describe('spec-example-values', () => {
                         InvalidSerializedValueAndExternalValue:
                           serializedValue: '{"name":"John Doe"}'
                           externalValue: https://localhost/user-example.json
-                        InvalidExternalValueAndValue:
+                        InvalidExternalValueAndFalsyValue:
                           externalValue: https://localhost/user-example.json
-                          value:
-                            name: Jane Doe
+                          value: 0
       `,
       'foobar.yaml'
     );
@@ -106,46 +105,7 @@ describe('spec-example-values', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1test/get/responses/200/content/application~1json/examples/InvalidExternalValueAndValue/value",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "The 'value' and 'externalValue' fields of an Example Object are mutually exclusive.",
-          "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
-          "ruleId": "spec-example-values",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
-  });
-
-  it('should report a falsy value next to externalValue', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        components:
-          examples:
-            some:
-              value: 0
-              externalValue: https://localhost/example.json
-      `,
-      'foobar.yaml'
-    );
-
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({ rules: { 'spec-example-values': 'error' } }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/components/examples/some/value",
+              "pointer": "#/paths/~1test/get/responses/200/content/application~1json/examples/InvalidExternalValueAndFalsyValue/value",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
