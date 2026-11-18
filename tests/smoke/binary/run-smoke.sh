@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 # Runs a standalone binary through the commands that read files embedded in it, fetch over the
-# network, or start a product package on its embedded runtime.
+# network, import packages from node_modules, or start a product package on its embedded runtime.
 # Usage: bash tests/smoke/binary/run-smoke.sh <path to the binary>
 set -euo pipefail
 
 binary="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 repo_dir="$(cd "$(dirname "$0")/../../.." && pwd)"
 cafe="$repo_dir/resources/cafe.yaml"
+# The ejected generator imports `@redocly/client-generator`, so it runs inside the repository, where
+# node_modules has it.
+generator_dir="$(mktemp -d "$repo_dir/.smoke-generator.XXXXXX")"
+trap 'rm -rf "$generator_dir"; if [ -n "${preview_pid:-}" ]; then kill -- -"$preview_pid" || true; fi' EXIT
 cd "$(mktemp -d)"
 
 expected_version="$(sed -n 's/^  "version": "\(.*\)",$/\1/p' "$repo_dir/packages/cli/package.json")"
@@ -26,7 +30,12 @@ grep -q 'Redoc' docs.html
 
 mkdir skills && (cd skills && mkdir .claude && "$binary" skills && test -f .claude/skills/redocly-cli/SKILL.md)
 
-mkdir generator && (cd generator && "$binary" eject-generator php && test -f generators/php/index.ts)
+(
+  cd "$generator_dir"
+  "$binary" eject-generator typescript
+  "$binary" generate-client "$cafe" --generator ./generators/typescript/index.ts --output client.ts
+  test -f client.ts
+)
 
 mkdir recheck && cd recheck
 cat > redocly.yaml <<'YAML'
@@ -56,11 +65,14 @@ if [ "${SKIP_PREVIEW:-}" = true ]; then
 fi
 
 mkdir preview && printf '# Smoke test\n' > preview/index.md
+# Job control starts the preview in its own process group, so the exit trap also stops the server
+# that the preview starts.
+set -m
 "$binary" preview --project-dir=preview --plan=pro --port=4555 > preview.log 2>&1 &
+preview_pid=$!
 for _ in $(seq 1 300); do
   if curl -sf -o /dev/null http://127.0.0.1:4555/; then
     echo "The preview is up."
-    kill %1 || true
     exit 0
   fi
   sleep 1

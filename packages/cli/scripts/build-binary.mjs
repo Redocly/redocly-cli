@@ -53,6 +53,9 @@ try {
       // The CLI loads .env itself and has no use for bunfig.toml.
       '--no-compile-autoload-dotenv',
       '--no-compile-autoload-bunfig',
+      // Plugins and ejected generators import packages from node_modules, which Bun finds through
+      // their package.json.
+      '--compile-autoload-package-json',
       ...assets.map((asset) => `--asset=${asset}`),
       '../bin/cli.js',
       `--outfile=${path.resolve(outputFile)}`,
