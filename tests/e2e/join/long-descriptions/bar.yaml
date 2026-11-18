@@ -1,0 +1,18 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Bar Example OpenAPI 3 definition.
+  description: Information about API
+servers:
+  - url: 'https://redocly.com/v1'
+paths:
+  '/pets/{petId}':
+    post:
+      summary: summary example
+      description: |
+        Adds a pet.
+        The second line of this description is longer than eighty characters and keeps the literal style.
+      operationId: exampleBar
+      responses:
+        '201':
+          description: example description

@@ -4,7 +4,7 @@
 
 Use the `login` command to authenticate to the API registry.
 
-When you log in, the [`preview-docs`](./preview-docs.md) command starts a preview server using [Redocly API reference docs](https://redocly.com/reference/) with all of the premium features. Users who are not logged in see a [Redoc community edition](https://redocly.com/redoc/) version of their documentation.
+When you log in, the [`preview-docs`](./preview-docs.md) command starts a preview server using [Redocly API reference docs](https://redocly.com/reference/) with all of the premium features. Users who are not logged in see a [Redoc community edition](https://redocly.com/redoc-ce) version of their documentation.
 
 After logging in, you can also access your members-only (private) API descriptions in the Redocly registry, and use the [`push`](./push.md) command.
 

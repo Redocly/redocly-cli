@@ -59,7 +59,6 @@ const options: AppOptions = {
   verbose: false,
   maxSteps: 2000,
   maxFetchTimeout: 40_000,
-  executionTimeout: 3_600_000,
   config: await createConfig({}),
   requestFileLoader: {
     getFileBody: async (filePath: string) => {

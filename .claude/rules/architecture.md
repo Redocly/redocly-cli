@@ -32,9 +32,12 @@ Uses yargs for argument parsing.
 
 API contract testing framework.
 Validates real API responses against OpenAPI/Arazzo specs.
+This package is also used outside this repository: Replay runs it in the browser and imports the `./run` and `./runtime-expressions` subpaths.
+An export without an importer in this repository can still be in use.
 
 - `src/run.ts` — Test execution logic.
 - `src/modules/` — Core testing modules, including runtime expression evaluation.
+- `src/modules/logger-output/` — The console output, the totals, and the mapping of the run results to the JSON logs.
 
 ## `packages/platform-integration` (@redocly/platform-integration)
 

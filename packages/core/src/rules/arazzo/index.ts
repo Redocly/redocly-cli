@@ -21,6 +21,7 @@ import { ParametersUnique } from './parameters-unique.js';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique.js';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique.js';
 import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty.js';
+import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
 import { SpecStepMutuallyExclusiveFields } from './spec-step-mutually-exclusive-fields.js';
 import { StepOnFailureUnique } from './step-onFailure-unique.js';
 import { StepOnSuccessUnique } from './step-onSuccess-unique.js';
@@ -29,6 +30,7 @@ import { WorkflowDependsOn } from './workflow-dependsOn.js';
 import { WorkflowIdUnique } from './workflowId-unique.js';
 
 export const rules: Arazzo1RuleSet<'built-in'> = {
+  struct: Struct as Arazzo1Rule,
   assertions: Assertions as Arazzo1Rule,
   'criteria-unique': CriteriaUnique,
   'no-criteria-xpath': NoCriteriaXpath,
@@ -47,11 +49,11 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'sourceDescription-name-unique': SourceDescriptionsNameUnique,
   'sourceDescription-type': SourceDescriptionType,
   'sourceDescriptions-not-empty': SourceDescriptionsNotEmpty,
+  'spec-querystring-parameters': SpecQuerystringParameters,
   'spec-step-mutually-exclusive-fields': SpecStepMutuallyExclusiveFields,
   'step-onFailure-unique': StepOnFailureUnique,
   'step-onSuccess-unique': StepOnSuccessUnique,
   'stepId-unique': StepIdUnique,
-  struct: Struct as Arazzo1Rule,
   'workflow-dependsOn': WorkflowDependsOn,
   'workflowId-unique': WorkflowIdUnique,
   'x-security-scheme-name-reference': XSecuritySchemeNameReference,

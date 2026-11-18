@@ -1,8 +1,6 @@
 name: startDate
 in: query
-description: >-
-  Starting date to retrieve future operating hours from. Defaults to today's
-  date.
+description: Starting date to retrieve future operating hours from. Defaults to today's date.
 schema:
   type: string
   format: date

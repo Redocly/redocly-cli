@@ -18,6 +18,7 @@ import type { Arguments } from 'yargs';
 
 import { bundleTelemetry } from './commands/bundle.js';
 import { loadAndCheckConfig } from './commands/check-config.js';
+import { introspectMcpTelemetry } from './commands/introspect-mcp/telemetry.js';
 import type { CommandArgv, VerifyConfigOptions } from './types.js';
 import {
   ejectGeneratorTelemetry,
@@ -90,9 +91,18 @@ export function commandWrapper<T extends CommandArgv>(
       }
 
       if (getMajorSpecVersion(specVersion as SpecVersion) === 'arazzo1') {
-        collectXSecurityAuthTypes(document, respectXSecurityAuthTypes);
-        collectSourceDescriptionTypes(document, respectSourceDescriptionTypes);
-        collectCriterionObjectTypes(document, respectCriterionObjectTypes);
+        const collectors = [
+          () => collectXSecurityAuthTypes(document, respectXSecurityAuthTypes),
+          () => collectSourceDescriptionTypes(document, respectSourceDescriptionTypes),
+          () => collectCriterionObjectTypes(document, respectCriterionObjectTypes),
+        ];
+        for (const collect of collectors) {
+          try {
+            collect();
+          } catch (err) {
+            // The description is not validated yet: a malformed one is for the command to report.
+          }
+        }
       }
     };
     const lintRulesWithErrors = new Set<string>();
@@ -152,6 +162,7 @@ export function commandWrapper<T extends CommandArgv>(
           generate_client: generateClientTelemetry,
           eject_generator: ejectGeneratorTelemetry,
           bundle: bundleTelemetry,
+          introspect_mcp: introspectMcpTelemetry,
         });
       }
       process.once('beforeExit', () => {

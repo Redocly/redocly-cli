@@ -213,5 +213,64 @@ describe('ApiFetcher', () => {
         `""grant_type=client_credentials&client_id=client-id&client_secret=********""`
       );
     });
+
+    it('should resolve path parameters in the host of the response verbose logs', async () => {
+      const apiFetcher = new ApiFetcher({});
+      const ctx = {
+        options: {
+          logger,
+          fetch: async () =>
+            new Response('{}', { headers: { 'content-type': 'application/json' } }),
+          maxFetchTimeout: 1000,
+        },
+        workflows: [],
+        noSecretsMasking: false,
+        secretsSet: new Set(),
+      } as any;
+      const requestData = {
+        serverUrl: { url: 'https://api.cafe.redocly.com/orders/{orderId}' },
+        path: '',
+        method: 'get' as OperationMethod,
+        parameters: [{ in: 'path' as const, name: 'orderId', value: 'ord_123' }],
+        requestBody: undefined,
+      };
+
+      await apiFetcher.fetchResult({ ctx, step: {} as any, requestData, workflowId: 'test' });
+
+      expect(apiFetcher.getVerboseResponseLogs()?.host).toBe(
+        'https://api.cafe.redocly.com/orders/ord_123'
+      );
+    });
+
+    it('should mask a secret path parameter in the host of the verbose logs', async () => {
+      const apiFetcher = new ApiFetcher({});
+      const ctx = {
+        options: {
+          logger,
+          fetch: async () =>
+            new Response('{}', { headers: { 'content-type': 'application/json' } }),
+          maxFetchTimeout: 1000,
+        },
+        workflows: [],
+        noSecretsMasking: false,
+        secretsSet: new Set(['share-token-value']),
+      } as any;
+      const requestData = {
+        serverUrl: { url: 'https://api.cafe.redocly.com/share/{token}/orders' },
+        path: '',
+        method: 'get' as OperationMethod,
+        parameters: [{ in: 'path' as const, name: 'token', value: 'share-token-value' }],
+        requestBody: undefined,
+      };
+
+      await apiFetcher.fetchResult({ ctx, step: {} as any, requestData, workflowId: 'test' });
+
+      expect(apiFetcher.getVerboseLogs()?.host).toBe(
+        'https://api.cafe.redocly.com/share/********/orders'
+      );
+      expect(apiFetcher.getVerboseResponseLogs()?.host).toBe(
+        'https://api.cafe.redocly.com/share/********/orders'
+      );
+    });
   });
 });
