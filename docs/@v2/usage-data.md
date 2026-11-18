@@ -18,7 +18,7 @@ When a command is run, the following data is collected:
 - CLI version
 - Node.js and NPM versions
 - whether the `redocly.yaml` configuration file exists
-- how many APIs the configuration file declares, whether a file path passed to the command is the `root` of one of them, and which options that API sets
+- how many APIs the configuration file declares, whether a file path passed to the command is the `root` of one of them, and which options the APIs of the command set
 - API specification type and version
 - names of lint rules that reported errors, warnings, or ignored problems
 - Arazzo x-security authentication types

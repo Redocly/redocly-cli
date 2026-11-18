@@ -2,7 +2,7 @@ import { createConfig } from '@redocly/openapi-core';
 import { RedoclyOAuthClient, getPlatformUrl } from '@redocly/platform-integration';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 
 import { respondWithinMs } from '../network-check.js';
@@ -166,6 +166,78 @@ it('sendTelemetry includes the MCP protocol version an introspect-mcp run negoti
   expect(mockMapToCloudEvent).toHaveBeenCalledWith(
     expect.objectContaining({
       data: [expect.objectContaining({ introspect_mcp_protocol_version: '2026-07-28' })],
+    })
+  );
+});
+
+const configWithApis = {
+  apis: {
+    public: { root: 'cafe.yaml', rules: { 'info-contact': 'off' } },
+    internal: { root: 'cafe.yaml' },
+    orders: { root: 'orders.yaml' },
+  },
+} as const;
+
+it('sendTelemetry includes how a file path argument relates to the APIs of the configuration', async () => {
+  vi.mocked(respondWithinMs).mockResolvedValue(true);
+
+  await sendTelemetry({
+    config: await createConfig(configWithApis, { configPath: resolve('redocly.yaml') }),
+    argv: { _: ['lint'], apis: [resolve('cafe.yaml')] } as any,
+    exit_code: 0,
+    execution_time: 1500,
+    spec_version: 'oas3_1',
+    spec_keyword: 'openapi',
+    spec_full_version: '3.1.0',
+    respect_x_security_auth_types: undefined,
+    respect_source_description_types: undefined,
+    respect_criterion_object_types: undefined,
+    lint_rules_with_errors: undefined,
+    lint_rules_with_warnings: undefined,
+    lint_rules_with_ignored_problems: undefined,
+  });
+
+  expect(mockMapToCloudEvent).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      data: [
+        expect.objectContaining({
+          apis_count: 3,
+          api_path_alias_count: 2,
+          api_alias_settings: '["rules"]',
+        }),
+      ],
+    })
+  );
+});
+
+it('sendTelemetry includes the settings of an alias argument', async () => {
+  vi.mocked(respondWithinMs).mockResolvedValue(true);
+
+  await sendTelemetry({
+    config: await createConfig(configWithApis, { configPath: resolve('redocly.yaml') }),
+    argv: { _: ['lint'], apis: ['public'] } as any,
+    exit_code: 0,
+    execution_time: 1500,
+    spec_version: 'oas3_1',
+    spec_keyword: 'openapi',
+    spec_full_version: '3.1.0',
+    respect_x_security_auth_types: undefined,
+    respect_source_description_types: undefined,
+    respect_criterion_object_types: undefined,
+    lint_rules_with_errors: undefined,
+    lint_rules_with_warnings: undefined,
+    lint_rules_with_ignored_problems: undefined,
+  });
+
+  expect(mockMapToCloudEvent).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      data: [
+        expect.objectContaining({
+          apis_count: 3,
+          api_path_alias_count: undefined,
+          api_alias_settings: '["rules"]',
+        }),
+      ],
     })
   );
 });

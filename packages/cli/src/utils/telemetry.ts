@@ -28,7 +28,7 @@ import type {
   GenerateClientTelemetry,
 } from './client-generator-telemetry.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
-import { findAliasesByRoot, type ExitCode } from './miscellaneous.js';
+import { findAliasesByRoot, getAliasOrPath, type ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
 
@@ -225,9 +225,9 @@ function describeApiArguments(config: Config | undefined, apiArguments: string[]
   const aliasesOfPaths = apiArguments
     .filter((apiArgument) => apis[apiArgument] === undefined)
     .map((path) => findAliasesByRoot(config, path));
-  // A command applies the settings of the first alias whose `root` is the path.
-  const appliedApis = aliasesOfPaths
-    .flatMap(([firstAlias]) => firstAlias ?? [])
+  // A command applies the settings of the alias in the argument, or of the first alias whose `root` is the path.
+  const appliedApis = apiArguments
+    .flatMap((apiArgument) => getAliasOrPath(config, apiArgument).alias ?? [])
     .map((alias) => writtenApis[alias])
     .filter(isPlainObject);
   return {
@@ -236,7 +236,7 @@ function describeApiArguments(config: Config | undefined, apiArguments: string[]
     api_path_alias_count: aliasesOfPaths.length
       ? Math.max(...aliasesOfPaths.map((aliases) => aliases.length))
       : undefined,
-    api_path_alias_settings: appliedApis.length
+    api_alias_settings: appliedApis.length
       ? JSON.stringify(
           Object.keys(ConfigTypes.ConfigApisProperties.properties).filter(
             (setting) => setting !== 'root' && appliedApis.some((api) => setting in api)
