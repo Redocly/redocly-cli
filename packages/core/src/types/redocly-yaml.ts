@@ -190,6 +190,7 @@ const builtInArazzo1Rules = [
   'spec-querystring-parameters',
   'spec-step-mutually-exclusive-fields',
   'spec-step-operationId-resolved',
+  'spec-step-workflowId-defined',
   'workflow-dependsOn',
   'outputs-defined',
   'parameters-unique',

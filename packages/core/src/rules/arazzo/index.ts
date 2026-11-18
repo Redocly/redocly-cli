@@ -28,6 +28,7 @@ import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
 import { SpecSourceDescriptionsDefined } from './spec-sourceDescriptions-defined.js';
 import { SpecStepMutuallyExclusiveFields } from './spec-step-mutually-exclusive-fields.js';
 import { SpecStepOperationIdResolved } from './spec-step-operationId-resolved.js';
+import { SpecStepWorkflowIdDefined } from './spec-step-workflowId-defined.js';
 import { StepOnFailureUnique } from './step-onFailure-unique.js';
 import { StepOnSuccessUnique } from './step-onSuccess-unique.js';
 import { StepIdUnique } from './stepId-unique.js';
@@ -61,6 +62,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'spec-querystring-parameters': SpecQuerystringParameters,
   'spec-step-mutually-exclusive-fields': SpecStepMutuallyExclusiveFields,
   'spec-step-operationId-resolved': SpecStepOperationIdResolved,
+  'spec-step-workflowId-defined': SpecStepWorkflowIdDefined,
   'step-onFailure-unique': StepOnFailureUnique,
   'step-onSuccess-unique': StepOnSuccessUnique,
   'stepId-unique': StepIdUnique,
