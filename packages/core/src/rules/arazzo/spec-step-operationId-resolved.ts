@@ -13,69 +13,65 @@ export const SpecStepOperationIdResolved: Arazzo1Rule = () => {
   const operationIdsBySourceName = new Map<string, Set<string> | undefined>();
 
   return {
-    SourceDescriptions: {
-      enter(sourceDescriptions, { getVisitorData }: UserContext) {
-        // the visitor data is an untyped store, so its shape is asserted here
-        const { operationIdsBySourceUrl } = getVisitorData() as SpecStepOperationIdResolvedData;
+    SourceDescriptions(sourceDescriptions, { getVisitorData }: UserContext) {
+      // the visitor data is an untyped store, so its shape is asserted here
+      const { operationIdsBySourceUrl } = getVisitorData() as SpecStepOperationIdResolvedData;
 
-        for (const sourceDescription of sourceDescriptions) {
-          if (typeof sourceDescription?.name !== 'string') continue;
+      for (const sourceDescription of sourceDescriptions) {
+        if (typeof sourceDescription?.name !== 'string') continue;
 
-          if (sourceDescription.type === 'openapi') {
-            operationIdsBySourceName.set(
-              sourceDescription.name,
-              operationIdsBySourceUrl?.get(sourceDescription.url)
-            );
-          } else if (sourceDescription.type === 'arazzo') {
-            operationIdsBySourceName.set(sourceDescription.name, new Set());
-          } else {
-            operationIdsBySourceName.set(sourceDescription.name, undefined);
-          }
+        if (sourceDescription.type === 'openapi') {
+          operationIdsBySourceName.set(
+            sourceDescription.name,
+            operationIdsBySourceUrl?.get(sourceDescription.url)
+          );
+        } else if (sourceDescription.type === 'arazzo') {
+          operationIdsBySourceName.set(sourceDescription.name, new Set());
+        } else {
+          operationIdsBySourceName.set(sourceDescription.name, undefined);
         }
-      },
+      }
     },
-    Step: {
-      enter(step, { report, location }: UserContext) {
-        const stepOperationId = step.operationId;
-        if (typeof stepOperationId !== 'string') return;
+    Step(step, { report, location }: UserContext) {
+      const stepOperationId = step.operationId;
+      if (typeof stepOperationId !== 'string') return;
 
-        const reportUnresolved = (message: string) =>
-          report({
-            message,
-            location: location.child(['operationId']),
-            reference: 'https://redocly.com/docs/cli/rules/arazzo/spec-step-operationid-resolved',
-          });
+      const reportUnresolved = (message: string) =>
+        report({
+          message,
+          location: location.child(['operationId']),
+          reference: 'https://redocly.com/docs/cli/rules/arazzo/spec-step-operationid-resolved',
+        });
 
-        if (stepOperationId.startsWith('$sourceDescriptions.')) {
-          const [, sourceName, ...operationIdParts] = stepOperationId.split('.');
-          const operationId = operationIdParts.join('.');
-          const operationIds = operationIdsBySourceName.get(sourceName);
+      if (stepOperationId.startsWith('$sourceDescriptions.')) {
+        const [, sourceName, ...operationIdParts] = stepOperationId.split('.');
+        const operationId = operationIdParts.join('.');
+        const operationIds = operationIdsBySourceName.get(sourceName);
 
-          if (!operationIdsBySourceName.has(sourceName)) {
-            reportUnresolved(
-              `The source description \`${sourceName}\` is not defined in \`sourceDescriptions\`.`
-            );
-          } else if (operationIds && !operationIds.has(operationId)) {
-            reportUnresolved(
-              `The operation \`${operationId}\` is not defined in the source description \`${sourceName}\`.`
-            );
-          }
-          return;
+        if (!operationIdsBySourceName.has(sourceName)) {
+          reportUnresolved(
+            `The source description \`${sourceName}\` is not defined in \`sourceDescriptions\`.`
+          );
+        } else if (operationIds && !operationIds.has(operationId)) {
+          reportUnresolved(
+            `The operation \`${operationId}\` is not defined in the source description \`${sourceName}\`.`
+          );
         }
+        return;
+      }
 
-        const isDefinedOrCannotBeChecked = [...operationIdsBySourceName.values()].some(
-          (operationIds) => !operationIds || operationIds.has(stepOperationId)
-        );
-        if (isDefinedOrCannotBeChecked) return;
+      const isDefinedOrCannotBeChecked = [...operationIdsBySourceName.values()].some(
+        (operationIds) => !operationIds || operationIds.has(stepOperationId)
+      );
+      if (isDefinedOrCannotBeChecked) return;
 
-        // Respect also accepts the short form <sourceDescriptionName>.<operationId>
-        const [sourceName, ...operationIdParts] = stepOperationId.split('.');
-        if (operationIdsBySourceName.get(sourceName)?.has(operationIdParts.join('.'))) return;
+      // Respect also accepts the short form <sourceDescriptionName>.<operationId>
+      const [sourceName, ...operationIdParts] = stepOperationId.split('.');
+      if (operationIdsBySourceName.get(sourceName)?.has(operationIdParts.join('.'))) return;
 
-        reportUnresolved(
-          `The operation \`${stepOperationId}\` is not defined in any of the source descriptions.`
-        );
-      },
+      reportUnresolved(
+        `The operation \`${stepOperationId}\` is not defined in any of the source descriptions.`
+      );
     },
   };
 };
