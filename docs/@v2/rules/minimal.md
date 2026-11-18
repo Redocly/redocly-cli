@@ -41,6 +41,7 @@ Warnings:
 - [path-not-include-query](./oas/path-not-include-query.md)
 - [path-parameters-defined](./oas/path-parameters-defined.md)
 - [security-defined](./oas/security-defined.md)
+- [spec-action-workflowId-defined](./arazzo/spec-action-workflowId-defined.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
 - [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
