@@ -47,8 +47,8 @@ For more options, see [Install Redocly CLI](https://redocly.com/docs/cli/install
 Lint, test the live API, and build the docs:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./media/demo-dark.gif">
-  <img alt="Redocly CLI lints a multi-file API description, tests a live API, and builds API reference docs." src="./media/demo-light.gif" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="./media/demo-dark.webp">
+  <img alt="Redocly CLI lints a multi-file API description, tests a live API, and builds API reference docs." src="./media/demo-light.webp" width="100%">
 </picture>
 
 ### Lint to your API style guide
