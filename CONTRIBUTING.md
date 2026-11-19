@@ -307,10 +307,10 @@ The tests of the `generate-client` and `eject-generator` commands are e2e tests 
 Tests that need an HTTP server use `MockServer` from `packages/client-generator/tests/e2e/helpers/mock-server.ts`.
 While the server runs, start a consumer with the async `runTsx` or `runCommand`, because a synchronous spawn blocks the server.
 
-### Stress tests
+### Lint output comparison
 
-The stress test compares the lint output of a pull request with a base build on production API descriptions.
-See [tests/stress/README.md](./tests/stress/README.md).
+A CI check compares the lint output of a pull request with a base build on production API descriptions.
+See [tests/lint-output/README.md](./tests/lint-output/README.md).
 
 ### Smoke tests
 

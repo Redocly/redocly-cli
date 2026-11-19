@@ -9,7 +9,9 @@ const MAX_REPORT_LENGTH = 60000;
 
 const [baseDir, headDir, reportPath] = process.argv.slice(2);
 if (!baseDir || !headDir || !reportPath) {
-  process.stderr.write('Usage: node tests/stress/compare.mjs <base-dir> <head-dir> <report.md>\n');
+  process.stderr.write(
+    'Usage: node tests/lint-output/compare.mjs <base-dir> <head-dir> <report.md>\n'
+  );
   process.exit(2);
 }
 
@@ -302,7 +304,7 @@ for (const name of cellNames) {
   cells.push(cell);
 }
 
-const reportLines = ['## Stress test on production specs', ''];
+const reportLines = ['## Lint output comparison', ''];
 if (failedCells > 0) {
   reportLines.push(`❌ **A lint run failed** in ${failedCells} of ${cells.length} runs.`);
 } else if (differingCells > 0) {

@@ -1,0 +1,80 @@
+name: Lint output comparison
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+concurrency:
+  group: lint-output-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  compare-output:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # The first parent of the merge commit is the base.
+          fetch-depth: 2
+          # run.sh installs the dependencies of Rebilly/api-definitions, so their scripts must not get the token.
+          persist-credentials: false
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install pnpm for Rebilly/api-definitions
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          run_install: false
+          version: 11.22.0
+
+      - name: Build the pull request
+        run: |
+          npm ci
+          npm run compile
+
+      - name: Build the base
+        run: |
+          git worktree add ../base HEAD^1
+          cd ../base
+          npm ci
+          npm run compile
+
+      - name: Lint with both builds
+        run: |
+          bash tests/lint-output/run.sh ../base/packages/cli/lib/index.js tests/lint-output/out/base
+          bash tests/lint-output/run.sh packages/cli/lib/index.js tests/lint-output/out/head
+
+      - name: Compare the output
+        id: compare
+        # The last step fails the job, so the report is posted first.
+        continue-on-error: true
+        run: node tests/lint-output/compare.mjs tests/lint-output/out/base tests/lint-output/out/head tests/lint-output/out/report.md
+
+      - name: Comment PR
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          file-path: tests/lint-output/out/report.md
+          comment-tag: lint-output
+
+      # A fork pull request gets a read-only token, so lint-output-comment.yaml posts its report.
+      - name: Upload the report
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lint-output-report
+          path: tests/lint-output/out/report.md
+
+      - name: Fail when the output differs or a lint run failed
+        if: steps.compare.outcome == 'failure'
+        run: exit 1

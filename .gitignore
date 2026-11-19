@@ -28,6 +28,6 @@ __changesets__.json
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
 
-tests/stress/api-definitions/
-tests/stress/specs/
-tests/stress/out/
+tests/lint-output/api-definitions/
+tests/lint-output/specs/
+tests/lint-output/out/
