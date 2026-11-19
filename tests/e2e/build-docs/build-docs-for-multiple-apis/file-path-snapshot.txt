@@ -9,15 +9,6 @@
     ║                                                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
 
-
-    ╔═══════════════════════════════════════════════════════════════════════════════════════╗
-    ║                                                                                       ║
-    ║  Deprecated: build-docs applies the settings of the menu API to menu.yaml, its root.  ║
-    ║  A later release applies the root configuration to a file path.                       ║
-    ║  Pass the alias to keep the settings: redocly build-docs menu                         ║
-    ║                                                                                       ║
-    ╚═══════════════════════════════════════════════════════════════════════════════════════╝
-
 Found redocly.yaml and using 'openapi' options
 Prerendering docs
 
