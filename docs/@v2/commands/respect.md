@@ -272,7 +272,7 @@ A Selector Object picks a value from structured data, such as a response body.
 `respect` evaluates a Selector Object in these places:
 
 - step and workflow `outputs`
-- the `value` of a parameter
+- the `value` of a parameter of a workflow, a step, or a success or failure action
 - a request body `payload`
 - the `value` of a replacement
 

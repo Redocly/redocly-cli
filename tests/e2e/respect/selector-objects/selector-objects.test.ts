@@ -8,7 +8,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 test('should evaluate Selector Objects in outputs, parameters, and request bodies', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'selector-objects.arazzo.yaml');
-  const args = getParams(indexEntryPoint, ['respect', fixturesPath, '--verbose']);
+  const args = getParams(indexEntryPoint, [
+    'respect',
+    fixturesPath,
+    '--workflow',
+    'use-selected-values',
+    '--verbose',
+  ]);
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();

@@ -57,6 +57,9 @@ export function evaluateRuntimeExpressionPayload({
     return isPureRuntimeExpression(payload)
       ? evaluateRuntimeExpression(payload, context, logger)
       : evaluateExpressionsInString(payload, context, logger);
+  } else if (payload instanceof Blob) {
+    // A file of a multipart payload is sent as it is.
+    return payload;
   } else if (isSelectorObject(payload)) {
     return evaluateSelectorObject(payload, context, logger);
   } else if (isPlainObject(payload)) {

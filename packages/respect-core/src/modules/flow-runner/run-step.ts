@@ -14,7 +14,6 @@ import type {
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
 import {
-  getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
   resolveWorkflowReference,
@@ -28,6 +27,7 @@ import {
 import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
+import { createRuntimeExpressionCtx } from './context/index.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { resolveActionInputs } from './resolve-action-inputs.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
@@ -119,9 +119,9 @@ export async function runStep({
       ? Object.fromEntries(
           resolvedParameters.filter(isParameterWithoutIn).map((parameter) => [
             parameter.name,
-            getValueFromContext({
-              value: parameter.value,
-              ctx: ctxWithInputs,
+            evaluateRuntimeExpressionPayload({
+              payload: parameter.value,
+              context: createRuntimeExpressionCtx({ ctx: ctxWithInputs }),
               logger: ctx.options.logger,
             }),
           ])

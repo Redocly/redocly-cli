@@ -919,6 +919,19 @@ describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
     );
   });
 
+  it('should keep a file in a payload', () => {
+    const file = new Blob(['photo']);
+    const payload = {
+      photo: file,
+      name: { context: '$response.body', selector: '$.items[0].name', type: 'jsonpath' },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      photo: file,
+      name: 'tiramisu',
+    });
+  });
+
   it('should evaluate a Selector Object nested in a payload and keep other objects as they are', () => {
     const payload = {
       limit: { context: '$response.body', selector: '$.page.limit', type: 'jsonpath' },

@@ -16,6 +16,7 @@ import {
 import { isJSON } from '../../utils/is-json.js';
 import { isFormUrlencoded } from '../../utils/url-encoding.js';
 import {
+  createFormData,
   parseRequestBody,
   resolveReusableComponentItem,
   isParameterWithIn,
@@ -210,12 +211,22 @@ export async function prepareRequest(
     collectSecretValues(ctx, schema, groupParametersValuesByName(parameters, param.in), [name]);
   }
 
-  const evaluatedBody = evaluateRuntimeExpressionPayload({
-    payload: requestBody,
-    context: expressionContext,
-    contentType,
-    logger: ctx.options.logger,
-  });
+  // A multipart payload is evaluated as data and then encoded, so the form holds the evaluated values.
+  const evaluatedBody =
+    stepRequestBodyContentType === 'multipart/form-data' && isPlainObject(requestBody)
+      ? createFormData(
+          evaluateRuntimeExpressionPayload({
+            payload: requestBody,
+            context: expressionContext,
+            logger: ctx.options.logger,
+          })
+        )
+      : evaluateRuntimeExpressionPayload({
+          payload: requestBody,
+          context: expressionContext,
+          contentType,
+          logger: ctx.options.logger,
+        });
 
   if (replacements && (isPlainObject(evaluatedBody) || Array.isArray(evaluatedBody))) {
     handlePayloadReplacements({

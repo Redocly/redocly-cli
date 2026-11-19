@@ -2,7 +2,7 @@ arazzo: 1.1.0
 info:
   title: Selector Objects
   description: >-
-    Selects values with Selector Objects in outputs, a parameter, a request body, and a replacement,
+    Selects values with Selector Objects in outputs, parameters, request bodies, and a replacement,
     and renders the resolved requests in verbose output.
     The values are selected from a request body so every printed response body stays deterministic.
   version: 1.0.0
@@ -72,6 +72,14 @@ workflows:
               type: jsonpath
         successCriteria:
           - condition: $statusCode == 200
+      - stepId: search-menu-in-called-workflow
+        workflowId: search-menu
+        parameters:
+          - name: search
+            value:
+              context: $workflows.submit-order.outputs.order
+              selector: $.orderItems[0].comment
+              type: jsonpath
       - stepId: repeat-order
         operationId: cafe-api.createOrder
         requestBody:
@@ -90,3 +98,30 @@ workflows:
                 type: jsonpath
         successCriteria:
           - condition: $statusCode == 401
+      - stepId: create-menu-item
+        operationId: cafe-api.createMenuItem
+        requestBody:
+          contentType: multipart/form-data
+          payload:
+            name:
+              context: $workflows.submit-order.outputs.order
+              selector: $.orderItems[1].comment
+              type: jsonpath
+            price: 13000
+        successCriteria:
+          - condition: $statusCode == 401
+  - workflowId: search-menu
+    inputs:
+      type: object
+      properties:
+        search:
+          type: string
+    steps:
+      - stepId: search-menu
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: $inputs.search
+        successCriteria:
+          - condition: $statusCode == 200
