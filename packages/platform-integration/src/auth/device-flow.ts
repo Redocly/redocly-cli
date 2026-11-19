@@ -31,7 +31,8 @@ export class RedoclyOAuthDeviceFlow {
 
   // `onDeviceCode` gets the URL and code to show the user before the browser opens and polling starts.
   // `openBrowser` replaces the default browser launcher, for example in an editor extension.
-  async run(onDeviceCode?: (code: DeviceCode) => void, openBrowser?: (url: string) => void) {
+  // The login stops when it resolves to `false`.
+  async run(onDeviceCode?: (code: DeviceCode) => void, openBrowser?: OpenBrowser) {
     const code = await this.getDeviceCode();
 
     onDeviceCode?.({
@@ -40,7 +41,9 @@ export class RedoclyOAuthDeviceFlow {
       userCode: code.userCode,
     });
 
-    this.openBrowser(code.verificationUriComplete, openBrowser);
+    if (!(await this.openBrowser(code.verificationUriComplete, openBrowser))) {
+      throw new Error('Failed to open the login page.');
+    }
 
     const accessToken = await this.pollingAccessToken(
       code.deviceCode,
@@ -51,17 +54,18 @@ export class RedoclyOAuthDeviceFlow {
     return this.withResidency(accessToken);
   }
 
-  private openBrowser(url: string, open: (url: string) => void = spawnBrowser) {
+  private async openBrowser(url: string, open: OpenBrowser = spawnBrowser) {
     // The residency URL is configurable, so the response is untrusted: open only http(s) URLs.
     if (!/^https?:\/\//.test(url)) {
-      return;
+      return true;
     }
 
-    open(url);
+    return open(url);
   }
 
-  // `expired` only when the platform answers 401: any other failure is `unreachable`.
-  async verifyToken(accessToken: string): Promise<'valid' | 'expired' | 'unreachable'> {
+  // `expired` when the platform answers 401 or returns a session without a user.
+  // Any other failure is `unreachable`.
+  async getTokenStatus(accessToken: string): Promise<'valid' | 'expired' | 'unreachable'> {
     try {
       const response = await this.fetchApi('/session', 'GET', undefined, {
         Cookie: `accessToken=${accessToken};`,
@@ -211,7 +215,11 @@ export class RedoclyOAuthDeviceFlow {
   }
 }
 
+// Resolves to `false` when the page could not be opened.
+export type OpenBrowser = (url: string) => boolean | Promise<boolean>;
+
 // Passes the URL as an argument, never through a shell.
+// Returns `true` because the launcher's failure is only known after it starts.
 function spawnBrowser(url: string) {
   const [command, args] =
     process.platform === 'win32'
@@ -226,4 +234,6 @@ function spawnBrowser(url: string) {
       // silently fail if browser cannot be opened
     })
     .unref();
+
+  return true;
 }

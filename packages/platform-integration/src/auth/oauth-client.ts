@@ -6,7 +6,12 @@ import path from 'node:path';
 import { PlatformApiError } from '../api/api-client.js';
 import { isValidPlatformUrl } from '../api/domains.js';
 import { type CredentialsStore, FileCredentialsStore } from './credentials-store.js';
-import { type Credentials, type DeviceCode, RedoclyOAuthDeviceFlow } from './device-flow.js';
+import {
+  type Credentials,
+  type DeviceCode,
+  type OpenBrowser,
+  RedoclyOAuthDeviceFlow,
+} from './device-flow.js';
 
 const CREDENTIALS_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
 const CRYPTO_ALGORITHM = 'aes-256-cbc';
@@ -15,7 +20,7 @@ const CRYPTO_ALGORITHM = 'aes-256-cbc';
 export type AuthFailure =
   | { status: 'signed-out' }
   | { status: 'residency-mismatch'; stored: string; expected: string }
-  | { status: 'invalid-reunite-url' }
+  | { status: 'invalid-platform-url' }
   | { status: 'session-expired' }
   | { status: 'offline' };
 
@@ -52,7 +57,7 @@ export class RedoclyOAuthClient {
   public async login(
     baseUrl: string,
     onDeviceCode?: (code: DeviceCode) => void,
-    openBrowser?: (url: string) => void
+    openBrowser?: OpenBrowser
   ): Promise<void> {
     const deviceFlow = new RedoclyOAuthDeviceFlow(baseUrl, this.version);
 
@@ -102,11 +107,11 @@ export class RedoclyOAuthClient {
     return authState;
   }
 
-  // Refreshes the session only when the platform rejects the token with 401,
-  // and removes the credentials only when it rejects the refresh token with 400.
+  // The CLI and editors share the credentials, so another process can rotate the refresh token first.
+  // When the platform rejects the refresh token, the check runs again on the credentials that process stored.
   private async checkAuthState(platformUrl: string): Promise<AuthState> {
     if (!isValidPlatformUrl(platformUrl)) {
-      return { status: 'invalid-reunite-url' };
+      return { status: 'invalid-platform-url' };
     }
 
     const credentials = await this.readCredentials();
@@ -120,38 +125,33 @@ export class RedoclyOAuthClient {
     }
 
     const deviceFlow = new RedoclyOAuthDeviceFlow(platformUrl, this.version);
-    const verification = await deviceFlow.verifyToken(credentials.access_token);
+    const tokenStatus = await deviceFlow.getTokenStatus(credentials.access_token);
 
-    if (verification === 'valid') {
+    if (tokenStatus === 'valid') {
       return { status: 'authorized', token: credentials.access_token };
     }
 
-    if (verification === 'unreachable') {
-      return { status: 'offline' };
-    }
-
+    let newCredentials: Credentials;
     try {
-      const newCredentials = await deviceFlow.refreshToken(credentials.refresh_token);
-      await this.saveCredentials(newCredentials);
-
-      return { status: 'authorized', token: newCredentials.access_token };
+      newCredentials = await deviceFlow.refreshToken(credentials.refresh_token);
     } catch (error) {
       if (!(error instanceof PlatformApiError) || error.status >= 500) {
         return { status: 'offline' };
       }
 
-      // Keep the credentials when a login replaced them while the refresh was in flight.
-      if (
-        error.status === 400 &&
-        (await this.readCredentials())?.refresh_token === credentials.refresh_token
-      ) {
-        await this.removeCredentials().catch(() => {
-          // The session is expired either way.
-        });
+      const latestCredentials = await this.readCredentials();
+      if (latestCredentials && latestCredentials.refresh_token !== credentials.refresh_token) {
+        return this.checkAuthState(platformUrl);
       }
 
       return { status: 'session-expired' };
     }
+
+    await this.saveCredentials(newCredentials).catch(() => {
+      // The new token works for this call even when it cannot be stored.
+    });
+
+    return { status: 'authorized', token: newCredentials.access_token };
   }
 
   private async saveCredentials(credentials: Credentials): Promise<void> {

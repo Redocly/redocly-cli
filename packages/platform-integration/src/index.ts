@@ -38,7 +38,12 @@ export {
   type HostedProjectOptions,
   type PullRequestStatus,
 } from './hosted-project.js';
-export { RedoclyOAuthDeviceFlow, type Credentials, type DeviceCode } from './auth/device-flow.js';
+export {
+  RedoclyOAuthDeviceFlow,
+  type Credentials,
+  type DeviceCode,
+  type OpenBrowser,
+} from './auth/device-flow.js';
 export {
   collectFilesToPush,
   pushFiles,

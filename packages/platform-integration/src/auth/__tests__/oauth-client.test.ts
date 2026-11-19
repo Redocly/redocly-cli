@@ -187,9 +187,9 @@ describe('RedoclyOAuthClient', () => {
       });
     });
 
-    it('returns invalid-reunite-url for a platform URL that is not https', async () => {
+    it('returns invalid-platform-url for a platform URL that is not https', async () => {
       await expect(storeClient.getAuthState('http://test.redocly.com')).resolves.toEqual({
-        status: 'invalid-reunite-url',
+        status: 'invalid-platform-url',
       });
     });
 
@@ -202,7 +202,7 @@ describe('RedoclyOAuthClient', () => {
     });
 
     it('returns the token when the platform accepts it', async () => {
-      mockDeviceFlow({ verifyToken: vi.fn().mockResolvedValue('valid') });
+      mockDeviceFlow({ getTokenStatus: vi.fn().mockResolvedValue('valid') });
 
       await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
         status: 'authorized',
@@ -210,18 +210,18 @@ describe('RedoclyOAuthClient', () => {
       });
     });
 
-    it('returns offline without refreshing or removing the credentials when the platform is unreachable', async () => {
-      const refreshToken = vi.fn();
-      mockDeviceFlow({ verifyToken: vi.fn().mockResolvedValue('unreachable'), refreshToken });
+    it('returns offline when neither the session check nor the refresh reaches the platform', async () => {
+      mockDeviceFlow({
+        getTokenStatus: vi.fn().mockResolvedValue('unreachable'),
+        refreshToken: vi.fn().mockRejectedValue(new TypeError('fetch failed')),
+      });
 
       await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({ status: 'offline' });
-      expect(refreshToken).not.toHaveBeenCalled();
-      expect(store.delete).not.toHaveBeenCalled();
     });
 
     it('refreshes an expired token and saves the new credentials', async () => {
       mockDeviceFlow({
-        verifyToken: vi.fn().mockResolvedValue('expired'),
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
         refreshToken: vi.fn().mockResolvedValue({ ...credentials, access_token: 'new-token' }),
       });
 
@@ -232,28 +232,23 @@ describe('RedoclyOAuthClient', () => {
       expect(store.write).toHaveBeenCalledTimes(2);
     });
 
-    it('removes the credentials when the platform rejects the refresh token with 400', async () => {
+    it('returns the new token when it cannot be saved', async () => {
       mockDeviceFlow({
-        verifyToken: vi.fn().mockResolvedValue('expired'),
-        refreshToken: vi.fn().mockRejectedValue(new PlatformApiError('Failed', 400)),
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn().mockResolvedValue({ ...credentials, access_token: 'new-token' }),
       });
+      vi.mocked(store.write).mockRejectedValue(new Error('EACCES: permission denied'));
 
       await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
-        status: 'session-expired',
+        status: 'authorized',
+        token: 'new-token',
       });
-      expect(store.delete).toHaveBeenCalled();
     });
 
-    it('keeps the credentials that a login saved while the refresh was in flight', async () => {
+    it('returns session-expired and keeps the credentials when the platform rejects the refresh token', async () => {
       mockDeviceFlow({
-        verifyToken: vi.fn().mockResolvedValue('expired'),
-        refreshToken: vi.fn(async () => {
-          mockDeviceFlow({
-            run: vi.fn().mockResolvedValue({ ...credentials, refresh_token: 'login-refresh' }),
-          });
-          await storeClient.login(mockBaseUrl);
-          throw new PlatformApiError('Failed', 400);
-        }),
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn().mockRejectedValue(new PlatformApiError('Failed', 400)),
       });
 
       await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
@@ -262,21 +257,30 @@ describe('RedoclyOAuthClient', () => {
       expect(store.delete).not.toHaveBeenCalled();
     });
 
-    it('returns session-expired when the credentials cannot be removed', async () => {
+    it('uses the credentials of another process that rotated the refresh token first', async () => {
+      const otherProcess = new RedoclyOAuthClient('1.2.3', store);
       mockDeviceFlow({
-        verifyToken: vi.fn().mockResolvedValue('expired'),
-        refreshToken: vi.fn().mockRejectedValue(new PlatformApiError('Failed', 400)),
+        run: vi.fn().mockResolvedValue({
+          ...credentials,
+          access_token: 'other-token',
+          refresh_token: 'other-refresh',
+        }),
+        getTokenStatus: vi.fn().mockResolvedValueOnce('expired').mockResolvedValue('valid'),
+        refreshToken: vi.fn(async () => {
+          await otherProcess.login(mockBaseUrl);
+          throw new PlatformApiError('Failed', 400);
+        }),
       });
-      vi.mocked(store.delete).mockRejectedValue(new Error('EACCES: permission denied'));
 
       await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
-        status: 'session-expired',
+        status: 'authorized',
+        token: 'other-token',
       });
     });
 
     it('keeps the credentials when the refresh fails with 5xx', async () => {
       mockDeviceFlow({
-        verifyToken: vi.fn().mockResolvedValue('expired'),
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
         refreshToken: vi.fn().mockRejectedValue(new PlatformApiError('Failed', 502)),
       });
 
@@ -285,15 +289,15 @@ describe('RedoclyOAuthClient', () => {
     });
 
     it('shares one check between concurrent calls', async () => {
-      const verifyToken = vi.fn().mockResolvedValue('valid');
-      mockDeviceFlow({ verifyToken });
+      const getTokenStatus = vi.fn().mockResolvedValue('valid');
+      mockDeviceFlow({ getTokenStatus });
 
       await Promise.all([
         storeClient.getAuthState(mockBaseUrl),
         storeClient.getAuthState(mockBaseUrl),
       ]);
 
-      expect(verifyToken).toHaveBeenCalledOnce();
+      expect(getTokenStatus).toHaveBeenCalledOnce();
     });
   });
 });

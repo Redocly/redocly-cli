@@ -15,31 +15,37 @@ describe('RedoclyOAuthDeviceFlow', () => {
     flow = new RedoclyOAuthDeviceFlow(mockBaseUrl, '1.2.3');
   });
 
-  describe('verifyToken', () => {
+  describe('getTokenStatus', () => {
     it('returns valid for a token the platform accepts', async () => {
       vi.spyOn(flow['apiClient'], 'request').mockResolvedValue(
         Response.json({ user: { id: '123' } })
       );
 
-      await expect(flow.verifyToken('valid-token')).resolves.toBe('valid');
+      await expect(flow.getTokenStatus('valid-token')).resolves.toBe('valid');
     });
 
     it('returns expired when the platform answers 401', async () => {
       vi.spyOn(flow['apiClient'], 'request').mockResolvedValue(Response.json({}, { status: 401 }));
 
-      await expect(flow.verifyToken('expired-token')).resolves.toBe('expired');
+      await expect(flow.getTokenStatus('expired-token')).resolves.toBe('expired');
+    });
+
+    it('returns expired for a session without a user', async () => {
+      vi.spyOn(flow['apiClient'], 'request').mockResolvedValue(Response.json({}));
+
+      await expect(flow.getTokenStatus('token')).resolves.toBe('expired');
     });
 
     it('returns unreachable on a 5xx answer', async () => {
       vi.spyOn(flow['apiClient'], 'request').mockResolvedValue(Response.json({}, { status: 503 }));
 
-      await expect(flow.verifyToken('token')).resolves.toBe('unreachable');
+      await expect(flow.getTokenStatus('token')).resolves.toBe('unreachable');
     });
 
     it('returns unreachable on a network error', async () => {
       vi.spyOn(flow['apiClient'], 'request').mockRejectedValue(new Error('Failed to fetch.'));
 
-      await expect(flow.verifyToken('token')).resolves.toBe('unreachable');
+      await expect(flow.getTokenStatus('token')).resolves.toBe('unreachable');
     });
   });
 
@@ -147,12 +153,28 @@ describe('RedoclyOAuthDeviceFlow', () => {
         .mockResolvedValueOnce(
           Response.json({ access_token: 'token', refresh_token: 'refresh', expires_in: 3600 })
         );
-      const openBrowser = vi.fn();
+      const openBrowser = vi.fn().mockResolvedValue(true);
 
       await flow.run(undefined, openBrowser);
 
       expect(openBrowser).toHaveBeenCalledWith('https://test.redocly.com/device?code=ABCD-EFGH');
       expect(childProcess.spawn).not.toHaveBeenCalled();
+    });
+
+    it('stops the login without polling when the browser hook could not open the page', async () => {
+      const request = vi.spyOn(flow['apiClient'], 'request').mockResolvedValueOnce(
+        Response.json({
+          device_code: 'device-1',
+          user_code: 'ABCD-EFGH',
+          verification_uri: 'https://test.redocly.com/device',
+          verification_uri_complete: 'https://test.redocly.com/device?code=ABCD-EFGH',
+        })
+      );
+
+      await expect(flow.run(undefined, async () => false)).rejects.toThrow(
+        'Failed to open the login page.'
+      );
+      expect(request).toHaveBeenCalledOnce();
     });
   });
 
