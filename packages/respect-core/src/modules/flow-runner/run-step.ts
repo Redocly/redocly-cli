@@ -386,6 +386,11 @@ export async function runStep({
       }).every((check) => check.passed);
 
       if (matchesCriteria) {
+        // the `workflowId` and the `stepId` of an `end` action are not relevant, so they are not resolved
+        if (type === 'end') {
+          return { shouldEnd: true };
+        }
+
         const targetWorkflow = action.workflowId
           ? resolveWorkflowReference({ ref: action.workflowId, ctx })
           : undefined;
@@ -499,8 +504,6 @@ export async function runStep({
             }),
             retriesLeft: actionRetriesLeft,
           };
-        } else if (type === 'end') {
-          return { shouldEnd: true };
         } else if (type === 'goto') {
           if (!targetWorkflow && !targetStep) {
             return failStepWithActionError(

@@ -214,4 +214,43 @@ describe('Arazzo spec-sourceDescriptions-defined', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('does not report the workflowId of an action with the end type', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: $sourceDescriptions.cafe-api.createOrder
+                onSuccess:
+                  - name: finish
+                    type: end
+                    workflowId: $sourceDescriptions.delivery-workflows.track-order
+                onFailure:
+                  - name: stop
+                    type: end
+                    workflowId: $sourceDescriptions.delivery-workflows.cancel-delivery
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'spec-sourceDescriptions-defined': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
 });
