@@ -20,7 +20,7 @@ The specification gives these fields the `{expression}` type, and the rule check
 - the `context` of a selector object (Arazzo 1.1)
 - the `reference` of a reusable object
 
-The rule also checks each expression that the `operationPath` or the `channelPath` of a step embeds in curly braces, such as `{$sourceDescriptions.cafe-api.url}`.
+The `spec-no-invalid-runtime-expressions` rule also checks each expression that the `operationPath` or the `channelPath` of a step embeds in curly braces, such as `{$sourceDescriptions.cafe-api.url}`.
 
 The rule checks a value against the grammar of the Arazzo version of the description.
 The `$self` and `$message` expressions and the `payload` source are valid only in Arazzo 1.1.
