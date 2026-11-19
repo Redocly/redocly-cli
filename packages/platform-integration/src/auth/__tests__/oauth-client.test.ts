@@ -2,6 +2,8 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
+import { PlatformApiError } from '../../api/api-client.js';
+import type { CredentialsStore } from '../credentials-store.js';
 import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
 import { RedoclyOAuthClient } from '../oauth-client.js';
 
@@ -48,16 +50,17 @@ describe('RedoclyOAuthClient', () => {
       await expect(client.login(mockBaseUrl)).rejects.toThrow('Failed to login');
     });
 
-    it('hands the device code callback to the flow', async () => {
+    it('hands the device code callback and the browser hook to the flow', async () => {
       const mockDeviceFlow = { run: vi.fn().mockResolvedValue({ access_token: 'test-token' }) };
       vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
         return mockDeviceFlow;
       });
       const onDeviceCode = vi.fn();
+      const openBrowser = vi.fn();
 
-      await client.login(mockBaseUrl, onDeviceCode);
+      await client.login(mockBaseUrl, onDeviceCode, openBrowser);
 
-      expect(mockDeviceFlow.run).toHaveBeenCalledWith(onDeviceCode);
+      expect(mockDeviceFlow.run).toHaveBeenCalledWith(onDeviceCode, openBrowser);
     });
 
     it('fails when the credentials cannot be saved', async () => {
@@ -76,19 +79,20 @@ describe('RedoclyOAuthClient', () => {
   });
 
   describe('logout', () => {
-    it('removes token file if it exists', async () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-
+    it('removes the credentials file', async () => {
       await client.logout();
 
-      expect(fs.rmSync).toHaveBeenCalledWith(path.join(mockRedoclyDir, 'credentials'));
+      expect(fs.rmSync).toHaveBeenCalledWith(path.join(mockRedoclyDir, 'credentials'), {
+        force: true,
+      });
     });
 
-    it('silently fails if token file does not exist', async () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
+    it('silently fails if the credentials file cannot be removed', async () => {
+      vi.mocked(fs.rmSync).mockImplementation(() => {
+        throw new Error('EACCES: permission denied');
+      });
 
       await expect(client.logout()).resolves.not.toThrow();
-      expect(fs.rmSync).not.toHaveBeenCalled();
     });
   });
 
@@ -135,6 +139,165 @@ describe('RedoclyOAuthClient', () => {
 
       expect(result).toBe(false);
       expect(getAccessTokenSpy).toHaveBeenCalledWith(mockBaseUrl);
+    });
+  });
+
+  describe('getAuthState', () => {
+    const credentials = {
+      access_token: 'stored-token',
+      refresh_token: 'stored-refresh',
+      expires_in: 3600,
+      residency: mockBaseUrl,
+    };
+    let stored: string | null;
+    let store: CredentialsStore;
+    let storeClient: RedoclyOAuthClient;
+
+    const mockDeviceFlow = (methods: Record<string, unknown>) =>
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return methods;
+      });
+
+    beforeEach(async () => {
+      stored = null;
+      store = {
+        read: vi.fn(async () => stored),
+        write: vi.fn(async (value: string) => {
+          stored = value;
+        }),
+        delete: vi.fn(async () => {
+          stored = null;
+        }),
+      };
+      storeClient = new RedoclyOAuthClient('1.2.3', store);
+      mockDeviceFlow({ run: vi.fn().mockResolvedValue(credentials) });
+      await storeClient.login(mockBaseUrl);
+    });
+
+    it('reads and writes the credentials through the given store', async () => {
+      expect(store.write).toHaveBeenCalledOnce();
+      expect(fs.writeFileSync).not.toHaveBeenCalled();
+    });
+
+    it('returns signed-out when the store has no credentials', async () => {
+      stored = null;
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'signed-out',
+      });
+    });
+
+    it('returns invalid-platform-url for a platform URL that is not https', async () => {
+      await expect(storeClient.getAuthState('http://test.redocly.com')).resolves.toEqual({
+        status: 'invalid-platform-url',
+      });
+    });
+
+    it('returns residency-mismatch with the stored and the expected URL', async () => {
+      await expect(storeClient.getAuthState('https://other.redocly.com')).resolves.toEqual({
+        status: 'residency-mismatch',
+        stored: mockBaseUrl,
+        expected: 'https://other.redocly.com',
+      });
+    });
+
+    it('returns the token when the platform accepts it', async () => {
+      mockDeviceFlow({ getTokenStatus: vi.fn().mockResolvedValue('valid') });
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'authorized',
+        token: 'stored-token',
+      });
+    });
+
+    it('returns offline when neither the session check nor the refresh reaches the platform', async () => {
+      mockDeviceFlow({
+        getTokenStatus: vi.fn().mockResolvedValue('unreachable'),
+        refreshToken: vi.fn().mockRejectedValue(new TypeError('fetch failed')),
+      });
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({ status: 'offline' });
+    });
+
+    it('refreshes an expired token and saves the new credentials', async () => {
+      mockDeviceFlow({
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn().mockResolvedValue({ ...credentials, access_token: 'new-token' }),
+      });
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'authorized',
+        token: 'new-token',
+      });
+      expect(store.write).toHaveBeenCalledTimes(2);
+    });
+
+    it('returns the new token when it cannot be saved', async () => {
+      mockDeviceFlow({
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn().mockResolvedValue({ ...credentials, access_token: 'new-token' }),
+      });
+      vi.mocked(store.write).mockRejectedValue(new Error('EACCES: permission denied'));
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'authorized',
+        token: 'new-token',
+      });
+    });
+
+    it('returns session-expired and keeps the credentials when the platform rejects the refresh token', async () => {
+      mockDeviceFlow({
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn().mockRejectedValue(new PlatformApiError('Failed', 400)),
+      });
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'session-expired',
+      });
+      expect(store.delete).not.toHaveBeenCalled();
+    });
+
+    it('uses the credentials of another process that rotated the refresh token first', async () => {
+      const otherProcess = new RedoclyOAuthClient('1.2.3', store);
+      mockDeviceFlow({
+        run: vi.fn().mockResolvedValue({
+          ...credentials,
+          access_token: 'other-token',
+          refresh_token: 'other-refresh',
+        }),
+        getTokenStatus: vi.fn().mockResolvedValueOnce('expired').mockResolvedValue('valid'),
+        refreshToken: vi.fn(async () => {
+          await otherProcess.login(mockBaseUrl);
+          throw new PlatformApiError('Failed', 400);
+        }),
+      });
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({
+        status: 'authorized',
+        token: 'other-token',
+      });
+    });
+
+    it('keeps the credentials when the refresh fails with 5xx', async () => {
+      mockDeviceFlow({
+        getTokenStatus: vi.fn().mockResolvedValue('expired'),
+        refreshToken: vi.fn().mockRejectedValue(new PlatformApiError('Failed', 502)),
+      });
+
+      await expect(storeClient.getAuthState(mockBaseUrl)).resolves.toEqual({ status: 'offline' });
+      expect(store.delete).not.toHaveBeenCalled();
+    });
+
+    it('shares one check between concurrent calls', async () => {
+      const getTokenStatus = vi.fn().mockResolvedValue('valid');
+      mockDeviceFlow({ getTokenStatus });
+
+      await Promise.all([
+        storeClient.getAuthState(mockBaseUrl),
+        storeClient.getAuthState(mockBaseUrl),
+      ]);
+
+      expect(getTokenStatus).toHaveBeenCalledOnce();
     });
   });
 });
