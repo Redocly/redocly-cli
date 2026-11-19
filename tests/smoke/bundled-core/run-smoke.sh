@@ -11,9 +11,9 @@ cd tests/smoke/bundled-core
 npm i
 
 # Bundle openapi-core into a consumer and make sure it still resolves plugins
-build_output=$(npm run build 2>&1)
-echo "$build_output"
-if echo "$build_output" | grep -q 'Critical dependency'; then
+build_log=$(mktemp)
+npm run build 2>&1 | tee "$build_log"
+if grep -q 'Critical dependency' "$build_log"; then
   echo "Bundling openapi-core reported a critical dependency"
   exit 1
 fi
