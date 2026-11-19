@@ -1,4 +1,5 @@
 import { isRef } from '../../ref-utils.js';
+import type { Oas3Definition } from '../../typings/openapi.js';
 import { isEmptyArray } from '../../utils/is-empty-array.js';
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
@@ -7,11 +8,7 @@ import type { UserContext } from '../../walk.js';
 
 const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 
-type SecurityRequirementList = {
-  list: Record<string, string[]>[];
-  parent: UserContext['parent'];
-  key: UserContext['key'];
-};
+type SecurityNode = Pick<Oas3Definition, 'security'>;
 
 export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
   internalFlagProperty = DEFAULT_INTERNAL_PROPERTY_NAME,
@@ -53,13 +50,13 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
         if (isRef(node[key])) {
           const resolved = ctx.resolve(node[key]);
           if (isPlainObject(resolved.node) && resolved.node?.[internalFlagProperty]) {
-            noteRemovedSecuritySchemes(ctx.type.name, key, resolved.node);
+            if (ctx.type.name === 'NamedSecuritySchemes') removedSecuritySchemes.add(key);
             delete node[key];
             didDelete = true;
           }
         }
         if (isPlainObject(node[key]) && node[key]?.[internalFlagProperty]) {
-          noteRemovedSecuritySchemes(ctx.type.name, key, node[key]);
+          if (ctx.type.name === 'NamedSecuritySchemes') removedSecuritySchemes.add(key);
           delete node[key];
           didDelete = true;
         }
@@ -71,73 +68,42 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
     }
   }
 
-  // Records the security schemes that go away with node[key]: the scheme itself, or every scheme in a removed scheme map.
-  function noteRemovedSecuritySchemes(typeName: string, key: string, removed: unknown) {
-    if (typeName === 'NamedSecuritySchemes') {
-      removedSecuritySchemes.add(key);
-      return;
-    }
-    const schemes =
-      typeName === 'Root' && key === 'components' && isPlainObject(removed)
-        ? removed.securitySchemes
-        : (typeName === 'Root' && key === 'securityDefinitions') ||
-            (typeName === 'Components' && key === 'securitySchemes')
-          ? removed
-          : undefined;
-    if (isPlainObject(schemes) && !isRef(schemes)) {
-      for (const name of Object.keys(schemes)) removedSecuritySchemes.add(name);
-    }
-  }
-
-  // Records node.security. The walker enters a list shared by several parents (e.g. a YAML alias) only once, so lists are collected from their parents.
-  function noteSecurityRequirementList(node: unknown, ctx: UserContext) {
-    if (!isPlainObject(node) || !node.security) return;
-    const list = ctx.resolve(node.security).node;
-    if (Array.isArray(list)) {
-      securityRequirementLists.push({ list, parent: node, key: 'security' });
-    }
-  }
-
-  function removeInternalSecurityRequirements(
-    list: Record<string, string[]>[],
-    emptiedLists: Set<Record<string, string[]>[]>
-  ) {
-    // A requirement lists schemes that must all be used together, so it can't be kept without one of them.
-    let didDelete = false;
-    for (let i = 0; i < list.length; i++) {
-      const requirement = list[i];
-      if (
-        isPlainObject(requirement) &&
-        Object.keys(requirement).some((name) => removedSecuritySchemes.has(name))
-      ) {
-        list.splice(i, 1);
-        didDelete = true;
-        i--;
-      }
-    }
-    if (didDelete && isEmptyArray(list)) {
-      emptiedLists.add(list);
-    }
-  }
-
   let originalMapping: Record<string, string> = {};
   const removedSecuritySchemes = new Set<string>();
-  const securityRequirementLists: SecurityRequirementList[] = [];
+  const securityNodes: SecurityNode[] = [];
+
+  function collectSecurityNode(node: SecurityNode) {
+    securityNodes.push(node);
+  }
+
   return {
     Root: {
-      enter: noteSecurityRequirementList,
+      enter: collectSecurityNode,
       leave: () => {
-        const lists = new Set(securityRequirementLists.map(({ list }) => list));
-        const emptiedLists = new Set<Record<string, string[]>[]>();
-        lists.forEach((list) => removeInternalSecurityRequirements(list, emptiedLists));
-        // Every parent of an emptied list loses the property, so it falls back to the root security.
-        for (const { list, parent, key } of securityRequirementLists) {
-          if (emptiedLists.has(list)) delete parent[key];
+        if (removedSecuritySchemes.size === 0) return;
+
+        for (const node of securityNodes) {
+          const security = node?.security;
+          if (!Array.isArray(security)) continue;
+
+          // All schemes in one requirement must be used together.
+          const filtered = security.filter(
+            (requirement) =>
+              !isPlainObject(requirement) ||
+              !Object.keys(requirement).some((name) => removedSecuritySchemes.has(name))
+          );
+          if (filtered.length === security.length) continue;
+
+          if (filtered.length) {
+            node.security = filtered;
+          } else {
+            delete node.security;
+          }
         }
       },
     },
     Operation: {
-      enter: noteSecurityRequirementList,
+      enter: collectSecurityNode,
     },
     DiscriminatorMapping: {
       enter: (mapping: Record<string, string>) => {

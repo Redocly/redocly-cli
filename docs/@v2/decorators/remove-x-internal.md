@@ -3,6 +3,7 @@
 Removes nodes that have a specific flag property.
 Nodes that don't have the flag property defined are not impacted.
 When a security scheme is removed, any security requirement that uses it is removed too.
+If an operation requires only internal security schemes, mark it with `x-internal` too, since removing all its security requirements makes it inherit root-level `security` or causes `security-defined` to flag it if no root security is defined.
 
 ## API design principles
 
