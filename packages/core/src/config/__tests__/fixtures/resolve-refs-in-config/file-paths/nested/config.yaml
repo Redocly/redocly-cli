@@ -17,6 +17,8 @@ untouched:
   root: https://example.com/openapi.yaml
   output: /absolute/dist/openapi.yaml
   clientOutput: ''
+shared:
+  root: ./openapi.yaml
 nav:
   - label: Home
     page: ./index.md

@@ -26,6 +26,10 @@ apis:
     root: ./openapi.yaml
     overlays:
       $ref: nested/config.yaml#/paths/overlays
+  shared-with-mock-server:
+    $ref: nested/config.yaml#/shared
+mockServer:
+  $ref: nested/config.yaml#/shared
 client:
   $ref: nested/config.yaml#/client
 navbar:

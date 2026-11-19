@@ -2826,6 +2826,12 @@ describe('loadConfig', () => {
       expect(footer?.items).toEqual([{ label: 'Home', page: 'nested/index.md' }]);
     });
 
+    it('should resolve an object that is first reached as an option without paths', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.['shared-with-mock-server']).toMatchObject({ root: 'nested/openapi.yaml' });
+    });
+
     it('should keep a field next to a $ref in the root config as written', async () => {
       const { apis } = await loadFilePathsConfig();
 
