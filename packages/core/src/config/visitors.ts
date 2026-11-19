@@ -87,17 +87,14 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-function resolvePath(value: unknown, dir: string) {
-  if (!isString(value) || !value || isAbsoluteUrl(value) || path.isAbsolute(value)) {
-    return value;
-  }
-  return path.resolve(dir, value);
-}
-
 function resolvePaths(value: unknown, dir: string) {
-  return Array.isArray(value)
-    ? value.map((item) => resolvePath(item, dir))
-    : resolvePath(value, dir);
+  const resolvePath = (item: unknown) => {
+    if (!isString(item) || !item || isAbsoluteUrl(item) || path.isAbsolute(item)) {
+      return item;
+    }
+    return path.resolve(dir, item);
+  };
+  return Array.isArray(value) ? value.map(resolvePath) : resolvePath(value);
 }
 
 // the folder of a local referenced config file; undefined for the root config and for remote files
@@ -125,8 +122,8 @@ function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
 
 // a `$ref` on the path field itself: the value is written in the referenced file
 function resolveUriReferenceValue(
-  ctx: UserContext,
-  resolved: ResolveResult<any>
+  resolved: ResolveResult<any>,
+  ctx: UserContext
 ): ResolveResult<any> {
   if (!resolved.location || !isUriReference(ctx.type.scalar)) {
     return resolved;
@@ -148,7 +145,7 @@ export const configBundlerVisitor = normalizeVisitors(
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
             // the fields written next to the `$ref` belong to the file of the `$ref`
             resolveUriReferenceProperties(node, ctx);
-            replaceRef(node, resolveUriReferenceValue(ctx, resolved), ctx);
+            replaceRef(node, resolveUriReferenceValue(resolved, ctx), ctx);
           },
         },
         any: {
