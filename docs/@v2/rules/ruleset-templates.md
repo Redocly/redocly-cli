@@ -164,10 +164,13 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   spec-action-mutually-exclusive-fields: warn
+  spec-action-stepId-defined: warn
   spec-outputs-invalid-map-name: warn
   spec-querystring-parameters: warn
+  spec-sourceDescriptions-defined: warn
   spec-step-mutually-exclusive-fields: warn
   spec-step-operationId-resolved: warn
+  spec-step-workflowId-defined: warn
   stepId-unique: error
   struct: error
   workflowId-unique: error
@@ -397,10 +400,13 @@ rules:
   sourceDescription-type: error
   sourceDescriptions-not-empty: error
   spec-action-mutually-exclusive-fields: error
+  spec-action-stepId-defined: error
   spec-outputs-invalid-map-name: error
   spec-querystring-parameters: error
+  spec-sourceDescriptions-defined: error
   spec-step-mutually-exclusive-fields: error
   spec-step-operationId-resolved: error
+  spec-step-workflowId-defined: error
   step-onFailure-unique: warn
   step-onSuccess-unique: warn
   stepId-unique: error
