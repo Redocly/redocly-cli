@@ -917,6 +917,40 @@ describe('Overlay struct', () => {
 });
 
 describe('Arazzo struct', () => {
+  it('should not report a requestBody without a payload', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: createOrder
+                requestBody:
+                  contentType: application/json
+                  replacements:
+                    - target: /customerName
+                      value: Ada
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(results).toEqual([]);
+  });
+
   it('should report a workflow with an empty steps list', async () => {
     const document = parseYamlToDocument(
       outdent`

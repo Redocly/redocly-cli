@@ -543,6 +543,25 @@ describe('evaluateRuntimeExpressionPayload', () => {
     ).toEqual('123');
   });
 
+  it('should evaluate a name that starts with an underscore or a digit, and an input with a JSON Pointer', () => {
+    const context = {
+      ...runtimeExpressionContext,
+      $inputs: { _token: 'secret', '2fa': '123456', customer: { name: 'Ada' } },
+    };
+
+    expect(
+      evaluateRuntimeExpressionPayload({
+        payload: {
+          token: '$inputs._token',
+          code: '$inputs.2fa',
+          customerName: '$inputs.customer#/name',
+        },
+        context,
+        logger,
+      })
+    ).toEqual({ token: 'secret', code: '123456', customerName: 'Ada' });
+  });
+
   it('should evaluate multipart/form-data payload ', () => {
     const payload = {
       name: 'test',

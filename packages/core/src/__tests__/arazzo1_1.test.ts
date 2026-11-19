@@ -489,6 +489,73 @@ describe('Arazzo 1.1 lint', () => {
     expect(messages).toContain('The field `type` must be present on this level.');
   });
 
+  it('reports a malformed Selector Object used as a parameter value', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: cafe-api.listMenuItems
+                parameters:
+                  - name: limit
+                    in: query
+                    value:
+                      selector: $.limit
+                successCriteria:
+                  - condition: $statusCode == 200
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/parameters/0/value",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`context\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/parameters/0/value",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`type\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('accepts a constant object as a requestBody replacement value', async () => {
     const document = parseYamlToDocument(
       outdent`

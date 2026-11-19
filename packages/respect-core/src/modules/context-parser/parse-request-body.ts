@@ -82,7 +82,7 @@ export async function parseRequestBody(
   ctx: TestContext
 ): Promise<
   Omit<RequestBody, 'payload'> & {
-    payload:
+    payload?:
       | string
       | number
       | boolean

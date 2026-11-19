@@ -73,6 +73,7 @@ export {
 export { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 export { getTypes, type SpecVersion, type SpecMajorVersion } from './oas-types.js';
 export { isGraphqlRef } from './graphql/detect-graphql.js';
+export { parseRuntimeExpression } from './runtime-expressions/index.js';
 export {
   normalizeVisitors,
   type Oas3Visitor,
