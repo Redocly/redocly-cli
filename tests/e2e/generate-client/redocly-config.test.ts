@@ -315,6 +315,7 @@ const cases: ConfigCase[] = [
     `,
     args: [],
     status: 1,
+    missingFiles: ['dupe.ts'],
     stderr: ['Two APIs write to the same path'],
   },
   {
