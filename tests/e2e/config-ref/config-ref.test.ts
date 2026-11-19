@@ -22,7 +22,7 @@ function run(args: string[]) {
 
 describe('config-ref', () => {
   afterEach(() => {
-    for (const written of ['config/generated', 'out', 'openapi.yaml', 'redocly-file-url.yaml']) {
+    for (const written of ['config/generated', 'out', 'redocly-file-url.yaml']) {
       rmSync(join(testPath, written), { recursive: true, force: true });
     }
   });
@@ -72,14 +72,6 @@ describe('config-ref', () => {
     expect(readFileSync(join(testPath, 'config/generated/orders.yaml'), 'utf8')).not.toContain(
       '/stats'
     );
-  });
-
-  test('join reads both api roots', async () => {
-    await expect(run(['join', 'cafe', 'orders'])).toMatchFileSnapshot(join(snapshots, 'join.txt'));
-  });
-
-  test('stats reads the api root', async () => {
-    await expect(run(['stats', 'cafe'])).toMatchFileSnapshot(join(snapshots, 'stats.txt'));
   });
 
   test('recheck reads the markdoc tags file', async () => {

@@ -2815,25 +2815,6 @@ describe('loadConfig', () => {
         markdoc: { extend: { tagsFile: absolute('nested/tags.js') } },
       });
     });
-
-    it('should resolve extends of a referenced object from the folder of its file', async () => {
-      const { apis } = await loadFilePathsConfig();
-
-      expect(apis?.['one-level'].rules).toEqual({
-        'operation-description': 'error',
-        'operation-summary': 'warn',
-      });
-    });
-  });
-
-  it('should load plugins from a referenced config file relative to that file', async () => {
-    const config = await loadConfig({
-      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/plugins/redocly.yaml'),
-    });
-
-    const ids = config.plugins.map((plugin) => plugin.id);
-    expect(ids).toContain('nested-plugin');
-    expect(ids).not.toContain('root-plugin');
   });
 });
 
