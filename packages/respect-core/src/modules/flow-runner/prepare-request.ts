@@ -215,7 +215,7 @@ export async function prepareRequest(
 
   const evaluatedBody =
     stepRequestBodyContentType === 'multipart/form-data'
-      ? evaluateMultipartPayload(stepRequestBodyPayload, expressionContext, ctx.options.logger)
+      ? evaluateMultipartPayload(requestBody, expressionContext, ctx.options.logger)
       : evaluateRuntimeExpressionPayload({
           payload: requestBody,
           context: expressionContext,

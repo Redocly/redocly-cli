@@ -1710,6 +1710,69 @@ describe('prepareRequest', () => {
     ]);
   });
 
+  it('should send the request body of the description as a form when a multipart step has no payload', async () => {
+    const multipartCtx = {
+      ...ctx,
+      $sourceDescriptions: {
+        cats: {
+          paths: {
+            '/breeds': {
+              post: {
+                operationId: 'createBreed',
+                requestBody: {
+                  content: {
+                    'multipart/form-data': {
+                      schema: {
+                        type: 'object',
+                        properties: { breed: { type: 'string' } },
+                      },
+                      example: { breed: 'Maine Coon' },
+                    },
+                  },
+                },
+                responses: { '201': { description: 'created' } },
+              },
+            },
+          },
+          servers: [{ url: 'https://api.example.com/' }],
+        },
+      },
+      workflows: [
+        {
+          workflowId: 'create-breed-workflow',
+          steps: [
+            {
+              stepId: 'create-breed-step',
+              operationId: 'cats.createBreed',
+              requestBody: { contentType: 'multipart/form-data' },
+              checks: [],
+              response: {},
+            },
+          ],
+        },
+      ],
+      $workflows: {
+        'create-breed-workflow': {
+          steps: {
+            'create-breed-step': { request: {} },
+          },
+        },
+      },
+      $steps: {
+        'create-breed-step': { request: {} },
+      },
+    } as unknown as TestContext;
+    const createBreedStep = multipartCtx.workflows[0].steps[0];
+
+    const { requestBody } = await prepareRequest(
+      multipartCtx,
+      createBreedStep,
+      'create-breed-workflow'
+    );
+
+    expect([...requestBody.entries()]).toEqual([['breed', 'Maine Coon']]);
+  });
+
   it('should handle null request body', async () => {
     const workflowName = 'create-item-workflow';
     const step = {
