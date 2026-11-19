@@ -103,12 +103,12 @@ function resolvePaths(value: unknown, dir: string) {
 // undefined for the root config and for remote files
 function getReferencedLocalDir(sourceRef: string, ctx: UserContext): string | undefined {
   const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
-  const toPath = (ref: string) => (isFileUrl(ref) ? url.fileURLToPath(ref) : ref);
-  const sourcePath = toPath(sourceRef);
+  const toFilePath = (ref: string) => (isFileUrl(ref) ? url.fileURLToPath(ref) : ref);
+  const sourcePath = toFilePath(sourceRef);
   if (sourceRef === rootRef || isAbsoluteUrl(sourcePath)) {
     return undefined;
   }
-  return path.relative(path.dirname(toPath(rootRef)), path.dirname(sourcePath));
+  return path.relative(path.dirname(toFilePath(rootRef)), path.dirname(sourcePath));
 }
 
 // every reader of the config resolves paths from the root config folder, so a path from a referenced
@@ -124,11 +124,10 @@ function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
     const { node: value, location } = isRef(node[field])
       ? ctx.resolve(node[field])
       : { node: node[field], location: ctx.location };
-    if (value === undefined || !location) {
-      continue;
+    const sourceDir = location && getReferencedLocalDir(location.source.absoluteRef, ctx);
+    if (value !== undefined && sourceDir !== undefined) {
+      node[field] = resolvePaths(value, sourceDir);
     }
-    const sourceDir = getReferencedLocalDir(location.source.absoluteRef, ctx);
-    node[field] = sourceDir === undefined ? value : resolvePaths(value, sourceDir);
   }
 }
 
