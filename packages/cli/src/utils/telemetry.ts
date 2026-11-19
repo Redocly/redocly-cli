@@ -1,5 +1,6 @@
 import { CloudEvents, type EventPayload, type EventType } from '@redocly/cli-otel';
 import {
+  ConfigTypes,
   getMajorSpecVersion,
   isAbsoluteUrl,
   isPlainObject,
@@ -20,13 +21,14 @@ import type { Arguments } from 'yargs';
 
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import type { BundleTelemetry } from '../commands/bundle.js';
+import type { IntrospectMcpTelemetry } from '../commands/introspect-mcp/telemetry.js';
 import type { CommandArgv } from '../types.js';
 import type {
   EjectGeneratorTelemetry,
   GenerateClientTelemetry,
 } from './client-generator-telemetry.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
-import type { ExitCode } from './miscellaneous.js';
+import { findAliasesByRoot, getAliasOrPath, type ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
 
@@ -35,6 +37,12 @@ type ArazzoSuccessAction = NonNullable<ArazzoWorkflow['successActions']>[number]
 type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number];
 
 const SECRET_REPLACEMENT = '***';
+
+let optionAliases: Record<string, string[]> = {};
+
+export function setOptionAliases(aliases: Record<string, string[]>) {
+  optionAliases = aliases;
+}
 
 export function isTelemetryEnabled(config?: Config): boolean {
   return process.env.REDOCLY_TELEMETRY !== 'off' && config?.resolvedConfig.telemetry !== 'off';
@@ -57,6 +65,7 @@ export async function sendTelemetry({
   generate_client,
   eject_generator,
   bundle,
+  introspect_mcp,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -74,6 +83,7 @@ export async function sendTelemetry({
   generate_client?: GenerateClientTelemetry;
   eject_generator?: EjectGeneratorTelemetry;
   bundle?: BundleTelemetry;
+  introspect_mcp?: IntrospectMcpTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -101,6 +111,7 @@ export async function sendTelemetry({
     }
 
     const majorSpecVersion = getMajorSpecVersion(spec_version as SpecVersion);
+    const apiArguments = args.apis ?? (args.api === undefined ? [] : [args.api]);
     const eventData: EventPayload<EventType> = [
       {
         id: command,
@@ -108,7 +119,7 @@ export async function sendTelemetry({
         uri: `urn:redocly:cli:command:${command}`,
         logged_in: logged_in ? 'yes' : 'no',
         command,
-        ...cleanArgs(args, process.argv.slice(2)),
+        ...cleanArgs(args, process.argv.slice(2), optionAliases),
         node_version: process.version,
         npm_version: getNpmVersion(),
         version,
@@ -118,6 +129,7 @@ export async function sendTelemetry({
         environment_ci: process.env.CI,
         environment: process.env.REDOCLY_ENVIRONMENT,
         has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
+        ...describeApiArguments(config, apiArguments),
         spec_version,
         spec_keyword,
         spec_full_version,
@@ -171,6 +183,8 @@ export async function sendTelemetry({
         bundle_overlays_count: bundle?.bundle_overlays_count,
         // FIXME: remove this line with `countRepeatedOutput` in packages/cli/src/commands/bundle.ts.
         bundle_repeated_output: bundle?.bundle_repeated_output,
+        // introspect-mcp usage (the protocol version only — never the server URL or command).
+        introspect_mcp_protocol_version: introspect_mcp?.introspect_mcp_protocol_version,
       },
     ];
 
@@ -194,6 +208,39 @@ export async function sendTelemetry({
   } catch (err) {
     // Do nothing.
   }
+}
+
+// Counts and option names of the configuration schema only — never a path or an alias.
+function describeApiArguments(config: Config | undefined, apiArguments: string[]) {
+  const writtenConfig = config?.document?.parsed;
+  if (config === undefined || !isPlainObject(writtenConfig)) {
+    return {};
+  }
+  // The resolved APIs carry the defaults, so the settings come from the file as written.
+  const writtenApis = isPlainObject(writtenConfig.apis) ? writtenConfig.apis : {};
+  const apis = config.resolvedConfig.apis ?? {};
+  const aliasesOfPaths = apiArguments
+    .filter((apiArgument) => apis[apiArgument] === undefined)
+    .map((path) => findAliasesByRoot(config, path));
+  // A command applies the settings of the alias in the argument, or of the first alias whose `root` is the path.
+  const appliedApis = apiArguments
+    .flatMap((apiArgument) => getAliasOrPath(config, apiArgument).alias ?? [])
+    .map((alias) => writtenApis[alias])
+    .filter(isPlainObject);
+  return {
+    apis_count: Object.keys(apis).length,
+    // With several paths, the highest count, so a value above 1 means an ambiguous path.
+    api_path_alias_count: aliasesOfPaths.length
+      ? Math.max(...aliasesOfPaths.map((aliases) => aliases.length))
+      : undefined,
+    api_alias_settings: appliedApis.length
+      ? JSON.stringify(
+          Object.keys(ConfigTypes.ConfigApisProperties.properties).filter(
+            (setting) => setting !== 'root' && appliedApis.some((api) => setting in api)
+          )
+        )
+      : undefined,
+  };
 }
 
 export function collectSourceDescriptionTypes(
@@ -377,25 +424,26 @@ function collectSensitiveValues(
   return values;
 }
 
-export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
+export function cleanArgs(
+  parsedArgs: CommandArgv,
+  rawArgv: string[],
+  aliases: Record<string, string[]>
+) {
   const KEYS_TO_CLEAN = [
     'organization',
-    'o',
     'input',
-    'i',
     'author',
-    'a',
     'clientCert',
     'clientKey',
     'caCert',
     'server',
-    'S',
   ];
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[] | object> = {};
 
   for (const [key, value] of Object.entries(parsedArgs)) {
-    if (KEYS_TO_CLEAN.includes(key)) {
+    const optionNames = [key, ...(aliases[key] ?? [])];
+    if (optionNames.some((optionName) => KEYS_TO_CLEAN.includes(optionName))) {
       commandArguments[key] = SECRET_REPLACEMENT;
       commandInput = replaceArgs(commandInput, value, SECRET_REPLACEMENT);
     } else if (typeof value === 'string') {

@@ -22,6 +22,6 @@
 Found redocly.yaml and using 'openapi' options
 Prerendering docs
 
-🎉 bundled successfully in: redoc-static.html (258 KiB) [⏱ <test>ms].
+🎉 bundled successfully in: redoc-static.html (271 KiB) [⏱ <test>ms].
 
 Exit code: 0
