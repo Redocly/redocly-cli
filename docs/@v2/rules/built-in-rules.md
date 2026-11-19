@@ -142,7 +142,14 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
 - [sourceDescription-name-unique](./arazzo/sourceDescription-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
 - [sourceDescription-type](./arazzo/sourceDescription-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
+- [spec-action-mutually-exclusive-fields](./arazzo/spec-action-mutually-exclusive-fields.md): a success or failure action must use only one of `stepId` and `workflowId`
+- [spec-action-stepId-defined](./arazzo/spec-action-stepId-defined.md): the `stepId` of a success or failure action must reference a step defined in the current workflow
+- [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md): the names in the `outputs` of a workflow or a step must match the regular expression `^[a-zA-Z0-9\.\-_]+$`
+- [spec-querystring-parameters](./arazzo/spec-querystring-parameters.md): a step must use at most one `querystring` parameter and must not mix it with `query` parameters (Arazzo 1.1)
+- [spec-sourceDescriptions-defined](./arazzo/spec-sourceDescriptions-defined.md): a `$sourceDescriptions.<name>` reference must use the `name` of a source description defined in `sourceDescriptions`
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md): a step must use only one of its mutually exclusive operation fields
+- [spec-step-operationId-resolved](./arazzo/spec-step-operationId-resolved.md): the `operationId` of a step must resolve to an operation in a source description
+- [spec-step-workflowId-defined](./arazzo/spec-step-workflowId-defined.md): the `workflowId` of a step must reference an existing workflow
 - [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique

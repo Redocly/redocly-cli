@@ -78,4 +78,119 @@ describe('Arazzo sourceDescription-name-unique', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('should leave `null` items of sourceDescriptions to the struct rule', async () => {
+    const documentWithNullSourceDescription = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Redocly Cafe ordering workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - null
+          - null
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: listMenuItems
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithNullSourceDescription,
+      config: await createConfig({
+        rules: { struct: 'error', 'sourceDescription-name-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/sourceDescriptions/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Expected type \`ArazzoSourceDescription\` (object) but got \`null\`",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/sourceDescriptions/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Expected type \`ArazzoSourceDescription\` (object) but got \`null\`",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report an empty `name` that is not unique', async () => {
+    const documentWithEmptyNames = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Redocly Cafe ordering workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: ''
+            type: openapi
+            url: cafe.yaml
+          - name: ''
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: listMenuItems
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithEmptyNames,
+      config: await createConfig({
+        rules: { 'sourceDescription-name-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/sourceDescriptions/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`name\` must be unique amongst all SourceDescriptions.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/sourcedescription-name-unique",
+          "ruleId": "sourceDescription-name-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

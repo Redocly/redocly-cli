@@ -60,7 +60,10 @@ function getPredicatesFromLocators(
   return [matchKeysPredicate, filterInPredicate, filterOutPredicate].filter(isTruthy);
 }
 
-export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply[] {
+export function getAssertsToApply(
+  assertion: AssertionDefinition,
+  assertionId: string
+): AssertToApply[] {
   const assertsToApply = keysOf(asserts)
     .filter((assertName) => assertion.assertions[assertName] !== undefined)
     .map((assertName) => {
@@ -81,13 +84,13 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
 
   if (shouldRunOnValues && !assertion.subject.property) {
     throw new Error(
-      `The '${shouldRunOnValues.name}' assertion can't be used on all keys. Please provide a single property.`
+      `${assertionId}: The '${shouldRunOnValues.name}' assertion can't be used on all keys. Please provide a single property.`
     );
   }
 
   if (shouldRunOnKeys && assertion.subject.property) {
     throw new Error(
-      `The '${shouldRunOnKeys.name}' assertion can't be used on properties. Please remove the 'property' key.`
+      `${assertionId}: The '${shouldRunOnKeys.name}' assertion can't be used on properties. Please remove the 'property' key.`
     );
   }
 
@@ -158,21 +161,18 @@ export function buildVisitorObject(
 
   for (let index = 0; index < context.length; index++) {
     const assertionDefinitionNode = context[index];
+    const wherePath = `${assertion.assertionId} -> where -> [${index}]`;
 
     if (!isString(assertionDefinitionNode.subject?.type)) {
-      throw new Error(
-        `${assertion.assertionId} -> where -> [${index}]: 'type' (String) is required`
-      );
+      throw new Error(`${wherePath}: 'type' (String) is required`);
     }
 
     if (!isPlainObject(assertionDefinitionNode.assertions)) {
-      throw new Error(
-        `${assertion.assertionId} -> where -> [${index}]: 'assertions' (Object) is required`
-      );
+      throw new Error(`${wherePath}: 'assertions' (Object) is required`);
     }
 
     const locatorPredicates = getPredicatesFromLocators(assertionDefinitionNode.subject);
-    const assertsToApply = getAssertsToApply(assertionDefinitionNode);
+    const assertsToApply = getAssertsToApply(assertionDefinitionNode, wherePath);
 
     const skipFunction = (node: unknown, key: string | number, ctx: SkipFunctionContext): boolean =>
       !locatorPredicates.every((predicate) => predicate(key)) ||
@@ -210,6 +210,8 @@ export function buildVisitorObject(
 }
 
 export function buildSubjectVisitor(assertId: string, assertion: Assertion): VisitFunction<any> {
+  const assertsToApply = getAssertsToApply(assertion, assertId);
+
   return (node: any, ctx: UserContext) => {
     const properties = getAssertionProperties(assertion);
 
@@ -218,10 +220,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
         ', '
       )} didn't meet the assertions: ${assertionMessageTemplates.problems}`.replace(/ +/g, ' ');
 
-    const problems = applyAssertions(assertion, getAssertsToApply(assertion), {
-      ...ctx,
-      node,
-    });
+    const problems = applyAssertions(assertion, assertsToApply, { ...ctx, node });
 
     if (problems.length) {
       for (const problemGroup of groupProblemsByLocation(problems)) {

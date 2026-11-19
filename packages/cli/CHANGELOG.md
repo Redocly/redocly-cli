@@ -1,5 +1,106 @@
 # @redocly/cli
 
+## 2.80.0
+
+### Minor Changes
+
+- Added the `spec-action-mutually-exclusive-fields` rule for Arazzo descriptions.
+  The rule reports a success or failure action that uses both `stepId` and `workflowId`.
+- Added the `spec-outputs-invalid-map-name` rule for Arazzo descriptions.
+  The rule reports a workflow or step output name that does not match the regular expression `^[a-zA-Z0-9\.\-_]+$`, as the Arazzo specification requires.
+
+### Patch Changes
+
+- Fixed an issue where `lint` stopped with an error instead of reporting the problems when the `sourceDescriptions`, `workflows`, `steps`, or `dependsOn` of an Arazzo description was not a list or had an empty item.
+- Fixed an issue where the `struct` rule didn't report an empty `successCriteria` list of an Arazzo step or an empty `criteria` list of a success action.
+- Fixed an issue where the `struct` rule didn't report an Arazzo workflow with an empty `steps` list.
+- Fixed an issue where the `struct` rule didn't report an Arazzo description with an empty `workflows` list.
+- Improved the error messages for misconfigured configurable rules.
+  The error names the rule and is reported even if the API description has no node of the rule's subject type.
+- Fixed an issue where `drift` reported a valid decimal value, such as `98.8` for `multipleOf: 0.1`, as a schema mismatch.
+- Fixed an issue where the `no-invalid-schema-examples`, `no-invalid-media-type-examples`, and `no-invalid-parameter-examples` rules reported a valid decimal example.
+
+  The rules accept a value that differs from a multiple by less than one millionth of `multipleOf`, such as `1.0000001` for `multipleOf: 1`.
+
+- Fixed type errors in the generated TypeScript client when a project's `tsconfig.json` didn't include the `DOM` lib.
+- Fixed an issue where `join` and `split` folded long YAML strings into several lines and changed multi-line strings from literal style (`|`) to folded style (`>`).
+- Fixed an issue where Respect left the runs of the workflows from a `dependsOn` list out of the results.
+- Fixed an issue where `respect` reported `unexpected error` instead of `global timeout error` for a workflow when the execution timeout stopped a workflow from its `dependsOn` list.
+- Fixed an issue where `respect` reported a valid decimal value, such as `98.8` for `multipleOf: 0.1`, in a response or in workflow inputs.
+- Fixed an issue where `respect` counted steps that sent no request, such as the steps skipped after the execution timeout, in `totalRequests` of the JSON output.
+- Updated @redocly/client-generator to v0.10.3.
+- Updated @redocly/openapi-core to v2.80.0.
+- Updated @redocly/platform-integration to v2.80.0.
+- Updated @redocly/respect-core to v2.80.0.
+
+## 2.79.0
+
+### Minor Changes
+
+- Added the `--extends` option to the experimental `diff` command.
+  The option replaces the `extends` list of the configuration file for one run, so `--extends=diff-recommended` turns on the diff rules without a change to the file.
+- Added support for MCP servers of protocol version `2026-07-28` to the experimental `introspect-mcp` command.
+
+  **Note:** A server that supports both `2026-07-28` and an earlier protocol version is now recorded with `protocolVersion: 2026-07-28`.
+  If `--check` reports the description as out of date, run the command without `--check` and commit the file.
+
+- Added recommendations to the experimental `score` command.
+  It ranks the edits that raise the Agent Readiness score by their simulated impact and displays the score that all safe edits reach together.
+  The JSON output also lists the design findings that no documentation edit fixes.
+- Added support for Git revisions to the experimental `diff` command.
+  An argument in the `<revision>:<path>` form, such as `origin/main:openapi.yaml`, reads the API description and the files it references from that revision.
+
+### Patch Changes
+
+- Fixed an issue where `respect` counted and listed a request twice in the JSON output when the execution timeout ended the retries of a step.
+- Fixed an issue where `respect` waited for a retry or ran a sub-workflow step after the execution timeout, and reported `globalTimeoutError: false` in the JSON output when the timeout ended a retry.
+- Fixed an issue where Respect counted a step that calls a workflow as a request in `totalRequests` of the JSON output when the step reported a failed check of its own.
+- Fixed an issue where Respect skipped the `successCriteria` of a step that calls a workflow with `workflowId`.
+  Respect checks them against the outputs of the called workflow, read as `$outputs`.
+  A failed criterion fails the step and runs its `onFailure` actions.
+  The criteria and the parameters of the step's `onSuccess` and `onFailure` actions read `$outputs` the same way.
+- Fixed an issue where Respect ran the `onSuccess` actions and the next steps after a step that calls a workflow failed to resolve one of its `outputs`.
+  The step runs its `onFailure` actions, and the workflow ends when it has none.
+- Added a link to the `score` command documentation at the end of its output.
+- Changed the `score` command to count error responses only toward error clarity, so the schemas and examples of error responses no longer change the example, documentation, constraint, schema, and dependency metrics of an operation.
+- Fixed an issue where the `score` command lowered the example coverage of operations without a response body and reported missing response examples for them.
+- Fixed an issue where the `score` command counted a shared response or request body only for the first operation that referenced it.
+- Fixed an issue where the `skills` command failed when the `skills` path of an agent, such as `.claude/skills`, was a file or a broken symbolic link.
+  The command skips that path with a warning and installs the skills into the other folders.
+- Updated @redocly/respect-core to v2.79.0.
+
+## 2.78.0
+
+### Minor Changes
+
+- Added the `spec-querystring-parameters` rule for Arazzo 1.1.0 descriptions.
+  The rule reports a step that has more than one `querystring` parameter or mixes `querystring` with `query` parameters, counting the parameters of its workflow.
+- Added a warning to the `respect` command for workflow inputs that don't match the workflow's `inputs` schema.
+  The workflow still runs with the inputs as given.
+- Added support for the `querystring` parameter location of Arazzo 1.1.0 and OpenAPI 3.2 to the `respect` command.
+  A step or workflow parameter with `in: querystring` sets the whole query string of the request.
+  A step without `parameters` takes a required `querystring` parameter from the OpenAPI description, the same way as the other parameters.
+- Updated redoc to v3.1.0.
+
+### Patch Changes
+
+- Fixed an issue where a Respect step that uses an AsyncAPI source description failed with `Unknown description name`.
+  The step now reports that Respect does not support AsyncAPI yet and links the Redocly CLI repository to upvote or open an issue.
+- Fixed an issue where `respect` skipped the content type check for a response described only by the `default` response.
+- Fixed an issue where `respect` failed to find an operation by `operationId` when an empty path item or an empty operation came before it in the OpenAPI description.
+- Fixed an issue where `respect` failed when a workflow `inputs` schema had a `default` at its top level or at the top of `env`, or used a keyword that JSON Schema does not define, such as `example` or an `x-` extension.
+- Fixed an issue where `respect` did not mask `format: password` fields of a request body or a response described under a wildcard media type, such as `*/*` or `application/*`.
+- Fixed an issue where `respect` checked a response against the first matching wildcard media type instead of the most specific one.
+  `application/*` wins over `*/*` regardless of their order.
+- Fixed an issue where `respect` did not evaluate a runtime expression embedded in a string value inside other braces, such as `'{"search":"{$inputs.search}"}'`.
+  A `$faker` call in such a value no longer removes the surrounding braces.
+- Fixed an issue where `respect` did not apply its own lint rules, such as `no-criteria-xpath` and the `x-security` rules, to Arazzo 1.1.0 descriptions.
+- Fixed an issue where `respect` failed the status code check and skipped the content type and schema checks for a response described with a status code range, such as `2XX`.
+- Fixed an issue where Respect printed a secret path parameter of an `x-operation` URL unmasked in the request URL of the `--verbose` output.
+- Updated @redocly/openapi-core to v2.78.0.
+- Updated @redocly/platform-integration to v2.78.0.
+- Updated @redocly/respect-core to v2.78.0.
+
 ## 2.77.0
 
 ### Minor Changes

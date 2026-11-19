@@ -1,15 +1,17 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import type {
-  Implementation,
-  Prompt,
-  Resource,
-  ServerCapabilities,
-  Tool,
-} from '@modelcontextprotocol/sdk/types.js';
+import {
+  Client,
+  SdkError,
+  SdkErrorCode,
+  SSEClientTransport,
+  StreamableHTTPClientTransport,
+  type Implementation,
+  type Prompt,
+  type Resource,
+  type ServerCapabilities,
+  type Tool,
+  type Transport,
+} from '@modelcontextprotocol/client';
+import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { logger, HandledError } from '@redocly/openapi-core';
 import { gray } from 'colorette';
 
@@ -31,25 +33,22 @@ async function collectAllPages<Item>(
   listPage: (cursor: string | undefined) => Promise<{ items: Item[]; nextCursor?: string }>
 ): Promise<Item[]> {
   const items: Item[] = [];
+  const seenCursors = new Set<string>();
   let cursor: string | undefined;
-  do {
+  while (true) {
     const page = await listPage(cursor);
     items.push(...page.items);
     cursor = page.nextCursor;
-  } while (cursor);
-  return items;
-}
-
-// Only the Streamable HTTP transport exposes the negotiated protocol version itself,
-// but the client reports it to any transport that listens - so listen on all of them.
-function captureProtocolVersion(transport: Transport): () => string | undefined {
-  let negotiatedVersion: string | undefined;
-  const originalSetProtocolVersion = transport.setProtocolVersion?.bind(transport);
-  transport.setProtocolVersion = (protocolVersion: string) => {
-    negotiatedVersion = protocolVersion;
-    originalSetProtocolVersion?.(protocolVersion);
-  };
-  return () => negotiatedVersion;
+    if (!cursor) {
+      return items;
+    }
+    if (seenCursors.has(cursor)) {
+      throw new HandledError(
+        'The MCP server returned the same pagination cursor twice, so its list never ends.'
+      );
+    }
+    seenCursors.add(cursor);
+  }
 }
 
 // The spawned server inherits the full environment, like running the command in the same
@@ -70,49 +69,74 @@ function targetLabel(target: McpTarget): string {
     : `"${[target.command, ...target.args].join(' ')}"`;
 }
 
-async function connectClient(
-  target: McpTarget,
-  version: string
-): Promise<{ mcpClient: Client; getProtocolVersion: () => string | undefined }> {
-  // For HTTP, try Streamable HTTP first and fall back to the legacy HTTP+SSE transport,
-  // as the MCP specification recommends for clients supporting both.
-  const transportAttempts: (() => Transport)[] =
-    target.kind === 'stdio'
-      ? [
-          () =>
-            new StdioClientTransport({
-              command: target.command,
-              args: target.args,
-              env: inheritedEnvironment(),
-            }),
-        ]
-      : [
-          () =>
-            new StreamableHTTPClientTransport(target.url, {
-              requestInit: { headers: target.headers },
-            }),
-          () => new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
-        ];
+async function connectClient(target: McpTarget, version: string): Promise<Client> {
+  // The `auto` mode tries `server/discover` of protocol 2026-07-28 and falls back to `initialize`.
+  // Over HTTP it fails on a 5xx status or no answer, so the second attempt sends `initialize`.
+  const attempts: {
+    createTransport: () => Transport;
+    versionNegotiation: 'auto' | 'legacy';
+    afterProbeFailure?: boolean;
+    retryMessage?: string;
+  }[] = [];
+  if (target.kind === 'stdio') {
+    attempts.push({
+      createTransport: () =>
+        new StdioClientTransport({
+          command: target.command,
+          args: target.args,
+          env: inheritedEnvironment(),
+        }),
+      versionNegotiation: 'auto',
+    });
+  } else {
+    const createStreamableHttpTransport = () =>
+      new StreamableHTTPClientTransport(target.url, { requestInit: { headers: target.headers } });
+    attempts.push(
+      { createTransport: createStreamableHttpTransport, versionNegotiation: 'auto' },
+      {
+        createTransport: createStreamableHttpTransport,
+        versionNegotiation: 'legacy',
+        afterProbeFailure: true,
+        retryMessage: 'Retrying with the initialize handshake...',
+      },
+      {
+        createTransport: () =>
+          new SSEClientTransport(target.url, { requestInit: { headers: target.headers } }),
+        versionNegotiation: 'legacy',
+        retryMessage: 'Retrying with the legacy HTTP+SSE transport...',
+      }
+    );
+  }
 
-  let firstError: unknown;
-  for (const [attemptIndex, createTransport] of transportAttempts.entries()) {
-    if (attemptIndex > 0) {
-      logger.info(gray('  Retrying with the legacy HTTP+SSE transport... \n'));
+  let connectionError: unknown;
+  let probeFailed = false;
+  for (const attempt of attempts) {
+    if (attempt.afterProbeFailure && !probeFailed) {
+      continue;
     }
-    const transport = createTransport();
-    const getProtocolVersion = captureProtocolVersion(transport);
-    const mcpClient = new Client({ name: 'redocly-cli', version });
+    if (attempt.retryMessage) {
+      logger.info(gray(`  ${attempt.retryMessage} \n`));
+    }
+    const mcpClient = new Client(
+      { name: 'redocly-cli', version },
+      { versionNegotiation: { mode: attempt.versionNegotiation } }
+    );
     try {
-      await mcpClient.connect(transport);
-      return { mcpClient, getProtocolVersion };
+      await mcpClient.connect(attempt.createTransport());
+      return mcpClient;
     } catch (error) {
-      firstError ??= error;
+      // The error of the `initialize` attempt replaces the error of the failed probe before it.
+      connectionError = attempt.afterProbeFailure ? error : (connectionError ?? error);
+      probeFailed =
+        error instanceof SdkError &&
+        (error.code === SdkErrorCode.EraNegotiationFailed ||
+          error.code === SdkErrorCode.RequestTimeout);
       await mcpClient.close().catch(() => undefined);
     }
   }
   throw new HandledError(
     `Failed to connect to the MCP server at ${targetLabel(target)}: ${
-      firstError instanceof Error ? firstError.message : String(firstError)
+      connectionError instanceof Error ? connectionError.message : String(connectionError)
     }`
   );
 }
@@ -121,31 +145,33 @@ export async function introspectMcpServer(
   target: McpTarget,
   version: string
 ): Promise<McpServerSnapshot> {
-  const { mcpClient, getProtocolVersion } = await connectClient(target, version);
+  const mcpClient = await connectClient(target, version);
 
   try {
     const capabilities = mcpClient.getServerCapabilities();
+    // The lists are read page by page with `request`, because `listTools`, `listPrompts`, and
+    // `listResources` stop after 64 pages, and `listTools` drops the tools it finds invalid.
     const tools = capabilities?.tools
       ? await collectAllPages(async (cursor) => {
-          const page = await mcpClient.listTools({ cursor });
+          const page = await mcpClient.request({ method: 'tools/list', params: { cursor } });
           return { items: page.tools, nextCursor: page.nextCursor };
         })
       : [];
     const prompts = capabilities?.prompts
       ? await collectAllPages(async (cursor) => {
-          const page = await mcpClient.listPrompts({ cursor });
+          const page = await mcpClient.request({ method: 'prompts/list', params: { cursor } });
           return { items: page.prompts, nextCursor: page.nextCursor };
         })
       : [];
     const resources = capabilities?.resources
       ? await collectAllPages(async (cursor) => {
-          const page = await mcpClient.listResources({ cursor });
+          const page = await mcpClient.request({ method: 'resources/list', params: { cursor } });
           return { items: page.resources, nextCursor: page.nextCursor };
         })
       : [];
 
     return {
-      protocolVersion: getProtocolVersion(),
+      protocolVersion: mcpClient.getNegotiatedProtocolVersion(),
       capabilities,
       serverInfo: mcpClient.getServerVersion(),
       instructions: mcpClient.getInstructions(),

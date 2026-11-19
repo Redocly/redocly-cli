@@ -2,9 +2,7 @@ get:
   tags:
     - store
   summary: Find purchase order by ID
-  description: >-
-    For valid response try integer IDs with value <= 5 or > 10. Other values
-    will generated exceptions
+  description: For valid response try integer IDs with value <= 5 or > 10. Other values will generated exceptions
   operationId: getOrderById
   parameters:
     - name: orderId
@@ -34,9 +32,7 @@ delete:
   tags:
     - store
   summary: Delete purchase order by ID
-  description: >-
-    For valid response try integer IDs with value < 1000. Anything above 1000 or
-    nonintegers will generate API errors
+  description: For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
   operationId: deleteOrder
   parameters:
     - name: orderId

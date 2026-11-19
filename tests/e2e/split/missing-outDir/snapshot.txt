@@ -1,5 +1,5 @@
 
-index.js split [api]
+redocly split [api]
 
 Split an API description into a multi-file structure.
 

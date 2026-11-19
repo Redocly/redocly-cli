@@ -24,6 +24,20 @@ describe('resolveInputValuesToSchema', () => {
     );
   });
 
+  it('should accept a decimal input that is a multiple of a decimal multipleOf', () => {
+    const schema = {
+      type: 'object',
+      properties: { percent: { type: 'number', multipleOf: 0.1 } },
+    };
+    const onInvalid = vi.fn();
+
+    resolveInputValuesToSchema({ percent: 98.8 }, schema, onInvalid);
+    expect(onInvalid).not.toHaveBeenCalled();
+
+    resolveInputValuesToSchema({ percent: 98.85 }, schema, onInvalid);
+    expect(onInvalid).toHaveBeenCalledWith('inputs/percent must be multiple of 0.1');
+  });
+
   it('should return empty object if values is empty', () => {
     const schema = {
       type: 'object',
