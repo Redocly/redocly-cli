@@ -18,6 +18,7 @@ The `spec-step-workflowId-defined` rule checks both forms of the field:
 - A reference to a workflow of another Arazzo document must have the form `$sourceDescriptions.<name>.<workflowId>`, and the source description it names must have the `arazzo` type.
 
 The [spec-sourceDescriptions-defined](./spec-sourceDescriptions-defined.md) rule reports a reference to a source description that is not defined.
+The [sourceDescription-type](./sourceDescription-type.md) rule reports a source description without a `type`.
 The rule does not open the other Arazzo document, so it does not check that the workflow exists there.
 
 ## Configuration
