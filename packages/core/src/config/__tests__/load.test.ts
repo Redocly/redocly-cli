@@ -2767,7 +2767,6 @@ describe('loadConfig', () => {
 
   describe('file paths in referenced config files', () => {
     const fixtureDir = path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths');
-    const absolute = (relativePath: string) => path.join(fixtureDir, relativePath);
     const loadFilePathsConfig = async () => {
       const { resolvedConfig } = await loadConfig({
         configPath: path.join(fixtureDir, 'redocly.yaml'),
@@ -2785,10 +2784,10 @@ describe('loadConfig', () => {
       const { apis } = await loadFilePathsConfig();
 
       expect(apis?.['one-level']).toMatchObject({
-        root: absolute('nested/openapi.yaml'),
-        output: absolute('nested/dist/openapi.yaml'),
-        overlays: [absolute('nested/overlays/add-servers.yaml')],
-        clientOutput: absolute('nested/client.ts'),
+        root: 'nested/openapi.yaml',
+        output: 'nested/dist/openapi.yaml',
+        overlays: ['nested/overlays/add-servers.yaml'],
+        clientOutput: 'nested/client.ts',
       });
     });
 
@@ -2796,35 +2795,42 @@ describe('loadConfig', () => {
       const { apis } = await loadFilePathsConfig();
 
       expect(apis?.['parent-dir']).toMatchObject({
-        root: absolute('specs/openapi.yaml'),
-        output: absolute('nested/dist/out.yaml'),
+        root: 'specs/openapi.yaml',
+        output: 'nested/dist/out.yaml',
       });
     });
 
     it('should resolve the paths at the end of a $ref chain from the last file', async () => {
       const { apis } = await loadFilePathsConfig();
 
-      expect(apis?.chained).toMatchObject({ root: absolute('nested/deep/openapi.yaml') });
+      expect(apis?.chained).toMatchObject({ root: 'nested/deep/openapi.yaml' });
     });
 
     it('should resolve an object that several $refs point to', async () => {
       const { apis, openapi } = await loadFilePathsConfig();
 
       expect(apis?.reused).toMatchObject({
-        root: absolute('nested/openapi.yaml'),
-        output: absolute('nested/dist/openapi.yaml'),
+        root: 'nested/openapi.yaml',
+        output: 'nested/dist/openapi.yaml',
       });
       expect(apis?.['shared-openapi'].openapi).toEqual({
-        htmlTemplate: absolute('nested/template.html'),
+        htmlTemplate: 'nested/template.html',
       });
-      expect(openapi).toEqual({ htmlTemplate: absolute('nested/template.html') });
+      expect(openapi).toEqual({ htmlTemplate: 'nested/template.html' });
+    });
+
+    it('should resolve an object that two options share once', async () => {
+      const { navbar, footer } = await loadFilePathsConfig();
+
+      expect(navbar?.items).toEqual([{ label: 'Home', page: 'nested/index.md' }]);
+      expect(footer?.items).toEqual([{ label: 'Home', page: 'nested/index.md' }]);
     });
 
     it('should keep a field next to a $ref in the root config as written', async () => {
       const { apis } = await loadFilePathsConfig();
 
       expect(apis?.sibling).toMatchObject({
-        root: absolute('nested/openapi.yaml'),
+        root: 'nested/openapi.yaml',
         output: './dist/sibling.yaml',
       });
     });
@@ -2833,18 +2839,18 @@ describe('loadConfig', () => {
       const { apis } = await loadFilePathsConfig();
 
       expect(apis?.['one-level'].client).toEqual({
-        setup: absolute('nested/setup.mjs'),
-        cliOutput: absolute('nested/deep/cli/index.ts'),
+        setup: 'nested/setup.mjs',
+        cliOutput: 'nested/deep/cli/index.ts',
       });
     });
 
     it('should resolve a $ref on the path option itself from the referenced file', async () => {
       const { apis } = await loadFilePathsConfig();
 
-      expect(apis?.['direct-ref']).toMatchObject({ root: absolute('nested/openapi.yaml') });
+      expect(apis?.['direct-ref']).toMatchObject({ root: 'nested/openapi.yaml' });
       expect(apis?.['list-ref']).toMatchObject({
         root: './openapi.yaml',
-        overlays: [absolute('nested/overlays/add-servers.yaml')],
+        overlays: ['nested/overlays/add-servers.yaml'],
       });
     });
 
@@ -2862,8 +2868,8 @@ describe('loadConfig', () => {
       const { client } = await loadFilePathsConfig();
 
       expect(client).toEqual({
-        setup: absolute('nested/setup.mjs'),
-        cliOutput: absolute('nested/cli/index.ts'),
+        setup: 'nested/setup.mjs',
+        cliOutput: 'nested/cli/index.ts',
         goPackage: './not-a-path',
       });
     });
@@ -2872,7 +2878,7 @@ describe('loadConfig', () => {
       const { recheck } = await loadFilePathsConfig();
 
       expect(recheck).toMatchObject({
-        markdoc: { extend: { tagsFile: absolute('nested/tags.js') } },
+        markdoc: { extend: { tagsFile: 'nested/tags.js' } },
       });
     });
   });

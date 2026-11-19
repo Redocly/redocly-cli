@@ -17,6 +17,9 @@ untouched:
   root: https://example.com/openapi.yaml
   output: /absolute/dist/openapi.yaml
   clientOutput: ''
+nav:
+  - label: Home
+    page: ./index.md
 client:
   setup: ./setup.mjs
   cliOutput: ./cli/index.ts

@@ -44,8 +44,6 @@ export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
-  // the schema of a `$ref`-ed value that has no node type
-  scalar?: NormalizedScalarSchema;
   // the properties whose schema, or whose list items' schema, has `format: uri-reference`
   uriReferenceProperties?: string[];
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
@@ -178,7 +176,7 @@ export function isNamedType(t: NormalizedPropType): t is NormalizedNodeType {
   return typeof t?.name === 'string';
 }
 
-export function isUriReference(prop: NormalizedPropType | NormalizedResolveTypeFn) {
+function isUriReference(prop: NormalizedPropType | NormalizedResolveTypeFn) {
   if (typeof prop === 'function' || !prop || isNamedType(prop)) {
     return false;
   }

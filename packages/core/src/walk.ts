@@ -267,7 +267,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         }
 
         if (propType && propType.name === undefined && propType.resolvable !== false) {
-          propType = { name: 'scalar', properties: {}, scalar: propType };
+          propType = { name: 'scalar', properties: {} };
         }
 
         if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {

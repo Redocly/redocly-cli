@@ -2,12 +2,12 @@ import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 import * as path from 'node:path';
 import * as url from 'node:url';
 
-import { isAbsoluteUrl, isFileUrl, replaceRef } from '../ref-utils.js';
-import { isUriReference } from '../types/index.js';
+import { isAbsoluteUrl, isFileUrl, isRef, replaceRef } from '../ref-utils.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
+import { slash } from '../utils/slash.js';
 import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
@@ -72,6 +72,8 @@ export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
   rootRef: string;
+  // the nodes whose paths are resolved: a node is visited once per node type it is reached as
+  resolvedNodes: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -92,47 +94,42 @@ function resolvePaths(value: unknown, dir: string) {
     if (!isString(item) || !item || isAbsoluteUrl(item) || path.isAbsolute(item)) {
       return item;
     }
-    return path.resolve(dir, item);
+    return slash(path.join(dir, item));
   };
   return Array.isArray(value) ? value.map(resolvePath) : resolvePath(value);
 }
 
-// the folder of a local referenced config file; undefined for the root config and for remote files
+// the folder of a local referenced config file, relative to the root config folder;
+// undefined for the root config and for remote files
 function getReferencedLocalDir(sourceRef: string, ctx: UserContext): string | undefined {
   const { rootRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
-  const sourcePath = isFileUrl(sourceRef) ? url.fileURLToPath(sourceRef) : sourceRef;
+  const toPath = (ref: string) => (isFileUrl(ref) ? url.fileURLToPath(ref) : ref);
+  const sourcePath = toPath(sourceRef);
   if (sourceRef === rootRef || isAbsoluteUrl(sourcePath)) {
     return undefined;
   }
-  return path.dirname(sourcePath);
+  return path.relative(path.dirname(toPath(rootRef)), path.dirname(sourcePath));
 }
 
-// commands resolve paths from the root config folder, so a path from a referenced file is made absolute
+// every reader of the config resolves paths from the root config folder, so a path from a referenced
+// file is rewritten relative to that folder
 function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
-  const sourceDir = getReferencedLocalDir(ctx.location.source.absoluteRef, ctx);
-  if (!isPlainObject(node) || sourceDir === undefined) {
+  const { resolvedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  if (!isPlainObject(node) || resolvedNodes.has(node)) {
     return;
   }
+  resolvedNodes.add(node);
   for (const field of ctx.type.uriReferenceProperties ?? []) {
-    if (node[field] !== undefined) {
-      node[field] = resolvePaths(node[field], sourceDir);
+    // a `$ref` on the path field itself: the value is written in the referenced file
+    const { node: value, location } = isRef(node[field])
+      ? ctx.resolve(node[field])
+      : { node: node[field], location: ctx.location };
+    if (value === undefined || !location) {
+      continue;
     }
+    const sourceDir = getReferencedLocalDir(location.source.absoluteRef, ctx);
+    node[field] = sourceDir === undefined ? value : resolvePaths(value, sourceDir);
   }
-}
-
-// a `$ref` on the path field itself: the value is written in the referenced file
-function resolveUriReferenceValue(
-  resolved: ResolveResult<any>,
-  ctx: UserContext
-): ResolveResult<any> {
-  if (!resolved.location || !isUriReference(ctx.type.scalar)) {
-    return resolved;
-  }
-  const sourceDir = getReferencedLocalDir(resolved.location.source.absoluteRef, ctx);
-  if (sourceDir === undefined) {
-    return resolved;
-  }
-  return { ...resolved, node: resolvePaths(resolved.node, sourceDir) };
 }
 
 export const configBundlerVisitor = normalizeVisitors(
@@ -142,14 +139,17 @@ export const configBundlerVisitor = normalizeVisitors(
       ruleId: CONFIG_BUNDLER_VISITOR_ID,
       visitor: {
         ref: {
-          leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+          enter(node: OasRef, ctx: UserContext) {
             // the fields written next to the `$ref` belong to the file of the `$ref`
             resolveUriReferenceProperties(node, ctx);
-            replaceRef(node, resolveUriReferenceValue(resolved, ctx), ctx);
+          },
+          leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+            replaceRef(node, resolved, ctx);
           },
         },
         any: {
-          leave(node: unknown, ctx: UserContext) {
+          // on enter: a `$ref` on a path field is still in place, with the file of its value
+          enter(node: unknown, ctx: UserContext) {
             resolveUriReferenceProperties(node, ctx);
           },
         },

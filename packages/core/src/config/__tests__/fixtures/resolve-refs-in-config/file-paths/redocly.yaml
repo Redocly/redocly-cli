@@ -28,6 +28,12 @@ apis:
       $ref: nested/config.yaml#/paths/overlays
 client:
   $ref: nested/config.yaml#/client
+navbar:
+  items:
+    $ref: nested/config.yaml#/nav
+footer:
+  items:
+    $ref: nested/config.yaml#/nav
 openapi:
   $ref: nested/config.yaml#/openapi
 recheck:
