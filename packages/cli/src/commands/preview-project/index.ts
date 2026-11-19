@@ -66,7 +66,11 @@ const resolveProjectDir = (projectDir: string): string => {
   // Only compare cwd and INIT_CWD for `npx`
   if (process.env.npm_command === 'exec' && initCwd) {
     const relativeInitCwd = path.relative(cwd, initCwd);
-    if (relativeInitCwd && !relativeInitCwd.startsWith('..') && !path.isAbsolute(relativeInitCwd)) {
+    const isInsideCwd =
+      relativeInitCwd !== '..' &&
+      !relativeInitCwd.startsWith(`..${path.sep}`) &&
+      !path.isAbsolute(relativeInitCwd);
+    if (relativeInitCwd && isInsideCwd) {
       return path.resolve(initCwd, projectDir);
     }
   }

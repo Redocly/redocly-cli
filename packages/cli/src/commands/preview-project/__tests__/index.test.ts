@@ -11,6 +11,16 @@ vi.mock('node:child_process', () => ({
   spawn: vi.fn(() => ({ on: vi.fn() })),
 }));
 
+// Without a shell the directory argument is not quoted, so the assertions hold on every platform.
+vi.mock('../../../utils/platform.js', () => ({
+  getPackageRunner: (packageName: string) => ({
+    command: 'npx',
+    args: ['-y', packageName],
+    env: {},
+    shell: false,
+  }),
+}));
+
 describe('previewProject', () => {
   // The workspace package npx moves the command to, and the subdirectory it was run from.
   let packageDir: string;
@@ -53,6 +63,19 @@ describe('previewProject', () => {
     expect(args).toContainEqual(
       expect.stringContaining(`--project-dir=${join(packageDir, 'api')}`)
     );
+  });
+
+  it('previews a subdirectory whose name starts with two dots', async () => {
+    const dottedDir = join(packageDir, '..drafts');
+    mkdirSync(dottedDir);
+    vi.stubEnv('INIT_CWD', dottedDir);
+
+    await previewProject({
+      argv: { plan: 'enterprise', 'project-dir': '.' },
+    } as CommandArgs<PreviewProjectArgv>);
+
+    const [, args] = vi.mocked(spawn).mock.calls[0];
+    expect(args).toContain(`--project-dir=${dottedDir}`);
   });
 
   it('ignores INIT_CWD outside the current directory', async () => {
