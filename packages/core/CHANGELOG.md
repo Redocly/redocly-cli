@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 2.82.0
+
+### Minor Changes
+
+- Added the `spec-action-workflowId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `workflowId` does not reference an existing workflow.
+
+### Patch Changes
+
+- Fixed an issue where the `spec-sourceDescriptions-defined` rule reported the `workflowId` of a success or a failure action with the `end` type.
+
 ## 2.81.0
 
 ### Minor Changes

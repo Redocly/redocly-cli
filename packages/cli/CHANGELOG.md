@@ -1,5 +1,23 @@
 # @redocly/cli
 
+## 2.82.0
+
+### Minor Changes
+
+- Added the `spec-action-workflowId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `workflowId` does not reference an existing workflow.
+
+### Patch Changes
+
+- Fixed an issue where the `spec-sourceDescriptions-defined` rule reported the `workflowId` of a success or a failure action with the `end` type.
+- Fixed an issue where the `preview` command previewed the whole workspace package instead of the requested directory when a user ran it with `npx` in an npm workspace.
+  The issue occurred when the command ran from a subdirectory of the package, or when the `--project-dir` option pointed to a subdirectory.
+- Fixed an issue where Respect failed a step when its `end` action had a `workflowId` that did not reference an existing workflow.
+  The `workflowId` of an `end` action is not relevant, so Respect no longer resolves it.
+- Updated @redocly/openapi-core to v2.82.0.
+- Updated redoc to v3.2.0.
+- Updated @redocly/respect-core to v2.82.0.
+
 ## 2.81.0
 
 ### Minor Changes
