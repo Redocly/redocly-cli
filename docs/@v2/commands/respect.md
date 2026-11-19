@@ -12,8 +12,13 @@ Use this command to execute API tests described in an Arazzo description.
 
 {% admonition type="warning" name="Important" %}
 The `respect` command supports Arazzo 1.0.1 descriptions.
-Of the features added in Arazzo 1.1.0, it supports only the `parameters` field of success and failure actions and the [`querystring` parameter location](#parameters-with-in-querystring).
-When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
+Of the features added in Arazzo 1.1.0, it supports only these:
+
+- The `parameters` field of success and failure actions.
+  When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
+- The [`querystring` parameter location](#parameters-with-in-querystring).
+- [Selector Objects](#selector-objects) with a `jsonpath` or `jsonpointer` type.
+
 AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
 
@@ -260,6 +265,61 @@ For `application/x-www-form-urlencoded`, an array property repeats its name for 
 The parameters that a workflow or a step sets take priority.
 `respect` does not take a `querystring` parameter from the OpenAPI description when the workflow or the step sets `query` or `querystring` parameters.
 It does not take `query` parameters from the OpenAPI description when the workflow or the step sets a `querystring` parameter.
+
+## Selector Objects
+
+A Selector Object picks a value from structured data, such as a response body.
+`respect` evaluates a Selector Object in these places:
+
+- step and workflow `outputs`
+- the `value` of a parameter
+- a request body `payload`
+- the `value` of a replacement
+
+Use Selector Objects in an Arazzo 1.1.0 description.
+The `context` is a runtime expression that gives the data, and the `selector` picks a value from that data.
+
+```yaml
+steps:
+  - stepId: list-menu-items
+    operationId: listMenuItems
+    outputs:
+      menu: $response.body
+      dessertIds:
+        context: $response.body
+        selector: $.items[?(@.category == "dessert")].id
+        type: jsonpath
+      pageLimit:
+        context: $response.body
+        selector: /page/limit
+        type: jsonpointer
+  - stepId: get-menu-item-photo
+    operationId: getMenuItemPhoto
+    parameters:
+      - in: path
+        name: menuItemId
+        value:
+          context: $steps.list-menu-items.outputs.menu
+          selector: $.items[0].id
+          type: jsonpath
+```
+
+`respect` supports the `jsonpath` selector type, as defined in RFC 9535, and the `jsonpointer` selector type.
+A step with a selector of another type or version fails.
+
+- A `jsonpointer` selector gives the value at the pointer.
+- A `jsonpath` selector that consists only of names and indexes, such as `$.items[0].id`, gives the value it selects.
+- Any other `jsonpath` selector, such as one with a filter, a wildcard, or a slice, gives the list of the values it selects.
+  The result is a list also when the selector selects one value or none.
+  Read an item of that list with a JSON Pointer, as in `$steps.list-menu-items.outputs.dessertIds#/0`.
+
+The step fails when a `jsonpointer` selector, or a `jsonpath` selector of names and indexes, selects no value.
+
+A `jsonpath` selector can embed runtime expressions in curly braces, for example `$.items[?(@.category == {$inputs.category})].id`.
+`respect` inserts a string value together with its quotes, so do not put quotes around the braces.
+
+`respect` reads an object as a Selector Object when it has a `context`, a `selector`, and a `type` of `jsonpath`, `xpath`, or `jsonpointer`.
+A request body cannot send such an object as a literal value.
 
 ## Examples
 

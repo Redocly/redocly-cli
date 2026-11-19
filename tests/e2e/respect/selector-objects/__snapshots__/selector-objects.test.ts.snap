@@ -1,0 +1,194 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should evaluate Selector Objects in outputs, parameters, and request bodies 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow selector-objects.arazzo.yaml / submit-order 
+ 
+  ✓ POST /orders - step submit-order 
+
+    Request URL: https://api.cafe.redocly.com/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+    Request Body:
+      {
+        "orderItems": [
+          {
+            "menuItemId": "prd_0000000000seedteabv0000000",
+            "quantity": 1,
+            "comment": "no-sugar"
+          },
+          {
+            "menuItemId": "prd_0000000000seedtrams0000000",
+            "quantity": 2,
+            "comment": "mermaid-treasure-latte"
+          }
+        ]
+      } 
+ 
+
+    Response status code: 401
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Bearer token is required",
+        "status": 401,
+        "instance": "/orders"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Running required workflow for use-selected-values
+  Running workflow selector-objects.arazzo.yaml / submit-order 
+ 
+  ✓ POST /orders - step submit-order 
+
+    Request URL: https://api.cafe.redocly.com/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+    Request Body:
+      {
+        "orderItems": [
+          {
+            "menuItemId": "prd_0000000000seedteabv0000000",
+            "quantity": 1,
+            "comment": "no-sugar"
+          },
+          {
+            "menuItemId": "prd_0000000000seedtrams0000000",
+            "quantity": 2,
+            "comment": "mermaid-treasure-latte"
+          }
+        ]
+      } 
+ 
+
+    Response status code: 401
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Bearer token is required",
+        "status": 401,
+        "instance": "/orders"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow selector-objects.arazzo.yaml / use-selected-values 
+ 
+  ✓ GET /menu-item-images/{menuItemId} - step get-menu-item-photo 
+
+    Request URL: https://api.cafe.redocly.com/menu-item-images/prd_0000000000seedtrams0000000
+    Request Headers:
+      accept: text/plain 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      A classic Italian tiramisu layered with mascarpone and espresso 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 404, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /menu - step search-menu-by-selected-comment 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ POST /orders - step repeat-order 
+
+    Request URL: https://api.cafe.redocly.com/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+    Request Body:
+      {
+        "orderItems": [
+          {
+            "menuItemId": "prd_0000000000seedtrams0000000",
+            "quantity": 2
+          }
+        ]
+      } 
+ 
+
+    Response status code: 401
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Bearer token is required",
+        "status": 401,
+        "instance": "/orders"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for selector-objects.arazzo.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 5 passed, 5 total
+  Checks: 20 passed, 20 total
+  Time: <test>ms 
+ 
+ 
+┌──────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ selector-objects.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;

@@ -1,0 +1,92 @@
+arazzo: 1.1.0
+info:
+  title: Selector Objects
+  description: >-
+    Selects values with Selector Objects in outputs, a parameter, a request body, and a replacement,
+    and renders the resolved requests in verbose output.
+    The values are selected from a request body so every printed response body stays deterministic.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: submit-order
+    inputs:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          default: 2
+    steps:
+      - stepId: submit-order
+        operationId: cafe-api.createOrder
+        requestBody:
+          payload:
+            orderItems:
+              - menuItemId: prd_0000000000seedteabv0000000
+                quantity: 1
+                comment: no-sugar
+              - menuItemId: prd_0000000000seedtrams0000000
+                quantity: 2
+                comment: mermaid-treasure-latte
+        successCriteria:
+          - condition: $statusCode == 401
+        outputs:
+          order: $request.body
+          menuItemIds:
+            context: $request.body
+            selector: $.orderItems[?(@.quantity == {$inputs.quantity})].menuItemId
+            type: jsonpath
+    outputs:
+      order: $steps.submit-order.outputs.order
+      menuItemId:
+        context: $steps.submit-order.outputs.menuItemIds
+        selector: $[0]
+        type: jsonpath
+  - workflowId: use-selected-values
+    dependsOn:
+      - submit-order
+    steps:
+      - stepId: get-menu-item-photo
+        operationId: cafe-api.getMenuItemPhoto
+        parameters:
+          - in: path
+            name: menuItemId
+            value: $workflows.submit-order.outputs.menuItemId
+          - in: header
+            name: Accept
+            value: text/plain
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: search-menu-by-selected-comment
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value:
+              context: $workflows.submit-order.outputs.order
+              selector: $.orderItems[1].comment
+              type: jsonpath
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: repeat-order
+        operationId: cafe-api.createOrder
+        requestBody:
+          payload:
+            orderItems:
+              - menuItemId:
+                  context: $workflows.submit-order.outputs.order
+                  selector: /orderItems/1/menuItemId
+                  type: jsonpointer
+                quantity: 1
+          replacements:
+            - target: /orderItems/0/quantity
+              value:
+                context: $workflows.submit-order.outputs.order
+                selector: $.orderItems[1].quantity
+                type: jsonpath
+        successCriteria:
+          - condition: $statusCode == 401

@@ -170,7 +170,7 @@ function normalizeName(name: string, ignoresCase: boolean): string {
   return ignoresCase ? normalized.toLowerCase() : normalized;
 }
 
-function atPointer(value: unknown, pointer: string): unknown {
+export function atPointer(value: unknown, pointer: string): unknown {
   let current = value;
   for (const segment of pointer.split('/').slice(1)) {
     const key = segment.replace(/~1/g, '/').replace(/~0/g, '~');
