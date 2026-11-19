@@ -7,7 +7,11 @@ slug: /docs/cli/rules/oas/no-example-value-and-externalValue
 Ensures that `examples` object properties `externalValue` and `value` are mutually exclusive.
 
 {% admonition type="warning" name="Deprecated" %}
-This rule is deprecated in favor of [`spec-example-values`](../oas/spec-example-values.md).
+This rule is deprecated in favor of [`spec-example-values`](../oas/spec-example-values.md), which the built-in rulesets enable instead.
+
+Replace `no-example-value-and-externalValue` with `spec-example-values` in your `redocly.yaml`.
+The configuration linter warns about the deprecated name.
+Setting `no-example-value-and-externalValue` to `off` does not turn off `spec-example-values`.
 {% /admonition %}
 
 | OAS | Compatibility |
@@ -42,9 +46,9 @@ The intended use of the `value` field is to provide in-line example values, whil
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                              |
+| -------- | ------ | ---------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. |
 
 An example configuration:
 

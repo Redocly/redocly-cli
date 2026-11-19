@@ -10,7 +10,6 @@ Errors:
 
 - [no-empty-servers](./oas/no-empty-servers.md)
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md)
-- [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
 - [no-path-trailing-slash](./oas/no-path-trailing-slash.md)
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md)
