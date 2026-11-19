@@ -31,7 +31,8 @@ type Evaluate = () => unknown;
  */
 export function interpretExpression(
   expression: string,
-  context: RuntimeExpressionContext
+  context: RuntimeExpressionContext,
+  keepsObjectKeys: boolean
 ): unknown {
   const tokens = tokenize(expression);
   let position = 0;
@@ -76,7 +77,8 @@ export function interpretExpression(
   const parsePrimary = (): Evaluate => {
     const token = tokens[position++];
     if (token?.kind === 'literal') return () => token.value;
-    if (token?.kind === 'reference') return () => resolveReference(token.text, context);
+    if (token?.kind === 'reference')
+      return () => resolveReference(token.text, context, keepsObjectKeys);
     if (token?.kind === 'operator' && token.text === '{') {
       const evaluate = parseOr();
       if (!isOperator('}')) throw new Error(`Expected "}" in "${expression}"`);
@@ -129,12 +131,16 @@ function withUnderscoreKeys(value: unknown): unknown {
  * value throws. As a Respect extension, a `.` after the pointer starts a property chain, as in
  * `$response.body#/items.length`, so a pointer cannot reach a key that contains `.`.
  */
-function resolveReference(text: string, context: RuntimeExpressionContext): unknown {
+function resolveReference(
+  text: string,
+  context: RuntimeExpressionContext,
+  keepsObjectKeys: boolean
+): unknown {
   const hashIndex = text.indexOf('#');
   const path = hashIndex === -1 ? text : text.slice(0, hashIndex);
   const [root, ...segments] = path.slice(1).split('.');
   const value = walk(context, [`$${root}`, ...segments]);
-  if (hashIndex === -1) return withUnderscoreKeys(value);
+  if (hashIndex === -1) return keepsObjectKeys ? value : withUnderscoreKeys(value);
 
   const [pointer, ...chain] = text.slice(hashIndex + 1).split('.');
   return walk(atPointer(value, pointer), chain);

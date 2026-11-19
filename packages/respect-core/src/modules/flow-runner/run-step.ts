@@ -14,6 +14,7 @@ import type {
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
 import {
+  getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
   resolveWorkflowReference,
@@ -25,7 +26,10 @@ import {
   printUnknownStep,
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import {
+  evaluateRuntimeExpressionPayload,
+  isSelectorObject,
+} from '../runtime-expressions/index.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { createRuntimeExpressionCtx } from './context/index.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
@@ -115,15 +119,24 @@ export async function runStep({
         ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
       },
     };
+    const expressionContext = createRuntimeExpressionCtx({ ctx: ctxWithInputs });
     const workflowInputParameters = resolvedParameters
       ? Object.fromEntries(
           resolvedParameters.filter(isParameterWithoutIn).map((parameter) => [
             parameter.name,
-            evaluateRuntimeExpressionPayload({
-              payload: parameter.value,
-              context: createRuntimeExpressionCtx({ ctx: ctxWithInputs }),
-              logger: ctx.options.logger,
-            }),
+            // Only a Selector Object goes to the evaluator that supports it, so every other value
+            // is evaluated as before.
+            isSelectorObject(parameter.value)
+              ? evaluateRuntimeExpressionPayload({
+                  payload: parameter.value,
+                  context: expressionContext,
+                  logger: ctx.options.logger,
+                })
+              : getValueFromContext({
+                  value: parameter.value,
+                  ctx: ctxWithInputs,
+                  logger: ctx.options.logger,
+                }),
           ])
         )
       : undefined;

@@ -1,6 +1,7 @@
 import {
   isPlainObject,
   type ExtendedSecurity,
+  type LoggerInterface,
   type Oas3MediaType,
   type Oas3Parameter,
   type Oas3SecurityScheme,
@@ -12,6 +13,7 @@ import {
   type Parameter,
   type PublicStep,
   type OperationMethod,
+  type RuntimeExpressionContext,
 } from '../../types.js';
 import { isJSON } from '../../utils/is-json.js';
 import { isFormUrlencoded } from '../../utils/url-encoding.js';
@@ -211,16 +213,9 @@ export async function prepareRequest(
     collectSecretValues(ctx, schema, groupParametersValuesByName(parameters, param.in), [name]);
   }
 
-  // A multipart payload is evaluated as data and then encoded, so the form holds the evaluated values.
   const evaluatedBody =
-    stepRequestBodyContentType === 'multipart/form-data' && isPlainObject(requestBody)
-      ? createFormData(
-          evaluateRuntimeExpressionPayload({
-            payload: requestBody,
-            context: expressionContext,
-            logger: ctx.options.logger,
-          })
-        )
+    stepRequestBodyContentType === 'multipart/form-data'
+      ? evaluateMultipartPayload(stepRequestBodyPayload, expressionContext, ctx.options.logger)
       : evaluateRuntimeExpressionPayload({
           payload: requestBody,
           context: expressionContext,
@@ -396,6 +391,17 @@ function groupParametersValuesByName(
     },
     {} as Record<string, string | number | boolean>
   );
+}
+
+// A multipart payload is evaluated as data and then encoded, so the form holds the evaluated values.
+function evaluateMultipartPayload(
+  payload: unknown,
+  context: RuntimeExpressionContext,
+  logger: LoggerInterface
+): FormData {
+  const evaluatedPayload = evaluateRuntimeExpressionPayload({ payload, context, logger });
+
+  return createFormData(isPlainObject(evaluatedPayload) ? evaluatedPayload : {});
 }
 
 function resolveParameters(parameters: Parameter[], ctx: TestContext): ParameterWithIn[] {

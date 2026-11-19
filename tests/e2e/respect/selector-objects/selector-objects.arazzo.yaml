@@ -103,11 +103,9 @@ workflows:
         requestBody:
           contentType: multipart/form-data
           payload:
-            name:
-              context: $workflows.submit-order.outputs.order
-              selector: $.orderItems[1].comment
-              type: jsonpath
-            price: 13000
+            context: $workflows.submit-order.outputs.order
+            selector: $.orderItems[1]
+            type: jsonpath
         successCriteria:
           - condition: $statusCode == 401
   - workflowId: search-menu

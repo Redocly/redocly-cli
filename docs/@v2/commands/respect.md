@@ -276,7 +276,8 @@ A Selector Object picks a value from structured data, such as a response body.
 - a request body `payload`
 - the `value` of a replacement
 
-Use Selector Objects in an Arazzo 1.1.0 description.
+A Selector Object in `outputs` needs an Arazzo 1.1.0 description.
+The other places accept a Selector Object in an Arazzo 1.0.1 description too.
 The `context` is a runtime expression that gives the data, and the `selector` picks a value from that data.
 
 ```yaml
@@ -308,6 +309,7 @@ steps:
 A step with a selector of another type or version fails.
 
 - A `jsonpointer` selector gives the value at the pointer.
+  The pointer is empty or starts with `/`.
 - A `jsonpath` selector that consists only of names and indexes, such as `$.items[0].id`, gives the value it selects.
 - Any other `jsonpath` selector, such as one with a filter, a wildcard, or a slice, gives the list of the values it selects.
   The result is a list also when the selector selects one value or none.
@@ -318,8 +320,8 @@ The step fails when a `jsonpointer` selector, or a `jsonpath` selector of names 
 A `jsonpath` selector can embed runtime expressions in curly braces, for example `$.items[?(@.category == {$inputs.category})].id`.
 `respect` inserts a string value together with its quotes, so do not put quotes around the braces.
 
-`respect` reads an object as a Selector Object when it has a `context`, a `selector`, and a `type` of `jsonpath`, `xpath`, or `jsonpointer`.
-A request body cannot send such an object as a literal value.
+A Selector Object has a `context`, a `selector`, and a `type` of `jsonpath`, `xpath`, or `jsonpointer`.
+`respect` reads every object with these fields as a Selector Object, so a request body cannot send such an object as a literal value.
 
 ## Examples
 

@@ -106,7 +106,8 @@ export function evaluateRuntimeExpression(
 function evaluateExpressionString(
   expression: string,
   context: RuntimeExpressionContext,
-  logger: LoggerInterface
+  logger: LoggerInterface,
+  keepsObjectKeys = false
 ) {
   // Replace $faker expressions with fake data as it is not the part of the Runtime
   // Expressions and should be evaluated separately
@@ -129,7 +130,7 @@ function evaluateExpressionString(
   lintExpression(expression);
 
   try {
-    return interpretExpression(expression, context);
+    return interpretExpression(expression, context, keepsObjectKeys);
   } catch (error) {
     const cause = error instanceof Error ? `: ${error.message}` : '';
     throw new Error(
@@ -209,7 +210,7 @@ function isValidRuntimeExpression(expression: string): boolean {
 }
 
 // A literal object is a Selector Object (Arazzo 1.1.0) only when it has all three of its fields.
-function isSelectorObject(value: unknown): value is SelectorObject {
+export function isSelectorObject(value: unknown): value is SelectorObject {
   if (
     !isPlainObject(value) ||
     typeof value.context !== 'string' ||
@@ -230,13 +231,19 @@ function evaluateSelectorObject(
     typeof selectorObject.type === 'string'
       ? { type: selectorObject.type, version: undefined }
       : selectorObject.type;
-  const data = evaluateRuntimeExpression(selectorObject.context, context, logger);
+  // A selector reads the data as it is, so the context keeps its object keys.
+  const data = evaluateExpressionString(selectorObject.context, context, logger, true);
 
   if (data === undefined) {
     throw new Error(`Selector context "${selectorObject.context}" has no value.`);
   }
 
-  if (type === 'jsonpointer') {
+  if (type === 'jsonpointer' && (version === undefined || version === 'rfc6901')) {
+    if (selectorObject.selector !== '' && !selectorObject.selector.startsWith('/')) {
+      throw new Error(
+        `Invalid JSON Pointer selector "${selectorObject.selector}". A JSON Pointer is empty or starts with "/".`
+      );
+    }
     return atPointer(data, selectorObject.selector);
   }
 

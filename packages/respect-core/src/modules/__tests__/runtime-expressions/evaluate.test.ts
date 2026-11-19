@@ -874,7 +874,7 @@ describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
     $response: {
       body: {
         object: 'list',
-        page: { limit: 10 },
+        page: { limit: 10, 'next-page': { 'page-token': 'abc' } },
         items: [
           { id: 'prd_0000000000seedtrams0000000', name: 'tiramisu' },
           { id: 'prd_0000000000seedteabv0000000', name: 'tea' },
@@ -917,6 +917,22 @@ describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
     expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual(
       'prd_0000000000seedtrams0000000'
     );
+  });
+
+  it('should select by a key that has a hyphen and keep the keys of the selected value', () => {
+    const payload = {
+      token: {
+        context: '$response.body',
+        selector: '/page/next-page/page-token',
+        type: 'jsonpointer',
+      },
+      nextPage: { context: '$response.body', selector: "$.page['next-page']", type: 'jsonpath' },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      token: 'abc',
+      nextPage: { 'page-token': 'abc' },
+    });
   });
 
   it('should keep a file in a payload', () => {
@@ -995,6 +1011,30 @@ describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
       evaluateRuntimeExpressionPayload({ payload, context, logger })
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Selector type {"type":"jsonpath","version":"draft-goessner-dispatch-jsonpath-00"} is not supported. Use "jsonpath" (RFC 9535) or "jsonpointer".]`
+    );
+  });
+
+  it('should throw on a JSON Pointer version that is not supported', () => {
+    const payload = {
+      context: '$response.body',
+      selector: '/items/0/name',
+      type: { type: 'jsonpointer', version: 'rfc0000' },
+    };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Selector type {"type":"jsonpointer","version":"rfc0000"} is not supported. Use "jsonpath" (RFC 9535) or "jsonpointer".]`
+    );
+  });
+
+  it('should throw on a JSON Pointer that does not start with a slash', () => {
+    const payload = { context: '$response.body', selector: 'items', type: 'jsonpointer' };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Invalid JSON Pointer selector "items". A JSON Pointer is empty or starts with "/".]`
     );
   });
 });

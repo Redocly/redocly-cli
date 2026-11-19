@@ -167,8 +167,9 @@ exports[`should evaluate Selector Objects in outputs, parameters, and request bo
       accept: application/json, application/problem+json
     Request Body:
       {
-        "name": "mermaid-treasure-latte",
-        "price": "13000"
+        "menuItemId": "prd_0000000000seedtrams0000000",
+        "quantity": "2",
+        "comment": "mermaid-treasure-latte"
       } 
  
 
