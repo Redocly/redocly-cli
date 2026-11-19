@@ -1,7 +1,7 @@
 arazzo: 1.0.1
 info:
   title: End action with an undefined target
-  description: The `workflowId` and the `stepId` of an `end` action are not relevant, so the action ends the workflow without resolving them.
+  description: The `workflowId` of an `end` action is not relevant, so the action ends the workflow without resolving it.
   version: 1.0.0
 
 sourceDescriptions:
@@ -20,20 +20,6 @@ workflows:
           - name: finish
             type: end
             workflowId: review-order
-      - stepId: not-reached
-        operationId: $sourceDescriptions.cafe-api.listMenuItems
-        successCriteria:
-          - condition: $statusCode == 200
-  - workflowId: end-with-step-id
-    steps:
-      - stepId: list-menu-items
-        operationId: $sourceDescriptions.cafe-api.listMenuItems
-        successCriteria:
-          - condition: $statusCode == 200
-        onSuccess:
-          - name: finish
-            type: end
-            stepId: review-order
       - stepId: not-reached
         operationId: $sourceDescriptions.cafe-api.listMenuItems
         successCriteria:

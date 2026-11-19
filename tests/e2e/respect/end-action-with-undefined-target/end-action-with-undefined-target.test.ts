@@ -5,8 +5,8 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Each workflow should run only its first step and pass
-test('should end the workflow without resolving the `workflowId` or the `stepId` of an `end` action', () => {
+// The workflow should run only its first step and pass
+test('should end the workflow without resolving the `workflowId` of an `end` action', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'end-action-with-undefined-target.arazzo.yaml');
   const args = getParams(indexEntryPoint, ['respect', fixturesPath]);

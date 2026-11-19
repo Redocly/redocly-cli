@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`should end the workflow without resolving the \`workflowId\` or the \`stepId\` of an \`end\` action 1`] = `
+exports[`should end the workflow without resolving the \`workflowId\` of an \`end\` action 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow end-action-with-undefined-target.arazzo.yaml / end-with-workflow-id 
@@ -11,29 +11,19 @@ exports[`should end the workflow without resolving the \`workflowId\` or the \`s
     ✓ content-type check
     ✓ schema check
  
-──────────────────────────────────────────────────────────────────────────────── 
- 
-  Running workflow end-action-with-undefined-target.arazzo.yaml / end-with-step-id 
- 
-  ✓ GET /menu - step list-menu-items 
-    ✓ success criteria check - $statusCode == 200
-    ✓ status code check - $statusCode in [200, 400, 500]
-    ✓ content-type check
-    ✓ schema check
- 
  
   Summary for end-action-with-undefined-target.arazzo.yaml
   
-  Workflows: 2 passed, 2 total
-  Steps: 2 passed, 2 total
-  Checks: 8 passed, 8 total
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
   Time: <test>ms 
  
  
 ┌──────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ end-action-with-undefined-target.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
+│ ✓ end-action-with-undefined-target.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
 └──────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
