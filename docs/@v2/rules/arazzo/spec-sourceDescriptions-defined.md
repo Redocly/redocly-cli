@@ -18,6 +18,8 @@ The `spec-sourceDescriptions-defined` rule reports such a reference in the follo
 - `workflowId` of a success or a failure action.
 - `channelPath` and `dependsOn` of a step (Arazzo 1.1).
 
+The rule does not check the `workflowId` of an action with the `end` type, because the field is not relevant there.
+
 The rule checks only the name of the source description.
 It does not check that the operation or the workflow exists in that source description.
 The `spec-step-operationId-resolved` rule checks the `operationId` of a step.

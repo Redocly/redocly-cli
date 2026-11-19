@@ -1,3 +1,4 @@
+import type { OnFailureObject, OnSuccessObject } from '../../typings/arazzo.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
@@ -32,6 +33,13 @@ export const SpecSourceDescriptionsDefined: Arazzo1Rule = () => {
     }
   }
 
+  function checkActionWorkflowId(action: OnSuccessObject | OnFailureObject, ctx: UserContext) {
+    // the `workflowId` of an `end` action is not relevant, so it references nothing
+    if (action.type === 'end') return;
+
+    checkReference(action.workflowId, ctx, ['workflowId']);
+  }
+
   return {
     SourceDescriptions(sourceDescriptions) {
       for (const sourceDescription of sourceDescriptions) {
@@ -51,11 +59,7 @@ export const SpecSourceDescriptionsDefined: Arazzo1Rule = () => {
         }
       }
     },
-    SuccessActionObject(action, ctx) {
-      checkReference(action.workflowId, ctx, ['workflowId']);
-    },
-    FailureActionObject(action, ctx) {
-      checkReference(action.workflowId, ctx, ['workflowId']);
-    },
+    SuccessActionObject: checkActionWorkflowId,
+    FailureActionObject: checkActionWorkflowId,
   };
 };
