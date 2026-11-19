@@ -72,8 +72,8 @@ export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
   rootRef: string;
-  // the nodes whose paths are resolved: a node is visited once per node type it is reached as
-  resolvedNodes: WeakSet<object>;
+  // the nodes whose paths are rewritten: a node is visited once per node type it is reached as
+  rewrittenNodes: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -114,12 +114,13 @@ function getReferencedLocalDir(sourceRef: string, ctx: UserContext): string | un
 // every reader of the config resolves paths from the root config folder, so a path from a referenced
 // file is rewritten relative to that folder
 function resolveUriReferenceProperties(node: unknown, ctx: UserContext) {
-  const { resolvedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
-  if (!isPlainObject(node) || resolvedNodes.has(node)) {
+  const { rewrittenNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const fields = ctx.type.uriReferenceProperties;
+  if (!fields || !isPlainObject(node) || rewrittenNodes.has(node)) {
     return;
   }
-  resolvedNodes.add(node);
-  for (const field of ctx.type.uriReferenceProperties ?? []) {
+  rewrittenNodes.add(node);
+  for (const field of fields) {
     // a `$ref` on the path field itself: the value is written in the referenced file
     const { node: value, location } = isRef(node[field])
       ? ctx.resolve(node[field])
