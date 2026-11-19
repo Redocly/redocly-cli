@@ -150,6 +150,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [spec-sourceDescriptions-defined](./arazzo/spec-sourceDescriptions-defined.md): a `$sourceDescriptions.<name>` reference must use the `name` of a source description defined in `sourceDescriptions`
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md): a step must use only one of its mutually exclusive operation fields
 - [spec-step-operationId-resolved](./arazzo/spec-step-operationId-resolved.md): the `operationId` of a step must resolve to an operation in a source description
+- [spec-step-parameters-in-required](./arazzo/spec-step-parameters-in-required.md): a parameter of a step must define the `in` field, unless the step uses `workflowId`
 - [spec-step-workflowId-defined](./arazzo/spec-step-workflowId-defined.md): the `workflowId` of a step must reference an existing workflow
 - [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
 - [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique

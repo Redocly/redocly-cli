@@ -172,6 +172,7 @@ rules:
   spec-sourceDescriptions-defined: warn
   spec-step-mutually-exclusive-fields: warn
   spec-step-operationId-resolved: warn
+  spec-step-parameters-in-required: warn
   spec-step-workflowId-defined: warn
   stepId-unique: error
   struct: error
@@ -409,6 +410,7 @@ rules:
   spec-sourceDescriptions-defined: error
   spec-step-mutually-exclusive-fields: error
   spec-step-operationId-resolved: error
+  spec-step-parameters-in-required: error
   spec-step-workflowId-defined: error
   step-onFailure-unique: warn
   step-onSuccess-unique: warn

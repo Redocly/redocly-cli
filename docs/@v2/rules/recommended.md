@@ -43,6 +43,7 @@ Errors:
 - [spec-sourceDescriptions-defined](./arazzo/spec-sourceDescriptions-defined.md)
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md)
 - [spec-step-operationId-resolved](./arazzo/spec-step-operationId-resolved.md)
+- [spec-step-parameters-in-required](./arazzo/spec-step-parameters-in-required.md)
 - [spec-step-workflowId-defined](./arazzo/spec-step-workflowId-defined.md)
 - [stepId-unique](./arazzo/stepId-unique.md)
 - [struct](./common/struct.md)
