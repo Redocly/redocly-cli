@@ -10,7 +10,7 @@ import type { PreviewProjectArgv, Product } from './types.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) => {
   const { plan, port } = argv;
-  const projectDir = argv['project-dir'];
+  const projectDir = resolveProjectDir(argv['project-dir']);
 
   if (argv.product) {
     logger.warn(
@@ -31,17 +31,51 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
   logger.info(`\nLaunching preview of ${productName} ${plan}.\n\n`);
   const { command, args, env, shell } = getPackageRunner(packageName);
 
-  const child = spawn(command, [...args, 'preview', `--plan=${plan}`, `--port=${port || 4000}`], {
-    stdio: 'inherit',
-    cwd: projectDir,
-    env,
-    shell,
-  });
+  const child = spawn(
+    command,
+    [
+      ...args,
+      'preview',
+      `--plan=${plan}`,
+      `--port=${port || 4000}`,
+      // The Windows spawn goes through a shell, where a path with spaces needs quotes.
+      `--project-dir=${shell ? `"${projectDir}"` : projectDir}`,
+    ],
+    {
+      stdio: 'inherit',
+      cwd: projectDir,
+      env,
+      shell,
+    }
+  );
 
   child.on('error', (error) => {
     logger.info(`Project preview launch failed: ${error.message}`);
     throw new Error(`Project preview launch failed.`);
   });
+};
+
+/**
+ * The absolute project directory. `npx` inside an npm workspace starts the command in the
+ * workspace package and leaves the directory it was run from in `INIT_CWD`.
+ */
+const resolveProjectDir = (projectDir: string): string => {
+  const cwd = process.cwd();
+  const initCwd = process.env.INIT_CWD;
+
+  // Only compare cwd and INIT_CWD for `npx`
+  if (process.env.npm_command === 'exec' && initCwd) {
+    const relativeInitCwd = path.relative(cwd, initCwd);
+    const isInsideCwd =
+      relativeInitCwd !== '..' &&
+      !relativeInitCwd.startsWith(`..${path.sep}`) &&
+      !path.isAbsolute(relativeInitCwd);
+    if (relativeInitCwd && isInsideCwd) {
+      return path.resolve(initCwd, projectDir);
+    }
+  }
+
+  return path.resolve(cwd, projectDir);
 };
 
 const isValidProduct = (product: string | undefined): product is Product => {
@@ -54,7 +88,7 @@ const isValidProduct = (product: string | undefined): product is Product => {
 
 /** The product package listed in the project's package.json, or the framework when none is. */
 const tryGetProductFromPackageJson = (projectDir: string): Product => {
-  const packageJsonPath = path.join(process.cwd(), projectDir, 'package.json');
+  const packageJsonPath = path.join(projectDir, 'package.json');
 
   if (existsSync(packageJsonPath)) {
     try {
