@@ -1,6 +1,43 @@
 import { resolveInputValuesToSchema } from '../../../flow-runner/index.js';
 
 describe('resolveInputValuesToSchema', () => {
+  it('should report the problems left after defaults, coercion and removal of extra values', () => {
+    const schema = {
+      type: 'object',
+      required: ['search', 'customerName', 'limit'],
+      properties: {
+        search: { type: 'string', default: 'latte' },
+        customerName: { type: 'string' },
+        limit: { type: 'integer', maximum: 10 },
+      },
+    };
+    const onInvalid = vi.fn();
+
+    expect(
+      resolveInputValuesToSchema({ limit: '20', extra: 'ignored' }, schema, onInvalid)
+    ).toEqual({
+      search: 'latte',
+      limit: 20,
+    });
+    expect(onInvalid).toHaveBeenCalledWith(
+      "inputs must have required property 'customerName', inputs/limit must be <= 10"
+    );
+  });
+
+  it('should accept a decimal input that is a multiple of a decimal multipleOf', () => {
+    const schema = {
+      type: 'object',
+      properties: { percent: { type: 'number', multipleOf: 0.1 } },
+    };
+    const onInvalid = vi.fn();
+
+    resolveInputValuesToSchema({ percent: 98.8 }, schema, onInvalid);
+    expect(onInvalid).not.toHaveBeenCalled();
+
+    resolveInputValuesToSchema({ percent: 98.85 }, schema, onInvalid);
+    expect(onInvalid).toHaveBeenCalledWith('inputs/percent must be multiple of 0.1');
+  });
+
   it('should return empty object if values is empty', () => {
     const schema = {
       type: 'object',

@@ -24,7 +24,7 @@ Point at a different config with `--config <path>`.
 
 ## Quick reference
 
-Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`.
+Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`. Standalone binaries that need no Node.js, with a `SHA256SUMS` file, are attached to each `@redocly/cli@<version>` GitHub release.
 
 | Command              | Purpose                                                                                                           | Group                 |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------- |
@@ -42,7 +42,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `drift`              | Report differences between recorded traffic and an OpenAPI description, with optional `--coverage` [experimental] | API testing and drift |
 | `generate-spec`      | Infer an OpenAPI 3.2 description from recorded traffic; `--openapi-version 3.1` targets 3.1 [experimental]        | API testing and drift |
 | `stats`              | Count operations, schemas, refs, and other metrics                                                                | Quality reports       |
-| `score`              | Score an OpenAPI description for AI-agent readiness [experimental]                                                | Quality reports       |
+| `score`              | Score an OpenAPI description for AI-agent readiness and rank the edits that raise it [experimental]               | Quality reports       |
 | `generate-client`    | Generate a typed, zero-dependency TypeScript client [experimental]                                                | SDK generation        |
 | `eject-generator`    | Copy a built-in generator into the repo to edit it [experimental]                                                 | SDK generation        |
 | `check-config`       | Lint `redocly.yaml` itself                                                                                        | Redocly configuration |
@@ -210,6 +210,7 @@ The platform builds a preview in a few minutes; `redocly project pr status` then
 `respect` executes an [Arazzo](https://spec.openapis.org/arazzo/latest.html) description as a test suite against a running API, asserting real responses match the description.
 Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine the steps and success criteria by hand.
 A step that leaves out `parameters` or `requestBody` takes them from the description's examples, or generates them from the schema.
+Inputs that don't match a workflow's `inputs` schema produce a warning before the workflow runs, and the workflow still runs with the inputs as given.
 
 ## Workflow
 
@@ -227,6 +228,7 @@ A step that leaves out `parameters` or `requestBody` takes them from the descrip
 - `bundle` and `join` differ: `bundle` collapses one multi-file API into one file; `join` merges separate APIs into one description.
 - `respect` currently covers only synchronous HTTP flow.
 - A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
+- An `in: querystring` parameter of a `respect` step needs `arazzo: 1.1.0` and sets the whole query string; it cannot be combined with `in: query` parameters.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
 - `bundle` takes a URL: `redocly bundle https://example.com/openapi.yaml -o openapi.yaml` fetches a remote description and its `$ref`s into one local file, with no `curl`. It also fetches `externalValue` URLs and writes no output when one is unreachable; add `--force` to write it anyway.

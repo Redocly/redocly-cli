@@ -328,6 +328,15 @@ npm i -g redocly-cli.tgz
 Don't forget to visually check the [changes](tests/smoke/basic/pre-built/redoc.html) in a browser.
 For other commands you'd have to do something similar.
 
+The standalone binaries have their own smoke test.
+To build a binary and run it locally, install [Bun](https://bun.com) at the version that [binaries.yaml](.github/workflows/binaries.yaml) pins, then run:
+
+```sh
+npm run compile
+node packages/cli/scripts/build-binary.mjs bun-darwin-arm64 dist/redocly
+bash tests/smoke/binary/run-smoke.sh dist/redocly
+```
+
 ### Performance benchmark
 
 To run the performance tests locally, you should have `hyperfine` (v2.0.0+) installed on your machine.
@@ -412,6 +421,7 @@ npx markdown-link-check --config .markdown-link-check.json docs
 ```
 
 Use relative file paths when pointing to local files, and absolute links when pointing to external ones.
+A link to a file of this repository on GitHub, such as `https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/...`, is checked against your checkout, so it can point to a file that the pull request adds.
 Take care when renaming pages or titles.
 
 ## Contribute to the Cookbook

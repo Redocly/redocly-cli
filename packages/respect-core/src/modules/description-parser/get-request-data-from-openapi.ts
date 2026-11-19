@@ -1,6 +1,7 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
 
 import type { Parameter } from '../../types.js';
+import { isFormUrlencoded } from '../../utils/url-encoding.js';
 import {
   generateTestDataFromJsonSchema,
   generateExampleValue,
@@ -70,7 +71,10 @@ function transformParameters(params: Parameter[], logger: LoggerInterface): Para
         return {
           name: parameter.name,
           in: parameter.in,
-          value: generateExampleValue(parameter, logger),
+          value:
+            parameter.in === 'querystring'
+              ? generateQuerystringValue(parameter, logger)
+              : generateExampleValue(parameter, logger),
           ...(parameter.allowReserved && { allowReserved: parameter.allowReserved }),
         } as ParameterWithIn;
       }
@@ -78,6 +82,32 @@ function transformParameters(params: Parameter[], logger: LoggerInterface): Para
       return undefined;
     })
     .filter((parameter): parameter is ParameterWithIn => parameter !== undefined);
+}
+
+// A querystring parameter describes the whole query string with `content`, the same way as a request body.
+function generateQuerystringValue(parameter: Parameter, logger: LoggerInterface) {
+  const [mediaType, mediaTypeObject] = Object.entries(parameter.content || {})[0] || [];
+  const example =
+    generateExampleValue(parameter, logger) ??
+    mediaTypeObject?.example ??
+    extractFirstExample(mediaTypeObject?.examples) ??
+    generateTestDataFromJsonSchema(mediaTypeObject?.schema, logger);
+
+  if (mediaType && isFormUrlencoded(mediaType) && isPlainObject(example)) {
+    // Without an Encoding Object, OpenAPI repeats the name of an array property for each item,
+    // and serializes an object, or an array inside an array, as JSON.
+    return new URLSearchParams(
+      Object.entries(example).flatMap(([name, value]) =>
+        (Array.isArray(value) ? value : [value]).map((item) => [
+          name,
+          isPlainObject(item) || Array.isArray(item) ? JSON.stringify(item) : String(item),
+        ])
+      )
+    ).toString();
+  }
+
+  // Any other structured example is sent as JSON.
+  return typeof example === 'string' || example === undefined ? example : JSON.stringify(example);
 }
 
 function getUniqueParameters(parameters: ParameterWithIn[]): ParameterWithIn[] {

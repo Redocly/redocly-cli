@@ -80,6 +80,7 @@ in the wrong package.
 `packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~160 kB) and lazy chunks under `lib/chunks/`.
 redoc + react load only when `build-docs` runs, and undici loads on the first network request; the build fails when either reaches a chunk the entry imports statically.
 The root `npm run compile` runs both steps: tsc for the compiled packages, then the esbuild bundle for the CLI.
+`packages/cli/scripts/build-binary.mjs` compiles that bundle into a standalone binary with Bun, and `.github/workflows/binaries.yaml` builds, smoke-tests, and attaches the binaries to each release.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
 

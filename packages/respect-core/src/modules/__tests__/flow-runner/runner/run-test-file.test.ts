@@ -616,7 +616,16 @@ describe('runTestFile', () => {
     const failedWorkflow = result.executedWorkflows.find(
       (workflow) => workflow.workflowId === 'second-workflow'
     );
-    const failedStep = failedWorkflow?.executedSteps[0] as Step;
+    // the dependency run comes first, then the step that reports the failed dependency
+    expect(failedWorkflow?.executedSteps).toMatchObject([
+      {
+        type: 'workflow',
+        workflowId: 'get-bird-workflow',
+        invocationContext: 'Dependency of workflow second-workflow',
+      },
+      { stepId: 'dependsOn' },
+    ]);
+    const failedStep = failedWorkflow?.executedSteps[1] as Step;
     expect(failedStep.checks[0]?.passed).toBe(false);
     expect(cleanColors(failedStep.checks[0]?.message || '')).toEqual(
       'Dependent workflows of workflow second-workflow have failed steps: get-bird-workflow.'

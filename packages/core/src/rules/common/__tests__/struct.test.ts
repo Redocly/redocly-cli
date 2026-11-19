@@ -915,3 +915,164 @@ describe('Overlay struct', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });
+
+describe('Arazzo struct', () => {
+  it('should report a workflow with an empty steps list', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: cafe-api.listMenuItems
+          - workflowId: place-order
+            steps: []
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/1/steps",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`steps\` list must have at least one entry.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report an empty workflows list', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows: []
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`workflows\` list must have at least one entry.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report an empty successCriteria list and an empty criteria list of a success action', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: cafe-api.listMenuItems
+                successCriteria: []
+                onSuccess:
+                  - name: finish
+                    type: end
+                    criteria: []
+                onFailure:
+                  - name: stop
+                    type: end
+                    criteria: []
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/successCriteria",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`successCriteria\` list must have at least one entry.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/criteria",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`criteria\` list must have at least one entry.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+});

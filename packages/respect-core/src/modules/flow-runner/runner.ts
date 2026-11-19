@@ -103,15 +103,18 @@ async function runWorkflows({
         // an unresolvable or failed dependsOn dependency fails this workflow
         // but must not abort the remaining workflows and files
         const failureTime = performance.now();
+        const failedCheckName = error.globalTimeoutError
+          ? 'GLOBAL_TIMEOUT_ERROR'
+          : 'UNEXPECTED_ERROR';
         // a synthetic step to carry the failed check; it has no operation to call
         const failedStep = {
           stepId: 'dependsOn',
           checks: [
             {
-              name: CHECKS.UNEXPECTED_ERROR,
+              name: CHECKS[failedCheckName],
               message: error.message,
               passed: false,
-              severity: ctx.severity['UNEXPECTED_ERROR'],
+              severity: ctx.severity[failedCheckName],
             },
           ],
         } as Step;
@@ -128,10 +131,10 @@ async function runWorkflows({
           workflowId: workflow.workflowId,
           startTime: failureTime,
           endTime: failureTime,
-          totalTimeMs: 0,
-          executedSteps: [failedStep],
+          totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
+          executedSteps: [...ctx.executedSteps, failedStep],
           ctx,
-          globalTimeoutError: false,
+          globalTimeoutError: error.globalTimeoutError,
         });
         continue;
       }
@@ -180,6 +183,14 @@ export async function runWorkflow({
   const runInputs = inputs
     ? { ...ctx.$workflows[workflowId].inputs, ...inputs }
     : ctx.$workflows[workflowId].inputs;
+  // A goto re-enters the workflow with inputs that were already checked.
+  const onInvalidInputs = (problems: string) => {
+    if (!fromStepId) {
+      logger.warn(
+        `Workflow "${workflowId}" runs with inputs that don't match its inputs schema: ${problems}.\n`
+      );
+    }
+  };
 
   // The run gets its own copy of the workflow entry, so the inputs passed to it
   // don't leak into later or concurrent runs of the same workflow.
@@ -195,6 +206,7 @@ export async function runWorkflow({
               inputs: runInputs,
               workflowInputSchema,
               env: ctx.options.envVariables,
+              onInvalidInputs,
             })
           : runInputs,
       },
@@ -252,8 +264,10 @@ export async function runWorkflow({
     }
   }
 
-  const hasFailedTimeoutSteps = workflow.steps.some((step) =>
-    step.checks?.some((check) => !check.passed && check.name == CHECKS.GLOBAL_TIMEOUT_ERROR)
+  const hasFailedTimeoutSteps = runCtx.executedSteps.some((entry) =>
+    isWorkflowExecutionResult(entry)
+      ? entry.globalTimeoutError
+      : entry.checks.some((check) => !check.passed && check.name === CHECKS.GLOBAL_TIMEOUT_ERROR)
   );
 
   // workflow level outputs
@@ -320,7 +334,14 @@ export async function runWorkflow({
 // Thrown when a dependsOn entry cannot be resolved to a workflow or a dependency
 // workflow fails. Handled per workflow in runWorkflows so one broken dependency
 // doesn't abort the rest of the run.
-class WorkflowDependencyError extends Error {}
+class WorkflowDependencyError extends Error {
+  globalTimeoutError: boolean;
+
+  constructor(message: string, globalTimeoutError = false) {
+    super(message);
+    this.globalTimeoutError = globalTimeoutError;
+  }
+}
 
 async function handleDependsOn({
   workflow,
@@ -360,10 +381,15 @@ async function handleDependsOn({
         workflowInput: resolvedWorkflow,
         ctx: workflowCtx,
         skipLineSeparator: true,
+        invocationContext: `Dependency of workflow ${workflow.workflowId}`,
         executedStepsCount,
       });
     })
   );
+
+  // the dependency runs are entries of the dependent workflow, like the workflows its steps call,
+  // so their requests, steps, and checks are in its results
+  ctx.executedSteps.push(...dependenciesWorkflows);
 
   const failedDependencies = dependenciesWorkflows
     .filter((dependencyWorkflow) => calculateTotals([dependencyWorkflow]).steps.failed > 0)
@@ -373,7 +399,8 @@ async function handleDependsOn({
     throw new WorkflowDependencyError(
       `Dependent workflows of workflow ${red(workflow.workflowId)} have failed steps: ${red(
         failedDependencies.join(', ')
-      )}.`
+      )}.`,
+      dependenciesWorkflows.some((dependencyWorkflow) => dependencyWorkflow.globalTimeoutError)
     );
   }
 }

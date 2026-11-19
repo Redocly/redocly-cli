@@ -116,3 +116,16 @@ describe('SchemaValidator readOnly and writeOnly through allOf', () => {
     expect(validator.validate(schema, { name: 'Dune' }, 'response').valid).toBe(false);
   });
 });
+
+describe('SchemaValidator decimal multipleOf', () => {
+  const validator = new SchemaValidator();
+  const schema = { type: 'object', properties: { percent: { type: 'number', multipleOf: 0.1 } } };
+
+  it('accepts a decimal value that is a multiple of a decimal multipleOf', () => {
+    expect(validator.validate(schema, { percent: 98.8 }, 'response').errors).toEqual([]);
+  });
+
+  it('still reports a decimal value that is not a multiple', () => {
+    expect(validator.validate(schema, { percent: 98.85 }, 'response').valid).toBe(false);
+  });
+});

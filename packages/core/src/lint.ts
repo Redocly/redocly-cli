@@ -6,11 +6,16 @@ import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { isGraphqlRef } from './graphql/detect-graphql.js';
 import { getTypes } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
+import {
+  SPEC_STEP_OPERATION_ID_RESOLVED_RULE_ID,
+  type SpecStepOperationIdResolvedData,
+} from './rules/arazzo/spec-step-operationId-resolved.js';
 import { DeprecatedConfigProperties } from './rules/common/deprecated-config-properties.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
 import { normalizeTypes, type NodeType } from './types/index.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
+import { isPlainObject } from './utils/is-plain-object.js';
 import type { CollectSpecData } from './utils/types.js';
 import {
   normalizeVisitors,
@@ -119,6 +124,17 @@ export async function lintDocument(opts: {
     });
   }
 
+  if (regularRules.some(({ ruleId }) => ruleId === SPEC_STEP_OPERATION_ID_RESOLVED_RULE_ID)) {
+    const visitorData: SpecStepOperationIdResolvedData = {
+      operationIdsBySourceUrl: await collectSourceDescriptionOperationIds({
+        document,
+        config,
+        externalRefResolver,
+      }),
+    };
+    ctx.visitorsData[SPEC_STEP_OPERATION_ID_RESOLVED_RULE_ID] = visitorData;
+  }
+
   const normalizedVisitors = normalizeVisitors(regularRules, types);
 
   walkDocument({
@@ -129,6 +145,72 @@ export async function lintDocument(opts: {
     ctx,
   });
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
+}
+
+// Loads the OpenAPI source descriptions of an Arazzo description and collects the operation ids under their `paths`.
+async function collectSourceDescriptionOperationIds(opts: {
+  document: Document;
+  config: Config;
+  externalRefResolver: BaseResolver;
+}): Promise<Map<string, Set<string>>> {
+  const { document, config, externalRefResolver } = opts;
+  const operationIdsBySourceUrl = new Map<string, Set<string>>();
+  const sourceDescriptions =
+    isPlainObject(document.parsed) && Array.isArray(document.parsed.sourceDescriptions)
+      ? document.parsed.sourceDescriptions
+      : [];
+
+  await Promise.all(
+    sourceDescriptions.map(async (sourceDescription: unknown) => {
+      if (!isPlainObject(sourceDescription) || sourceDescription.type !== 'openapi') return;
+      const { url } = sourceDescription;
+      if (typeof url !== 'string') return;
+
+      try {
+        const sourceDocument = (await externalRefResolver.resolveDocument(
+          document.source.absoluteRef,
+          url,
+          true
+        )) as Document;
+        const specVersion = detectSpec(sourceDocument.parsed);
+        const types = normalizeTypes(
+          config.extendTypes(getTypes(specVersion), specVersion),
+          config
+        );
+        const resolvedRefMap = await resolveDocument({
+          rootDocument: sourceDocument,
+          rootType: types.Root,
+          externalRefResolver,
+        });
+        const operationIds = new Set<string>();
+        const visitor: Oas3Visitor | Oas2Visitor = {
+          Paths: {
+            Operation(operation: { operationId?: unknown }) {
+              if (typeof operation.operationId === 'string') {
+                operationIds.add(operation.operationId);
+              }
+            },
+          },
+        };
+
+        walkDocument({
+          document: sourceDocument,
+          rootType: types.Root,
+          normalizedVisitors: normalizeVisitors(
+            [{ ruleId: SPEC_STEP_OPERATION_ID_RESOLVED_RULE_ID, severity: 'error', visitor }],
+            types
+          ),
+          resolvedRefMap,
+          ctx: { problems: [], specVersion, config, visitorsData: {} },
+        });
+        operationIdsBySourceUrl.set(url, operationIds);
+      } catch {
+        // the rule does not check the steps of a source description that cannot be loaded
+      }
+    })
+  );
+
+  return operationIdsBySourceUrl;
 }
 
 export async function lintConfig(opts: {

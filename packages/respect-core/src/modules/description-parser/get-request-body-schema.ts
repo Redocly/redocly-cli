@@ -1,4 +1,5 @@
 import type { OperationDetails } from './get-operation-from-description.js';
+import { resolveContentByType } from './resolve-content-by-type.js';
 
 export function getRequestBodySchema(
   contentType: string,
@@ -6,9 +7,5 @@ export function getRequestBodySchema(
 ) {
   if (!descriptionOperation) return undefined;
 
-  const requestBody = descriptionOperation.requestBody;
-  const requestBodyContent = requestBody?.content;
-  const schema = requestBodyContent && requestBodyContent[contentType]?.schema;
-
-  return schema || undefined;
+  return resolveContentByType(descriptionOperation.requestBody?.content, contentType)?.schema;
 }

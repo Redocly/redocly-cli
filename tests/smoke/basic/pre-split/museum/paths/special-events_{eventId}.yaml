@@ -53,9 +53,7 @@ patch:
       $ref: ../components/responses/NotFound.yaml
 delete:
   summary: Delete special event
-  description: >-
-    Delete a special event from the collection. Allows museum to cancel planned
-    events.
+  description: Delete a special event from the collection. Allows museum to cancel planned events.
   operationId: deleteSpecialEvent
   tags:
     - Events
