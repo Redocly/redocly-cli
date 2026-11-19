@@ -45,10 +45,9 @@ describe('spec-example-values', () => {
                         InvalidSerializedValueAndExternalValue:
                           serializedValue: '{"name":"John Doe"}'
                           externalValue: https://localhost/user-example.json
-                        InvalidExternalValueAndValue:
+                        InvalidExternalValueAndFalsyValue:
                           externalValue: https://localhost/user-example.json
-                          value:
-                            name: Jane Doe
+                          value: 0
       `,
       'foobar.yaml'
     );
@@ -69,7 +68,7 @@ describe('spec-example-values', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The 'value' filed must be absent if 'dataValue' is present in an example object.",
+          "message": "The 'value' and 'dataValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -83,7 +82,7 @@ describe('spec-example-values', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The 'value' filed must be absent if 'serializedValue' is present in an example object.",
+          "message": "The 'value' and 'serializedValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -92,12 +91,12 @@ describe('spec-example-values', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1test/get/responses/200/content/application~1json/examples/InvalidSerializedValueAndExternalValue",
-              "reportOnKey": false,
+              "pointer": "#/paths/~1test/get/responses/200/content/application~1json/examples/InvalidSerializedValueAndExternalValue/externalValue",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "The 'serializedValue' and 'externalValue' fields of an example object are mutually exclusive.",
+          "message": "The 'externalValue' and 'serializedValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",
@@ -106,12 +105,12 @@ describe('spec-example-values', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1test/get/responses/200/content/application~1json/examples/InvalidExternalValueAndValue",
-              "reportOnKey": false,
+              "pointer": "#/paths/~1test/get/responses/200/content/application~1json/examples/InvalidExternalValueAndFalsyValue/value",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "The 'value' and 'externalValue' fields of an example object are mutually exclusive.",
+          "message": "The 'value' and 'externalValue' fields of an Example Object are mutually exclusive.",
           "reference": "https://redocly.com/docs/cli/rules/oas/spec-example-values",
           "ruleId": "spec-example-values",
           "severity": "error",

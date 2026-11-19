@@ -1,5 +1,23 @@
 # @redocly/respect-core
 
+## 2.81.0
+
+### Minor Changes
+
+- Added the `spec-action-stepId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `stepId` does not reference a step of the current workflow.
+- Added the `spec-sourceDescriptions-defined` rule for Arazzo descriptions.
+  The rule reports a `$sourceDescriptions.<name>` reference in the `operationPath`, `channelPath`, `workflowId`, or `dependsOn` of a step, or in the `workflowId` of a success or failure action, when no source description with that name is defined.
+- Added the `spec-step-operationId-resolved` rule for Arazzo descriptions.
+  The rule reports a step whose `operationId` does not resolve to an operation in an OpenAPI source description, or names an operation that several source descriptions define.
+  To check that, `lint` loads the OpenAPI source descriptions of an Arazzo description.
+- Added the `spec-step-workflowId-defined` rule for Arazzo descriptions.
+  It reports a step whose `workflowId` does not reference an existing workflow.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.81.0.
+
 ## 2.80.0
 
 ### Minor Changes

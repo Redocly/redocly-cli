@@ -43,6 +43,7 @@ rules:
   path-parameters-defined: warn
   security-defined: warn
   spec-components-invalid-map-name: warn
+  spec-example-values: warn
   spec-no-invalid-encoding-combinations: warn
   spec-no-invalid-tag-parents: warn
   struct: error
@@ -56,7 +57,6 @@ rules:
   no-ambiguous-paths: warn
   no-empty-servers: warn
   no-enum-type-mismatch: warn
-  no-example-value-and-externalValue: warn
   no-identical-paths: warn
   no-invalid-media-type-examples: warn
   no-path-trailing-slash: warn
@@ -79,6 +79,7 @@ rules:
   path-parameters-defined: warn
   security-defined: warn
   spec-components-invalid-map-name: warn
+  spec-example-values: warn
   struct: error
   tag-description: warn
 ```
@@ -90,7 +91,6 @@ rules:
   no-ambiguous-paths: warn
   no-empty-servers: warn
   no-enum-type-mismatch: warn
-  no-example-value-and-externalValue: warn
   no-identical-paths: warn
   no-invalid-media-type-examples: warn
   no-path-trailing-slash: warn
@@ -114,6 +114,7 @@ rules:
   path-parameters-defined: warn
   security-defined: warn
   spec-components-invalid-map-name: warn
+  spec-example-values: warn
   struct: error
   tag-description: warn
 ```
@@ -244,7 +245,6 @@ rules:
   no-duplicated-tag-names: warn
   no-empty-servers: error
   no-enum-type-mismatch: error
-  no-example-value-and-externalValue: error
   no-identical-paths: error
   no-illogical-composition-keywords: warn
   no-invalid-media-type-examples: warn
@@ -275,6 +275,7 @@ rules:
   security-defined: error
   security-scopes-defined: warn
   spec-components-invalid-map-name: error
+  spec-example-values: error
   spec-ref-siblings: warn
   struct: error
   tag-description: warn
@@ -291,7 +292,6 @@ rules:
   no-duplicated-tag-names: warn
   no-empty-servers: error
   no-enum-type-mismatch: error
-  no-example-value-and-externalValue: error
   no-identical-paths: error
   no-illogical-composition-keywords: warn
   no-invalid-media-type-examples: warn
@@ -322,6 +322,7 @@ rules:
   security-defined: error
   security-scopes-defined: warn
   spec-components-invalid-map-name: error
+  spec-example-values: error
   spec-ref-siblings: warn
   struct: error
   tag-description: warn
