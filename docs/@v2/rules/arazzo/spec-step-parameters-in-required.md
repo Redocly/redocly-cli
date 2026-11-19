@@ -10,10 +10,12 @@ Requires the `in` field on the parameters of a step that calls an operation.
 
 A step parameter is sent to an operation or passed to another workflow.
 When the step uses `workflowId`, its parameters map to the inputs of that workflow, and the `in` field is not needed.
-In all other cases the Arazzo specification requires the `in` field, because it tells where the parameter goes in the request: `path`, `query`, `header`, or `cookie` (and `querystring` in Arazzo 1.1).
-Without it, a tool cannot place the value, and Respect leaves such a parameter out of the request.
+In all other cases the Arazzo specification requires the `in` field.
+The `in` field tells where the parameter goes in the request: `path`, `query`, `header`, or `cookie`.
+Arazzo 1.1 also allows `querystring`.
+Without the `in` field, a tool cannot place the value, and Respect leaves such a parameter out of the request.
 
-This rule reports each parameter without `in` in a step that does not use `workflowId`.
+The `spec-step-parameters-in-required` rule reports each parameter without `in` in a step that does not use `workflowId`.
 For a parameter that a step takes from `components` with a `reference`, the rule checks the referenced parameter and reports the step parameter.
 
 The rule does not check the parameters of a workflow, because they apply to all of its steps, including the steps that use `workflowId`.
@@ -21,9 +23,9 @@ The [struct](../common/struct.md) rule reports an `in` value that the specificat
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                 |
+| -------- | ------ | ------------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `error` (in `recommended` configuration). |
 
 An example configuration:
 
