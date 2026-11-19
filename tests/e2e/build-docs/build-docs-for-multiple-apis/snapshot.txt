@@ -12,10 +12,10 @@
 Found redocly.yaml and using 'openapi' options
 Prerendering docs
 
-🎉 bundled successfully in: output/menu.html (258 KiB) [⏱ <test>ms].
+🎉 bundled successfully in: output/menu.html (271 KiB) [⏱ <test>ms].
 Found redocly.yaml and using 'openapi' options
 Prerendering docs
 
-🎉 bundled successfully in: output/orders.html (258 KiB) [⏱ <test>ms].
+🎉 bundled successfully in: output/orders.html (271 KiB) [⏱ <test>ms].
 
 Exit code: 0
