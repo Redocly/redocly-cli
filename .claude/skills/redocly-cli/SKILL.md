@@ -24,7 +24,7 @@ Point at a different config with `--config <path>`.
 
 ## Quick reference
 
-Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`.
+Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`. Standalone binaries that need no Node.js, with a `SHA256SUMS` file, are attached to each `@redocly/cli@<version>` GitHub release.
 
 | Command              | Purpose                                                                                                           | Group                 |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------- |

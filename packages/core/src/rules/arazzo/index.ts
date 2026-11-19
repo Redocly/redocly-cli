@@ -21,8 +21,14 @@ import { ParametersUnique } from './parameters-unique.js';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique.js';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique.js';
 import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty.js';
+import { SpecActionMutuallyExclusiveFields } from './spec-action-mutually-exclusive-fields.js';
+import { SpecActionStepIdDefined } from './spec-action-stepId-defined.js';
+import { SpecOutputsInvalidMapName } from './spec-outputs-invalid-map-name.js';
 import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
+import { SpecSourceDescriptionsDefined } from './spec-sourceDescriptions-defined.js';
 import { SpecStepMutuallyExclusiveFields } from './spec-step-mutually-exclusive-fields.js';
+import { SpecStepOperationIdResolved } from './spec-step-operationId-resolved.js';
+import { SpecStepWorkflowIdDefined } from './spec-step-workflowId-defined.js';
 import { StepOnFailureUnique } from './step-onFailure-unique.js';
 import { StepOnSuccessUnique } from './step-onSuccess-unique.js';
 import { StepIdUnique } from './stepId-unique.js';
@@ -30,6 +36,7 @@ import { WorkflowDependsOn } from './workflow-dependsOn.js';
 import { WorkflowIdUnique } from './workflowId-unique.js';
 
 export const rules: Arazzo1RuleSet<'built-in'> = {
+  struct: Struct as Arazzo1Rule,
   assertions: Assertions as Arazzo1Rule,
   'criteria-unique': CriteriaUnique,
   'no-criteria-xpath': NoCriteriaXpath,
@@ -48,12 +55,17 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'sourceDescription-name-unique': SourceDescriptionsNameUnique,
   'sourceDescription-type': SourceDescriptionType,
   'sourceDescriptions-not-empty': SourceDescriptionsNotEmpty,
+  'spec-action-mutually-exclusive-fields': SpecActionMutuallyExclusiveFields,
+  'spec-action-stepId-defined': SpecActionStepIdDefined,
+  'spec-outputs-invalid-map-name': SpecOutputsInvalidMapName,
+  'spec-sourceDescriptions-defined': SpecSourceDescriptionsDefined,
   'spec-querystring-parameters': SpecQuerystringParameters,
   'spec-step-mutually-exclusive-fields': SpecStepMutuallyExclusiveFields,
+  'spec-step-operationId-resolved': SpecStepOperationIdResolved,
+  'spec-step-workflowId-defined': SpecStepWorkflowIdDefined,
   'step-onFailure-unique': StepOnFailureUnique,
   'step-onSuccess-unique': StepOnSuccessUnique,
   'stepId-unique': StepIdUnique,
-  struct: Struct as Arazzo1Rule,
   'workflow-dependsOn': WorkflowDependsOn,
   'workflowId-unique': WorkflowIdUnique,
   'x-security-scheme-name-reference': XSecuritySchemeNameReference,

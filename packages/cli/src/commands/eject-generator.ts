@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import * as semver from 'semver';
 
 import { ejectGeneratorTelemetry } from '../utils/client-generator-telemetry.js';
+import { createParentDirectory } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type EjectGeneratorCommandArgv = {
@@ -679,7 +680,7 @@ export const handleEjectGenerator = async ({
       `\n❌  ${printedTarget} already exists. Use --update to merge the newer version in, or --force to overwrite.\n`
     );
   }
-  mkdirSync(dirname(target), { recursive: true });
+  createParentDirectory(target);
   const copied =
     folderFiles === undefined
       ? [readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8')]

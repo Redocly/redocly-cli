@@ -27,7 +27,7 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
-import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
+import { sanitizeLocale, sanitizePath, getPackageRunner } from '../utils/platform.js';
 import { cleanArgs } from '../utils/telemetry.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -588,7 +588,7 @@ describe('cleanArgs', () => {
       '--input=some-input',
       '--mtls={"https://example.com": {"clientCert": "some-client-cert", "clientKey": "some-client-key", "caCert": "some-ca-cert"}}',
     ];
-    const result = cleanArgs(parsedArgs, rawArgs);
+    const result = cleanArgs(parsedArgs, rawArgs, {});
     expect(result.arguments).toEqual(
       JSON.stringify({
         config: 'file-yaml',
@@ -638,7 +638,7 @@ describe('cleanArgs', () => {
       config: 'fixtures/redocly.yaml',
       output: 'fixtures',
     };
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, {});
     expect(result.raw_input).toEqual(
       'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
     );
@@ -681,7 +681,7 @@ describe('cleanArgs', () => {
       'execution-timeout': 100,
       'no-secrets-masking': false,
     };
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, { server: ['S'], S: ['server'] });
 
     expect(result.raw_input).toEqual('redocly respect file-yaml --server *** -S ***');
     expect(result.arguments).toEqual(
@@ -714,7 +714,7 @@ describe('cleanArgs', () => {
       extends: 'minimal',
       'skip-rule': ['operation-4xx-response'],
     };
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, {});
 
     expect(result.raw_input).toEqual(
       'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
@@ -734,27 +734,45 @@ describe('cleanArgs', () => {
     const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '--output='];
     const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: '', o: '' };
 
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, { output: ['o'], o: ['output'] });
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml --output=');
-    expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '', o: '***' }));
+    expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '', o: '' }));
   });
 
   it('should not mangle the raw CLI input when a cleaned argument is a single character', () => {
     const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '-o', '-'];
     const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: '-', o: '-' };
 
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, { output: ['o'], o: ['output'] });
 
     expect(result.raw_input).toEqual('redocly bundle file-yaml -o -');
+    expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '-', o: '-' }));
+  });
+
+  it('should clean the short form of the output option in the same way as the long form', () => {
+    const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '-o', 'fixtures'];
+    const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: 'fixtures', o: 'fixtures' };
+
+    const result = cleanArgs(parsedArgs, rawInput, { output: ['o'], o: ['output'] });
+
+    expect(result.raw_input).toEqual('redocly bundle file-yaml -o folder');
     expect(result.arguments).toEqual(
-      JSON.stringify({ apis: ['file-yaml'], output: '-', o: '***' })
+      JSON.stringify({ apis: ['file-yaml'], output: 'folder', o: 'folder' })
     );
   });
 
-  it('should remove the commit author from parsed args and raw CLI input', () => {
+  it('should remove the commit author and the organization from parsed args and raw CLI input', () => {
     const author = 'Jane Doe <jane.doe@example.com>';
-    const rawInput = ['redocly', 'push', './fixtures/openapi.yaml', '--author', author];
+    const rawInput = [
+      'redocly',
+      'push',
+      './fixtures/openapi.yaml',
+      '-o',
+      'my-org',
+      '--author',
+      author,
+    ];
     const parsedArgs = {
       files: ['./fixtures/openapi.yaml'],
       organization: 'my-org',
@@ -768,9 +786,14 @@ describe('cleanArgs', () => {
       message: 'Update the docs',
     };
 
-    const result = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput, {
+      organization: ['o'],
+      o: ['organization'],
+      author: ['a'],
+      a: ['author'],
+    });
 
-    expect(result.raw_input).toEqual('redocly push file-yaml --author ***');
+    expect(result.raw_input).toEqual('redocly push file-yaml -o *** --author ***');
     expect(result.arguments).toEqual(
       JSON.stringify({
         files: ['file-yaml'],
@@ -809,7 +832,10 @@ describe('writeToFileByExtension', () => {
 
   it('should call stringifyYaml function', () => {
     writeToFileByExtension('test data', 'test.yaml');
-    expect(openapiCore.stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
+    expect(openapiCore.stringifyYaml).toHaveBeenCalledWith('test data', {
+      noRefs: false,
+      lineWidth: -1,
+    });
     expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
   });
 
@@ -852,29 +878,51 @@ describe('runtime platform', () => {
     });
   });
 
-  describe('getPlatformSpawnArgs', () => {
-    it('should return args for Windows platform', () => {
+  describe('getPackageRunner', () => {
+    it('should run the package with npx through a shell on Windows', () => {
       vi.spyOn(process, 'platform', 'get').mockReturnValueOnce('win32');
 
-      const result = getPlatformSpawnArgs();
+      const runner = getPackageRunner('@redocly/realm');
 
-      expect(result).toEqual({
-        npxExecutableName: 'npx.cmd',
+      expect(runner).toEqual({
+        command: 'npx.cmd',
+        args: ['-y', '@redocly/realm'],
+        env: process.env,
         sanitize: expect.any(Function),
         shell: true,
       });
+      expect(runner.sanitize('a&&b', sanitizePath)).toBe('ab');
     });
 
-    it('should return args for non-Windows platform', () => {
+    it('should run the package with npx on other platforms', () => {
       vi.spyOn(process, 'platform', 'get').mockReturnValueOnce('linux');
 
-      const result = getPlatformSpawnArgs();
+      const runner = getPackageRunner('@redocly/realm');
 
-      expect(result).toEqual({
-        npxExecutableName: 'npx',
+      expect(runner).toEqual({
+        command: 'npx',
+        args: ['-y', '@redocly/realm'],
+        env: process.env,
         sanitize: expect.any(Function),
         shell: false,
       });
+      expect(runner.sanitize('a&&b', sanitizePath)).toBe('a&&b');
+    });
+
+    it('should run the package with the embedded Bun runtime in the standalone binary', () => {
+      Object.defineProperty(process.versions, 'bun', { value: '1.4.4', configurable: true });
+
+      try {
+        expect(getPackageRunner('@redocly/framework')).toEqual({
+          command: process.execPath,
+          args: ['x', '--bun', '@redocly/framework'],
+          env: { ...process.env, BUN_BE_BUN: '1' },
+          sanitize: expect.any(Function),
+          shell: false,
+        });
+      } finally {
+        Reflect.deleteProperty(process.versions, 'bun');
+      }
     });
   });
 });

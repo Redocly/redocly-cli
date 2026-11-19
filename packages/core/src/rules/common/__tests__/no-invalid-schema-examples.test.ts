@@ -52,6 +52,61 @@ describe('no-invalid-schema-examples', () => {
     `);
   });
 
+  it('should not report a decimal example that is a multiple of a decimal multipleOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.3
+        components:
+          schemas:
+            Queue:
+              type: object
+              properties:
+                percent:
+                  type: number
+                  multipleOf: 0.1
+                  example: 98.8
+                price:
+                  type: number
+                  multipleOf: 0.01
+                  example: 4.35
+                wrong:
+                  type: number
+                  multipleOf: 0.1
+                  example: 98.85
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/components/schemas/Queue/properties/wrong",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/Queue/properties/wrong/example",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: must be multiple of 0.1.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-invalid-schema-examples",
+          "ruleId": "no-invalid-schema-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should not report on readOnly/writeOnly properties in schema example', async () => {
     const document = parseYamlToDocument(
       outdent`

@@ -1,5 +1,64 @@
 # @redocly/cli
 
+## 2.81.0
+
+### Minor Changes
+
+- Added the `spec-action-stepId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `stepId` does not reference a step of the current workflow.
+- Added the `spec-sourceDescriptions-defined` rule for Arazzo descriptions.
+  The rule reports a `$sourceDescriptions.<name>` reference in the `operationPath`, `channelPath`, `workflowId`, or `dependsOn` of a step, or in the `workflowId` of a success or failure action, when no source description with that name is defined.
+- Added the `spec-step-operationId-resolved` rule for Arazzo descriptions.
+  The rule reports a step whose `operationId` does not resolve to an operation in an OpenAPI source description, or names an operation that several source descriptions define.
+  To check that, `lint` loads the OpenAPI source descriptions of an Arazzo description.
+- Added the `spec-step-workflowId-defined` rule for Arazzo descriptions.
+  It reports a step whose `workflowId` does not reference an existing workflow.
+- Added standalone binaries for Linux, macOS, and Windows that need no Node.js, with a `SHA256SUMS` checksums file, to each GitHub release.
+- Changed the built-in rulesets to enable `spec-example-values` instead of the deprecated `no-example-value-and-externalValue` rule.
+  The configuration linter warns about the deprecated rule.
+
+### Patch Changes
+
+- Fixed commands that reported you as logged out when another Redocly CLI or editor process refreshed the same login session at the same time.
+  A refreshed session is now also used when the credentials file can't be updated.
+- Fixed an issue where an example with `externalValue` and a `value` of `0`, `false`, `null`, or an empty string was not reported.
+- Updated @redocly/openapi-core to v2.81.0.
+- Updated @redocly/platform-integration to v2.81.0.
+- Updated @redocly/respect-core to v2.81.0.
+
+## 2.80.0
+
+### Minor Changes
+
+- Added the `spec-action-mutually-exclusive-fields` rule for Arazzo descriptions.
+  The rule reports a success or failure action that uses both `stepId` and `workflowId`.
+- Added the `spec-outputs-invalid-map-name` rule for Arazzo descriptions.
+  The rule reports a workflow or step output name that does not match the regular expression `^[a-zA-Z0-9\.\-_]+$`, as the Arazzo specification requires.
+
+### Patch Changes
+
+- Fixed an issue where `lint` stopped with an error instead of reporting the problems when the `sourceDescriptions`, `workflows`, `steps`, or `dependsOn` of an Arazzo description was not a list or had an empty item.
+- Fixed an issue where the `struct` rule didn't report an empty `successCriteria` list of an Arazzo step or an empty `criteria` list of a success action.
+- Fixed an issue where the `struct` rule didn't report an Arazzo workflow with an empty `steps` list.
+- Fixed an issue where the `struct` rule didn't report an Arazzo description with an empty `workflows` list.
+- Improved the error messages for misconfigured configurable rules.
+  The error names the rule and is reported even if the API description has no node of the rule's subject type.
+- Fixed an issue where `drift` reported a valid decimal value, such as `98.8` for `multipleOf: 0.1`, as a schema mismatch.
+- Fixed an issue where the `no-invalid-schema-examples`, `no-invalid-media-type-examples`, and `no-invalid-parameter-examples` rules reported a valid decimal example.
+
+  The rules accept a value that differs from a multiple by less than one millionth of `multipleOf`, such as `1.0000001` for `multipleOf: 1`.
+
+- Fixed type errors in the generated TypeScript client when a project's `tsconfig.json` didn't include the `DOM` lib.
+- Fixed an issue where `join` and `split` folded long YAML strings into several lines and changed multi-line strings from literal style (`|`) to folded style (`>`).
+- Fixed an issue where Respect left the runs of the workflows from a `dependsOn` list out of the results.
+- Fixed an issue where `respect` reported `unexpected error` instead of `global timeout error` for a workflow when the execution timeout stopped a workflow from its `dependsOn` list.
+- Fixed an issue where `respect` reported a valid decimal value, such as `98.8` for `multipleOf: 0.1`, in a response or in workflow inputs.
+- Fixed an issue where `respect` counted steps that sent no request, such as the steps skipped after the execution timeout, in `totalRequests` of the JSON output.
+- Updated @redocly/client-generator to v0.10.3.
+- Updated @redocly/openapi-core to v2.80.0.
+- Updated @redocly/platform-integration to v2.80.0.
+- Updated @redocly/respect-core to v2.80.0.
+
 ## 2.79.0
 
 ### Minor Changes

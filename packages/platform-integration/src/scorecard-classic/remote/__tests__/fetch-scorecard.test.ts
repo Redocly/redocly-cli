@@ -256,4 +256,25 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       })
     );
   });
+
+  it.each([
+    ['forbidden', { status: 403 }],
+    ['not-found', { status: 404 }],
+    ['unreachable', { status: 503 }],
+    ['not-configured', { status: 200, json: async () => ({ id: 'project-123', config: {} }) }],
+  ])('should report the %s reason', async (reason, response) => {
+    mockFetch.mockResolvedValueOnce(response);
+
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken })
+    ).rejects.toMatchObject({ reason });
+  });
+
+  it('should report a network error as unreachable', async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken })
+    ).rejects.toMatchObject({ reason: 'unreachable', message: 'fetch failed' });
+  });
 });

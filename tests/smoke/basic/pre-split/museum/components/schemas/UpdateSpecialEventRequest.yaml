@@ -1,6 +1,4 @@
-description: >-
-  Request payload for updating an existing special event. Only included fields
-  are updated in the event.
+description: Request payload for updating an existing special event. Only included fields are updated in the event.
 type: object
 properties:
   name:

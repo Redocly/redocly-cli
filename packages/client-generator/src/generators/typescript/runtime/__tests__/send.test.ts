@@ -573,6 +573,14 @@ describe('send', () => {
     expect((calls[1].init.headers as Record<string, string>)['X-Trace']).toBe('from-pairs');
   });
 
+  it('converts a list of header values to a string the way fetch does', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok()]);
+    // Node's `HeadersInit` allows a list of values per name; the DOM one does not.
+    const headers = { 'X-Tags': ['a', 'b'] } as unknown as Record<string, string>;
+    await send({ fetch: fetchImpl }, op, 'u', { method: 'GET', headers }, undefined, undefined, {});
+    expect((calls[0].init.headers as Record<string, string>)['X-Tags']).toBe('a,b');
+  });
+
   it('merges a plain-object config.headers too', async () => {
     const { calls, fetchImpl } = fetchSpy([ok()]);
     await send(
