@@ -1,0 +1,15 @@
+{
+  "name": "test-project-smoke-bundled-core",
+  "private": true,
+  "scripts": {
+    "build": "rspack build --config=rspack.config.cjs",
+    "start": "node output/consumer.cjs"
+  },
+  "dependencies": {
+    "@redocly/openapi-core": "./openapi-core.tgz"
+  },
+  "devDependencies": {
+    "@rspack/cli": "2.2.3",
+    "@rspack/core": "2.2.3"
+  }
+}
