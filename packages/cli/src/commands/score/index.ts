@@ -9,10 +9,12 @@ import {
   logger,
   type OutputFormat,
   HandledError,
+  type Config,
 } from '@redocly/openapi-core';
 import * as colors from 'colorette';
 import { performance } from 'perf_hooks';
 
+import { renderBanner } from '../../utils/banner.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { collectMetrics } from './collect-metrics.js';
@@ -39,7 +41,13 @@ export type ScoreArgv = {
 };
 
 export async function handleScore({ argv, config, collectSpecData }: CommandArgs<ScoreArgv>) {
-  const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  // FIXME: replace this line with `const { api } = argv;` when `getDeprecatedFirstApi` goes.
+  // The first API stays out of `argv`, so the usage data shows that the run had no API argument.
+  const api = argv.api ?? getDeprecatedFirstApi(config);
+  if (api === undefined) {
+    throw new HandledError('No API to process. Pass an API to the command: `redocly score <api>`.');
+  }
+  const [{ path }] = await getFallbackApisOrExit([api], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
   collectSpecData?.(document);
@@ -126,4 +134,23 @@ function printScore(
   printExecutionTime('score', startedAt, api);
 
   logger.info(`Learn how to improve the score: ${SCORE_DOCS_URL}\n`);
+}
+
+// FIXME: remove this function when the deprecation period ends, a week to a month after the release.
+// Before, `score` without an API took the first API of the configuration file.
+// Such a run now fails, because the command processes one API, which the command line names.
+// Until then, it gets the first API as its `api` argument and a deprecation banner.
+// `stats`, `score`, and `scorecard-classic` each hold a copy of this function.
+function getDeprecatedFirstApi(config: Config): string | undefined {
+  const [firstApi] = Object.keys(config.resolvedConfig.apis ?? {});
+  if (firstApi !== undefined) {
+    logger.info(
+      renderBanner([
+        'Deprecated: score without an API takes the first API of the configuration file.',
+        'A later release requires the API.',
+        `Pass the API: ${colors.cyan('redocly score <api>')}`,
+      ])
+    );
+  }
+  return firstApi;
 }

@@ -20,7 +20,6 @@ import { convertSwagger2OpenAPI } from 'redoc';
 import { renderBanner } from '../../utils/banner.js';
 import {
   formatPath,
-  getAliasOrPath,
   getConfigDirectory,
   getExecutionTime,
   getFallbackApisOrExit,
@@ -46,29 +45,27 @@ export const handlerBuildCommand = async ({
     ])
   );
 
-  // FIXME: remove this line with `getDeprecatedFirstApi`.
-  argv.api ??= getDeprecatedFirstApi(config);
+  // FIXME: replace this line with `const { api } = argv;` when `getDeprecatedFirstApi` goes.
+  // The first API stays out of `argv`, so the usage data shows that the run had no API argument.
+  const api = argv.api ?? getDeprecatedFirstApi(config);
 
-  if (argv.o && !argv.api) {
+  if (argv.o && !api) {
     throw new HandledError('At least one inline API must be specified when using --output.');
   }
   const configDir = getConfigDirectory(config);
-  const apis = (await getFallbackApisOrExit(argv.api ? [argv.api] : [], config))
+  const apis = (await getFallbackApisOrExit(api ? [api] : [], config))
     .map(({ path, alias }) => {
-      // A file path gets the root configuration, also when it is the `root` of an API.
-      const aliasConfig = config.forAlias(
-        argv.api === undefined || argv.api === alias ? alias : undefined
-      );
-      const { docsOutput } = aliasConfig.resolvedConfig;
+      const aliasConfig = config.forAlias(alias);
+      // A file path does not get the `docsOutput` of the API whose `root` it is.
+      const docsOutput =
+        api === undefined || api === alias ? aliasConfig.resolvedConfig.docsOutput : undefined;
       return {
         path,
         aliasConfig,
         docsOutput: docsOutput && formatPath(resolve(configDir, docsOutput)),
       };
     })
-    // FIXME: remove this line with `keepDeprecatedConfigOfFilePath`.
-    .map((api) => keepDeprecatedConfigOfFilePath(api, config, argv.api))
-    .filter(({ docsOutput }) => argv.api || docsOutput);
+    .filter(({ docsOutput }) => api || docsOutput);
   if (apis.length === 0) {
     throw new HandledError(
       'No API to build. Set `docsOutput` for an API in the configuration file, or pass an API to the command.'
@@ -141,33 +138,6 @@ function getDeprecatedFirstApi(config: Config): string | undefined {
     ])
   );
   return firstApi;
-}
-
-// FIXME: remove this function together with `getDeprecatedFirstApi`.
-// Before, a file path that is the `root` of an API took the options and the decorators of that API.
-// Such a run now gets the root configuration.
-// Until then, it keeps the configuration of that API, without its `docsOutput`, and gets a deprecation banner.
-function keepDeprecatedConfigOfFilePath<Api extends { path: string; aliasConfig: Config }>(
-  api: Api,
-  config: Config,
-  apiArgument?: string
-): Api {
-  const { alias } = getAliasOrPath(config, api.path);
-  if (
-    alias === undefined ||
-    apiArgument === undefined ||
-    config.resolvedConfig.apis?.[apiArgument]
-  ) {
-    return api;
-  }
-  logger.info(
-    renderBanner([
-      `Deprecated: build-docs applies the settings of the ${alias} API to ${api.path}, its root.`,
-      'A later release applies the root configuration to a file path.',
-      `Pass the alias to keep the settings: ${cyan(`redocly build-docs ${alias}`)}`,
-    ])
-  );
-  return { ...api, aliasConfig: config.forAlias(alias) };
 }
 
 const unsupportedSpecNames: Partial<Record<SpecMajorVersion, string>> = {
