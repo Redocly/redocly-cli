@@ -20,10 +20,13 @@ workflows:
     inputs:
       type: object
       properties:
-        customerName:
-          type: string
+        customer:
+          type: object
+          properties:
+            customerName:
+              type: string
       required:
-        - customerName
+        - customer
     steps:
       - stepId: find-beverage
         description: List the beverages on the menu and capture the first item.
@@ -65,7 +68,7 @@ workflows:
                 type: jsonpath
                 version: rfc9535
               value:
-                context: $inputs
+                context: $inputs.customer
                 selector: $.customerName
                 type: jsonpath
         successCriteria:

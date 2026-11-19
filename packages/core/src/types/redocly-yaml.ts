@@ -186,6 +186,7 @@ const builtInArazzo1Rules = [
   'spec-action-mutually-exclusive-fields',
   'spec-action-stepId-defined',
   'spec-action-workflowId-defined',
+  'spec-no-invalid-runtime-expressions',
   'spec-outputs-invalid-map-name',
   'spec-sourceDescriptions-defined',
   'spec-querystring-parameters',

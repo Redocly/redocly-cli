@@ -24,6 +24,7 @@ import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty.js';
 import { SpecActionMutuallyExclusiveFields } from './spec-action-mutually-exclusive-fields.js';
 import { SpecActionStepIdDefined } from './spec-action-stepId-defined.js';
 import { SpecActionWorkflowIdDefined } from './spec-action-workflowId-defined.js';
+import { SpecNoInvalidRuntimeExpressions } from './spec-no-invalid-runtime-expressions.js';
 import { SpecOutputsInvalidMapName } from './spec-outputs-invalid-map-name.js';
 import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
 import { SpecSourceDescriptionsDefined } from './spec-sourceDescriptions-defined.js';
@@ -60,6 +61,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'spec-action-mutually-exclusive-fields': SpecActionMutuallyExclusiveFields,
   'spec-action-stepId-defined': SpecActionStepIdDefined,
   'spec-action-workflowId-defined': SpecActionWorkflowIdDefined,
+  'spec-no-invalid-runtime-expressions': SpecNoInvalidRuntimeExpressions,
   'spec-outputs-invalid-map-name': SpecOutputsInvalidMapName,
   'spec-sourceDescriptions-defined': SpecSourceDescriptionsDefined,
   'spec-querystring-parameters': SpecQuerystringParameters,

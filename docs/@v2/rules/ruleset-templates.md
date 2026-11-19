@@ -167,6 +167,7 @@ rules:
   spec-action-mutually-exclusive-fields: warn
   spec-action-stepId-defined: warn
   spec-action-workflowId-defined: warn
+  spec-no-invalid-runtime-expressions: warn
   spec-outputs-invalid-map-name: warn
   spec-querystring-parameters: warn
   spec-sourceDescriptions-defined: warn
@@ -405,6 +406,7 @@ rules:
   spec-action-mutually-exclusive-fields: error
   spec-action-stepId-defined: error
   spec-action-workflowId-defined: error
+  spec-no-invalid-runtime-expressions: error
   spec-outputs-invalid-map-name: error
   spec-querystring-parameters: error
   spec-sourceDescriptions-defined: error

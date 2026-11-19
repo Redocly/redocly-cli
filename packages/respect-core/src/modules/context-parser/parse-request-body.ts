@@ -99,7 +99,7 @@ export async function parseRequestBody(
   descriptionContentType?: string
 ): Promise<
   Omit<RequestBody, 'payload'> & {
-    payload:
+    payload?:
       | string
       | number
       | boolean
