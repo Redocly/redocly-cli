@@ -122,13 +122,14 @@ describe('lintExpression', () => {
   describe('$inputs', () => {
     it('should not throw an error and return the parsed expression tokens', () => {
       expect(() => lintExpression('$inputs.events.some-event.id == 42')).not.toThrow();
+      expect(() =>
+        lintExpression("$inputs.body#/name == 'Mermaid Treasure Identification and Analysis'")
+      ).not.toThrow();
     });
 
     it('should throw an error if the expression is not valid', () => {
-      expect(() =>
-        lintExpression("$inputs.body#/name == 'Mermaid Treasure Identification and Analysis'")
-      ).toThrow(
-        "Runtime expression is not valid: $inputs.body#/name == 'Mermaid Treasure Identification and Analysis'"
+      expect(() => lintExpression('$inputs == 42')).toThrow(
+        'Runtime expression is not valid: $inputs == 42'
       );
     });
   });

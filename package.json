@@ -22,14 +22,14 @@
     "lint:fix": "oxlint --fix",
     "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck --allowImportingTsExtensions",
-    "compile": "npm run prepare -w @redocly/client-generator && tsc -b tsconfig.build.json && npm run respect:parser:generate && npm run compile:cli:bundle",
+    "compile": "npm run prepare -w @redocly/client-generator && tsc -b tsconfig.build.json && npm run runtime-expressions:parser:generate && npm run compile:cli:bundle",
     "compile:cli:bundle": "npm --workspace packages/cli run build",
     "prepare": "husky && npm run compile",
     "cli": "node --import tsx packages/cli/src/index.ts",
     "precli": "npm run compile",
     "release": "node ./scripts/release-publish.mjs",
     "pack:prepare": "./scripts/local-pack.sh",
-    "respect:parser:generate": "pegjs --format es --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.js"
+    "runtime-expressions:parser:generate": "pegjs --format es --allowed-start-rules Start,RuntimeExpression --output packages/core/lib/runtime-expressions/abnf-parser.js packages/core/src/runtime-expressions/abnf-parser.pegjs && cp packages/core/lib/runtime-expressions/abnf-parser.js packages/core/src/runtime-expressions/abnf-parser.js"
   },
   "workspaces": [
     "packages/*"
