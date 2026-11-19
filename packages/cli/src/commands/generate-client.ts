@@ -100,6 +100,7 @@ type GenerationRun = {
   collectSpecData: CommandArgs<GenerateClientCommandArgv>['collectSpecData'];
   configDir: string;
   cliFlags: GenerateClientConfig;
+  apiArgument: string | undefined;
   outputFlag: string | undefined;
   toolkit: ClientGeneratorToolkit;
   /** Every path this run wrote or will write — collision guard across apis and the composed entry. */
@@ -166,6 +167,7 @@ export async function handleGenerateClient({
     collectSpecData,
     configDir,
     cliFlags,
+    apiArgument: argv.api,
     outputFlag: argv.output,
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
@@ -217,14 +219,18 @@ async function writeReport(reportPath: string, report: GenerationReport): Promis
 
 function getOutputPath(
   { path, alias }: { path: string; alias?: string },
-  { config, configDir, outputFlag }: GenerationRun
+  { config, configDir, apiArgument, outputFlag }: GenerationRun
 ): string {
-  const { clientOutput } = config.forAlias(alias).resolvedConfig;
-  return outputFlag !== undefined
-    ? resolvePath(outputFlag)
-    : clientOutput !== undefined
-      ? resolvePath(configDir, clientOutput)
-      : resolvePath(configDir, fileNameFor(alias ?? basename(path, extname(path))));
+  if (outputFlag !== undefined) {
+    return resolvePath(outputFlag);
+  }
+  // A file path does not get the `clientOutput` or the name of the API whose `root` it is.
+  const aliasArgument = apiArgument === undefined || apiArgument === alias ? alias : undefined;
+  const { clientOutput } = config.forAlias(aliasArgument).resolvedConfig;
+  return resolvePath(
+    configDir,
+    clientOutput ?? fileNameFor(aliasArgument ?? basename(path, extname(path)))
+  );
 }
 
 async function generateApiClient(

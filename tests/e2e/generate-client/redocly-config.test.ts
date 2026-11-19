@@ -146,6 +146,22 @@ const cases: ConfigCase[] = [
     contains: [{ file: 'matched.ts', text: 'serverUrl: "https://per-api.example.com"' }],
   },
   {
+    name: 'a file path that matches an api root does not take its clientOutput',
+    config: outdent`
+      apis:
+        cafe:
+          root: ./openapi.yaml
+          clientOutput: ./out.ts
+          client:
+            generators: [typescript]
+            serverUrl: https://per-api.example.com
+    `,
+    args: ['./openapi.yaml'],
+    status: 0,
+    missingFiles: ['out.ts'],
+    contains: [{ file: 'openapi.client.ts', text: 'serverUrl: "https://per-api.example.com"' }],
+  },
+  {
     name: 'a file path that matches no api root uses the top-level block',
     config: outdent`
       client:
