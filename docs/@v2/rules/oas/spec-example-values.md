@@ -1,5 +1,7 @@
 ---
 slug: /docs/cli/rules/oas/spec-example-values
+seo:
+  description: Ensure Example Objects have valid field combinations according to the OpenAPI specification.
 ---
 
 # spec-example-values

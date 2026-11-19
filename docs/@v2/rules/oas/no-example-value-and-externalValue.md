@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/oas/no-example-value-and-externalValue
+seo:
+  title: no-example-value-and-externalValue rule
+  description: Ensure examples properties externalValue and value are mutually exclusive in OpenAPI, or migrate to spec-example-values.
 ---
 
 # no-example-value-and-externalValue
