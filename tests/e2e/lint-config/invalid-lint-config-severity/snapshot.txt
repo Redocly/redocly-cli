@@ -1,5 +1,5 @@
 
-index.js lint [apis...]
+redocly lint [apis...]
 
 Lint an API or Arazzo description.
 

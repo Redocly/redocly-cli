@@ -1,5 +1,6 @@
 import type { Oas3Rule } from '../../visitors.js';
 
+// Deprecated since 2.6.0 in favor of `spec-example-values`. Left for backward compatibility.
 export const NoExampleValueAndExternalValue: Oas3Rule = () => {
   return {
     Example(example, { report, location }) {
