@@ -1,5 +1,31 @@
 # @redocly/cli
 
+## 2.81.0
+
+### Minor Changes
+
+- Added the `spec-action-stepId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `stepId` does not reference a step of the current workflow.
+- Added the `spec-sourceDescriptions-defined` rule for Arazzo descriptions.
+  The rule reports a `$sourceDescriptions.<name>` reference in the `operationPath`, `channelPath`, `workflowId`, or `dependsOn` of a step, or in the `workflowId` of a success or failure action, when no source description with that name is defined.
+- Added the `spec-step-operationId-resolved` rule for Arazzo descriptions.
+  The rule reports a step whose `operationId` does not resolve to an operation in an OpenAPI source description, or names an operation that several source descriptions define.
+  To check that, `lint` loads the OpenAPI source descriptions of an Arazzo description.
+- Added the `spec-step-workflowId-defined` rule for Arazzo descriptions.
+  It reports a step whose `workflowId` does not reference an existing workflow.
+- Added standalone binaries for Linux, macOS, and Windows that need no Node.js, with a `SHA256SUMS` checksums file, to each GitHub release.
+- Changed the built-in rulesets to enable `spec-example-values` instead of the deprecated `no-example-value-and-externalValue` rule.
+  The configuration linter warns about the deprecated rule.
+
+### Patch Changes
+
+- Fixed commands that reported you as logged out when another Redocly CLI or editor process refreshed the same login session at the same time.
+  A refreshed session is now also used when the credentials file can't be updated.
+- Fixed an issue where an example with `externalValue` and a `value` of `0`, `false`, `null`, or an empty string was not reported.
+- Updated @redocly/openapi-core to v2.81.0.
+- Updated @redocly/platform-integration to v2.81.0.
+- Updated @redocly/respect-core to v2.81.0.
+
 ## 2.80.0
 
 ### Minor Changes
