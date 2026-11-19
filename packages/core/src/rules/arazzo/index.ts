@@ -22,9 +22,13 @@ import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique.js';
 import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty.js';
 import { SpecActionMutuallyExclusiveFields } from './spec-action-mutually-exclusive-fields.js';
+import { SpecActionStepIdDefined } from './spec-action-stepId-defined.js';
 import { SpecOutputsInvalidMapName } from './spec-outputs-invalid-map-name.js';
 import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
+import { SpecSourceDescriptionsDefined } from './spec-sourceDescriptions-defined.js';
 import { SpecStepMutuallyExclusiveFields } from './spec-step-mutually-exclusive-fields.js';
+import { SpecStepOperationIdResolved } from './spec-step-operationId-resolved.js';
+import { SpecStepWorkflowIdDefined } from './spec-step-workflowId-defined.js';
 import { StepOnFailureUnique } from './step-onFailure-unique.js';
 import { StepOnSuccessUnique } from './step-onSuccess-unique.js';
 import { StepIdUnique } from './stepId-unique.js';
@@ -52,9 +56,13 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'sourceDescription-type': SourceDescriptionType,
   'sourceDescriptions-not-empty': SourceDescriptionsNotEmpty,
   'spec-action-mutually-exclusive-fields': SpecActionMutuallyExclusiveFields,
+  'spec-action-stepId-defined': SpecActionStepIdDefined,
   'spec-outputs-invalid-map-name': SpecOutputsInvalidMapName,
+  'spec-sourceDescriptions-defined': SpecSourceDescriptionsDefined,
   'spec-querystring-parameters': SpecQuerystringParameters,
   'spec-step-mutually-exclusive-fields': SpecStepMutuallyExclusiveFields,
+  'spec-step-operationId-resolved': SpecStepOperationIdResolved,
+  'spec-step-workflowId-defined': SpecStepWorkflowIdDefined,
   'step-onFailure-unique': StepOnFailureUnique,
   'step-onSuccess-unique': StepOnSuccessUnique,
   'stepId-unique': StepIdUnique,

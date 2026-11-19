@@ -184,9 +184,13 @@ const builtInArazzo1Rules = [
   'sourceDescription-name-unique',
   'sourceDescriptions-not-empty',
   'spec-action-mutually-exclusive-fields',
+  'spec-action-stepId-defined',
   'spec-outputs-invalid-map-name',
+  'spec-sourceDescriptions-defined',
   'spec-querystring-parameters',
   'spec-step-mutually-exclusive-fields',
+  'spec-step-operationId-resolved',
+  'spec-step-workflowId-defined',
   'workflow-dependsOn',
   'outputs-defined',
   'parameters-unique',
@@ -449,6 +453,9 @@ const Rules: NodeType = {
   description:
     'The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.',
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
+  deprecatedProperties: {
+    'no-example-value-and-externalValue': { replacement: 'spec-example-values' },
+  },
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
       if (typeof value === 'string') {
