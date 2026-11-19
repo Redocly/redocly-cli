@@ -321,7 +321,8 @@ A `jsonpath` selector can embed runtime expressions in curly braces, for example
 `respect` inserts a string value together with its quotes, so do not put quotes around the braces.
 
 A Selector Object has a `context`, a `selector`, and a `type` of `jsonpath`, `xpath`, or `jsonpointer`.
-`respect` reads every object with these fields as a Selector Object, so a request body cannot send such an object as a literal value.
+`respect` reads every object with these fields as a Selector Object.
+A request body cannot send such an object as a literal value.
 
 ## Examples
 
