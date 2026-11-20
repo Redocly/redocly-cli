@@ -12,60 +12,76 @@ export function stripFileDecorator(payload: string) {
     : payload;
 }
 
-const appendFileToFormData = async (
-  formData: FormData,
-  key: string,
-  item: string,
-  workflowFilePath: string,
+// Replaces each `$file(...)` reference of a multipart payload with the file it points to.
+// It runs before the payload is evaluated, so only a reference written in the description loads a file.
+async function loadFiles(
+  payload: Record<string, unknown>,
   ctx: TestContext
-): Promise<void> => {
-  const currentArazzoFileFolder = path.dirname(workflowFilePath);
-  const filePath = path.resolve(currentArazzoFileFolder, stripFileDecorator(item));
+): Promise<Record<string, unknown>> {
+  const entries = await Promise.all(
+    Object.entries(payload).map(async ([key, item]) => [key, await loadFile(item, ctx)] as const)
+  );
 
-  formData.append(key, await ctx.options.requestFileLoader.getFileBody(filePath));
-};
+  return Object.fromEntries(entries);
+}
 
-const appendObjectToFormData = (
-  promises: Promise<void>[],
+async function loadFile(item: unknown, ctx: TestContext): Promise<unknown> {
+  if (typeof item === 'string' && item.startsWith('$file(') && item.endsWith(')')) {
+    const filePath = path.resolve(path.dirname(ctx.options.filePath), stripFileDecorator(item));
+
+    return ctx.options.requestFileLoader.getFileBody(filePath);
+  } else if (Array.isArray(item)) {
+    return Promise.all(item.map((arrayItem) => loadFile(arrayItem, ctx)));
+  } else if (isPlainObject(item)) {
+    return loadFiles(item, ctx);
+  }
+
+  return item;
+}
+
+// Encodes an evaluated multipart payload as a form: a nested object becomes `parent[child]` fields.
+// The files go after the other fields, where a server can require them to be.
+export function createFormData(payload: Record<string, unknown>): FormData {
+  const formData = new FormData();
+  const files: [string, Blob][] = [];
+
+  appendFields(payload, formData, files);
+  for (const [formKey, file] of files) {
+    formData.append(formKey, file);
+  }
+
+  return formData;
+}
+
+function appendFields(
+  payload: Record<string, unknown>,
   formData: FormData,
-  payload: Record<string, any>,
-  workflowFilePath: string,
-  ctx: TestContext,
+  files: [string, Blob][],
   parentKey?: string
-) => {
-  Object.entries(payload).forEach(([key, item]) => {
+) {
+  for (const [key, item] of Object.entries(payload)) {
     const formKey = parentKey ? `${parentKey}[${key}]` : key;
 
-    if (typeof item === 'string' && item.startsWith('$file(') && item.endsWith(')')) {
-      promises.push(appendFileToFormData(formData, formKey, item, workflowFilePath, ctx));
+    if (item instanceof Blob) {
+      files.push([formKey, item]);
     } else if (Array.isArray(item)) {
-      item.forEach((i) => {
-        if (typeof i === 'string' && i.startsWith('$file(') && i.endsWith(')')) {
-          promises.push(appendFileToFormData(formData, formKey, i, workflowFilePath, ctx));
+      item.forEach((arrayItem, index) => {
+        if (arrayItem instanceof Blob) {
+          files.push([formKey, arrayItem]);
+        } else if (isPlainObject(arrayItem)) {
+          // An object in a list becomes `parent[0][child]` fields.
+          appendFields({ [index]: arrayItem }, formData, files, formKey);
         } else {
-          formData.append(formKey, i.toString());
+          formData.append(formKey, String(arrayItem));
         }
       });
     } else if (isPlainObject(item)) {
-      appendObjectToFormData(promises, formData, item, workflowFilePath, ctx, formKey);
+      appendFields(item, formData, files, formKey);
     } else if (typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean') {
-      formData.append(formKey, item.toString());
+      formData.append(formKey, String(item));
     }
-  });
-};
-
-const getRequestBodyMultipartFormData = async (
-  payload: RequestBody['payload'],
-  formData: FormData,
-  workflowFilePath: string,
-  ctx: TestContext
-) => {
-  if (isPlainObject(payload)) {
-    const promises: Promise<void>[] = [];
-    appendObjectToFormData(promises, formData, payload, workflowFilePath, ctx);
-    await Promise.all(promises);
   }
-};
+}
 
 const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: TestContext) => {
   if (typeof payload === 'string' && payload.startsWith('$file(') && payload.endsWith(')')) {
@@ -79,7 +95,8 @@ const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: T
 
 export async function parseRequestBody(
   stepRequestBody: RequestBody | undefined,
-  ctx: TestContext
+  ctx: TestContext,
+  descriptionContentType?: string
 ): Promise<
   Omit<RequestBody, 'payload'> & {
     payload:
@@ -105,15 +122,10 @@ export async function parseRequestBody(
 
   const { payload, contentType } = stepRequestBody;
 
-  if (contentType === 'multipart/form-data') {
-    const formData = new FormData();
-    const workflowFilePath = path.resolve(ctx.options.filePath);
-
-    await getRequestBodyMultipartFormData(payload, formData, workflowFilePath, ctx);
-
+  if ((contentType || descriptionContentType) === 'multipart/form-data' && isPlainObject(payload)) {
     return {
       ...stepRequestBody,
-      payload: formData,
+      payload: await loadFiles(payload, ctx),
     };
   } else if (
     contentType === 'application/octet-stream' ||

@@ -24,7 +24,7 @@ Point at a different config with `--config <path>`.
 
 ## Quick reference
 
-Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`.
+Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`. Standalone binaries that need no Node.js, with a `SHA256SUMS` file, are attached to each `@redocly/cli@<version>` GitHub release.
 
 | Command              | Purpose                                                                                                           | Group                 |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------- |
@@ -229,6 +229,7 @@ Inputs that don't match a workflow's `inputs` schema produce a warning before th
 - `respect` currently covers only synchronous HTTP flow.
 - A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
 - An `in: querystring` parameter of a `respect` step needs `arazzo: 1.1.0` and sets the whole query string; it cannot be combined with `in: query` parameters.
+- `respect` evaluates an Arazzo 1.1.0 Selector Object (`context`, `selector`, `type`) in `outputs`, parameter values, request body payloads, and replacement values, for the `jsonpath` and `jsonpointer` types only; a `jsonpath` selector with a filter, a wildcard, or a slice gives a list, so read one item with a JSON Pointer such as `$steps.<stepId>.outputs.<name>#/0`.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
 - `bundle` takes a URL: `redocly bundle https://example.com/openapi.yaml -o openapi.yaml` fetches a remote description and its `$ref`s into one local file, with no `curl`. It also fetches `externalValue` URLs and writes no output when one is unreachable; add `--force` to write it anyway.

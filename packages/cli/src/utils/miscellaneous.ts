@@ -203,8 +203,17 @@ export function dumpBundle(obj: any, format: OutputExtension, dereference?: bool
   }
 }
 
+// Bun on Windows throws EEXIST for `mkdirSync('.', { recursive: true })`, which Node allows, and the
+// standalone binary runs on Bun.
+export function createParentDirectory(filePath: string) {
+  const directory = dirname(filePath);
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+}
+
 export function saveBundle(filename: string, output: string) {
-  fs.mkdirSync(dirname(filename), { recursive: true });
+  createParentDirectory(filename);
   fs.writeFileSync(filename, output);
 }
 
@@ -262,7 +271,7 @@ export function writeYaml(data: any, filename: string, noRefs = false) {
     logger.info(content);
     return;
   }
-  fs.mkdirSync(dirname(filename), { recursive: true });
+  createParentDirectory(filename);
   fs.writeFileSync(filename, content);
 }
 
@@ -273,7 +282,7 @@ export function writeJson(data: unknown, filename: string) {
     logger.info(content);
     return;
   }
-  fs.mkdirSync(dirname(filename), { recursive: true });
+  createParentDirectory(filename);
   fs.writeFileSync(filename, content);
 }
 
