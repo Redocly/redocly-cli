@@ -40,35 +40,47 @@ async function loadFile(item: unknown, ctx: TestContext): Promise<unknown> {
 }
 
 // Encodes an evaluated multipart payload as a form: a nested object becomes `parent[child]` fields.
-export function createFormData(
+// The files go after the other fields, where a server can require them to be.
+export function createFormData(payload: Record<string, unknown>): FormData {
+  const formData = new FormData();
+  const files: [string, Blob][] = [];
+
+  appendFields(payload, formData, files);
+  for (const [formKey, file] of files) {
+    formData.append(formKey, file);
+  }
+
+  return formData;
+}
+
+function appendFields(
   payload: Record<string, unknown>,
-  formData = new FormData(),
+  formData: FormData,
+  files: [string, Blob][],
   parentKey?: string
-): FormData {
+) {
   for (const [key, item] of Object.entries(payload)) {
     const formKey = parentKey ? `${parentKey}[${key}]` : key;
 
     if (item instanceof Blob) {
-      formData.append(formKey, item);
+      files.push([formKey, item]);
     } else if (Array.isArray(item)) {
       item.forEach((arrayItem, index) => {
         if (arrayItem instanceof Blob) {
-          formData.append(formKey, arrayItem);
-        } else if (isPlainObject(arrayItem) || Array.isArray(arrayItem)) {
+          files.push([formKey, arrayItem]);
+        } else if (isPlainObject(arrayItem)) {
           // An object in a list becomes `parent[0][child]` fields.
-          createFormData({ [index]: arrayItem }, formData, formKey);
+          appendFields({ [index]: arrayItem }, formData, files, formKey);
         } else {
           formData.append(formKey, String(arrayItem));
         }
       });
     } else if (isPlainObject(item)) {
-      createFormData(item, formData, formKey);
+      appendFields(item, formData, files, formKey);
     } else if (typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean') {
       formData.append(formKey, String(item));
     }
   }
-
-  return formData;
 }
 
 const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: TestContext) => {

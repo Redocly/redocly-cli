@@ -395,14 +395,15 @@ function groupParametersValuesByName(
 }
 
 // A multipart payload is evaluated as data and then encoded, so the form holds the evaluated values.
+// Only an object becomes a form: no payload sends no body, and any other payload is sent as it is.
 function evaluateMultipartPayload(
   payload: unknown,
   context: RuntimeExpressionContext,
   logger: LoggerInterface
-): FormData {
+): unknown {
   const evaluatedPayload = evaluateRuntimeExpressionPayload({ payload, context, logger });
 
-  return createFormData(isPlainObject(evaluatedPayload) ? evaluatedPayload : {});
+  return isPlainObject(evaluatedPayload) ? createFormData(evaluatedPayload) : evaluatedPayload;
 }
 
 function resolveParameters(parameters: Parameter[], ctx: TestContext): ParameterWithIn[] {

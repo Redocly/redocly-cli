@@ -29,10 +29,6 @@ export function evaluateRuntimeExpressionPayload({
     return parseJson(payload, context, logger);
   }
 
-  if (contentType?.includes('multipart/form-data')) {
-    return parseJson(payload, context, logger);
-  }
-
   if (typeof payload === 'string') {
     // Resolve string expressions
     return isPureRuntimeExpression(payload)

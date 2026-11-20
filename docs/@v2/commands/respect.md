@@ -317,8 +317,9 @@ A step with a selector of another type or version fails.
 
 The step fails when a `jsonpointer` selector, or a `jsonpath` selector of names and indexes, selects no value.
 
-A selector reads the keys of the data as they are, so `$['special-note']` selects the `special-note` key.
-A `jsonpath` success criterion reads a hyphen in a key of its `context` as an underscore, so there the same key is `$.special_note`.
+A selector reads the keys of its `context` as they are, so with `context: $response.body` the selector `$['special-note']` selects the `special-note` key.
+An output that a runtime expression saves, such as `menu: $response.body`, has the hyphens in its keys replaced with underscores.
+A selector on that output, and a `jsonpath` success criterion, read the same key as `$.special_note`.
 
 A `jsonpath` selector can embed runtime expressions in curly braces, for example `$.items[?(@.category == "{$inputs.category}")].id`.
 Inside a quoted string, `respect` inserts the text of the value.

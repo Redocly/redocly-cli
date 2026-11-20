@@ -1836,6 +1836,52 @@ describe('prepareRequest', () => {
 
       expect(requestBody).toEqual({ breed: 'Sphynx' });
     });
+
+    it('should send no body when a multipart content type has no payload to send', async () => {
+      const multipartCtx = createMultipartCtx({
+        operationId: undefined,
+        'x-operation': { url: 'https://api.example.com/breeds', method: 'get' },
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'multipart/form-data' }],
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toBeUndefined();
+    });
+
+    it('should send a payload that is not an object as it is', async () => {
+      const multipartCtx = createMultipartCtx({ requestBody: { payload: 'raw text body' } });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual('raw text body');
+    });
+
+    it('should evaluate a Selector Object when a header parameter replaces the multipart content type', async () => {
+      const multipartCtx = createMultipartCtx({
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'application/json' }],
+        requestBody: {
+          payload: { breed: { context: '$inputs.cat', selector: '$.breed', type: 'jsonpath' } },
+        },
+      });
+      multipartCtx.$inputs = { cat: { breed: 'Sphynx' } };
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual({ breed: 'Sphynx' });
+    });
   });
 
   it('should handle null request body', async () => {

@@ -543,7 +543,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
     ).toEqual('123');
   });
 
-  it('should evaluate multipart/form-data payload ', () => {
+  it('should keep the file references of a multipart/form-data payload', () => {
     const payload = {
       name: 'test',
       singleFile: "$file('./test.yaml')",
@@ -556,11 +556,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
         contentType: 'multipart/form-data',
         logger,
       })
-    ).toEqual({
-      multipleFiles: ['./logo.png', './image.svg'],
-      name: 'test',
-      singleFile: './test.yaml',
-    });
+    ).toEqual(payload);
   });
 
   it('should evaluate payload with different outputs access variations', () => {

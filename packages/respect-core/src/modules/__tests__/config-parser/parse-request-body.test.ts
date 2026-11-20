@@ -284,6 +284,30 @@ describe('createFormData', () => {
     ]);
   });
 
+  it('should put the files after the other fields', () => {
+    const formData = createFormData({
+      photo: new Blob(['photo']),
+      name: 'tiramisu',
+      gallery: [new Blob(['first']), 'caption'],
+    });
+
+    expect([...formData.entries()]).toEqual([
+      ['name', 'tiramisu'],
+      ['gallery', 'caption'],
+      ['photo', expect.any(File)],
+      ['gallery', expect.any(File)],
+    ]);
+  });
+
+  it('should send a list in a list as text', () => {
+    const formData = createFormData({ sizes: [[1, 2], [3]] });
+
+    expect([...formData.entries()]).toEqual([
+      ['sizes', '1,2'],
+      ['sizes', '3'],
+    ]);
+  });
+
   it('should send an evaluated value that looks like a file reference as text', () => {
     const formData = createFormData({ note: "$file('/etc/passwd')" });
 
