@@ -23,6 +23,7 @@ describe('join', () => {
       'oas3.2',
       'root-security-in-both-specs',
       'root-security-without-paths',
+      'long-descriptions',
     ];
 
     test.each(testDirNames)('test: %s', async (dir) => {

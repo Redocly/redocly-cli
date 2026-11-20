@@ -1,5 +1,47 @@
 # @redocly/platform-integration
 
+## 2.82.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.82.0.
+
+## 2.81.0
+
+### Minor Changes
+
+- Added the `getAuthState` method to `RedoclyOAuthClient` to report why a stored session can't be used, such as an expired session or an unreachable platform.
+  The client also accepts a custom credentials store and a function that opens the browser during device login; the login stops when that function resolves to `false`.
+- Added `RemoteScorecardError`, which `fetchRemoteScorecardAndPlugins` throws with a `reason` for the failure, such as missing access or an unreachable platform.
+- Replaced `RedoclyOAuthDeviceFlow.verifyToken` with `getTokenStatus`, which returns `'valid'`, `'expired'`, or `'unreachable'` instead of a boolean.
+  If you call `verifyToken`, call `getTokenStatus` and check for `'valid'` instead of `true`.
+
+### Patch Changes
+
+- Fixed commands that reported you as logged out when another Redocly CLI or editor process refreshed the same login session at the same time.
+  A refreshed session is now also used when the credentials file can't be updated.
+- Updated @redocly/openapi-core to v2.81.0.
+
+## 2.80.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.75.0.
+- Updated @redocly/openapi-core to v2.80.0.
+
+## 2.79.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.79.0.
+
+## 2.78.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.74.0.
+- Updated @redocly/openapi-core to v2.78.0.
+
 ## 2.77.0
 
 ### Patch Changes

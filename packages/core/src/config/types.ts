@@ -71,6 +71,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas3_0Rules?: RuleMap<
     Exclude<
       BuiltInOAS3RuleId,
+      | 'no-example-value-and-externalValue'
       | 'no-mixed-number-range-constraints'
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
@@ -83,6 +84,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas3_1Rules?: RuleMap<
     Exclude<
       BuiltInOAS3RuleId,
+      | 'no-example-value-and-externalValue'
       | 'nullable-type-sibling'
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
@@ -99,7 +101,11 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   >;
   async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
   async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
-  arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
+  arazzo1Rules?: RuleMap<
+    Exclude<BuiltInArazzo1RuleId, 'spec-querystring-parameters'>,
+    RuleConfig,
+    T
+  >;
   arazzo1_1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;

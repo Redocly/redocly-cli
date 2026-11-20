@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.10.0 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.10.5 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -22,6 +22,7 @@ import {
   renderReferencePage,
   type SampleContext,
   sseResponse,
+  getOperationId,
 } from '@redocly/client-generator';
 import { PhpPrinter } from '@redocly/client-generator/printers/php';
 import {
@@ -109,7 +110,7 @@ export const phpGenerator: Generator = ({ model, output, banner, emit, paginatio
         'public const OPERATIONS = [',
         () => {
           for (const op of operations) {
-            const id = op.specName ?? op.name;
+            const id = getOperationId(op);
             const security = phpSecurityLiteral(op, model);
             const rule = paginationRules.get(op.name);
             const fields = [
@@ -254,5 +255,5 @@ export default {
     "argsStyle": "inputs follow the target language's own idiom",
     "importExt": "the generated file has no relative imports"
   },
-  requiresGenerator: '^0.10.0',
+  requiresGenerator: '^0.10.5',
 };

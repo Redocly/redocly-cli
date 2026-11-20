@@ -203,7 +203,15 @@
             - page: rules/arazzo/requestBody-replacements-unique.md
             - page: rules/arazzo/sourceDescription-name-unique.md
             - page: rules/arazzo/sourceDescription-type.md
+            - page: rules/arazzo/spec-action-mutually-exclusive-fields.md
+            - page: rules/arazzo/spec-action-stepId-defined.md
+            - page: rules/arazzo/spec-action-workflowId-defined.md
+            - page: rules/arazzo/spec-outputs-invalid-map-name.md
+            - page: rules/arazzo/spec-querystring-parameters.md
+            - page: rules/arazzo/spec-sourceDescriptions-defined.md
             - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
+            - page: rules/arazzo/spec-step-operationId-resolved.md
+            - page: rules/arazzo/spec-step-workflowId-defined.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
             - page: rules/arazzo/step-onSuccess-unique.md

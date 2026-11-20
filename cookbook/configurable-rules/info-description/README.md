@@ -45,4 +45,4 @@ If you add a description, the check will pass.
 
 ## References
 
-- [Spectral's info-description rule](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules#info-description)
+- [Spectral's info-description rule](https://github.com/stoplightio/spectral/blob/develop/docs/reference/openapi-rules.md#info-description)

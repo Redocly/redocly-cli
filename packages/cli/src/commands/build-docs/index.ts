@@ -12,13 +12,18 @@ import {
   type SpecMajorVersion,
 } from '@redocly/openapi-core';
 import { cyan } from 'colorette';
-import { writeFileSync, mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { convertSwagger2OpenAPI } from 'redoc';
 
 import { renderBanner } from '../../utils/banner.js';
-import { getExecutionTime, getFallbackApisOrExit, handleError } from '../../utils/miscellaneous.js';
+import {
+  createParentDirectory,
+  getExecutionTime,
+  getFallbackApisOrExit,
+  handleError,
+} from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import { isTelemetryEnabled } from '../../utils/telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -72,7 +77,7 @@ export const handlerBuildCommand = async ({
 
   const pageHTML = await getPageHTML(definition, options, argv.config);
 
-  mkdirSync(dirname(options.output), { recursive: true });
+  createParentDirectory(options.output);
   writeFileSync(options.output, pageHTML);
   const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
   const elapsed = getExecutionTime(startedAt);

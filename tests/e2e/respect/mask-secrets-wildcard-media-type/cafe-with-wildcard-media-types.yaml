@@ -1,0 +1,44 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe with wildcard media types
+  description: >
+    Part of the Redocly Cafe API description where the request body and the
+    response are described under wildcard media types, and each of them has a
+    field with the password format.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /orders:
+    post:
+      summary: Place a new order
+      operationId: createOrder
+      security: []
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                customerName:
+                  type: string
+                pickupCode:
+                  type: string
+                  format: password
+      responses:
+        '401':
+          description: Unauthorized.
+          content:
+            application/*:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                    format: password
+                  status:
+                    type: integer
+                  instance:
+                    type: string

@@ -1,5 +1,72 @@
 # @redocly/openapi-core
 
+## 2.82.0
+
+### Minor Changes
+
+- Added the `spec-action-workflowId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `workflowId` does not reference an existing workflow.
+
+### Patch Changes
+
+- Fixed an issue where the `spec-sourceDescriptions-defined` rule reported the `workflowId` of a success or a failure action with the `end` type.
+
+## 2.81.0
+
+### Minor Changes
+
+- Added the `spec-action-stepId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `stepId` does not reference a step of the current workflow.
+- Added the `spec-sourceDescriptions-defined` rule for Arazzo descriptions.
+  The rule reports a `$sourceDescriptions.<name>` reference in the `operationPath`, `channelPath`, `workflowId`, or `dependsOn` of a step, or in the `workflowId` of a success or failure action, when no source description with that name is defined.
+- Added the `spec-step-operationId-resolved` rule for Arazzo descriptions.
+  The rule reports a step whose `operationId` does not resolve to an operation in an OpenAPI source description, or names an operation that several source descriptions define.
+  To check that, `lint` loads the OpenAPI source descriptions of an Arazzo description.
+- Added the `spec-step-workflowId-defined` rule for Arazzo descriptions.
+  It reports a step whose `workflowId` does not reference an existing workflow.
+- Changed the built-in rulesets to enable `spec-example-values` instead of the deprecated `no-example-value-and-externalValue` rule.
+  The configuration linter warns about the deprecated rule.
+
+### Patch Changes
+
+- Fixed an issue where an example with `externalValue` and a `value` of `0`, `false`, `null`, or an empty string was not reported.
+
+## 2.80.0
+
+### Minor Changes
+
+- Added the `spec-action-mutually-exclusive-fields` rule for Arazzo descriptions.
+  The rule reports a success or failure action that uses both `stepId` and `workflowId`.
+- Added the `spec-outputs-invalid-map-name` rule for Arazzo descriptions.
+  The rule reports a workflow or step output name that does not match the regular expression `^[a-zA-Z0-9\.\-_]+$`, as the Arazzo specification requires.
+
+### Patch Changes
+
+- Fixed an issue where `lint` stopped with an error instead of reporting the problems when the `sourceDescriptions`, `workflows`, `steps`, or `dependsOn` of an Arazzo description was not a list or had an empty item.
+- Fixed an issue where the `struct` rule didn't report an empty `successCriteria` list of an Arazzo step or an empty `criteria` list of a success action.
+- Fixed an issue where the `struct` rule didn't report an Arazzo workflow with an empty `steps` list.
+- Fixed an issue where the `struct` rule didn't report an Arazzo description with an empty `workflows` list.
+- Improved the error messages for misconfigured configurable rules.
+  The error names the rule and is reported even if the API description has no node of the rule's subject type.
+- Fixed an issue where the `no-invalid-schema-examples`, `no-invalid-media-type-examples`, and `no-invalid-parameter-examples` rules reported a valid decimal example.
+
+  The rules accept a value that differs from a multiple by less than one millionth of `multipleOf`, such as `1.0000001` for `multipleOf: 1`.
+
+- Updated @redocly/config to v0.75.0.
+
+## 2.79.0
+
+## 2.78.0
+
+### Minor Changes
+
+- Added the `spec-querystring-parameters` rule for Arazzo 1.1.0 descriptions.
+  The rule reports a step that has more than one `querystring` parameter or mixes `querystring` with `query` parameters, counting the parameters of its workflow.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.74.0.
+
 ## 2.77.0
 
 ### Patch Changes

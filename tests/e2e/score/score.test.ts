@@ -29,4 +29,18 @@ describe('score', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
+
+  test('score should rank recommendations in stylish output', async () => {
+    const testPath = join(folderPath, 'score-recommendations-stylish');
+    const args = getParams(indexEntryPoint, ['score', 'cafe.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('score should add recommendations to JSON output', async () => {
+    const testPath = join(folderPath, 'score-recommendations-json');
+    const args = getParams(indexEntryPoint, ['score', 'cafe.yaml', '--format=json']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
 });

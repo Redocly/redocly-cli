@@ -19,7 +19,6 @@ import {
   CHECKS,
 } from '../../flow-runner/index.js';
 import { displayChecks } from '../../logger-output/index.js';
-import { Timer } from '../../timeout-timer/timer.js';
 
 vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
@@ -37,13 +36,6 @@ vi.mock('../../flow-runner/runner.js', () => ({
   runWorkflow: vi.fn(),
   resolveWorkflowContext: vi.fn(),
 }));
-
-vi.mock('../../timeout-timer/timer.js', async () => {
-  const actual = await vi.importActual('../../timeout-timer/timer.js');
-  return {
-    ...actual,
-  };
-});
 
 const apiClient = new ApiFetcher({});
 const basicCTX = {
@@ -3265,6 +3257,7 @@ describe('runStep', () => {
       $outputs: {},
     } as unknown as TestContext;
 
+    vi.mocked(resolveWorkflowContext).mockResolvedValueOnce(localCTX);
     vi.mocked(runWorkflow).mockResolvedValueOnce({
       type: 'workflow',
       workflowId: 'reusable-external-workflow',
@@ -4288,11 +4281,11 @@ describe('runStep', () => {
   });
 
   it('should report global timeout error and end execution', async () => {
-    const mockTimer = {
-      isTimedOut: vi.fn().mockReturnValue(true),
-    };
-    vi.spyOn(Timer, 'getInstance').mockReturnValue(mockTimer as any);
-
+    const timedOutCTX = {
+      ...basicCTX,
+      executedSteps: [],
+      options: { ...basicCTX.options, executionDeadline: Date.now() - 1 },
+    } as unknown as TestContext;
     const checks: Check[] = [];
     const step = {
       stepId: 'get-bird',
@@ -4304,19 +4297,51 @@ describe('runStep', () => {
 
     const result = await runStep({
       step,
-      ctx: basicCTX,
+      ctx: timedOutCTX,
       workflowId,
       executedStepsCount: { value: 0 },
     });
 
     expect(result).toEqual({ shouldEnd: true });
-    expect(checks).toEqual([
+    expect(timedOutCTX.executedSteps).toMatchObject([
       {
-        name: CHECKS.GLOBAL_TIMEOUT_ERROR,
-        passed: false,
-        message: 'Global Respect timer reached',
-        severity: 'error',
+        checks: [
+          {
+            name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+            passed: false,
+            message: 'Global Respect timer reached',
+            severity: 'error',
+          },
+        ],
       },
+    ]);
+    expect(checks).toEqual([]);
+  });
+
+  it('should report global timeout error before a step runs its workflow', async () => {
+    const timedOutCTX = {
+      ...basicCTX,
+      executedSteps: [],
+      options: { ...basicCTX.options, executionDeadline: Date.now() - 1 },
+    } as unknown as TestContext;
+    const checks: Check[] = [];
+    const step = {
+      stepId: 'run-reusable-workflow',
+      workflowId: 'reusable-get-bird-workflow',
+      checks,
+    } as unknown as Step;
+
+    const result = await runStep({
+      step,
+      ctx: timedOutCTX,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    expect(runWorkflow).not.toHaveBeenCalled();
+    expect(timedOutCTX.executedSteps).toMatchObject([
+      { checks: [{ name: CHECKS.GLOBAL_TIMEOUT_ERROR }] },
     ]);
   });
 });

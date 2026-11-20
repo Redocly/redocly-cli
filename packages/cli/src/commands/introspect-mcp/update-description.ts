@@ -1,4 +1,4 @@
-import type { Prompt } from '@modelcontextprotocol/sdk/types.js';
+import type { Prompt } from '@modelcontextprotocol/client';
 import { isPlainObject } from '@redocly/openapi-core';
 
 import type { McpServerSnapshot } from './introspect.js';

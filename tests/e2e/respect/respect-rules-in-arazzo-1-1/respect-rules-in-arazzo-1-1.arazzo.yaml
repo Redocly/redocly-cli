@@ -1,0 +1,20 @@
+arazzo: 1.1.0
+info:
+  title: Test the Respect lint rules on an Arazzo 1.1.0 description
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: list-menu
+    steps:
+      - stepId: list-menu-items
+        operationId: cafe-api.listMenuItems
+        successCriteria:
+          - context: $response.body
+            condition: /items
+            type: xpath
