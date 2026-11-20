@@ -1,4 +1,5 @@
 import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 import { blue, dim, red, yellow, green } from 'colorette';
 
 import {
@@ -33,6 +34,8 @@ const ajvStrict = new (Ajv as any)({
   verbose: true,
   defaultUnevaluatedProperties: false,
 });
+// the same formats as the lint rules in openapi-core
+(addFormats as any)(ajvStrict);
 
 export function checkSchema({
   stepCallCtx,
