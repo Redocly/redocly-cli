@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.83.0
+
+### Minor Changes
+
+- Added the `spec-step-parameters-in-required` rule for Arazzo descriptions.
+  It reports a step or workflow parameter without the `in` field, unless it only reaches steps that use `workflowId`.
+
 ## 2.82.0
 
 ### Minor Changes
