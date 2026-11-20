@@ -2,6 +2,9 @@
 slug:
   - /docs/cli/commands/respect
   - /docs/respect/commands/respect
+seo:
+  title: respect command (CLI v2)
+  description: Execute API tests described in an Arazzo description with the Redocly CLI respect command.
 ---
 
 # `respect`

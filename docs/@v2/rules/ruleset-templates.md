@@ -1,3 +1,9 @@
+---
+seo:
+  title: Ruleset templates (CLI v2)
+  description: Configure default ruleset templates for supported API description formats in Redocly CLI v2.
+---
+
 # Ruleset templates
 
 Redocly CLI includes some default rulesets to get you started quickly.

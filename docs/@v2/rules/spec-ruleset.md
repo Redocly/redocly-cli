@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/spec
+seo:
+  title: Spec ruleset (CLI v2)
+  description: Review the strict specification-conformance rules included in the Redocly CLI v2 spec ruleset.
 ---
 
 # Spec ruleset
