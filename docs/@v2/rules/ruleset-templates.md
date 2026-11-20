@@ -1,3 +1,9 @@
+---
+seo:
+  title: Ruleset templates in Redocly CLI v2
+  description: Use ready-made ruleset configuration templates for OpenAPI, AsyncAPI, and Arazzo in Redocly CLI.
+---
+
 # Ruleset templates
 
 Redocly CLI includes some default rulesets to get you started quickly.

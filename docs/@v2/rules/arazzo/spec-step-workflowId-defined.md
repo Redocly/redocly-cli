@@ -1,3 +1,8 @@
+---
+seo:
+  description: Ensure the workflowId of an Arazzo step references an existing workflow in the document or an external source description.
+---
+
 # spec-step-workflowId-defined
 
 The `workflowId` of a step must reference an existing workflow.

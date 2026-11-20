@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/spec
+seo:
+  title: Spec ruleset in Redocly CLI v2
+  description: Reference the specification-conformance rules included at error severity in the Redocly CLI spec ruleset.
 ---
 
 # Spec ruleset

@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/minimal
+seo:
+  title: Minimal ruleset in Redocly CLI v2
+  description: Reference the baseline error and warning rules included in the Redocly CLI minimal ruleset.
 ---
 
 # Minimal ruleset

@@ -1,3 +1,8 @@
+---
+seo:
+  description: Ensure the stepId of an Arazzo success or failure action references a step defined in the current workflow.
+---
+
 # spec-action-stepId-defined
 
 The `stepId` of a success or failure action must reference a step defined in the current workflow.
