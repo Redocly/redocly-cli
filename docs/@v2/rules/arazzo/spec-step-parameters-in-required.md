@@ -13,12 +13,15 @@ When the step uses `workflowId`, its parameters map to the inputs of that workfl
 In all other cases the Arazzo specification requires the `in` field.
 The `in` field tells where the parameter goes in the request: `path`, `query`, `header`, or `cookie`.
 Arazzo 1.1 also allows `querystring`.
-Without the `in` field, a tool cannot place the value, and Respect leaves such a parameter out of the request.
+Without the `in` field, a tool cannot place the value.
 
 The `spec-step-parameters-in-required` rule reports each parameter without `in` in a step that does not use `workflowId`.
-For a parameter that a step takes from `components` with a `reference`, the rule checks the referenced parameter and reports the step parameter.
 
-The rule does not check the parameters of a workflow, because they apply to all of its steps, including the steps that use `workflowId`.
+The parameters of a workflow apply to all of its steps.
+The rule reports a workflow parameter without `in` when at least one step of the workflow does not use `workflowId`.
+To pass a value only to the steps that use `workflowId`, define the parameter in those steps.
+
+For a parameter taken from `components` with a `reference`, the rule checks the referenced parameter and reports the place that uses it.
 The [struct](../common/struct.md) rule reports an `in` value that the specification does not define.
 
 ## Configuration
@@ -54,6 +57,19 @@ workflows:
         parameters:
           - name: orderId
             value: $inputs.orderId
+```
+
+Example of an **incorrect** workflow parameter, which applies to a step that calls an operation:
+
+```yaml Incorrect example
+workflows:
+  - workflowId: get-order
+    parameters:
+      - name: orderId
+        value: $inputs.orderId
+    steps:
+      - stepId: get-order
+        operationId: cafe-api.getOrderById
 ```
 
 Example of **correct** step parameters:

@@ -6,7 +6,7 @@ import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('Arazzo spec-step-parameters-in-required', () => {
-  it('reports parameters without `in` in steps that do not use workflowId', async () => {
+  it('reports parameters without `in` that reach a step without workflowId', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
@@ -19,6 +19,10 @@ describe('Arazzo spec-step-parameters-in-required', () => {
             url: openapi.yaml
         workflows:
           - workflowId: get-order
+            parameters:
+              - name: limit
+                value: 10
+              - reference: $components.parameters.orderId
             steps:
               - stepId: get-order
                 operationId: cafe-api.getOrderById
@@ -39,6 +43,8 @@ describe('Arazzo spec-step-parameters-in-required', () => {
                 parameters:
                   - name: limit
                     value: 10
+              - stepId: pay-for-order
+                workflowId: pay-for-order
         components:
           parameters:
             orderId:
@@ -58,6 +64,34 @@ describe('Arazzo spec-step-parameters-in-required', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/parameters/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "A workflow parameter must define the \`in\` field, unless all steps of the workflow use \`workflowId\`.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-step-parameters-in-required",
+          "ruleId": "spec-step-parameters-in-required",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/parameters/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "A workflow parameter must define the \`in\` field, unless all steps of the workflow use \`workflowId\`.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-step-parameters-in-required",
+          "ruleId": "spec-step-parameters-in-required",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -104,7 +138,7 @@ describe('Arazzo spec-step-parameters-in-required', () => {
     `);
   });
 
-  it('does not report parameters with `in`, parameters of a workflowId step, or workflow parameters', async () => {
+  it('does not report parameters with `in` or parameters that only reach workflowId steps', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
@@ -118,8 +152,9 @@ describe('Arazzo spec-step-parameters-in-required', () => {
         workflows:
           - workflowId: get-order
             parameters:
-              - name: orderId
-                value: $inputs.orderId
+              - name: limit
+                in: query
+                value: 10
             steps:
               - stepId: get-order
                 operationId: cafe-api.getOrderById
@@ -138,6 +173,15 @@ describe('Arazzo spec-step-parameters-in-required', () => {
             steps:
               - stepId: list-orders
                 operationId: cafe-api.listOrders
+          - workflowId: order-and-pay
+            parameters:
+              - name: orderId
+                value: $inputs.orderId
+            steps:
+              - stepId: get-order
+                workflowId: get-order
+              - stepId: pay-for-order
+                workflowId: pay-for-order
         components:
           parameters:
             accept:
