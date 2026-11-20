@@ -512,6 +512,57 @@ describe('checkSchema', () => {
     });
   });
 
+  describe('format validation', () => {
+    const formatDescriptionOperation = {
+      ...descriptionOperation,
+      responses: {
+        '200': {
+          description: 'successful operation',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  createdAt: { type: 'string', format: 'date-time' },
+                  email: { type: 'string', format: 'email' },
+                  count: { type: 'integer', format: 'int32' },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const checkBody = (body: Record<string, unknown>) =>
+      checkSchema({
+        stepCallCtx: {
+          ...stepCallCtx,
+          $response: {
+            body,
+            statusCode: 200,
+            header: new Headers({ 'content-type': 'application/json' }),
+            contentType: 'application/json',
+          },
+        } as unknown as StepCallContext,
+        descriptionOperation: formatDescriptionOperation,
+        ctx,
+      }).find((c) => c.name === CHECKS.SCHEMA_CHECK);
+
+    it('accepts values that match their format', () => {
+      expect(
+        checkBody({ createdAt: '2026-11-20T10:00:00Z', email: 'ada@example.com', count: 3 })?.passed
+      ).toBe(true);
+    });
+
+    it('reports values that do not match their format', () => {
+      const check = checkBody({ createdAt: 'yesterday', email: 'not-an-email', count: 3 });
+      expect(check?.passed).toBe(false);
+      expect(check?.message).toContain('date-time');
+      expect(check?.message).toContain('email');
+    });
+  });
+
   it('should return empty checks if no response available', () => {
     const stepCtx = {
       $request: {
