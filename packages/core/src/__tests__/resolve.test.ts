@@ -613,6 +613,39 @@ describe('collect refs', () => {
   });
 });
 
+describe('anchors', () => {
+  it('should resolve a ref to a $anchor declared next to other keys', async () => {
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          $ref: '#invoice'
+        components:
+          schemas:
+            Invoice:
+              type: object
+              description: An invoice.
+              $anchor: invoice
+      `,
+      'foobar.yaml'
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    const resolvedRef = resolvedRefs.get('foobar.yaml::#invoice');
+    expect(resolvedRef?.resolved).toBe(true);
+    expect(resolvedRef?.node).toEqual({
+      type: 'object',
+      description: 'An invoice.',
+      $anchor: 'invoice',
+    });
+  });
+});
+
 describe('remote refs with query strings', () => {
   it('should resolve a pointer into a remote file with a query string', async () => {
     const plainTextFetch = vi.fn(() =>
