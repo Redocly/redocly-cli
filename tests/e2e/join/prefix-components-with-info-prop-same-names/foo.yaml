@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: Menu
+  version: 1.0.0
+  x-prefix: menu
+paths: {}
+components:
+  schemas:
+    Item:
+      type: string
+    menu_Item:
+      type: object
+    Price:
+      type: integer
