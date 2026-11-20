@@ -196,6 +196,57 @@ describe('build-docs', () => {
     await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('build docs for every API with docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+    expect(readFileSync(join(testPath, 'output/menu.html'), 'utf8')).toContain(
+      '<title>Redocly Cafe Menu</title>'
+    );
+    expect(readFileSync(join(testPath, 'output/orders.html'), 'utf8')).toContain(
+      '<title>Redocly Cafe Orders</title>'
+    );
+  });
+
+  test('build docs writes to redoc-static.html for a file path that matches the root of an API with docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs', 'menu.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'file-path-snapshot.txt')
+    );
+  });
+
+  test('build docs writes to --output for an alias with docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs', 'menu', '--output=output/option.html']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'output-option-snapshot.txt')
+    );
+  });
+
+  test('build docs fails when --output comes without an API', async () => {
+    const testPath = join(folderPath, 'build-docs-for-multiple-apis');
+    const args = getParams(indexEntryPoint, ['build-docs', '--output=output/option.html']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'output-without-api-snapshot.txt')
+    );
+  });
+
+  // FIXME: this test says "fails", and its snapshot holds a build of the first API with a deprecation banner.
+  // The temporary `getDeprecatedFirstApi` in packages/cli/src/commands/build-docs/index.ts causes that, see the FIXME there.
+  // When that function goes, update the snapshot: it must hold "No API to build".
+  test('build docs fails when no API has docsOutput', async () => {
+    const testPath = join(folderPath, 'build-docs-fails-without-docs-output');
+    const args = getParams(indexEntryPoint, ['build-docs']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   describe('build docs with openapi options', () => {
     const expectedOptions =
       'const __redoc_options = {"hideDownloadButtons":true,"skipBundle":true,"disableTelemetry":true};';

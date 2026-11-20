@@ -14,6 +14,7 @@ describe('bundle', () => {
     'bundle-remove-unused-components-from-api-config',
     'bundle-arazzo-valid-test-description',
     'bundle-no-output-without-inline-apis',
+    'bundle-output-option-with-alias',
     'bundle-use-titles-for-component-names-collision',
     'bundle-overlays',
   ];
@@ -49,6 +50,22 @@ describe('bundle', () => {
     const args = getParams(indexEntryPoint, ['bundle', '--output=dist']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('bundle writes to --output for an alias with output in the config', async () => {
+    const testPath = join(folderPath, 'bundle-output-option-with-alias');
+    const args = getParams(indexEntryPoint, ['bundle', 'menu', '--output=output/option.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('bundle warns when two APIs write to the same path', async () => {
+    const testPath = join(folderPath, 'bundle-output-option-with-alias');
+    const args = getParams(indexEntryPoint, ['bundle', 'menu', 'menu']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'repeated-output-snapshot.txt')
+    );
   });
 });
 

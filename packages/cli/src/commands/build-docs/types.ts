@@ -12,8 +12,8 @@ export type BuildDocsOptions = {
 };
 
 export type BuildDocsArgv = {
-  api: string;
-  o: string;
+  api?: string;
+  o?: string;
   title?: string;
   template?: string;
   templateOptions: Record<string, unknown>;

@@ -956,10 +956,9 @@ cli
         .positional('api', { type: 'string' })
         .options({
           o: {
-            describe: 'Output destination file.',
+            describe: 'Output destination file. The default value is redoc-static.html.',
             alias: 'output',
             type: 'string',
-            default: 'redoc-static.html',
           },
           title: {
             describe: 'Page title.',

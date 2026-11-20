@@ -1,0 +1,12 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe Orders
+  version: 1.0.0
+paths:
+  /orders:
+    get:
+      summary: List all orders
+      operationId: listOrders
+      responses:
+        '200':
+          description: OK

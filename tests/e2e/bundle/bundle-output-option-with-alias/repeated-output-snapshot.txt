@@ -1,0 +1,8 @@
+
+bundling menu.yaml using configuration for api 'menu'...
+📦 Created a bundle for menu.yaml at ./tests/e2e/bundle/bundle-output-option-with-alias/output/menu.yaml <test>ms.
+bundling menu.yaml using configuration for api 'menu'...
+Two APIs write to the same path: output/menu.yaml, so the last bundle replaces the earlier one.
+📦 Created a bundle for menu.yaml at ./tests/e2e/bundle/bundle-output-option-with-alias/output/menu.yaml <test>ms.
+
+Exit code: 0
