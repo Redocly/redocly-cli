@@ -104,6 +104,7 @@ function mapJsonStep(
         size: step.response?.responseSize,
       },
     }),
+    ...(step.outputs && { outputs: publicStep?.outputs }),
     checks: step.checks.map((check) => ({
       ...check,
       status: calculateCheckStatus(check),

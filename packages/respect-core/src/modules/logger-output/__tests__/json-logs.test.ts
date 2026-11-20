@@ -61,4 +61,69 @@ describe('composeJsonLogs', () => {
       status: 'error',
     });
   });
+
+  it('should include the workflow inputs and outputs and the step outputs, with secrets masked', () => {
+    const step = {
+      stepId: 'login',
+      operationId: 'login',
+      outputs: { token: '$response.body#/token' },
+      checks: [],
+    } as unknown as Step;
+    const stepWithoutOutputs = {
+      stepId: 'ping',
+      operationId: 'ping',
+      checks: [],
+    } as unknown as Step;
+
+    const ctx = {
+      $workflows: {
+        'login-workflow': {
+          steps: {
+            login: { outputs: { token: 'secret-token' } },
+            ping: { outputs: {} },
+          },
+        },
+      },
+      noSecretsMasking: false,
+      secretsSet: new Set<string>(['secret-token', 'secret-password']),
+    } as unknown as TestContext;
+
+    const executedWorkflow = {
+      type: 'workflow',
+      workflowId: 'login-workflow',
+      startTime: 0,
+      endTime: 1,
+      totalTimeMs: 1,
+      executedSteps: [step, stepWithoutOutputs],
+      ctx,
+      globalTimeoutError: false,
+      inputs: { username: 'ada', password: 'secret-password' },
+      outputs: { token: 'secret-token' },
+    } as unknown as WorkflowExecutionResult;
+
+    const { files } = composeJsonLogs(
+      [
+        {
+          hasProblems: false,
+          hasWarnings: false,
+          file: 'test.arazzo.yaml',
+          totalRequests: 2,
+          totalTimeMs: 1,
+          executedWorkflows: [executedWorkflow],
+          ctx,
+          globalTimeoutError: false,
+        },
+      ],
+      1
+    );
+
+    const workflowJson = files['test.arazzo.yaml'].executedWorkflows[0];
+    expect(workflowJson.inputs).toEqual({ username: 'ada', password: '********' });
+    expect(workflowJson.outputs).toEqual({ token: '********' });
+    expect(workflowJson.executedSteps[0]).toMatchObject({
+      stepId: 'login',
+      outputs: { token: '********' },
+    });
+    expect(workflowJson.executedSteps[1]).not.toHaveProperty('outputs');
+  });
 });

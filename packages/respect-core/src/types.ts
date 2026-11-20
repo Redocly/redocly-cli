@@ -254,6 +254,7 @@ export interface StepExecutionResult {
     time: number;
     size: number | undefined;
   };
+  outputs?: Record<string, any>;
   checks: (Check & { status: ExecutionStatus })[];
 }
 
@@ -284,6 +285,8 @@ export interface WorkflowExecutionResult {
   invocationContext?: string;
   ctx: TestContext;
   globalTimeoutError: boolean;
+  inputs?: Record<string, any>;
+  outputs?: Record<string, any>;
 }
 
 export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps' | 'ctx'> & {

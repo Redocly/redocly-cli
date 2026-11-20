@@ -113,6 +113,9 @@ exports[`should write the results of the run to the --json-output file 1`] = `
                     "time": "<time>",
                     "size": 84
                   },
+                  "outputs": {
+                    "pageLimit": 10
+                  },
                   "checks": [
                     {
                       "name": "status code check",
@@ -142,6 +145,9 @@ exports[`should write the results of the run to the --json-output file 1`] = `
                 }
               ],
               "globalTimeoutError": false,
+              "outputs": {
+                "pageLimit": 10
+              },
               "status": "success",
               "totalRequests": 1
             },
@@ -280,6 +286,9 @@ exports[`should write the results of the run to the --json-output file 1`] = `
                 "time": "<time>",
                 "size": 84
               },
+              "outputs": {
+                "pageLimit": 10
+              },
               "checks": [
                 {
                   "name": "status code check",
@@ -309,6 +318,9 @@ exports[`should write the results of the run to the --json-output file 1`] = `
             }
           ],
           "globalTimeoutError": false,
+          "outputs": {
+            "pageLimit": 10
+          },
           "status": "success",
           "totalRequests": 1
         },
