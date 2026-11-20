@@ -3,7 +3,7 @@ import { distance as levenshtein } from 'fastest-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
 import type { ResolvedRefChainHop } from '../resolve.js';
-import type { SourceDescription, Workflow } from '../typings/arazzo.js';
+import type { Parameter, SourceDescription, Workflow } from '../typings/arazzo.js';
 import type { Async2Operation, Async2OperationTrait } from '../typings/asyncapi2.js';
 import type { Async3Operation, Async3OperationTrait } from '../typings/asyncapi3.js';
 import type {
@@ -467,4 +467,26 @@ export function validateWorkflowIdDefined({
   if (!workflows.some((workflow) => workflow?.workflowId === workflowId)) {
     reportUndefined(`The workflow \`${workflowId}\` is not defined in \`workflows\`.`);
   }
+}
+
+// A reusable object points to a parameter with `$components.parameters.<name>`,
+// and resolves to `undefined` when `components` does not define that parameter.
+// The struct rule reports parameters of a wrong type, so the rules only have to skip them.
+export function resolveArazzoParameters(
+  parameters: Parameter[] | undefined,
+  reusableParameters: Record<string, Parameter> | undefined
+): (Parameter | undefined)[] {
+  if (!Array.isArray(parameters)) {
+    return [];
+  }
+
+  return parameters.map((parameter) => {
+    if (typeof parameter?.reference !== 'string') {
+      return parameter;
+    }
+
+    return isPlainObject(reusableParameters)
+      ? reusableParameters[parameter.reference.replace('$components.parameters.', '')]
+      : undefined;
+  });
 }

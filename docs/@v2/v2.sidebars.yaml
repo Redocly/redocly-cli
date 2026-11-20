@@ -211,6 +211,7 @@
             - page: rules/arazzo/spec-sourceDescriptions-defined.md
             - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
             - page: rules/arazzo/spec-step-operationId-resolved.md
+            - page: rules/arazzo/spec-step-parameters-in-required.md
             - page: rules/arazzo/spec-step-workflowId-defined.md
             - page: rules/arazzo/stepId-unique.md
             - page: rules/arazzo/step-onFailure-unique.md
