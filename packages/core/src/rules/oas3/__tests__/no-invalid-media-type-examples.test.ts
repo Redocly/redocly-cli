@@ -1309,4 +1309,146 @@ describe('no-invalid-media-type-examples', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+  it('should validate examples of $id schemas no matter which endpoint loads them first', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /pets:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Pet'
+                      example:
+                        tag:
+                          color: red
+          /tags:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Tag'
+                      example:
+                        color: 5
+          /collars:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Outer/properties/collar'
+                      example:
+                        tag:
+                          color: blue
+          /outers:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Outer'
+                      example:
+                        collar:
+                          tag:
+                            color: green
+                          size: 1
+          /others:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Other'
+                      example:
+                        c:
+                          size: one
+          /alphas:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Alpha'
+                      example:
+                        w: three
+        components:
+          schemas:
+            Pet:
+              $id: 'https://example.com/schemas/pet'
+              type: object
+              properties:
+                tag:
+                  $ref: 'tag'
+            Tag:
+              $id: 'https://example.com/schemas/tag'
+              type: object
+              properties:
+                color:
+                  $ref: 'color'
+            Color:
+              $id: 'https://example.com/schemas/color'
+              type: string
+            Outer:
+              $id: 'https://example.com/schemas/outer'
+              type: object
+              properties:
+                collar:
+                  $id: 'collar'
+                  type: object
+                  properties:
+                    tag:
+                      $ref: 'tag'
+                    size:
+                      type: integer
+            # refs to a nested $id and to an anchor, compiled after their parent schema
+            Other:
+              $id: 'https://example.com/schemas/other'
+              type: object
+              properties:
+                c:
+                  $ref: 'collar'
+            Alpha:
+              $id: 'https://example.com/schemas/alpha'
+              type: object
+              properties:
+                w:
+                  $ref: '#lbl'
+              $defs:
+                L:
+                  $anchor: lbl
+                  type: integer
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(results.map(({ message, location }) => `${location[0].pointer}: ${message}`))
+      .toMatchInlineSnapshot(`
+      [
+        "#/paths/~1tags/get/responses/200/content/application~1json/example/color: Example value must conform to the schema: \`color\` property type must be string.",
+        "#/paths/~1others/get/responses/200/content/application~1json/example/c/size: Example value must conform to the schema: \`size\` property type must be integer.",
+        "#/paths/~1alphas/get/responses/200/content/application~1json/example/w: Example value must conform to the schema: \`w\` property type must be integer.",
+      ]
+    `);
+  });
 });

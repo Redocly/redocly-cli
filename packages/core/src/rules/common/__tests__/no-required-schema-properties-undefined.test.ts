@@ -1245,4 +1245,42 @@ describe('no-required-schema-properties-undefined', () => {
       ]
     `);
   });
+  it('should resolve allOf refs inside an $id schema even when the same ref is used outside it', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Pet:
+              $id: 'https://example.com/schemas/pet'
+              type: object
+              required:
+                - petName
+              allOf:
+                - $ref: '#/$defs/Mid'
+              $defs:
+                Mid:
+                  allOf:
+                    - $ref: '#/$defs/Leaf'
+                Leaf:
+                  properties:
+                    petName:
+                      type: string
+            Unscoped:
+              type: object
+              properties:
+                leaf:
+                  $ref: '#/$defs/Leaf'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });

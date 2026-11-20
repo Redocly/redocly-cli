@@ -1,5 +1,6 @@
 import { YamlParseError } from '../../errors/yaml-parse-error.js';
-import { isMappingRef, type Location } from '../../ref-utils.js';
+import { isMappingRef, Location } from '../../ref-utils.js';
+import { getDuplicateSchemaIds } from '../../resolve.js';
 import type {
   Oas2Rule,
   Oas3Rule,
@@ -21,8 +22,18 @@ export const NoUnresolvedRefs:
 
   return {
     Root: {
-      enter(root: { components?: { schemas?: Record<string, unknown> } }) {
+      enter(
+        root: { components?: { schemas?: Record<string, unknown> } },
+        { report, resolve }: UserContext
+      ) {
         componentsSchemaNames = Object.keys(root.components?.schemas || {});
+        for (const dup of getDuplicateSchemaIds(resolve)) {
+          report({
+            message: `Duplicate schema $id '${dup.id}'.`,
+            location: new Location(dup.document.source, dup.pointer),
+            reference: 'https://redocly.com/docs/cli/rules/oas/no-unresolved-refs',
+          });
+        }
       },
     },
     ref: {

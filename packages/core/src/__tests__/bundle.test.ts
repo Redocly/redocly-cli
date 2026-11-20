@@ -10,7 +10,8 @@ import {
 import { bundleDocument } from '../bundle/bundle-document.js';
 import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { createConfig, loadConfig } from '../config/index.js';
-import { AsyncApi2Types, AsyncApi3Types, Oas3Types, Oas3_1Types } from '../index.js';
+import { AsyncApi2Types, AsyncApi3Types, Oas3Types, Oas3_1Types, Oas3_2Types } from '../index.js';
+import { lintDocument } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1131,74 +1132,7 @@ describe('sibling $ref resolution by spec', () => {
     });
   });
 
-  it('should bundle OAS 3.1 schema with $id and local $defs references', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        openapi: 3.1.0
-        info:
-          title: Classroom API
-          version: 1.0.0
-        paths:
-          /user-data:
-            get:
-              responses:
-                '200':
-                  description: OK
-                  content:
-                    application/json:
-                      schema:
-                        $ref: '#/components/schemas/userData'
-        components:
-          schemas:
-            userData:
-              $id: 'https://example.com/classroom/userData'
-              type: object
-              properties:
-                challenges:
-                  type: array
-                  items:
-                    $ref: '#/$defs/Challenge'
-              $defs:
-                Challenge:
-                  type: object
-                  properties:
-                    files:
-                      type: array
-                      items:
-                        $ref: '#/$defs/File'
-                File:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-      `,
-      'foobar.yaml'
-    );
-
-    const { bundle: res, problems } = await bundleDocument({
-      document,
-      externalRefResolver: new BaseResolver(),
-      config: await createConfig({}),
-      types: Oas3_1Types,
-    });
-
-    expect(problems).toHaveLength(0);
-    const parsed = res.parsed as {
-      components: {
-        schemas: {
-          userData: {
-            properties: { challenges: { items: { $ref: string } } };
-            $defs: { Challenge: { properties: { files: { items: { $ref: string } } } } };
-          };
-        };
-      };
-    };
-    const userData = parsed.components.schemas.userData;
-    expect(userData.properties.challenges.items.$ref).toBe('#/$defs/Challenge');
-    expect(userData.$defs.Challenge.properties.files.items.$ref).toBe('#/$defs/File');
-  });
-
-  it('should bundle and dereference relative $ref resolved against schema $id to in-document schema', async () => {
+  it('should bundle and dereference local $defs and relative refs inside a schema with $id', async () => {
     const makeDoc = () =>
       parseYamlToDocument(
         outdent`
@@ -1224,6 +1158,16 @@ describe('sibling $ref resolution by spec', () => {
                 properties:
                   tag:
                     $ref: 'tag'
+                  collar:
+                    $ref: '#/$defs/Collar'
+                $defs:
+                  Collar:
+                    type: object
+                    properties:
+                      buckle:
+                        $ref: '#/$defs/Buckle'
+                  Buckle:
+                    type: string
               Tag:
                 $id: 'https://example.com/schemas/tag'
                 type: object
@@ -1244,14 +1188,12 @@ describe('sibling $ref resolution by spec', () => {
     });
 
     expect(bundleProblems).toHaveLength(0);
-    const bundledSchemas = (
-      bundled.parsed as {
-        components: { schemas: { Pet: { properties: { tag: unknown } } } };
-      }
-    ).components.schemas;
-    expect(bundledSchemas.Pet.properties.tag).toEqual({
-      $ref: '#/components/schemas/Tag',
+    const bundledPet = (bundled.parsed as any).components.schemas.Pet;
+    expect(bundledPet.properties).toEqual({
+      tag: { $ref: 'tag' },
+      collar: { $ref: '#/$defs/Collar' },
     });
+    expect(bundledPet.$defs.Collar.properties.buckle).toEqual({ $ref: '#/$defs/Buckle' });
 
     const { bundle: dereferenced, problems: derefProblems } = await bundleDocument({
       document: makeDoc(),
@@ -1262,12 +1204,7 @@ describe('sibling $ref resolution by spec', () => {
     });
 
     expect(derefProblems).toHaveLength(0);
-    const dereferencedSchemas = (
-      dereferenced.parsed as {
-        components: { schemas: { Pet: { properties: { tag: unknown } } } };
-      }
-    ).components.schemas;
-    expect(dereferencedSchemas.Pet.properties.tag).toEqual({
+    expect((dereferenced.parsed as any).components.schemas.Pet.properties.tag).toEqual({
       $id: 'https://example.com/schemas/tag',
       type: 'object',
       required: ['label'],
@@ -1277,15 +1214,103 @@ describe('sibling $ref resolution by spec', () => {
     });
   });
 
-  it('should bundle composed $ref chain hops with relative $id and dereference recursive $id schemas with removeUnusedComponents', async () => {
+  it('should keep components used through $id aliases and composed chain hops when removing unused components', async () => {
+    const makeChainDoc = () =>
+      parseYamlToDocument(
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Chain Hop $id Test
+            version: 1.0.0
+          paths:
+            /items:
+              get:
+                responses:
+                  '200':
+                    description: ok
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '#/components/schemas/Parent/$defs/Hop'
+            /pets:
+              get:
+                responses:
+                  '200':
+                    description: ok
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '#/components/schemas/Pet'
+          components:
+            schemas:
+              Parent:
+                $id: 'https://example.com/schemas/parent.json'
+                type: object
+                $defs:
+                  Hop:
+                    $id: 'sub/hop.json'
+                    $ref: 'leaf.json'
+              Leaf:
+                $id: 'https://example.com/schemas/sub/leaf.json'
+                type: object
+                properties:
+                  next:
+                    $ref: 'leaf.json'
+              Pet:
+                $id: 'https://example.com/schemas/pet'
+                type: object
+                properties:
+                  tag:
+                    $ref: 'alias'
+              Alias:
+                $id: 'https://example.com/schemas/alias'
+                $ref: 'target'
+              Target:
+                $id: 'https://example.com/schemas/target'
+                type: string
+              Unused:
+                type: string
+        `,
+        path.join(__dirname, 'fixtures/refs/openapi.yaml')
+      );
+
+    const { bundle: bundled, problems } = await bundleDocument({
+      document: makeChainDoc(),
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3_1Types,
+      removeUnusedComponents: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(Object.keys((bundled.parsed as any).components.schemas).sort()).toEqual([
+      'Alias',
+      'Leaf',
+      'Parent',
+      'Pet',
+      'Target',
+    ]);
+
+    const { problems: derefProblems } = await bundleDocument({
+      document: makeChainDoc(),
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3_1Types,
+      dereference: true,
+    });
+
+    expect(derefProblems).toHaveLength(0);
+  });
+
+  it('should report duplicate schema $id and keep local $defs scoped to each schema', async () => {
     const doc = parseYamlToDocument(
       outdent`
         openapi: 3.1.0
         info:
-          title: Chain Hop $id Test
+          title: Duplicate $id Test
           version: 1.0.0
         paths:
-          /items:
+          /b:
             get:
               responses:
                 '200':
@@ -1293,36 +1318,320 @@ describe('sibling $ref resolution by spec', () => {
                   content:
                     application/json:
                       schema:
-                        $ref: '#/components/schemas/Parent/$defs/Hop'
+                        $ref: '#/components/schemas/B'
         components:
           schemas:
-            Parent:
-              $id: 'https://example.com/schemas/parent.json'
-              type: object
+            A:
+              $id: 'https://example.com/schemas/dup'
               $defs:
-                Hop:
-                  $id: 'sub/hop.json'
-                  $ref: 'leaf.json'
-            Leaf:
-              $id: 'https://example.com/schemas/sub/leaf.json'
+                X:
+                  type: string
+            B:
+              $id: 'https://example.com/schemas/dup'
               type: object
               properties:
-                next:
-                  $ref: 'leaf.json'
+                x:
+                  $ref: '#/$defs/X'
+              $defs:
+                X:
+                  type: integer
       `,
-      path.join(__dirname, 'fixtures/refs/openapi.yaml')
+      'foobar.yaml'
     );
 
-    const { problems } = await bundleDocument({
+    const { bundle: dereferenced, problems } = await bundleDocument({
       document: doc,
       externalRefResolver: new BaseResolver(),
       config: await createConfig({}),
       types: Oas3_1Types,
       dereference: true,
-      removeUnusedComponents: true,
+    });
+
+    expect(problems).toHaveLength(1);
+    expect(problems[0].message).toBe("Duplicate schema $id 'https://example.com/schemas/dup'.");
+    expect((dereferenced.parsed as any).components.schemas.B.properties.x).toEqual({
+      type: 'integer',
+    });
+  });
+});
+
+describe('bundle schemas with $id', () => {
+  const fixturesDir = path.join(__dirname, 'fixtures/refs');
+
+  // Lints a bundle the way a consumer sees it: serialized, re-parsed, with a fresh resolver.
+  async function relintBundle(bundled: { parsed: unknown }) {
+    const document = parseYamlToDocument(
+      JSON.stringify(bundled.parsed),
+      path.join(fixturesDir, 'out/bundled.yaml')
+    );
+    const problems = await lintDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        rules: { 'no-unresolved-refs': 'error' },
+      }),
+    });
+    return problems.map(({ message, location }) => `${message} ${location[0].pointer}`);
+  }
+
+  function resolverWith(files: Record<string, string>) {
+    const resolver = new BaseResolver();
+    for (const [name, body] of Object.entries(files)) {
+      const absoluteRef = path.join(fixturesDir, name);
+      resolver.cache.set(absoluteRef, Promise.resolve(parseYamlToDocument(body, absoluteRef)));
+    }
+    return resolver;
+  }
+
+  const externalPet = outdent`
+    $id: 'https://example.com/schemas/pet.yaml'
+    type: object
+    properties:
+      collar:
+        $ref: '#/$defs/Collar'
+    $defs:
+      Collar:
+        type: object
+        properties:
+          tag:
+            $ref: '#/$defs/Tag'
+      Tag:
+        type: string
+  `;
+
+  it('should bundle an external $id schema file and a pointer into it into a valid bundle', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Pet API
+          version: 1.0.0
+        paths:
+          /pets:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          pet:
+                            $ref: './id-pet.yaml'
+                          collar:
+                            $ref: './id-pet.yaml#/$defs/Collar'
+      `,
+      path.join(fixturesDir, 'openapi.yaml')
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: resolverWith({ 'id-pet.yaml': externalPet }),
+      config: await createConfig({}),
+      types: Oas3_1Types,
     });
 
     expect(problems).toHaveLength(0);
+    expect(await relintBundle(res)).toEqual([]);
+  });
+
+  it('should normalize self-file refs and inline scalar refs inside a schema with $id', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Pet API
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            Pet:
+              $id: 'https://example.com/schemas/pet'
+              description:
+                $ref: '#/components/schemas/Pet/x-description'
+              x-description: A pet
+              properties:
+                other:
+                  $ref: './openapi.yaml#/components/schemas/Other'
+                tag:
+                  $ref: 'tag'
+            Other:
+              type: string
+            Tag:
+              $id: 'https://example.com/schemas/tag'
+              type: string
+      `,
+      path.join(fixturesDir, 'openapi.yaml')
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({}),
+      types: Oas3_1Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    const pet = (res.parsed as any).components.schemas.Pet;
+    expect(pet.description).toBe('A pet');
+    expect(pet.properties.other).toEqual({ $ref: '#/components/schemas/Other' });
+    expect(pet.properties.tag).toEqual({ $ref: 'tag' });
+  });
+
+  it('should bundle discriminator mappings that reach a root $id schema from another file like without $id', async () => {
+    const rootPath = path.join(fixturesDir, 'openapi.yaml');
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Pet API
+          version: 1.0.0
+        paths:
+          /pets:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: './schemas/pet.yaml'
+        components:
+          schemas:
+            Animal:
+              type: object
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+              discriminator:
+                propertyName: kind
+                mapping:
+                  cat: './alias.yaml'
+            Cat:
+              $id: 'https://example.com/schemas/cat'
+              type: object
+              properties:
+                kind:
+                  type: string
+      `,
+      rootPath
+    );
+    const resolver = resolverWith({
+      'schemas/pet.yaml': outdent`
+        type: object
+        oneOf:
+          - $ref: '../openapi.yaml#/components/schemas/Cat'
+        discriminator:
+          propertyName: kind
+          mapping:
+            cat: '../openapi.yaml#/components/schemas/Cat'
+          defaultMapping: '../openapi.yaml#/components/schemas/Cat'
+      `,
+      'alias.yaml': `$ref: './openapi.yaml#/components/schemas/Cat'`,
+    });
+    resolver.cache.set(rootPath, Promise.resolve(document));
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: resolver,
+      config: await createConfig({}),
+      types: Oas3_1Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    const schemas = (res.parsed as any).components.schemas;
+    expect(schemas.Animal.discriminator.mapping).toEqual({ cat: '#/components/schemas/Cat' });
+    expect(schemas.pet.discriminator).toEqual({
+      propertyName: 'kind',
+      mapping: { cat: '#/components/schemas/Cat' },
+      defaultMapping: '#/components/schemas/Cat',
+    });
+    expect(await relintBundle(res)).toEqual([]);
+  });
+
+  it('should keep discriminator mappings into other $id schemas as written', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        info:
+          title: Pet API
+          version: 1.0.0
+        paths:
+          /pets:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Pet'
+        components:
+          schemas:
+            Pet:
+              $id: 'https://example.com/schemas/pet'
+              oneOf:
+                - $ref: 'cat'
+                - $ref: 'cat#/$defs/Kitten'
+                - $ref: '#/$defs/Dog'
+                - $ref: '#/components/schemas/Bird'
+              discriminator:
+                propertyName: kind
+                mapping:
+                  kitten: 'cat#/$defs/Kitten'
+                  dog: '#/$defs/Dog'
+                  bird: '#/components/schemas/Bird'
+                defaultMapping: 'cat#/$defs/Kitten'
+              $defs:
+                Dog:
+                  type: object
+                  properties:
+                    kind:
+                      type: string
+                    paw:
+                      $ref: '#/$defs/Paw'
+                Paw:
+                  type: integer
+            Bird:
+              type: object
+            Cat:
+              $id: 'https://example.com/schemas/cat'
+              type: object
+              properties:
+                kind:
+                  type: string
+              $defs:
+                Kitten:
+                  type: object
+                  properties:
+                    toy:
+                      $ref: '#/$defs/Toy'
+                Toy:
+                  type: string
+      `,
+      path.join(fixturesDir, 'openapi.yaml')
+    );
+    const resolver = new BaseResolver();
+    resolver.cache.set(document.source.absoluteRef, Promise.resolve(document));
+
+    const { bundle: res, problems } = await bundleDocument({
+      document,
+      externalRefResolver: resolver,
+      config: await createConfig({}),
+      types: Oas3_2Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect((res.parsed as any).components.schemas.Pet.discriminator).toEqual({
+      propertyName: 'kind',
+      mapping: {
+        kitten: 'cat#/$defs/Kitten',
+        dog: '#/$defs/Dog',
+        bird: '#/components/schemas/Bird',
+      },
+      defaultMapping: 'cat#/$defs/Kitten',
+    });
+    expect(await relintBundle(res)).toEqual([]);
   });
 });
 

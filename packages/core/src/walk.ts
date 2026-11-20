@@ -1,19 +1,21 @@
 import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
-import { Location, isRef, isRefWithSiblings, getSchemaId, resolveSchemaId } from './ref-utils.js';
-import type {
-  ResolveError,
-  Source,
-  ResolvedRefMap,
-  ResolvedRefChainHop,
-  Document,
+import { Location, isRef, isRefWithSiblings } from './ref-utils.js';
+import {
+  hasSchemaScopes,
+  linkResolveFn,
+  lookupResolvedRef,
+  type ResolveError,
+  type Source,
+  type ResolvedRefMap,
+  type ResolvedRefChainHop,
+  type Document,
 } from './resolve.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
-import { makeRefId } from './utils/make-ref-id.js';
 import { pushStack, popStack } from './utils/stack.js';
 import type {
   VisitorLevelContext,
@@ -41,14 +43,12 @@ export type ResolveResult<T extends NonUndefined> =
       location: Location;
       error?: ResolveError | YamlParseError;
       chain?: ResolvedRefChainHop[];
-      baseUri?: string;
     }
   | {
       node: undefined;
       location: undefined;
       error?: ResolveError | YamlParseError;
       chain?: ResolvedRefChainHop[];
-      baseUri?: string;
     };
 
 export type ResolveFn = <T extends NonUndefined>(
@@ -69,7 +69,6 @@ export type UserContext = {
   specVersion: ExtendedSpecVersion;
   config?: Config;
   getVisitorData: () => Record<string, unknown>;
-  baseUri?: string;
 };
 
 export type Loc = {
@@ -168,14 +167,9 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     combinedLeave[typeName] = (normalizedVisitors[typeName]?.leave || []).concat(anyLeave);
   }
 
-  walkNode(
-    document.parsed,
-    rootType,
-    new Location(document.source, '#/'),
-    undefined,
-    '',
-    document.source.absoluteRef
-  );
+  const linkResolve = hasSchemaScopes(resolvedRefMap);
+
+  walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
 
   // oxlint-disable-next-line sonarjs/cognitive-complexity
   function walkNode(
@@ -183,19 +177,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     type: NormalizedNodeType,
     location: Location,
     parent: any,
-    key: string | number,
-    baseUri: string = location.source.absoluteRef
+    key: string | number
   ) {
-    const rawLocation = location;
-    let currentLocation = location;
-    const rawSchemaId = getOwn(type.properties, '$id') ? getSchemaId(node) : undefined;
-    const rawBaseUri = rawSchemaId ? resolveSchemaId(baseUri, rawSchemaId) : baseUri;
-    let currentBaseUri = rawBaseUri;
-
-    const resolve: ResolveFn = (ref, from = currentBaseUri) => {
+    const resolve: ResolveFn = (ref, from) => {
       if (!isRef(ref)) return { location, node: ref };
-      const refId = makeRefId(from, ref.$ref);
-      const resolvedRef = resolvedRefMap.get(refId);
+      const resolvedRef = lookupResolvedRef(resolvedRefMap, ref, from, currentLocation);
       if (!resolvedRef) {
         return {
           location: undefined,
@@ -203,37 +189,25 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         };
       }
 
-      const {
-        resolved,
-        node,
-        document,
-        nodePointer,
-        error,
-        chain,
-        baseUri: targetBaseUri,
-      } = resolvedRef;
+      const { resolved, node, document, nodePointer, error, chain } = resolvedRef;
       const newLocation = resolved
         ? new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
           ? new Location(error.source, '')
           : undefined;
 
-      return {
-        location: newLocation,
-        node,
-        error,
-        chain,
-        baseUri: targetBaseUri !== document?.source.absoluteRef ? targetBaseUri : undefined,
-      };
+      return { location: newLocation, node, error, chain };
     };
+    if (linkResolve) linkResolveFn(resolve, resolvedRefMap);
 
+    const rawLocation = location;
+    let currentLocation = location;
     const nodeIsRef = isRef(node);
     const {
       node: resolvedNode,
       location: resolvedLocation,
       error,
       chain: resolvedChain,
-      baseUri: resolvedBaseUri,
     } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
@@ -265,7 +239,6 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             specVersion: ctx.specVersion,
             config: ctx.config,
             getVisitorData: () => getVisitorDataFn(ruleId),
-            baseUri: currentBaseUri,
           },
           { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
         );
@@ -276,13 +249,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     }
 
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
-      const walkProp = (
-        propName: string,
-        value: unknown,
-        loc: Location,
-        valueParent: unknown,
-        propBaseUri: string
-      ) => {
+      const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
         let propType = getOwn(type.properties, propName);
         const isExtensionKey =
           type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
@@ -311,13 +278,10 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           return;
         }
 
-        walkNode(value, propType, loc.child([propName]), valueParent, propName, propBaseUri);
+        walkNode(value, propType, loc.child([propName]), valueParent, propName);
       };
 
       currentLocation = resolvedLocation;
-      if (nodeIsRef) {
-        currentBaseUri = resolvedBaseUri ?? resolvedLocation.source.absoluteRef;
-      }
       // primitives have no identity to dedupe by — use their location; objects dedupe by identity
       const seenKey =
         isPlainObject(resolvedNode) || Array.isArray(resolvedNode)
@@ -419,7 +383,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               }
 
               if (isNamedType(itemType)) {
-                walkNode(itemValue, itemType, itemLocation, resolvedNode, i, currentBaseUri);
+                walkNode(itemValue, itemType, itemLocation, resolvedNode, i);
               }
             }
           }
@@ -440,7 +404,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           for (const propName of props) {
             const resolvedValue = resolvedNode[propName];
             if (resolvedValue !== undefined) {
-              walkProp(propName, resolvedValue, resolvedLocation, resolvedNode, currentBaseUri);
+              walkProp(propName, resolvedValue, resolvedLocation, resolvedNode);
             }
           }
         }
@@ -450,14 +414,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         // walk the composed $ref the resolution passed through; the rest of the chain follows
         const chainHop = resolvedChain[0];
         if (!walkedComposedRefs.has(composedRefWalkId(type, chainHop.location))) {
-          walkNode(
-            chainHop.node,
-            type,
-            chainHop.location,
-            undefined,
-            key,
-            chainHop.baseUri ?? chainHop.location.source.absoluteRef
-          );
+          walkNode(chainHop.node, type, chainHop.location, undefined, key);
         }
       }
 
@@ -465,7 +422,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         // walk the keys written next to $ref; they resolve against the ref's own location
         for (const propName of Object.keys(node)) {
           if (propName !== '$ref' && node[propName] !== resolvedNode?.[propName]) {
-            walkProp(propName, node[propName], location, node, rawBaseUri);
+            walkProp(propName, node[propName], location, node);
           }
         }
       }
@@ -500,7 +457,6 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     }
 
     currentLocation = location;
-    currentBaseUri = rawBaseUri;
 
     if (nodeIsRef && !composedRefAlreadyWalked) {
       const refLeaveVisitors = normalizedVisitors.ref.leave;
@@ -522,7 +478,6 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               specVersion: ctx.specVersion,
               config: ctx.config,
               getVisitorData: () => getVisitorDataFn(ruleId),
-              baseUri: currentBaseUri,
             },
             { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
           );
@@ -559,7 +514,6 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
           getVisitorData: () => getVisitorDataFn(ruleId),
-          baseUri: currentBaseUri,
         },
         collectParents(context),
         context

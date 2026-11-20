@@ -126,12 +126,13 @@ export function resolveSchemaId(baseUri: string, schemaId: string): string {
     return baseUri;
   }
 
-  if (isAbsoluteUrl(normalizedId)) {
-    return normalizedId;
-  }
-
-  if (isSchemeUri(normalizedId)) {
-    return normalizedId;
+  if (isAbsoluteUrl(normalizedId) || isSchemeUri(normalizedId)) {
+    try {
+      // normalized like relative ids below (lowercase scheme and host, slash on a bare origin)
+      return new URL(normalizedId).href.split('#')[0];
+    } catch {
+      return normalizedId;
+    }
   }
 
   if (baseUri && (isAbsoluteUrl(baseUri) || isSchemeUri(baseUri))) {
@@ -142,7 +143,15 @@ export function resolveSchemaId(baseUri: string, schemaId: string): string {
     }
   }
 
-  return path.resolve(baseUri ? path.dirname(baseUri) : process.cwd(), normalizedId);
+  // a base that ends with a slash is a directory, and so is an id that ends with one (or `.`, `..`)
+  const baseDir = !baseUri
+    ? process.cwd()
+    : baseUri.endsWith('/')
+      ? baseUri
+      : path.dirname(baseUri);
+  const resolved = path.resolve(baseDir, normalizedId);
+  const namesDirectory = /(^|\/)\.{0,2}$/.test(normalizedId);
+  return namesDirectory && !resolved.endsWith('/') ? resolved + '/' : resolved;
 }
 
 export function getDir(filePath: string): string {

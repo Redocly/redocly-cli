@@ -533,21 +533,23 @@ describe('Oas3 no-unused-components', () => {
       config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toEqual([
-      {
-        location: [
-          {
-            pointer: '#/components/schemas/userData/$defs/UnusedDef',
-            reportOnKey: true,
-            source: 'foobar.yaml',
-          },
-        ],
-        message: 'Component: "UnusedDef" is never used.',
-        reference: 'https://redocly.com/docs/cli/rules/oas/no-unused-components',
-        ruleId: 'no-unused-components',
-        severity: 'error',
-        suggest: [],
-      },
-    ]);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/userData/$defs/UnusedDef",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Component: "UnusedDef" is never used.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/no-unused-components",
+          "ruleId": "no-unused-components",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });
