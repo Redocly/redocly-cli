@@ -128,6 +128,63 @@ describe('schemaToZodExpression — unions and intersections', () => {
     ).toBe('z.union([z.string(), z.number()])');
   });
 
+  it('union with a discriminator covering every member → z.discriminatedUnion', () => {
+    expect(
+      expr({
+        kind: 'union',
+        members: [
+          { kind: 'ref', name: 'Beverage' },
+          { kind: 'ref', name: 'Dessert' },
+        ],
+        discriminator: {
+          propertyName: 'category',
+          mapping: [
+            { value: 'beverage', schemaName: 'Beverage' },
+            { value: 'drink', schemaName: 'Beverage' },
+            { value: 'dessert', schemaName: 'Dessert' },
+          ],
+        },
+      })
+    ).toBe(
+      'z.discriminatedUnion("category", [' +
+        'z.looseObject({ category: z.literal("beverage") }).pipe(z.lazy(() => BeverageSchema)), ' +
+        'z.looseObject({ category: z.literal("drink") }).pipe(z.lazy(() => BeverageSchema)), ' +
+        'z.looseObject({ category: z.literal("dessert") }).pipe(z.lazy(() => DessertSchema))])'
+    );
+  });
+
+  it('union whose discriminator mapping misses a member stays z.union', () => {
+    expect(
+      expr({
+        kind: 'union',
+        members: [
+          { kind: 'ref', name: 'Beverage' },
+          { kind: 'ref', name: 'Dessert' },
+        ],
+        discriminator: {
+          propertyName: 'category',
+          mapping: [{ value: 'beverage', schemaName: 'Beverage' }],
+        },
+      })
+    ).toBe('z.union([z.lazy(() => BeverageSchema), z.lazy(() => DessertSchema)])');
+  });
+
+  it('union with an inline member stays z.union', () => {
+    expect(
+      expr({
+        kind: 'union',
+        members: [
+          { kind: 'ref', name: 'Beverage' },
+          { kind: 'object', properties: [] },
+        ],
+        discriminator: {
+          propertyName: 'category',
+          mapping: [{ value: 'beverage', schemaName: 'Beverage' }],
+        },
+      })
+    ).toMatch(/^z\.union\(/);
+  });
+
   it('single-member union collapses to the member', () => {
     expect(expr({ kind: 'union', members: [{ kind: 'scalar', scalar: 'boolean' }] })).toBe(
       'z.boolean()'

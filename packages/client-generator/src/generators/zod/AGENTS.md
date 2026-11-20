@@ -19,6 +19,11 @@ A standalone `<stem>.zod.ts`: one `export const <Name>Schema` per named IR schem
 - **Emits nothing** when the model has neither named schemas nor JSON operation bodies —
   an empty file is worse than no file.
 - Validation is opt-in at runtime (`use(zodValidation())`), never automatic.
+- **zod 4 only.** A union with a discriminator whose mapping covers exactly its members
+  becomes `z.discriminatedUnion`, so an error names the failing field of the selected
+  branch. zod cannot read the discriminant through `z.lazy` or an `allOf` intersection, so
+  each mapping entry is `z.looseObject({ <prop>: z.literal(<value>) }).pipe(z.lazy(() =>
+  <Member>Schema))`. Zod 3 has no shape for this. Any other union stays `z.union`.
 - **Only ERASABLE TypeScript.** The module must run under `node --experimental-strip-types`
   with no build step, so nothing that needs a transform is emitted: no `enum`, no
   `namespace`, and no constructor parameter properties. `ZodValidationError` therefore

@@ -69,8 +69,8 @@ _Avoid_: middleware (that's a runtime concept).
 **Schema module** (`zod` generator):
 The `<stem>.zod.ts` file the `zod` generator emits — `import { z } from 'zod'` plus one `export const <Name>Schema = z.object(…)` per IR named schema.
 Output-mode-agnostic in phase 1 (one module regardless of how the sdk partitions its files); refs become `z.lazy(() => …)`.
-Only the metadata refinements stable across zod `3.23 || 4` are emitted (`.min`/`.max`/`.int`/`.gt`/`.lt`/`.regex`); format methods (`.email`/`.uuid`/`.url`) are skipped.
-The generated **sdk** client never imports zod — `zod` is the _consumer's_ peer (`^3.23 || ^4`), installed only when validating (`PetSchema.parse(data)`) or deriving types (`z.infer<typeof PetSchema>`).
+The module targets zod 4. Only the basic metadata refinements are emitted (`.min`/`.max`/`.int`/`.gt`/`.lt`/`.regex`); format methods (`.email`/`.uuid`/`.url`) are skipped.
+The generated **sdk** client never imports zod — `zod` is the _consumer's_ peer (`^4`), installed only when validating (`PetSchema.parse(data)`) or deriving types (`z.infer<typeof PetSchema>`).
 _Avoid_: validation runtime, zod runtime (the sdk has no zod dependency).
 
 **Runtime**:

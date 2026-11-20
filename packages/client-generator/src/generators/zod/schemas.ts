@@ -4,14 +4,14 @@
 // Operations with a JSON request or response body additionally land in the
 // `operationSchemas` map, which powers the `zodValidation` client middleware.
 //
-// Only the refinement methods stable across zod 3.23 and 4 are emitted
-// (`.min/.max/.int/.gt/.lt/.regex`); format helpers (`.email/.uuid/.url`) diverge
-// between major versions and are deferred. Refs become `z.lazy(() => …Schema)`,
+// The module targets zod 4. Only the basic refinement methods are emitted
+// (`.min/.max/.int/.gt/.lt/.regex`); format helpers (`.email/.uuid/.url`) are deferred. Refs become `z.lazy(() => …Schema)`,
 // which sidesteps declaration ordering and recursion uniformly.
 
 import {
   allOperations,
   type ApiModel,
+  type DiscriminatorModel,
   type PropertyModel,
   type ScalarKind,
   type SchemaMetadata,
@@ -57,7 +57,7 @@ function baseExpression(schema: SchemaModel, byName: SchemaByName, indent: strin
     case 'enum':
       return enumExpression(schema.values);
     case 'union':
-      return unionExpression(schema.members, byName, indent);
+      return unionExpression(schema.members, schema.discriminator, byName, indent);
     case 'intersection':
       return schema.members
         .map((member) => schemaToZodExpression(member, byName, indent))
@@ -117,10 +117,43 @@ function enumExpression(values: Array<string | number | boolean>): string {
 }
 
 /** `z.union([…])`; a single member collapses to that member's expression. */
-function unionExpression(members: SchemaModel[], byName: SchemaByName, indent: string): string {
+function unionExpression(
+  members: SchemaModel[],
+  discriminator: DiscriminatorModel | undefined,
+  byName: SchemaByName,
+  indent: string
+): string {
   const exprs = members.map((member) => schemaToZodExpression(member, byName, indent));
   if (exprs.length === 1) return exprs[0];
-  return `z.union([${exprs.join(', ')}])`;
+  return discriminatedUnionExpression(members, discriminator) ?? `z.union([${exprs.join(', ')}])`;
+}
+
+/**
+ * `z.discriminatedUnion(…)` when the union declares a discriminator whose mapping covers
+ * exactly its members, otherwise `undefined`. zod cannot read the discriminant through
+ * `z.lazy` or an `allOf` intersection, so each mapping entry pipes a loose object that
+ * carries the literal into the member schema.
+ */
+function discriminatedUnionExpression(
+  members: SchemaModel[],
+  discriminator: DiscriminatorModel | undefined
+): string | undefined {
+  if (!discriminator?.mapping.length) return undefined;
+  const memberNames = new Set<string>();
+  for (const member of members) {
+    if (member.kind !== 'ref') return undefined;
+    memberNames.add(member.name);
+  }
+  const mappedNames = new Set(discriminator.mapping.map((entry) => entry.schemaName));
+  if (mappedNames.size !== memberNames.size) return undefined;
+  for (const name of memberNames) if (!mappedNames.has(name)) return undefined;
+
+  const key = propertyKeyText(discriminator.propertyName);
+  const options = discriminator.mapping.map(
+    (entry) =>
+      `z.looseObject({ ${key}: z.literal(${codeLiteral(entry.value)}) }).pipe(z.lazy(() => ${schemaConstName(entry.schemaName)}))`
+  );
+  return `z.discriminatedUnion(${codeLiteral(discriminator.propertyName)}, [${options.join(', ')}])`;
 }
 
 /**
@@ -310,8 +343,7 @@ export class ZodValidationError extends Error {
     }
 }
 
-// Flatten zod issues into leaf violations. Union branches (zod 3 \`unionErrors\`, zod 4
-// nested \`errors\`) are recursed into, so the message names the actual failing fields
+// Flatten zod issues into leaf violations. Union branches (nested \`errors\`) are recursed into, so the message names the actual failing fields
 // instead of just the union root ("Invalid input").
 function flattenIssues(
     issues: z.ZodError["issues"],
@@ -335,13 +367,9 @@ function flattenIssues(
     return violations;
 }
 
-/** The nested issue lists of a union-ish issue, across zod 3 (\`unionErrors\`) and zod 4 (\`errors\`). */
+/** The nested issue lists of a union-ish issue (\`errors\`). */
 function nestedIssueLists(issue: unknown): Array<z.ZodError["issues"]> {
-    const candidate = issue as {
-        unionErrors?: Array<{ issues: z.ZodError["issues"] }>;
-        errors?: Array<z.ZodError["issues"]>;
-    };
-    if (Array.isArray(candidate.unionErrors)) return candidate.unionErrors.map((error) => error.issues);
+    const candidate = issue as { errors?: Array<z.ZodError["issues"]> };
     if (Array.isArray(candidate.errors)) return candidate.errors;
     return [];
 }
