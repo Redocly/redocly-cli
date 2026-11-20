@@ -9,10 +9,17 @@ import {
   parseRef,
   pointerBaseName,
   refBaseName,
-  type Location,
+  Location,
   isMappingRef,
 } from '../ref-utils.js';
-import { type ResolvedRefMap, type Document } from '../resolve.js';
+import {
+  getDuplicateSchemaIds,
+  getEnclosingSchemaScope,
+  isResolvedBySchemaId,
+  isSchemaIdRef,
+  type ResolvedRefMap,
+  type Document,
+} from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { type OasRef, type Oas3Discriminator, type Oas3Example } from '../typings/openapi.js';
 import { componentNameFromTitle } from '../utils/component-name-from-title.js';
@@ -161,7 +168,11 @@ export function makeBundleVisitor({
           // Normalize explicit self-file refs (api.yaml#/x -> #/x). Already-internal refs
           // stay as authored: rewriting them would collapse $ref chains, and AsyncAPI 3
           // operation messages must point to channel messages, not to components.
-          if (parseRef(node.$ref).uri !== null && node.$ref !== target.location.pointer) {
+          if (
+            parseRef(node.$ref).uri !== null &&
+            node.$ref !== target.location.pointer &&
+            !isResolvedBySchemaId(resolvedRefMap, node)
+          ) {
             node.$ref = target.location.pointer;
           }
 
@@ -209,6 +220,12 @@ export function makeBundleVisitor({
     Root: {
       enter(root: any, ctx: UserContext) {
         rootLocation = ctx.location;
+        for (const dup of getDuplicateSchemaIds(resolvedRefMap)) {
+          ctx.report({
+            message: `Duplicate schema $id '${dup.id}'.`,
+            location: new Location(dup.document.source, dup.pointer),
+          });
+        }
         if (version === 'oas3') {
           components = root.components = root.components || {};
         } else if (version === 'oas2') {
@@ -242,11 +259,12 @@ export function makeBundleVisitor({
           return;
         }
 
-        discriminator.defaultMapping = saveComponent(
-          schemaComponentType,
-          effectiveRefTarget(resolved),
-          ctx
-        );
+        const target = effectiveRefTarget(resolved);
+        if (keepsMappingInResource(discriminator.defaultMapping, target, ctx)) {
+          return;
+        }
+
+        discriminator.defaultMapping = saveComponent(schemaComponentType, target, ctx);
       },
       DiscriminatorMapping: {
         leave(mapping, ctx) {
@@ -261,11 +279,30 @@ export function makeBundleVisitor({
               return;
             }
 
-            mapping[name] = saveComponent(schemaComponentType, effectiveRefTarget(resolved), ctx);
+            const target = effectiveRefTarget(resolved);
+            if (keepsMappingInResource($ref, target, ctx)) {
+              continue;
+            }
+
+            mapping[name] = saveComponent(schemaComponentType, target, ctx);
           }
         },
       },
     };
+  }
+
+  // A mapping value in the root document that points into an $id schema resource of the root
+  // document, by fragment or by $id, stays as written: moving the target to the components would
+  // take it out of its resource, whose own refs (e.g. `#/$defs/...`) would then no longer resolve.
+  function keepsMappingInResource($ref: string, target: ComponentTarget, ctx: UserContext) {
+    const { uri } = parseRef($ref);
+    return (
+      !dereference &&
+      (uri === null || isSchemaIdRef(resolvedRefMap, ctx.location, $ref)) &&
+      ctx.location.source === rootDocument.source &&
+      target.location.source === rootDocument.source &&
+      !!getEnclosingSchemaScope(resolvedRefMap, target.location)
+    );
   }
 
   // Registers the rewritten pointer in the map with the same resolution the original ref had.
@@ -283,6 +320,11 @@ export function makeBundleVisitor({
       nodePointer: node.$ref,
     };
     resolvedRefMap.set(makeRefId(ctx.location.source.absoluteRef, node.$ref), resolvedRef);
+    // inside an $id resource, refs are looked up under the resource's base URI
+    const enclosingScope = getEnclosingSchemaScope(resolvedRefMap, ctx.location);
+    if (enclosingScope) {
+      resolvedRefMap.set(makeRefId(enclosingScope.refBase, node.$ref), resolvedRef);
+    }
     // saved components are walked again as part of the bundled document
     resolvedRefMap.set(makeRefId(rootDocument.source.absoluteRef, node.$ref), resolvedRef);
   }

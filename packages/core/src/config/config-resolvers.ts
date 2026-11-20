@@ -8,6 +8,7 @@ import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import {
+  copySchemaScopes,
   resolveDocument,
   BaseResolver,
   Source,
@@ -118,12 +119,9 @@ export async function resolveConfig({
     resolvedPlugins = [...plugins, defaultPlugin, ...extraPlugins];
   }
 
-  const bundledConfig = bundleConfig(
-    rootDocument,
-    deepCloneMapWithJSON(resolvedRefMap),
-    resolvedPlugins,
-    skipPluginEval
-  );
+  const clonedRefMap = deepCloneMapWithJSON(resolvedRefMap);
+  copySchemaScopes(resolvedRefMap, clonedRefMap);
+  const bundledConfig = bundleConfig(rootDocument, clonedRefMap, resolvedPlugins, skipPluginEval);
 
   // The apis merge relies on `extends` being resolved, which requires evaluated plugins.
   if (bundledConfig.apis && !skipPluginEval) {

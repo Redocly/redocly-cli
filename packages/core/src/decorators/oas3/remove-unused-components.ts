@@ -1,4 +1,5 @@
 import { isRef, parseRef } from '../../ref-utils.js';
+import { hasSchemaScopes } from '../../resolve.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -80,7 +81,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
 
   return {
     ref: {
-      leave(ref, { location, type, key }) {
+      leave(ref, { location, type, key, resolve }, resolved) {
         if (
           [
             'Schema',
@@ -93,7 +94,16 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
             'SecurityScheme',
           ].includes(type.name)
         ) {
-          const targetPointer = getComponentKey(ref.$ref);
+          // with $id, a URI ref (e.g. to a schema $id) is matched by where it resolved; a composed
+          // $ref on the way (chain hop) is the component that is actually used
+          const resolvedLocation = hasSchemaScopes(resolve)
+            ? (resolved.chain?.[0]?.location ?? resolved.location)
+            : undefined;
+          const targetPointer =
+            getComponentKey(ref.$ref) ??
+            (resolvedLocation?.source === location.source
+              ? getComponentKey(resolvedLocation.pointer)
+              : undefined);
           if (!targetPointer) return;
 
           const sourcePointer = getComponentKey(location.pointer) ?? location.pointer;

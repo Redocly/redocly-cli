@@ -2,18 +2,20 @@ import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
 import { Location, isRef, isRefWithSiblings } from './ref-utils.js';
-import type {
-  ResolveError,
-  Source,
-  ResolvedRefMap,
-  ResolvedRefChainHop,
-  Document,
+import {
+  hasSchemaScopes,
+  linkResolveFn,
+  lookupResolvedRef,
+  type ResolveError,
+  type Source,
+  type ResolvedRefMap,
+  type ResolvedRefChainHop,
+  type Document,
 } from './resolve.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
-import { makeRefId } from './utils/make-ref-id.js';
 import { pushStack, popStack } from './utils/stack.js';
 import type {
   VisitorLevelContext,
@@ -165,6 +167,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     combinedLeave[typeName] = (normalizedVisitors[typeName]?.leave || []).concat(anyLeave);
   }
 
+  const linkResolve = hasSchemaScopes(resolvedRefMap);
+
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
 
   // oxlint-disable-next-line sonarjs/cognitive-complexity
@@ -175,10 +179,9 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     parent: any,
     key: string | number
   ) {
-    const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
+    const resolve: ResolveFn = (ref, from) => {
       if (!isRef(ref)) return { location, node: ref };
-      const refId = makeRefId(from, ref.$ref);
-      const resolvedRef = resolvedRefMap.get(refId);
+      const resolvedRef = lookupResolvedRef(resolvedRefMap, ref, from, currentLocation);
       if (!resolvedRef) {
         return {
           location: undefined,
@@ -195,6 +198,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       return { location: newLocation, node, error, chain };
     };
+    if (linkResolve) linkResolveFn(resolve, resolvedRefMap);
 
     const rawLocation = location;
     let currentLocation = location;
