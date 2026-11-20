@@ -21,17 +21,26 @@ export function contentTypeMatchesPattern(contentType: string, pattern: string):
   return false;
 }
 
-export function resolveContentByType(
+export function resolveContentTypeKey(
   content: Record<string, Oas3MediaType> | undefined,
   contentType: string
-): Oas3MediaType | undefined {
+): string | undefined {
   if (!content) return undefined;
-  if (content[contentType]) return content[contentType];
+  if (content[contentType]) return contentType;
 
   // The most specific media type applies: `application/*` wins over `*/*`.
   const [mostSpecificPattern] = Object.keys(content)
     .filter((pattern) => contentTypeMatchesPattern(contentType, pattern))
     .sort((left, right) => left.split('*').length - right.split('*').length);
 
-  return content[mostSpecificPattern];
+  return mostSpecificPattern;
+}
+
+export function resolveContentByType(
+  content: Record<string, Oas3MediaType> | undefined,
+  contentType: string
+): Oas3MediaType | undefined {
+  const contentTypeKey = resolveContentTypeKey(content, contentType);
+
+  return contentTypeKey === undefined ? undefined : content?.[contentTypeKey];
 }

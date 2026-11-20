@@ -1,6 +1,6 @@
 import type { Oas3Responses } from '@redocly/openapi-core';
 
-import { resolveContentByType } from './resolve-content-by-type.js';
+import { resolveContentTypeKey } from './resolve-content-by-type.js';
 
 // An explicit status code wins over its range, such as `2XX`, and the range wins over `default`.
 export function getResponseKeyByStatusCode(
@@ -12,6 +12,7 @@ export function getResponseKeyByStatusCode(
   );
 }
 
+// Returns the schema of the response and its path from the operation.
 export function getResponseSchema({
   statusCode,
   contentType,
@@ -24,7 +25,14 @@ export function getResponseSchema({
   if (!descriptionResponses) return undefined;
 
   const responseKey = getResponseKeyByStatusCode(descriptionResponses, statusCode);
-  const response = responseKey ? descriptionResponses[responseKey] : undefined;
+  if (responseKey === undefined) return undefined;
 
-  return resolveContentByType(response?.content, contentType)?.schema;
+  const content = descriptionResponses[responseKey]?.content;
+  const contentTypeKey = resolveContentTypeKey(content, contentType);
+  if (contentTypeKey === undefined || !content[contentTypeKey].schema) return undefined;
+
+  return {
+    schema: content[contentTypeKey].schema,
+    path: ['responses', responseKey, 'content', contentTypeKey, 'schema'],
+  };
 }
