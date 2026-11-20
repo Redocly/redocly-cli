@@ -54,8 +54,8 @@ Rules of the shape:
    ```
 
    ```bash
-   npx @redocly/cli recheck docs
-   npx @redocly/cli check-config
+   redocly recheck docs
+   redocly check-config
    ```
 
    The `recheck` command reports configuration errors before it lints anything, and `check-config` validates the block's shape.
@@ -73,7 +73,7 @@ Rules of the shape:
 1. Run the whole document set and count findings per rule:
 
    ```bash
-   npx @redocly/cli recheck docs --summary=json --summary-path=recheck-summary.json
+   redocly recheck docs --summary=json --summary-path=recheck-summary.json
    ```
 
    The summary's `breakdown` has the count per rule and severity.
@@ -100,7 +100,7 @@ Rules of the shape:
 When the document set has too many errors to fix at once, record them and gate only new ones:
 
 ```bash
-npx @redocly/cli recheck docs --generate-baseline
+redocly recheck docs --generate-baseline
 ```
 
 Commit `.redocly.recheck-baseline.yaml`.
@@ -111,6 +111,6 @@ Counts only step down: when findings get fixed, the run reports stale entries, s
 
 ## Finish
 
-- `npx @redocly/cli recheck docs` and `npx @redocly/cli check-config` report no configuration errors.
+- `redocly recheck docs` and `redocly check-config` report no configuration errors.
 - Every `off` and every exception carries a comment with its reason.
 - The project's contributing docs say how contributors run recheck locally, and CI runs it with `--format=github-actions`.

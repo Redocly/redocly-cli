@@ -122,7 +122,7 @@ When all rules are in, compare your list with the predefined [rulesets](https://
 ## 3. Verify
 
 A rule is **unproven** until a live run makes it report.
-Prove each rule with `npx redocly lint <api-file>` in two directions:
+Prove each rule with `redocly lint <api-file>` in two directions:
 
 - a **violating** fixture: the rule reports, at the correct location;
 - a **conforming** fixture: the run stays silent.
