@@ -921,6 +921,19 @@ describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
     });
   });
 
+  it('should resolve embedded expressions inside and outside quotes in one selector', () => {
+    const payload = {
+      context: '$response.body',
+      selector:
+        '$.items[?(@.name != "it\\"s" && @.name == "{$inputs.menuItemName}" && @.name == {$inputs.menuItemName})].id',
+      type: 'jsonpath',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual([
+      'prd_0000000000seedteabv0000000',
+    ]);
+  });
+
   it('should escape the quotes of an embedded value inside quotes', () => {
     const payload = {
       context: '$inputs.notes',

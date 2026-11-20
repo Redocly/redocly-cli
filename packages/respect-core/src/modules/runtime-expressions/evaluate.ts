@@ -11,9 +11,6 @@ import { lintExpression } from './lint.js';
 // resolved first to construct the final JSONPath expression. Nested braces are not
 // supported, which aligns with Arazzo runtime-expression syntax.
 const EMBEDDED_EXPRESSION_REGEX = /\{(\$[^{}]+)\}/g;
-// Matches a quoted JSONPath string, or an embedded runtime expression outside of one.
-const STRING_LITERAL_OR_EMBEDDED_EXPRESSION_REGEX =
-  /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\{(\$[^{}]+)\}/g;
 const SELECTOR_TYPES = ['jsonpath', 'xpath', 'jsonpointer'];
 
 // Used when evaluating expressions in a string that can contain other text, like request bodies payload, output values, etc.
@@ -283,23 +280,33 @@ export function resolveEmbeddedExpressions(
   context: RuntimeExpressionContext,
   logger: LoggerInterface
 ): string {
-  return jsonPath.replace(STRING_LITERAL_OR_EMBEDDED_EXPRESSION_REGEX, (match, expression) => {
-    if (expression) {
-      return formatJsonPathLiteral(evaluateRuntimeExpression(expression, context, logger), match);
+  // The quote of the string that the scan is inside of, and how far the scan has read.
+  let quote: string | undefined;
+  let scannedLength = 0;
+
+  return jsonPath.replace(EMBEDDED_EXPRESSION_REGEX, (match, expression, offset: number) => {
+    // The scan only moves forward, so the whole string is read once.
+    for (; scannedLength < offset; scannedLength++) {
+      const char = jsonPath[scannedLength];
+      if (quote && char === '\\') {
+        scannedLength++;
+      } else if (char === quote) {
+        quote = undefined;
+      } else if (!quote && (char === '"' || char === "'")) {
+        quote = char;
+      }
+    }
+    scannedLength = offset + match.length;
+
+    const value = evaluateRuntimeExpression(expression, context, logger);
+    if (!quote || value === undefined) {
+      return formatJsonPathLiteral(value, match);
     }
 
-    const quote = match[0];
-    return match.replace(EMBEDDED_EXPRESSION_REGEX, (placeholder, quotedExpression) => {
-      const value = evaluateRuntimeExpression(quotedExpression, context, logger);
-      if (value === undefined) {
-        return placeholder;
-      }
-
-      // The text of a JSON string, without its quotes, has every character escaped as JSONPath needs.
-      const text = JSON.stringify(typeof value === 'string' ? value : JSON.stringify(value));
-      const escapedText = text.slice(1, -1);
-      return quote === "'" ? escapedText.replace(/\\"/g, '"').replace(/'/g, "\\'") : escapedText;
-    });
+    // The text of a JSON string, without its quotes, has every character escaped as JSONPath needs.
+    const text = JSON.stringify(typeof value === 'string' ? value : JSON.stringify(value));
+    const escapedText = text.slice(1, -1);
+    return quote === "'" ? escapedText.replace(/\\"/g, '"').replace(/'/g, "\\'") : escapedText;
   });
 }
 
