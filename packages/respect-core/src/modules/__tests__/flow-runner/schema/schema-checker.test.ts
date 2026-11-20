@@ -512,6 +512,60 @@ describe('checkSchema', () => {
     });
   });
 
+  describe('response headers', () => {
+    const headersDescriptionOperation = {
+      ...descriptionOperation,
+      responses: {
+        '200': {
+          description: 'successful operation',
+          headers: {
+            'X-Request-ID': { required: true, schema: { type: 'string' } },
+            'X-Rate-Limit-Remaining': { required: false, schema: { type: 'integer' } },
+            'Content-Type': { required: true, schema: { type: 'string' } },
+          },
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        '404': {
+          description: 'not found',
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+      },
+    };
+
+    const checkHeaders = (statusCode: number, header: Record<string, string>) =>
+      checkSchema({
+        stepCallCtx: {
+          ...stepCallCtx,
+          $response: {
+            body: {},
+            statusCode,
+            header,
+            contentType: 'application/json',
+          },
+        } as unknown as StepCallContext,
+        descriptionOperation: headersDescriptionOperation,
+        ctx,
+      }).find((c) => c.name === CHECKS.RESPONSE_HEADER_CHECK);
+
+    it('passes when the required headers are present, in any case, with extra headers', () => {
+      expect(checkHeaders(200, { 'x-request-id': 'abc', 'x-powered-by': 'test' })?.passed).toBe(
+        true
+      );
+    });
+
+    it('fails and names the missing required headers', () => {
+      const check = checkHeaders(200, { 'x-rate-limit-remaining': '10' });
+      expect(check?.passed).toBe(false);
+      expect(check?.message).toContain('X-Request-ID');
+      expect(check?.message).not.toContain('Content-Type');
+      expect(check?.severity).toBe('error');
+    });
+
+    it('adds no check when the response describes no required headers', () => {
+      expect(checkHeaders(404, {})).toBeUndefined();
+    });
+  });
+
   it('should return empty checks if no response available', () => {
     const stepCtx = {
       $request: {
