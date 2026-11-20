@@ -129,3 +129,84 @@ describe('SchemaValidator decimal multipleOf', () => {
     expect(validator.validate(schema, { percent: 98.85 }, 'response').valid).toBe(false);
   });
 });
+
+describe('SchemaValidator recursive schema', () => {
+  const validator = new SchemaValidator();
+  const menu = { name: 'Menu', sections: [{ name: 'Drinks', sections: [{ name: 42 }] }] };
+  const wrongNameAtThirdLevel = {
+    valid: false,
+    errors: [{ keyword: 'type', instancePath: '/sections/0/sections/0/name' }],
+  };
+
+  it.each([undefined, 'request', 'response'] as const)(
+    'reports a wrong value at the third level, target: %s',
+    (target) => {
+      // A dereferenced `$ref` is a copy of its target, so the copy shares `properties` with the target.
+      const properties: Record<string, unknown> = { name: { type: 'string' } };
+      const menuSection = { type: 'object', required: ['name'], properties };
+      properties.sections = { type: 'array', items: { ...menuSection } };
+
+      expect(validator.validate(menuSection, menu, target)).toMatchObject(wrongNameAtThirdLevel);
+    }
+  );
+
+  it('does not require a readOnly recursive property in a request at any level', () => {
+    const properties: Record<string, unknown> = { name: { type: 'string' } };
+    const menuSection = { type: 'object', required: ['name', 'parent'], properties };
+    properties.parent = { ...menuSection, readOnly: true };
+    properties.sections = { type: 'array', items: { ...menuSection } };
+
+    expect(validator.validate(menuSection, menu, 'request')).toMatchObject(wrongNameAtThirdLevel);
+  });
+});
+
+describe('SchemaValidator discriminator with many values', () => {
+  const validator = new SchemaValidator();
+  const methods = Array.from({ length: 150 }, (_, index) => `method-${index}`);
+  const createInstrument = (properties: Record<string, unknown>) => ({
+    discriminator: { propertyName: 'method' },
+    anyOf: [
+      {
+        type: 'object',
+        required: ['method'],
+        properties: { method: { type: 'string', enum: methods }, ...properties },
+      },
+    ],
+  });
+
+  // Ajv writes the code of an inlined variant once per value, which makes the validation function
+  // of the schemas below too large to run.
+  it('validates a value against nested discriminators', () => {
+    const instrument = createInstrument({ backup: createInstrument({ id: { type: 'string' } }) });
+
+    const result = validator.validate(
+      instrument,
+      { method: 'method-7', backup: { method: 'method-3', id: 42 } },
+      'response'
+    );
+
+    expect(result).toMatchObject({
+      valid: false,
+      errors: [{ keyword: 'type', instancePath: '/backup/id' }],
+    });
+  });
+
+  it('validates a value against a variant with many properties', () => {
+    const instrument = createInstrument(
+      Object.fromEntries(
+        Array.from({ length: 600 }, (_, index) => [`detail-${index}`, { type: 'string' }])
+      )
+    );
+
+    const result = validator.validate(
+      instrument,
+      { method: 'method-3', 'detail-7': 42 },
+      'response'
+    );
+
+    expect(result).toMatchObject({
+      valid: false,
+      errors: [{ keyword: 'type', instancePath: '/detail-7' }],
+    });
+  });
+});
