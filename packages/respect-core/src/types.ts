@@ -89,6 +89,8 @@ type AdditionalStepProps = {
   checks: Check[];
   retriesLeft?: number;
   requestSent?: boolean;
+  // the outputs this run of the step evaluated, used by the JSON logs
+  outputValues?: Record<string, any>;
 };
 
 export type Step = ArazzoStep & AdditionalStepProps;

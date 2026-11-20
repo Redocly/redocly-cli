@@ -67,6 +67,7 @@ describe('composeJsonLogs', () => {
       stepId: 'login',
       operationId: 'login',
       outputs: { token: '$response.body#/token' },
+      outputValues: { token: 'secret-token' },
       checks: [],
     } as unknown as Step;
     const stepWithoutOutputs = {
@@ -79,7 +80,8 @@ describe('composeJsonLogs', () => {
       $workflows: {
         'login-workflow': {
           steps: {
-            login: { outputs: { token: 'secret-token' } },
+            // a later run of the same workflow replaced the shared step outputs
+            login: { outputs: { token: 'later-run-token' } },
             ping: { outputs: {} },
           },
         },
