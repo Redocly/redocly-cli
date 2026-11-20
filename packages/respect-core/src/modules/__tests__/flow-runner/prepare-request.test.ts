@@ -1710,6 +1710,180 @@ describe('prepareRequest', () => {
     ]);
   });
 
+  describe('multipart/form-data request body', () => {
+    function createMultipartCtx(step: Record<string, unknown>) {
+      return {
+        ...ctx,
+        $sourceDescriptions: {
+          cats: {
+            paths: {
+              '/breeds': {
+                post: {
+                  operationId: 'createBreed',
+                  requestBody: {
+                    content: {
+                      'multipart/form-data': {
+                        schema: {
+                          type: 'object',
+                          properties: { breed: { type: 'string' } },
+                        },
+                        example: { breed: 'Maine Coon' },
+                      },
+                    },
+                  },
+                  responses: { '201': { description: 'created' } },
+                },
+              },
+            },
+            servers: [{ url: 'https://api.example.com/' }],
+          },
+        },
+        workflows: [
+          {
+            workflowId: 'create-breed-workflow',
+            steps: [
+              {
+                stepId: 'create-breed-step',
+                operationId: 'cats.createBreed',
+                checks: [],
+                response: {},
+                ...step,
+              },
+            ],
+          },
+        ],
+        $workflows: {
+          'create-breed-workflow': {
+            steps: {
+              'create-breed-step': { request: {} },
+            },
+          },
+        },
+        $steps: {
+          'create-breed-step': { request: {} },
+        },
+      } as unknown as TestContext;
+    }
+
+    it('should send the request body of the description as a form when a multipart step has no payload', async () => {
+      const multipartCtx = createMultipartCtx({
+        requestBody: { contentType: 'multipart/form-data' },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Maine Coon']]);
+    });
+
+    it('should send the request body of the description as a form when the step has no request body', async () => {
+      const multipartCtx = createMultipartCtx({});
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Maine Coon']]);
+    });
+
+    it('should send the payload as a form when only the description sets the multipart content type', async () => {
+      const multipartCtx = createMultipartCtx({
+        requestBody: { payload: { breed: 'Sphynx' } },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Sphynx']]);
+    });
+
+    it('should send the payload as a form when a header parameter sets the multipart content type', async () => {
+      const multipartCtx = createMultipartCtx({
+        operationId: undefined,
+        'x-operation': { url: 'https://api.example.com/breeds', method: 'post' },
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'multipart/form-data' }],
+        requestBody: { payload: { breed: 'Sphynx' } },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Sphynx']]);
+    });
+
+    it('should not send a form when a header parameter replaces the multipart content type of the description', async () => {
+      const multipartCtx = createMultipartCtx({
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'application/json' }],
+        requestBody: { payload: { breed: 'Sphynx' } },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual({ breed: 'Sphynx' });
+    });
+
+    it('should send no body when a multipart content type has no payload to send', async () => {
+      const multipartCtx = createMultipartCtx({
+        operationId: undefined,
+        'x-operation': { url: 'https://api.example.com/breeds', method: 'get' },
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'multipart/form-data' }],
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toBeUndefined();
+    });
+
+    it('should send a payload that is not an object as it is', async () => {
+      const multipartCtx = createMultipartCtx({ requestBody: { payload: 'raw text body' } });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual('raw text body');
+    });
+
+    it('should evaluate a Selector Object when a header parameter replaces the multipart content type', async () => {
+      const multipartCtx = createMultipartCtx({
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'application/json' }],
+        requestBody: {
+          payload: { breed: { context: '$inputs.cat', selector: '$.breed', type: 'jsonpath' } },
+        },
+      });
+      multipartCtx.$inputs = { cat: { breed: 'Sphynx' } };
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual({ breed: 'Sphynx' });
+    });
+  });
+
   it('should handle null request body', async () => {
     const workflowName = 'create-item-workflow';
     const step = {

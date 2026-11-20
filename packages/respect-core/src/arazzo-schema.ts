@@ -395,7 +395,14 @@ export const workflow = {
     outputs: {
       type: 'object',
       additionalProperties: {
-        type: 'string',
+        oneOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'object',
+          },
+        ],
       },
     },
     steps: steps,

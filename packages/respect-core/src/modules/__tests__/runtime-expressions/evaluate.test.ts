@@ -543,7 +543,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
     ).toEqual('123');
   });
 
-  it('should evaluate multipart/form-data payload ', () => {
+  it('should keep the file references of a multipart/form-data payload', () => {
     const payload = {
       name: 'test',
       singleFile: "$file('./test.yaml')",
@@ -556,11 +556,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
         contentType: 'multipart/form-data',
         logger,
       })
-    ).toEqual({
-      multipleFiles: ['./logo.png', './image.svg'],
-      name: 'test',
-      singleFile: './test.yaml',
-    });
+    ).toEqual(payload);
   });
 
   it('should evaluate payload with different outputs access variations', () => {
@@ -865,5 +861,234 @@ describe('evaluateRuntimeExpression', () => {
 
     expect(evaluateRuntimeExpression('$response.body#/a+b', context, logger)).toEqual(1);
     expect(evaluateRuntimeExpression("$response.body#/it's == 2", context, logger)).toEqual(true);
+  });
+});
+
+describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
+  const context = {
+    $inputs: { menuItemName: 'tea' },
+    $response: {
+      body: {
+        object: 'list',
+        page: { limit: 10, 'next-page': { 'page-token': 'abc' } },
+        items: [
+          { id: 'prd_0000000000seedtrams0000000', name: 'tiramisu' },
+          { id: 'prd_0000000000seedteabv0000000', name: 'tea' },
+        ],
+      },
+    },
+  } as unknown as RuntimeExpressionContext;
+
+  it('should return the value a singular JSONPath query selects', () => {
+    const payload = { context: '$response.body', selector: '$.items[1].name', type: 'jsonpath' };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual('tea');
+  });
+
+  it('should return every value a JSONPath filter selects, with an embedded expression resolved', () => {
+    const payload = {
+      context: '$response.body',
+      selector: '$.items[?(@.name == {$inputs.menuItemName})].id',
+      type: { type: 'jsonpath', version: 'rfc9535' },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual([
+      'prd_0000000000seedteabv0000000',
+    ]);
+  });
+
+  it('should insert an embedded expression inside quotes as text', () => {
+    const payload = {
+      inDoubleQuotes: {
+        context: '$response.body',
+        selector: '$.items[?(@.name == "{$inputs.menuItemName}")].id',
+        type: 'jsonpath',
+      },
+      inSingleQuotes: {
+        context: '$response.body',
+        selector: "$.items[?(@.name == '{$inputs.menuItemName}')].id",
+        type: 'jsonpath',
+      },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      inDoubleQuotes: ['prd_0000000000seedteabv0000000'],
+      inSingleQuotes: ['prd_0000000000seedteabv0000000'],
+    });
+  });
+
+  it('should resolve embedded expressions inside and outside quotes in one selector', () => {
+    const payload = {
+      context: '$response.body',
+      selector:
+        '$.items[?(@.name != "it\\"s" && @.name == "{$inputs.menuItemName}" && @.name == {$inputs.menuItemName})].id',
+      type: 'jsonpath',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual([
+      'prd_0000000000seedteabv0000000',
+    ]);
+  });
+
+  it('should escape the quotes of an embedded value inside quotes', () => {
+    const payload = {
+      context: '$inputs.notes',
+      selector: '$[?(@.text == "{$inputs.quotedNote}")].id',
+      type: 'jsonpath',
+    };
+
+    expect(
+      evaluateRuntimeExpressionPayload({
+        payload,
+        context: {
+          ...context,
+          $inputs: {
+            quotedNote: 'a "hot" tea\\',
+            notes: [
+              { id: 1, text: 'a "hot" tea\\' },
+              { id: 2, text: 'a hot tea' },
+            ],
+          },
+        },
+        logger,
+      })
+    ).toEqual([1]);
+  });
+
+  it('should return an empty list when a JSONPath filter selects nothing', () => {
+    const payload = {
+      context: '$response.body',
+      selector: '$.items[?(@.name == "espresso")].id',
+      type: 'jsonpath',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual([]);
+  });
+
+  it('should return the value a JSON Pointer selects', () => {
+    const payload = { context: '$response.body', selector: '/items/0/id', type: 'jsonpointer' };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual(
+      'prd_0000000000seedtrams0000000'
+    );
+  });
+
+  it('should select by a key that has a hyphen and keep the keys of the selected value', () => {
+    const payload = {
+      token: {
+        context: '$response.body',
+        selector: '/page/next-page/page-token',
+        type: 'jsonpointer',
+      },
+      nextPage: { context: '$response.body', selector: "$.page['next-page']", type: 'jsonpath' },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      token: 'abc',
+      nextPage: { 'page-token': 'abc' },
+    });
+  });
+
+  it('should keep a file in a payload', () => {
+    const file = new Blob(['photo']);
+    const payload = {
+      photo: file,
+      name: { context: '$response.body', selector: '$.items[0].name', type: 'jsonpath' },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      photo: file,
+      name: 'tiramisu',
+    });
+  });
+
+  it('should evaluate a Selector Object nested in a payload and keep other objects as they are', () => {
+    const payload = {
+      limit: { context: '$response.body', selector: '$.page.limit', type: 'jsonpath' },
+      element: { context: 'page', selector: '.title', type: 'css' },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      limit: 10,
+      element: { context: 'page', selector: '.title', type: 'css' },
+    });
+  });
+
+  it('should throw when a singular JSONPath query selects no value', () => {
+    const payload = { context: '$response.body', selector: '$.items[5].name', type: 'jsonpath' };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: JSONPath selector "$.items[5].name" selects no value in "$response.body".]`
+    );
+  });
+
+  it('should throw on an invalid JSONPath selector', () => {
+    const payload = { context: '$response.body', selector: '$.items[', type: 'jsonpath' };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Invalid JSONPath selector "$.items[": Expected "'", "*", "-", "0", ":", "?", "\\"", [1-9], or [\\t-\\n\\r ] but end of input found.]`
+    );
+  });
+
+  it('should throw when the context has no value', () => {
+    const payload = { context: '$inputs.missing', selector: '$[*]', type: 'jsonpath' };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Selector context "$inputs.missing" has no value.]`
+    );
+  });
+
+  it('should throw on a selector type that is not supported', () => {
+    const payload = { context: '$response.body', selector: '/list/items', type: 'xpath' };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Selector type "xpath" is not supported. Use "jsonpath" (RFC 9535) or "jsonpointer".]`
+    );
+  });
+
+  it('should throw on a JSONPath version that is not supported', () => {
+    const payload = {
+      context: '$response.body',
+      selector: '$.items[0].name',
+      type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+    };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Selector type {"type":"jsonpath","version":"draft-goessner-dispatch-jsonpath-00"} is not supported. Use "jsonpath" (RFC 9535) or "jsonpointer".]`
+    );
+  });
+
+  it('should throw on a JSON Pointer version that is not supported', () => {
+    const payload = {
+      context: '$response.body',
+      selector: '/items/0/name',
+      type: { type: 'jsonpointer', version: 'rfc0000' },
+    };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Selector type {"type":"jsonpointer","version":"rfc0000"} is not supported. Use "jsonpath" (RFC 9535) or "jsonpointer".]`
+    );
+  });
+
+  it('should throw on a JSON Pointer that does not start with a slash', () => {
+    const payload = { context: '$response.body', selector: 'items', type: 'jsonpointer' };
+
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context, logger })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Invalid JSON Pointer selector "items". A JSON Pointer is empty or starts with "/".]`
+    );
   });
 });
