@@ -1,3 +1,4 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import { blue, white, bold, red } from 'colorette';
 
 import type {
@@ -119,25 +120,14 @@ export async function runStep({
         ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
       },
     };
-    const expressionContext = createRuntimeExpressionCtx({ ctx: ctxWithInputs });
     const workflowInputParameters = resolvedParameters
       ? Object.fromEntries(
-          resolvedParameters.filter(isParameterWithoutIn).map((parameter) => [
-            parameter.name,
-            // Only a Selector Object goes to the evaluator that supports it, so every other value
-            // is evaluated as before.
-            isSelectorObject(parameter.value)
-              ? evaluateRuntimeExpressionPayload({
-                  payload: parameter.value,
-                  context: expressionContext,
-                  logger: ctx.options.logger,
-                })
-              : getValueFromContext({
-                  value: parameter.value,
-                  ctx: ctxWithInputs,
-                  logger: ctx.options.logger,
-                }),
-          ])
+          resolvedParameters
+            .filter(isParameterWithoutIn)
+            .map((parameter) => [
+              parameter.name,
+              evaluateWorkflowInput(parameter.value, ctxWithInputs),
+            ])
         )
       : undefined;
 
@@ -585,4 +575,24 @@ function endStepAtExecutionTimeout(
     printUnknownStep(timedOutStep, ctx.options.logger);
   }
   return { shouldEnd: true };
+}
+
+// Only a Selector Object, also one nested in an object or a list, goes to the evaluator that
+// supports it. Every other value is evaluated as before.
+function evaluateWorkflowInput(value: unknown, ctx: TestContext): unknown {
+  if (isSelectorObject(value)) {
+    return evaluateRuntimeExpressionPayload({
+      payload: value,
+      context: createRuntimeExpressionCtx({ ctx }),
+      logger: ctx.options.logger,
+    });
+  } else if (Array.isArray(value)) {
+    return value.map((item) => evaluateWorkflowInput(item, ctx));
+  } else if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, evaluateWorkflowInput(item, ctx)])
+    );
+  }
+
+  return getValueFromContext({ value, ctx, logger: ctx.options.logger });
 }

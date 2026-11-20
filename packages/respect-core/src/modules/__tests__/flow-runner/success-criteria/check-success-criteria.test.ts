@@ -1113,4 +1113,33 @@ describe('checkSuccessCriteria', () => {
       },
     ]);
   });
+
+  it('should pass a jsonpath criterion with an embedded expression inside quotes', () => {
+    const step = {
+      stepId: 'stepId',
+      checks: [],
+      response: { body: { status: 'available' }, statusCode: 200, header: {} },
+    } as unknown as Step;
+
+    const result = checkCriteria({
+      workflowId: 'workflowId',
+      step,
+      criteria: [
+        {
+          type: 'jsonpath',
+          context: '$response.body',
+          condition: '$[?(@.status == "{$inputs.expectedStatus}")]',
+        },
+      ],
+      ctx: {
+        $workflows: { workflowId: { steps: { stepId: {} } } },
+        $steps: {},
+        $inputs: { expectedStatus: 'available' },
+        severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: { logger },
+      } as unknown as TestContext,
+    });
+
+    expect(result.map((check) => check.passed)).toEqual([true]);
+  });
 });

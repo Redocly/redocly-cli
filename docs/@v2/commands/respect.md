@@ -317,8 +317,12 @@ A step with a selector of another type or version fails.
 
 The step fails when a `jsonpointer` selector, or a `jsonpath` selector of names and indexes, selects no value.
 
-A `jsonpath` selector can embed runtime expressions in curly braces, for example `$.items[?(@.category == {$inputs.category})].id`.
-`respect` inserts a string value together with its quotes, so do not put quotes around the braces.
+A selector reads the keys of the data as they are, so `$['special-note']` selects the `special-note` key.
+A `jsonpath` success criterion reads a hyphen in a key of its `context` as an underscore, so there the same key is `$.special_note`.
+
+A `jsonpath` selector can embed runtime expressions in curly braces, for example `$.items[?(@.category == "{$inputs.category}")].id`.
+Inside a quoted string, `respect` inserts the text of the value.
+Outside a quoted string, as in `$.items[?(@.category == {$inputs.category})].id`, it inserts a string value together with its quotes.
 
 A Selector Object has a `context`, a `selector`, and a `type` of `jsonpath`, `xpath`, or `jsonpointer`.
 `respect` reads every object with these fields as a Selector Object.

@@ -11,6 +11,9 @@ import { lintExpression } from './lint.js';
 // resolved first to construct the final JSONPath expression. Nested braces are not
 // supported, which aligns with Arazzo runtime-expression syntax.
 const EMBEDDED_EXPRESSION_REGEX = /\{(\$[^{}]+)\}/g;
+// Matches a quoted JSONPath string, or an embedded runtime expression outside of one.
+const STRING_LITERAL_OR_EMBEDDED_EXPRESSION_REGEX =
+  /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\{(\$[^{}]+)\}/g;
 const SELECTOR_TYPES = ['jsonpath', 'xpath', 'jsonpointer'];
 
 // Used when evaluating expressions in a string that can contain other text, like request bodies payload, output values, etc.
@@ -30,25 +33,6 @@ export function evaluateRuntimeExpressionPayload({
   }
 
   if (contentType?.includes('multipart/form-data')) {
-    if (payload instanceof FormData) {
-      const processedFormData = new FormData();
-
-      for (const [key, value] of payload.entries()) {
-        if (value instanceof File) {
-          processedFormData.append(key, value);
-        } else {
-          const evaluatedValue = evaluateRuntimeExpressionPayload({
-            payload: value,
-            context,
-            logger,
-          });
-          processedFormData.append(key, evaluatedValue);
-        }
-      }
-
-      return processedFormData;
-    }
-
     return parseJson(payload, context, logger);
   }
 
@@ -292,14 +276,30 @@ function isSingularQuery(selector: string): boolean {
 // the expression with `{}` curly braces. Any embedded `{$...}` expression in a JSONPath
 // expression MUST be evaluated first to construct the JSONPath expression before it is
 // evaluated against the data.
+// An expression inside a quoted string, as in `"{$inputs.name}"`, is inserted as text.
+// Outside a quoted string, a string value is inserted together with its quotes.
 export function resolveEmbeddedExpressions(
   jsonPath: string,
   context: RuntimeExpressionContext,
   logger: LoggerInterface
 ): string {
-  return jsonPath.replace(EMBEDDED_EXPRESSION_REGEX, (match, expression) => {
-    const value = evaluateRuntimeExpression(expression, context, logger);
-    return formatJsonPathLiteral(value, match);
+  return jsonPath.replace(STRING_LITERAL_OR_EMBEDDED_EXPRESSION_REGEX, (match, expression) => {
+    if (expression) {
+      return formatJsonPathLiteral(evaluateRuntimeExpression(expression, context, logger), match);
+    }
+
+    const quote = match[0];
+    return match.replace(EMBEDDED_EXPRESSION_REGEX, (placeholder, quotedExpression) => {
+      const value = evaluateRuntimeExpression(quotedExpression, context, logger);
+      if (value === undefined) {
+        return placeholder;
+      }
+
+      // The text of a JSON string, without its quotes, has every character escaped as JSONPath needs.
+      const text = JSON.stringify(typeof value === 'string' ? value : JSON.stringify(value));
+      const escapedText = text.slice(1, -1);
+      return quote === "'" ? escapedText.replace(/\\"/g, '"').replace(/'/g, "\\'") : escapedText;
+    });
   });
 }
 

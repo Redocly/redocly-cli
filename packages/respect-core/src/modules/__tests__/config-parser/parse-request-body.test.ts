@@ -143,6 +143,21 @@ describe('parseRequestBody', () => {
     });
   });
 
+  it('should load the files of a payload when only the description sets the multipart content type', async () => {
+    vi.mocked(fs.readFileSync).mockReturnValue('file content');
+    // @ts-expect-error
+    vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
+      callback();
+    });
+    expect(
+      await parseRequestBody(
+        { payload: { file: "$file('file1.txt')" } },
+        ctx,
+        'multipart/form-data'
+      )
+    ).toEqual({ payload: { file: expect.any(Blob) } });
+  });
+
   it('should handle multipart/form-data and return error reading file', async () => {
     vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
     // @ts-expect-error
@@ -251,6 +266,21 @@ describe('createFormData', () => {
       ['tags', 'dessert'],
       ['tags', 'coffee'],
       ['photo', expect.any(File)],
+    ]);
+  });
+
+  it('should encode an object in a list as indexed fields', () => {
+    const formData = createFormData({
+      items: [{ id: 'prd_1', tags: ['dessert'] }, { id: 'prd_2' }],
+      names: ['tiramisu', 'tea'],
+    });
+
+    expect([...formData.entries()]).toEqual([
+      ['items[0][id]', 'prd_1'],
+      ['items[0][tags]', 'dessert'],
+      ['items[1][id]', 'prd_2'],
+      ['names', 'tiramisu'],
+      ['names', 'tea'],
     ]);
   });
 

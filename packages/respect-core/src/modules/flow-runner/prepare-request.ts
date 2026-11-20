@@ -105,7 +105,7 @@ export async function prepareRequest(
     // encoding: stepRequestBodyEncoding,
     contentType: stepRequestBodyContentType,
     replacements,
-  } = await parseRequestBody(step['requestBody'], ctx);
+  } = await parseRequestBody(step['requestBody'], ctx, requestDataFromOpenAPI?.contentType);
 
   const requestBody =
     stepRequestBodyPayload !== undefined
@@ -213,15 +213,16 @@ export async function prepareRequest(
     collectSecretValues(ctx, schema, groupParametersValuesByName(parameters, param.in), [name]);
   }
 
-  const evaluatedBody =
-    stepRequestBodyContentType === 'multipart/form-data'
-      ? evaluateMultipartPayload(requestBody, expressionContext, ctx.options.logger)
-      : evaluateRuntimeExpressionPayload({
-          payload: requestBody,
-          context: expressionContext,
-          contentType,
-          logger: ctx.options.logger,
-        });
+  const evaluatedHeaders = groupParametersValuesByName(evaluatedParameters, 'header');
+  // The request is sent with the content type of this header, so it decides how the body is encoded.
+  const evaluatedBody = String(evaluatedHeaders['content-type']).includes('multipart/form-data')
+    ? evaluateMultipartPayload(requestBody, expressionContext, ctx.options.logger)
+    : evaluateRuntimeExpressionPayload({
+        payload: requestBody,
+        context: expressionContext,
+        contentType,
+        logger: ctx.options.logger,
+      });
 
   if (replacements && (isPlainObject(evaluatedBody) || Array.isArray(evaluatedBody))) {
     handlePayloadReplacements({
@@ -242,7 +243,7 @@ export async function prepareRequest(
   // set evaluated values to the context
   ctx.$workflows[workflowName].steps[stepId].request = {
     body: evaluatedBody,
-    header: groupParametersValuesByName(evaluatedParameters, 'header'),
+    header: evaluatedHeaders,
     path: groupParametersValuesByName(evaluatedParameters, 'path'),
     query: groupParametersValuesByName(evaluatedParameters, 'query'),
     url: serverUrl?.url && path ? `${serverUrl?.url}${path}` : serverUrl?.url,

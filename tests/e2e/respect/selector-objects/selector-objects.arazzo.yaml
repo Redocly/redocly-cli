@@ -80,6 +80,12 @@ workflows:
               context: $workflows.submit-order.outputs.order
               selector: $.orderItems[0].comment
               type: jsonpath
+          - name: page
+            value:
+              limit:
+                context: $workflows.submit-order.outputs.order
+                selector: $.orderItems[1].quantity
+                type: jsonpath
       - stepId: repeat-order
         operationId: cafe-api.createOrder
         requestBody:
@@ -101,7 +107,6 @@ workflows:
       - stepId: create-menu-item
         operationId: cafe-api.createMenuItem
         requestBody:
-          contentType: multipart/form-data
           payload:
             context: $workflows.submit-order.outputs.order
             selector: $.orderItems[1]
@@ -114,6 +119,8 @@ workflows:
       properties:
         search:
           type: string
+        page:
+          type: object
     steps:
       - stepId: search-menu
         operationId: cafe-api.listMenuItems
@@ -121,5 +128,8 @@ workflows:
           - in: query
             name: search
             value: $inputs.search
+          - in: query
+            name: limit
+            value: $inputs.page.limit
         successCriteria:
           - condition: $statusCode == 200

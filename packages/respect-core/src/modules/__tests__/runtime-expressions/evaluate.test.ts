@@ -901,6 +901,51 @@ describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
     ]);
   });
 
+  it('should insert an embedded expression inside quotes as text', () => {
+    const payload = {
+      inDoubleQuotes: {
+        context: '$response.body',
+        selector: '$.items[?(@.name == "{$inputs.menuItemName}")].id',
+        type: 'jsonpath',
+      },
+      inSingleQuotes: {
+        context: '$response.body',
+        selector: "$.items[?(@.name == '{$inputs.menuItemName}')].id",
+        type: 'jsonpath',
+      },
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      inDoubleQuotes: ['prd_0000000000seedteabv0000000'],
+      inSingleQuotes: ['prd_0000000000seedteabv0000000'],
+    });
+  });
+
+  it('should escape the quotes of an embedded value inside quotes', () => {
+    const payload = {
+      context: '$inputs.notes',
+      selector: '$[?(@.text == "{$inputs.quotedNote}")].id',
+      type: 'jsonpath',
+    };
+
+    expect(
+      evaluateRuntimeExpressionPayload({
+        payload,
+        context: {
+          ...context,
+          $inputs: {
+            quotedNote: 'a "hot" tea\\',
+            notes: [
+              { id: 1, text: 'a "hot" tea\\' },
+              { id: 2, text: 'a hot tea' },
+            ],
+          },
+        },
+        logger,
+      })
+    ).toEqual([1]);
+  });
+
   it('should return an empty list when a JSONPath filter selects nothing', () => {
     const payload = {
       context: '$response.body',

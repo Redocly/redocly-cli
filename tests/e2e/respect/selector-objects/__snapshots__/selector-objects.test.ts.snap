@@ -100,7 +100,7 @@ exports[`should evaluate Selector Objects in outputs, parameters, and request bo
  
   ✓ GET /menu - step search-menu 
 
-    Request URL: https://api.cafe.redocly.com/menu?search=no-sugar
+    Request URL: https://api.cafe.redocly.com/menu?search=no-sugar&limit=2
     Request Headers:
       accept: application/json, application/problem+json 
  
@@ -115,7 +115,7 @@ exports[`should evaluate Selector Objects in outputs, parameters, and request bo
         "page": {
           "nextPage": null,
           "previousPage": null,
-          "limit": 10
+          "limit": 2
         },
         "items": []
       } 

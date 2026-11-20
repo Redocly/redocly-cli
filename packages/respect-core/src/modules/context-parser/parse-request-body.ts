@@ -51,9 +51,16 @@ export function createFormData(
     if (item instanceof Blob) {
       formData.append(formKey, item);
     } else if (Array.isArray(item)) {
-      for (const arrayItem of item) {
-        formData.append(formKey, arrayItem instanceof Blob ? arrayItem : String(arrayItem));
-      }
+      item.forEach((arrayItem, index) => {
+        if (arrayItem instanceof Blob) {
+          formData.append(formKey, arrayItem);
+        } else if (isPlainObject(arrayItem) || Array.isArray(arrayItem)) {
+          // An object in a list becomes `parent[0][child]` fields.
+          createFormData({ [index]: arrayItem }, formData, formKey);
+        } else {
+          formData.append(formKey, String(arrayItem));
+        }
+      });
     } else if (isPlainObject(item)) {
       createFormData(item, formData, formKey);
     } else if (typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean') {
@@ -76,7 +83,8 @@ const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: T
 
 export async function parseRequestBody(
   stepRequestBody: RequestBody | undefined,
-  ctx: TestContext
+  ctx: TestContext,
+  descriptionContentType?: string
 ): Promise<
   Omit<RequestBody, 'payload'> & {
     payload:
@@ -102,7 +110,7 @@ export async function parseRequestBody(
 
   const { payload, contentType } = stepRequestBody;
 
-  if (contentType === 'multipart/form-data' && isPlainObject(payload)) {
+  if ((contentType || descriptionContentType) === 'multipart/form-data' && isPlainObject(payload)) {
     return {
       ...stepRequestBody,
       payload: await loadFiles(payload, ctx),
