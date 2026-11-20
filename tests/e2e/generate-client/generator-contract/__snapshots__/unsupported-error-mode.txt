@@ -4,7 +4,7 @@
 generate-client: schema "Error" is a name a generated client already declares, so it is emitted as "Error_2" — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate.
 
 ❌  Failed to generate client for cafe.
-   The "tanstack-query" generator does not support --error-mode "result" (supported: throw).
+   The "cli" generator does not support --error-mode "result" (supported: throw).
 
 
 
