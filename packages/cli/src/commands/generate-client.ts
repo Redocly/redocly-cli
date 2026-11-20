@@ -100,6 +100,7 @@ type GenerationRun = {
   collectSpecData: CommandArgs<GenerateClientCommandArgv>['collectSpecData'];
   configDir: string;
   cliFlags: GenerateClientConfig;
+  apiArgument: string | undefined;
   outputFlag: string | undefined;
   toolkit: ClientGeneratorToolkit;
   /** Every path this run wrote or will write — collision guard across apis and the composed entry. */
@@ -166,12 +167,23 @@ export async function handleGenerateClient({
     collectSpecData,
     configDir,
     cliFlags,
+    apiArgument: argv.api,
     outputFlag: argv.output,
     toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
     seenOutputs: new Set<string>(),
     composable: [],
     report: { apis: [] },
   };
+
+  const outputPaths = entrypoints.map((entry) => getOutputPath(entry, run));
+  const repeatedOutputPath = outputPaths.find(
+    (outputPath, index) => outputPaths.indexOf(outputPath) !== index
+  );
+  if (repeatedOutputPath) {
+    throw new HandledError(
+      `\n❌  Two APIs write to the same path: ${repeatedOutputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
+    );
+  }
 
   for (const entry of entrypoints) {
     await generateApiClient(entry, run);
@@ -205,24 +217,32 @@ async function writeReport(reportPath: string, report: GenerationReport): Promis
   }
 }
 
+function getOutputPath(
+  { path, alias }: { path: string; alias?: string },
+  { config, configDir, apiArgument, outputFlag }: GenerationRun
+): string {
+  if (outputFlag !== undefined) {
+    return resolvePath(outputFlag);
+  }
+  // A file path does not get the `clientOutput` or the name of the API whose `root` it is.
+  const aliasArgument = apiArgument === undefined || apiArgument === alias ? alias : undefined;
+  const { clientOutput } = config.forAlias(aliasArgument).resolvedConfig;
+  return resolvePath(
+    configDir,
+    clientOutput ?? fileNameFor(aliasArgument ?? basename(path, extname(path)))
+  );
+}
+
 async function generateApiClient(
   entry: { path: string; alias?: string },
-  {
-    config,
-    collectSpecData,
-    configDir,
-    cliFlags,
-    outputFlag,
-    toolkit,
-    seenOutputs,
-    composable,
-    report,
-  }: GenerationRun
+  run: GenerationRun
 ): Promise<void> {
+  const { config, collectSpecData, configDir, cliFlags, toolkit, seenOutputs, composable, report } =
+    run;
   const { path, alias } = entry;
   const name = alias ?? basename(path, extname(path));
   const aliasConfig = config.forAlias(alias);
-  const { client, clientOutput } = aliasConfig.resolvedConfig;
+  const { client } = aliasConfig.resolvedConfig;
   const clientBlock = resolveSetup(
     (isPlainObject(client) ? client : {}) as GenerateClientConfig,
     configDir
@@ -230,21 +250,11 @@ async function generateApiClient(
   const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
   collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
 
-  const outputPath =
-    outputFlag !== undefined
-      ? resolvePath(outputFlag)
-      : clientOutput !== undefined
-        ? resolvePath(configDir, clientOutput)
-        : resolvePath(configDir, fileNameFor(name));
+  const outputPath = getOutputPath(entry, run);
 
   if (!outputPath.endsWith('.ts')) {
     throw new HandledError(
       `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
-    );
-  }
-  if (seenOutputs.has(outputPath)) {
-    throw new HandledError(
-      `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
     );
   }
   seenOutputs.add(outputPath);
