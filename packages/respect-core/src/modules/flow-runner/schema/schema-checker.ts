@@ -1,5 +1,5 @@
 import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject, toAjvSchema } from '@redocly/openapi-core';
 import { blue, dim, red, green } from 'colorette';
 
 import {
@@ -9,7 +9,6 @@ import {
   type TestContext,
 } from '../../../types.js';
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
-import { toAjvSchema } from '../../../utils/to-ajv-schema.js';
 import { CHECKS } from '../../checks/index.js';
 import {
   contentTypeMatchesPattern,

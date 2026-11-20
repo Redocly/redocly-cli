@@ -1,4 +1,4 @@
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject } from './is-plain-object.js';
 
 // The keywords of a Schema Object that hold a schema or a list of schemas.
 const SCHEMA_KEYWORDS = new Set([
