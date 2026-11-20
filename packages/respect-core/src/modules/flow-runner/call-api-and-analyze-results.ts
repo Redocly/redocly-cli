@@ -136,6 +136,9 @@ export async function callAPIAndAnalyzeResults({
   ctx.$steps[step.stepId] = {
     outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
   };
+  if (step.outputs) {
+    step.outputValues = ctx.$steps[step.stepId].outputs;
+  }
   // save $workflows context
   ctx.$workflows[workflowId].steps[step.stepId] = {
     outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },

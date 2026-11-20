@@ -271,6 +271,7 @@ export async function runWorkflow({
   );
 
   // workflow level outputs
+  let workflowOutputs: Record<string, any> | undefined;
   if (workflow.outputs && workflowId && !hasFailedTimeoutSteps) {
     if (!ctx.$outputs) {
       ctx.$outputs = {};
@@ -310,6 +311,7 @@ export async function runWorkflow({
     ctx.$outputs[workflowId] = outputs;
     // written to the caller's entry, not the run's copy, so the caller can read them
     ctx.$workflows[workflowId].outputs = outputs;
+    workflowOutputs = outputs;
   }
 
   workflow.time = Math.ceil(performance.now() - workflowStartTime);
@@ -328,6 +330,9 @@ export async function runWorkflow({
     executedSteps: runCtx.executedSteps,
     ctx: runCtx,
     globalTimeoutError: hasFailedTimeoutSteps,
+    // the inputs and outputs of this run, so the JSON logs show what each run received and produced
+    inputs: runCtx.$workflows[workflowId].inputs,
+    outputs: workflowOutputs,
   };
 }
 
