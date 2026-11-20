@@ -56,6 +56,17 @@ describe('join', () => {
       const result = getCommandOutput(args, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
+
+    test('prefixed component names that match names in the description are not conflicts', async () => {
+      const testPath = join(__dirname, 'prefix-components-with-info-prop-same-names');
+      const args = getParams(indexEntryPoint, [
+        'join',
+        ...entrypoints,
+        '--prefix-components-with-info-prop=x-prefix',
+      ]);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
   });
 
   describe('with metadata', () => {

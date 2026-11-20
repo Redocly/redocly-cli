@@ -1,0 +1,10 @@
+openapi: 3.1.0
+info:
+  title: Orders
+  version: 1.0.0
+  x-prefix: orders
+paths: {}
+components:
+  schemas:
+    menu_Price:
+      type: object
