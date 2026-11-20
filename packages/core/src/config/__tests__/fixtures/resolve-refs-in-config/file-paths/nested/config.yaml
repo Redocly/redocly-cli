@@ -7,6 +7,10 @@ api:
   client:
     $ref: ./deep/config.yaml#/client
     setup: ./setup.mjs
+second-sibling:
+  client:
+    $ref: ./deep/config.yaml#/client
+    setup: ./second-setup.mjs
 chain:
   $ref: ./deep/config.yaml#/api
 paths:

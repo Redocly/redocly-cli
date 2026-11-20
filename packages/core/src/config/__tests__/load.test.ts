@@ -2850,6 +2850,15 @@ describe('loadConfig', () => {
       });
     });
 
+    it('should resolve the fields next to every $ref that points to one object', async () => {
+      const { apis } = await loadFilePathsConfig();
+
+      expect(apis?.['second-sibling'].client).toEqual({
+        setup: 'nested/second-setup.mjs',
+        cliOutput: 'nested/deep/cli/index.ts',
+      });
+    });
+
     it('should resolve a $ref on the path option itself from the referenced file', async () => {
       const { apis } = await loadFilePathsConfig();
 
