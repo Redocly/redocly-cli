@@ -59,6 +59,8 @@ export function checkSchema({
 
   checkContentTypeFromDescription({ checks, descriptionOperation, $response, ctx });
 
+  checkResponseHeadersFromDescription({ checks, descriptionOperation, $response, ctx });
+
   checkSchemaFromDescription({ checks, descriptionOperation, $response, ctx, ajvContext });
 
   return checks;
@@ -183,6 +185,44 @@ function checkContentTypeFromDescription({
       severity: ctx.severity['CONTENT_TYPE_CHECK'],
     });
   }
+}
+
+function checkResponseHeadersFromDescription({
+  checks,
+  descriptionOperation,
+  $response,
+  ctx,
+}: DescriptionChecks & { ctx: TestContext }): void {
+  const descriptionResponses = descriptionOperation?.responses || {};
+  const responseKey = getResponseKeyByStatusCode(descriptionResponses, $response.statusCode);
+  // the description is bundled with `dereference: true`, so header objects have no `$ref`
+  const describedHeaders = ((responseKey && descriptionResponses[responseKey]?.headers) ||
+    {}) as Record<string, { required?: boolean }>;
+  // OpenAPI ignores a `Content-Type` entry in the response headers
+  const requiredHeaders = Object.entries(describedHeaders)
+    .filter(([name, header]) => header?.required && name.toLowerCase() !== 'content-type')
+    .map(([name]) => name);
+
+  if (!requiredHeaders.length) {
+    return;
+  }
+
+  // header names are case-insensitive, extra headers are fine
+  const receivedHeaders = new Set(
+    Object.keys($response.header || {}).map((name) => name.toLowerCase())
+  );
+  const missingHeaders = requiredHeaders.filter((name) => !receivedHeaders.has(name.toLowerCase()));
+
+  checks.push({
+    name: CHECKS.RESPONSE_HEADER_CHECK,
+    passed: missingHeaders.length === 0,
+    message: missingHeaders.length
+      ? `Required headers for ${blue($response.statusCode)} response are missing: ${red(
+          missingHeaders.join(', ')
+        )}.`
+      : `Required headers ${requiredHeaders.join(', ')} are present.`,
+    severity: ctx.severity['RESPONSE_HEADER_CHECK'],
+  });
 }
 
 export function statusCodeDiff<E = unknown>(actual: unknown, expected: E[]) {
