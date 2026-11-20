@@ -319,7 +319,7 @@ The step fails when a `jsonpointer` selector, or a `jsonpath` selector of names 
 
 A selector reads the keys of its `context` as they are, so with `context: $response.body` the selector `$['special-note']` selects the `special-note` key.
 An output that a runtime expression saves, such as `menu: $response.body`, has the hyphens in its keys replaced with underscores.
-A selector on that output, and a `jsonpath` success criterion, read the same key as `$.special_note`.
+A selector on that output reads the same key as `$.special_note`, and a `jsonpath` success criterion reads it as `@.special_note`, as in `$[?(@.special_note == "no-sugar")]`.
 
 A `jsonpath` selector can embed runtime expressions in curly braces, for example `$.items[?(@.category == "{$inputs.category}")].id`.
 Inside a quoted string, `respect` inserts the text of the value.
