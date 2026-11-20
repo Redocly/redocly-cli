@@ -58,6 +58,17 @@ describe('join', () => {
     });
   });
 
+  test('prefix-components-with-info-prop with component names that look prefixed', async () => {
+    const testPath = join(__dirname, 'prefix-components-with-prefixed-names');
+    const args = getParams(indexEntryPoint, [
+      'join',
+      ...entrypoints,
+      '--prefix-components-with-info-prop=x-prefix',
+    ]);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   describe('with metadata', () => {
     test('with metadata', async () => {
       const testPath = join(__dirname, `with-metadata`);

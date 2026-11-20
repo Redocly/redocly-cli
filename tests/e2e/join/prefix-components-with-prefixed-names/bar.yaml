@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe orders
+  version: 1.0.0
+  x-prefix: orders
+servers:
+  - url: https://redocly.com/_mock/demo/openapi/cafe
+paths:
+  /orders:
+    get:
+      operationId: listOrders
+      responses:
+        '200':
+          description: Orders with the menu price paid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/menu_Price'
+components:
+  schemas:
+    menu_Price:
+      description: Menu price paid for an order.
+      type: object
+      properties:
+        amount:
+          type: integer
+        currency:
+          type: string
