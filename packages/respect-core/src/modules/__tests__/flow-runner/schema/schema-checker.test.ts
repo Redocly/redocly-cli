@@ -267,69 +267,223 @@ describe('checkSchema', () => {
     ]);
   });
 
-  it('should check circular referenced schema', () => {
-    vi.spyOn(logger, 'output').mockImplementation(() => {});
-    vi.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
-      throw new Error('circular reference');
-    });
+  function checkResponseSchema(schema: unknown, body: unknown) {
     const result = checkSchema({
       stepCallCtx: {
-        $request: {
-          header: {},
-          path: '/breeds',
-          url: 'https://catfact.ninja/',
-          method: 'get',
-          queryParams: {},
-          pathParams: {},
-          headerParams: {},
-        },
         $response: {
-          body: [
-            {
-              breed: 'Abyssinian',
-              country: 'Ethiopia',
-              origin: 'Natural/Standard',
-              coat: 'Short',
-              pattern: 'Ticked',
-            },
-            {
-              breed: 'Asian',
-              country: 'developed in the United Kingdom (founding stock from Asia)',
-              origin: '',
-              coat: 'Short',
-              pattern: 'Evenly solid',
-            },
-          ],
+          body,
           statusCode: 200,
-          header: new Headers({ 'content-type': 'application/json' }),
+          header: { 'content-type': 'application/json' },
           contentType: 'application/json',
         },
-        $outputs: {},
       } as unknown as StepCallContext,
-      descriptionOperation,
+      descriptionOperation: {
+        responses: {
+          '200': {
+            description: 'Successful operation.',
+            content: { 'application/json': { schema } },
+          },
+        },
+      },
       ctx,
     });
 
-    expect(result).toEqual([
-      {
-        condition: '$statusCode in [200]',
-        message: expect.stringContaining(
-          'List of valid response codes are inferred from description'
-        ),
-        name: CHECKS.STATUS_CODE_CHECK,
-        passed: true,
-        severity: 'error',
+    return result.find(({ name }) => name === CHECKS.SCHEMA_CHECK);
+  }
+
+  it('should check a response against a recursive schema', () => {
+    // A dereferenced `$ref` is a copy of its target, so the copy shares `properties` with the target.
+    const properties = {
+      title: { type: 'string' },
+      cause: {},
+    };
+    const problem = { type: 'object', required: ['title'], properties };
+    properties.cause = { ...problem };
+
+    const schemaCheck = checkResponseSchema(problem, {
+      title: 'Invalid order',
+      cause: { title: 'Invalid item', cause: { title: 404 } },
+    });
+
+    expect(schemaCheck?.passed).toBe(false);
+    expect(cleanColors(schemaCheck?.message ?? '')).toMatchInlineSnapshot(`
+      "
+      TYPE must be string
+
+        4 |     "title": "Invalid item",
+        5 |     "cause": {
+      > 6 |       "title": 404
+          |                ^^^ 👈🏽  type must be string
+        7 |     }
+        8 |   }
+        9 | }
+      "
+    `);
+  });
+
+  it('should check a response against a recursive schema with a discriminator', () => {
+    // The `MenuSection` variant holds the discriminator property in `allOf` and contains its copy.
+    const menuSectionParts: unknown[] = [];
+    const menuSection = { allOf: menuSectionParts };
+    menuSectionParts.push({
+      type: 'object',
+      required: ['kind'],
+      properties: {
+        kind: { type: 'string', enum: ['section'] },
+        entries: { type: 'array', items: { ...menuSection } },
       },
+    });
+    const menuEntry = {
+      discriminator: { propertyName: 'kind' },
+      oneOf: [
+        { ...menuSection },
+        {
+          type: 'object',
+          required: ['kind'],
+          properties: { kind: { type: 'string', enum: ['item'] } },
+        },
+      ],
+    };
+
+    const schemaCheck = checkResponseSchema(menuEntry, {
+      kind: 'section',
+      entries: [{ kind: 'section', entries: [{ kind: 'section', entries: 'none' }] }],
+    });
+
+    expect(schemaCheck?.passed).toBe(false);
+    expect(cleanColors(schemaCheck?.message ?? '')).toMatchInlineSnapshot(`
+      "
+      TYPE must be array
+
+         7 |         {
+         8 |           "kind": "section",
+      >  9 |           "entries": "none"
+           |                      ^^^^^^ 👈🏽  type must be array
+        10 |         }
+        11 |       ]
+        12 |     }
+      "
+    `);
+  });
+
+  it('should check a response against a schema with a recursive extension', () => {
+    const menuItem: Record<string, unknown> = {
+      type: 'object',
+      properties: { name: { type: 'string' } },
+    };
+    menuItem['x-related'] = menuItem;
+
+    const schemaCheck = checkResponseSchema(menuItem, { name: 42 });
+
+    expect(schemaCheck?.passed).toBe(false);
+    expect(cleanColors(schemaCheck?.message ?? '')).toMatchInlineSnapshot(`
+      "
+      TYPE must be string
+
+        1 | {
+      > 2 |   "name": 42
+          |           ^^ 👈🏽  type must be string
+        3 | }
+      "
+    `);
+  });
+
+  it('should check a response against nested discriminators with many values', () => {
+    const methods = Array.from({ length: 150 }, (_, index) => `method-${index}`);
+    const backupInstrument = {
+      discriminator: { propertyName: 'method' },
+      anyOf: [
+        {
+          type: 'object',
+          required: ['method'],
+          properties: { method: { type: 'string', enum: methods }, id: { type: 'string' } },
+        },
+      ],
+    };
+    const paymentInstrument = {
+      discriminator: { propertyName: 'method' },
+      anyOf: [
+        {
+          type: 'object',
+          required: ['method'],
+          properties: { method: { type: 'string', enum: methods }, backup: backupInstrument },
+        },
+      ],
+    };
+
+    const schemaCheck = checkResponseSchema(paymentInstrument, {
+      method: 'method-7',
+      backup: { method: 'method-3', id: 'instrument-1' },
+    });
+
+    expect(schemaCheck).toEqual({
+      message: '',
+      name: CHECKS.SCHEMA_CHECK,
+      passed: true,
+      severity: 'error',
+    });
+  });
+
+  it('should not report an undeclared property of a discriminator variant under anyOf', () => {
+    // Ajv reports an undeclared property under `anyOf` only when the schema is referenced,
+    // so a variant with several values stays inlined there.
+    const variants = [
       {
-        message: 'Content type "application/json" is described in the schema.',
-        name: CHECKS.CONTENT_TYPE_CHECK,
-        passed: true,
-        severity: 'error',
+        type: 'object',
+        required: ['category'],
+        properties: {
+          category: { type: 'string', enum: ['beverage', 'dessert'] },
+          name: { type: 'string' },
+        },
       },
-    ]);
-    expect(logger.output).toHaveBeenCalledWith(
-      expect.stringContaining('WARNING: schema have circular references')
-    );
+    ];
+    const menuItem = { discriminator: { propertyName: 'category' }, oneOf: variants };
+    const order = {
+      type: 'object',
+      properties: {
+        item: { ...menuItem },
+        alternative: { anyOf: [{ ...menuItem }, { type: 'null' }] },
+      },
+    };
+
+    const schemaCheck = checkResponseSchema(order, {
+      item: { category: 'beverage', name: 'Espresso' },
+      alternative: { category: 'dessert', name: 'Tiramisu', size: 'small' },
+    });
+
+    expect(schemaCheck?.passed).toBe(true);
+  });
+
+  it('should check a response against a schema with a discriminator and no oneOf', () => {
+    // The parent schema of the `allOf` form of a discriminator.
+    const menuBaseItem = {
+      type: 'object',
+      required: ['category', 'name'],
+      discriminator: { propertyName: 'category' },
+      properties: { category: { type: 'string' }, name: { type: 'string' } },
+    };
+    const beverage = {
+      allOf: [menuBaseItem, { type: 'object', properties: { volume: { type: 'integer' } } }],
+    };
+
+    const schemaCheck = checkResponseSchema(beverage, {
+      category: 'beverage',
+      name: 'Espresso',
+      volume: 'small',
+    });
+
+    expect(schemaCheck?.passed).toBe(false);
+    expect(cleanColors(schemaCheck?.message ?? '')).toMatchInlineSnapshot(`
+      "
+      TYPE must be integer
+
+        2 |   "category": "beverage",
+        3 |   "name": "Espresso",
+      > 4 |   "volume": "small"
+          |             ^^^^^^^ 👈🏽  type must be integer
+        5 | }
+      "
+    `);
   });
 
   it('should catch ajvStrict.compile error', () => {

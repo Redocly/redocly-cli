@@ -873,6 +873,31 @@ describe('storeSecretValues', () => {
     expect(ctx.secretsSet).toEqual(new Set(['password', 'nested-password']));
   });
 
+  it('should store secret fields of a recursive schema', () => {
+    const ctx = {
+      secretsSet: new Set<string>(),
+    } as unknown as TestContext;
+
+    // A dereferenced `$ref` is a copy of its target, so the copy shares `properties` with the target.
+    const properties = {
+      password: { type: 'string', format: 'password' },
+      nested: {},
+    };
+    const schema = { type: 'object', properties };
+    properties.nested = { ...schema };
+
+    const inputs = {
+      password: 'password',
+      nested: {
+        password: 'nested-password',
+      },
+    };
+
+    collectSecretValues(ctx, schema, inputs);
+
+    expect(ctx.secretsSet).toEqual(new Set(['password', 'nested-password']));
+  });
+
   it('should not store secret fields if not password format', () => {
     const ctx = {
       secretsSet: new Set<string>(),
