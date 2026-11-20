@@ -7,7 +7,7 @@ exports[`should leave reserved chars unencoded in query when x-allowReserved is 
  
   ✓ GET /menu - step get-with-allow-reserved 
 
-    Request URL: https://api.cafe.redocly.com/menu?search=2023-02-23&filter=https://example.com/path/to;x,y(z)a*b.c[1]@v
+    Request URL: https://api.cafe.redocly.com/menu?search=2023-02-23&filter=https://example.com/path/to;x,y(z)a*b.c!1@v
     Request Headers:
       accept: application/json, application/problem+json 
  
@@ -21,7 +21,7 @@ exports[`should leave reserved chars unencoded in query when x-allowReserved is 
         "type": "about:blank",
         "title": "Invalid filter field",
         "status": 400,
-        "instance": "/menu?search=2023-02-23&filter=https://example.com/path/to;x,y(z)a*b.c[1]@v"
+        "instance": "/menu?search=2023-02-23&filter=https://example.com/path/to;x,y(z)a*b.c!1@v"
       } 
  
     ✓ success criteria check - $statusCode == 400
