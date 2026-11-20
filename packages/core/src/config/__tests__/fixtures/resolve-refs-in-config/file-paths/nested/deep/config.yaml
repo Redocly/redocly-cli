@@ -1,0 +1,7 @@
+api:
+  root: ./openapi.yaml
+client:
+  cliOutput: ./cli/index.ts
+parent:
+  root: ../../specs/openapi.yaml
+  output: ../dist/out.yaml

@@ -8,3 +8,5 @@
 !packages/*
 !scripts/local-pack.sh
 !.claude/skills
+# remove after the @redocly/config release
+!vendor/*

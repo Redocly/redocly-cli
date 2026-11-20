@@ -29,6 +29,7 @@ function getAjv(): Ajv2020 {
       strictTypes: false,
       verbose: true,
     });
+    ajv.addFormat('uri-reference', true);
   }
   return ajv;
 }
@@ -79,7 +80,7 @@ function transformJSONSchemaToNodeType(
     schema.type === 'integer' ||
     schema.type === 'boolean'
   ) {
-    const { default: _, format: _format, ...rest } = schema;
+    const { default: _, ...rest } = schema;
     return rest as PropType;
   }
 
