@@ -128,6 +128,112 @@ describe('schemaToZodExpression — unions and intersections', () => {
     ).toBe('z.union([z.string(), z.number()])');
   });
 
+  /** Render `X` next to the `Beverage` and `Dessert` members and return its expression. */
+  function unionExpr(
+    union: SchemaModel,
+    category: { beverage?: SchemaModel; dessert?: SchemaModel } = {}
+  ): string {
+    const member = (schema: SchemaModel): SchemaModel => ({
+      kind: 'intersection',
+      members: [
+        {
+          kind: 'object',
+          properties: [{ name: 'category', schema, required: true }],
+        },
+        { kind: 'ref', name: 'MenuBaseItem' },
+      ],
+    });
+    const out = renderZodModule(
+      apiModel({
+        schemas: [
+          { name: 'MenuBaseItem', schema: { kind: 'object', properties: [] } },
+          {
+            name: 'Beverage',
+            schema: member(
+              category.beverage ?? { kind: 'enum', scalar: 'string', values: ['beverage', 'drink'] }
+            ),
+          },
+          {
+            name: 'Dessert',
+            schema: member(category.dessert ?? { kind: 'literal', value: 'dessert' }),
+          },
+          { name: 'X', schema: union },
+        ],
+      })
+    );
+    return out
+      .split('\n')
+      .find((line) => line.startsWith('export const XSchema = '))!
+      .replace('export const XSchema = ', '')
+      .replace(/;$/, '');
+  }
+
+  const refs: SchemaModel[] = [
+    { kind: 'ref', name: 'Beverage' },
+    { kind: 'ref', name: 'Dessert' },
+  ];
+  const fullMapping = [
+    { value: 'beverage', schemaName: 'Beverage' },
+    { value: 'drink', schemaName: 'Beverage' },
+    { value: 'dessert', schemaName: 'Dessert' },
+  ];
+
+  it('discriminator pinned as required in every member → z.discriminatedUnion, one option per member', () => {
+    expect(
+      unionExpr({
+        kind: 'union',
+        members: refs,
+        discriminator: { propertyName: 'category', mapping: fullMapping },
+      })
+    ).toBe(
+      'z.discriminatedUnion("category", [' +
+        'z.looseObject({ category: z.literal(["beverage", "drink"]) }).pipe(z.lazy(() => BeverageSchema)), ' +
+        'z.looseObject({ category: z.literal("dessert") }).pipe(z.lazy(() => DessertSchema))])'
+    );
+  });
+
+  it('discriminator mapping that misses a member stays z.union', () => {
+    expect(
+      unionExpr({
+        kind: 'union',
+        members: refs,
+        discriminator: {
+          propertyName: 'category',
+          mapping: [{ value: 'beverage', schemaName: 'Beverage' }],
+        },
+      })
+    ).toBe('z.union([z.lazy(() => BeverageSchema), z.lazy(() => DessertSchema)])');
+  });
+
+  it('member that does not pin the discriminator to a literal or enum stays z.union', () => {
+    expect(
+      unionExpr(
+        {
+          kind: 'union',
+          members: refs,
+          discriminator: { propertyName: 'category', mapping: fullMapping },
+        },
+        { dessert: { kind: 'scalar', scalar: 'string' } }
+      )
+    ).toMatch(/^z\.union\(/);
+  });
+
+  it('inline member stays z.union', () => {
+    expect(
+      unionExpr({
+        kind: 'union',
+        members: [
+          { kind: 'ref', name: 'Beverage' },
+          { kind: 'object', properties: [] },
+        ],
+        discriminator: {
+          propertyName: 'category',
+          mapping: [{ value: 'beverage', schemaName: 'Beverage' }],
+        },
+      })
+    ).toMatch(/^z\.union\(/);
+  });
+
   it('single-member union collapses to the member', () => {
     expect(expr({ kind: 'union', members: [{ kind: 'scalar', scalar: 'boolean' }] })).toBe(
       'z.boolean()'
