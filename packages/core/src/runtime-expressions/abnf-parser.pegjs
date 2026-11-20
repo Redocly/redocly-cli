@@ -22,6 +22,18 @@ Operator
 ComparisonExpression
   = (CurlyExpression / BasicExpression / Value) _ (Operator _ (CurlyExpression / BasicExpression / Value))*
 
+// A single runtime expression: the value of a field that the Arazzo specification types as {expression}.
+// Parse it with the `startRule` option; the default start rule parses a condition.
+RuntimeExpression
+  = BasicExpression
+  / &{ return options.specVersion === 'arazzo1_1'; } Arazzo1_1Expression
+
+// The expressions that Arazzo 1.1 adds
+Arazzo1_1Expression
+  = "$self"
+  / "$message." Source
+  / ("$request." / "$response." / "$message.") PayloadReference
+
 // Curly brace expressions to allow nested structures
 CurlyExpression
   = "{" _ BasicExpression _ "}"
@@ -33,7 +45,7 @@ BasicExpression
   / "$statusCode"
   / "$request." Source
   / "$response." Source
-  / "$inputs." PropertyNameChain
+  / "$inputs." PropertyNameChain jsonPointer?
   / OutputsExpression
   / "$steps." StepsExpression
   / "$workflows." WorkflowsExpression
@@ -62,9 +74,10 @@ PropertyNameChain
   = PropertyName (("." _ PropertyName)*) 
 
 // Property names for chained access (limited to specific formats)
+// A number is a property name unless it only starts a name, as in `2fa`
 PropertyName
-  = Name
-  / Number
+  = Number ![a-zA-Z0-9_-]
+  / Name
 
 // Reference sources
 Source
@@ -85,6 +98,9 @@ PathReference
 BodyReference
   = "body" jsonPointer?
 
+PayloadReference
+  = "payload" jsonPointer?
+
 // JSON pointer to refer to specific parts of the body
 jsonPointer
   = "#" JsonPathSegment*
@@ -102,9 +118,9 @@ Escaped
   = "~" ("0" / "1")  
 
 // Names and tokens as defined by your ABNF rules
-// Name can start with a letter followed by letters, digits, underscores, or hyphens
+// Name is the `identifier-strict` rule of Arazzo 1.1: letters, digits, underscores, or hyphens
 Name
-  = [a-zA-Z][a-zA-Z0-9_-]* 
+  = [a-zA-Z0-9_-]+
 
 // Token with specific characters
 Token

@@ -206,6 +206,7 @@
             - page: rules/arazzo/spec-action-mutually-exclusive-fields.md
             - page: rules/arazzo/spec-action-stepId-defined.md
             - page: rules/arazzo/spec-action-workflowId-defined.md
+            - page: rules/arazzo/spec-no-invalid-runtime-expressions.md
             - page: rules/arazzo/spec-outputs-invalid-map-name.md
             - page: rules/arazzo/spec-querystring-parameters.md
             - page: rules/arazzo/spec-sourceDescriptions-defined.md

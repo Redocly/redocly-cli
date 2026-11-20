@@ -262,7 +262,6 @@ const RequestBody: NodeType = {
       description: 'A list of locations and values to set within a payload.',
     }),
   },
-  required: ['payload'],
   extensionsPrefix: 'x-',
   description:
     'A single request body describing the Content-Type and request body content to be passed by a step to an operation.',

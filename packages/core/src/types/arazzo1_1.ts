@@ -50,10 +50,17 @@ const AsyncAPISourceDescription: NodeType = {
     'Describes a source description (such as an AsyncAPI description) that will be referenced by one or more workflows described within an Arazzo Description.',
 };
 
+// The value can be a constant (including a plain object), a runtime expression,
+// or a Selector Object. Only validate it as a Selector Object when it carries the
+// selector-specific `selector` key; otherwise keep the permissive "any" behavior.
+const valueOrSelectorObject = (value: unknown) =>
+  isPlainObject(value) && 'selector' in value ? 'SelectorObject' : {};
+
 const Parameter: NodeType = {
   ...Arazzo1Types.Parameter,
   properties: {
     ...Arazzo1Types.Parameter.properties,
+    value: valueOrSelectorObject,
     in: {
       type: 'string',
       enum: ['header', 'query', 'path', 'cookie', 'querystring'],
@@ -68,7 +75,7 @@ const ActionParameter: NodeType = {
   ...Arazzo1Types.Parameter,
   properties: {
     name: Arazzo1Types.Parameter.properties.name,
-    value: Arazzo1Types.Parameter.properties.value,
+    value: valueOrSelectorObject,
   },
   description:
     'Describes a single parameter of a success or failure action. The parameter is passed to the workflow that the action references with workflowId as an input.',
@@ -238,10 +245,7 @@ const Replacement: NodeType = {
   ...Arazzo1Types.Replacement,
   properties: {
     ...Arazzo1Types.Replacement.properties,
-    // The value can be a constant (including a plain object), a runtime expression,
-    // or a Selector Object. Only validate it as a Selector Object when it carries the
-    // selector-specific `selector` key; otherwise keep the permissive "any" behavior.
-    value: (value: any) => (isPlainObject(value) && 'selector' in value ? 'SelectorObject' : {}),
+    value: valueOrSelectorObject,
     targetSelectorType: expressionTypeOrEnumResolver(
       ['jsonpath', 'xpath', 'jsonpointer'],
       'The type of selector used in the target field.'
