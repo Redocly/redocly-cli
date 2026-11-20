@@ -1,5 +1,27 @@
 # @redocly/cli
 
+## 2.83.0
+
+### Minor Changes
+
+- Added the `spec-step-parameters-in-required` rule for Arazzo descriptions.
+  It reports a step or workflow parameter without the `in` field, unless it only reaches steps that use `workflowId`.
+- Added support for Arazzo 1.1.0 Selector Objects with a `jsonpath` or `jsonpointer` type to the `respect` command.
+  A Selector Object in step or workflow `outputs`, a parameter value, a request body payload, or a replacement value gives the data that the selector picks from its `context`.
+
+### Patch Changes
+
+- Fixed an issue where a `jsonpath` success criterion did not match when its condition had a runtime expression inside quotes, as in `$[?(@.status == "{$inputs.expectedStatus}")]`.
+- Fixed an issue where `respect` sent `[object Object]` instead of a form when a step did not set `contentType: multipart/form-data` in its `requestBody`, and the content type came from the OpenAPI operation or from a `Content-Type` header parameter.
+  A `$file(...)` reference in the payload of such a step is loaded as a file when the request body of the operation is `multipart/form-data`.
+- Fixed an issue where `respect` sent `[object Object]` in a `multipart/form-data` request body when a runtime expression gave an object.
+  The object is sent as `parent[child]` fields and a list as repeated fields, the same way as values written in the description.
+  A payload that a runtime expression sets as a whole is sent as a form.
+- Fixed an issue where `respect` reported `Invalid JSON Pointer` for a valid replacement `target` when the replacement `value` could not be evaluated.
+  The step fails with the error of the value.
+- Updated @redocly/openapi-core to v2.83.0.
+- Updated @redocly/respect-core to v2.83.0.
+
 ## 2.82.0
 
 ### Minor Changes
