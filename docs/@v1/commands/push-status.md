@@ -3,6 +3,7 @@ seo:
   title: push-status command (v1)
   description: Track files, deployments, and scorecard build status for a Redocly push operation using Redocly CLI.
 ---
+
 # `push-status`
 
 This command is used with the Redocly platform products only.

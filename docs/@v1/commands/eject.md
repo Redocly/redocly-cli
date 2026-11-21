@@ -3,6 +3,7 @@ seo:
   title: eject command (v1)
   description: Eject and customize theme component source code in your Redocly project using Redocly CLI.
 ---
+
 # `eject`
 
 ## Introduction
