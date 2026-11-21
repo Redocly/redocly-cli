@@ -1,3 +1,8 @@
+---
+seo:
+  title: preview-docs command (v1)
+  description: Generate and run a local preview server for OpenAPI reference documentation with Redocly CLI.
+---
 # `preview-docs`
 
 ## Introduction

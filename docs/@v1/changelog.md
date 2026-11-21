@@ -1,4 +1,7 @@
 ---
+seo:
+  title: Redocly CLI v1 changelog
+  description: Release notes and changelog history for Redocly CLI version 1 releases and updates.
 toc:
   maxDepth: 2
 ---

@@ -1,4 +1,7 @@
 ---
+seo:
+  title: Redocly CLI v1 commands
+  description: Reference guide for all Redocly CLI version 1 commands for OpenAPI linting, bundling, and docs.
 tocMaxDepth: 2
 ---
 

@@ -1,3 +1,8 @@
+---
+seo:
+  title: build-docs command (v1)
+  description: Build Redoc into a standalone HTML file containing your API documentation with Redocly CLI.
+---
 # `build-docs`
 
 ## Introduction

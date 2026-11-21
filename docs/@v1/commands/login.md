@@ -1,3 +1,8 @@
+---
+seo:
+  title: login command (v1)
+  description: Authenticate to Redocly and the API registry with your personal API key using Redocly CLI.
+---
 # `login`
 
 ## Introduction

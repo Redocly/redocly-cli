@@ -1,3 +1,8 @@
+---
+seo:
+  title: preview command (v1)
+  description: Start a local preview server for a Redocly project to develop and test documentation before deployment.
+---
 # `preview`
 
 ## Introduction
