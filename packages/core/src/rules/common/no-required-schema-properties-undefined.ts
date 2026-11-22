@@ -71,20 +71,22 @@ export const NoRequiredSchemaPropertiesUndefined:
           );
         };
 
-        const findCompositionRoot = (i: number, child: AnySchema): AnySchema | undefined => {
-          if (i < 0) return undefined;
+        const findCompositionAncestors = (i: number, child: AnySchema): AnySchema[] => {
+          if (i < 0) return [];
           const parent = parents[i];
           return isCompositionChild(parent, child)
-            ? (findCompositionRoot(i - 1, parent) ?? parent)
-            : undefined;
+            ? [parent, ...findCompositionAncestors(i - 1, parent)]
+            : [];
         };
 
-        const compositionRoot = findCompositionRoot(parents.length - 2, currentSchema);
+        const compositionAncestors = findCompositionAncestors(parents.length - 2, currentSchema);
 
         for (const [i, requiredProperty] of currentSchema.required.entries()) {
           if (
             !schemaHasProperty(currentSchema, requiredProperty, ctx) &&
-            !schemaHasProperty(compositionRoot, requiredProperty, ctx)
+            !compositionAncestors.some((ancestor) =>
+              schemaHasProperty(ancestor, requiredProperty, ctx)
+            )
           ) {
             ctx.report({
               message: `Required property '${requiredProperty}' is not defined.`,

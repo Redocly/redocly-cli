@@ -751,6 +751,44 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
+  it('should NOT report when required property is in allOf sibling of a schema reached via oneOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.2.0
+          components:
+            schemas:
+              MenuItem:
+                oneOf:
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Dessert'
+              Beverage:
+                allOf:
+                  - $ref: '#/components/schemas/BeverageBase'
+                  - required:
+                      - volume
+              BeverageBase:
+                type: object
+                properties:
+                  volume:
+                    type: number
+              Dessert:
+                type: object
+                properties:
+                  calories:
+                    type: number
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
   it('should work for AsyncAPI 3', async () => {
     const document = parseYamlToDocument(
       outdent`
