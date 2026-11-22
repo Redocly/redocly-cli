@@ -926,4 +926,61 @@ describe('Arazzo outputs-defined', () => {
       ]
     `);
   });
+  it('should check step outputs within the workflow when two workflows share a stepId', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: first
+            steps:
+              - stepId: list-items
+                operationId: museum-api.listItems
+                outputs:
+                  items: $response.body
+            outputs:
+              items: $steps.list-items.outputs.items
+          - workflowId: second
+            steps:
+              - stepId: list-items
+                operationId: museum-api.listItems
+                outputs:
+                  count: $response.body#/length
+            outputs:
+              count: $steps.list-items.outputs.count
+              items: $steps.list-items.outputs.items
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'outputs-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/1/outputs/items",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Output key "items" is not defined in step "list-items". Available outputs: [ count ].",
+          "ruleId": "outputs-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
