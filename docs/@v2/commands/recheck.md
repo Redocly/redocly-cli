@@ -297,15 +297,7 @@ Rules that need a whole document, such as `recheck/single-h1`, do not run on des
 It reports how many fixable findings it skipped.
 An API description that does not parse is an error and fails the run.
 
-To suppress one finding without a change to the API file, list it in `.redocly.lint-ignore.yaml` by file, rule, and pointer:
-
-```yaml
-openapi.yaml:
-  recheck/line-length:
-    - '#/info/description'
-```
-
-Key the rule by its full name, such as `recheck/line-length`, or by its short name.
+Use [baseline pointers](../recheck/suppress-findings.md#use-a-baseline) to suppress errors in a description.
 A local API that references a remote `$ref` makes the command fetch it, the same as `redocly lint`.
 The command lints only descriptions in local files.
 

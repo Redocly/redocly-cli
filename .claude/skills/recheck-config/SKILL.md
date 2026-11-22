@@ -105,7 +105,7 @@ npx @redocly/cli recheck docs --generate-baseline
 
 Commit `.redocly.recheck-baseline.yaml`.
 The command writes it next to `redocly.yaml`, and later runs pick it up by presence; there is no configuration key.
-It records errors only, as one count per file per rule.
+It records errors only: one count per page per rule, and one list of JSON pointers per API description file per rule.
 
 Counts only step down: when findings get fixed, the run reports stale entries, so regenerate the baseline and commit the diff.
 

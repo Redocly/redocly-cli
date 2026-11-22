@@ -1,0 +1,14 @@
+openapi: 3.0.3
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+  description: |
+    The Redocly Cafe serves a rotating selection of seasonal drinks and freshly baked pastries every morning.
+    The Redocly Cafe also offers a rotating lunch menu for guests who visit during the afternoon.
+paths:
+  /orders:
+    get:
+      description: This operation returns all recent orders placed at the Redocly Cafe and includes details about each item.
+      responses:
+        '200':
+          description: Recent orders

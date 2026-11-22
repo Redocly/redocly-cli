@@ -42,6 +42,34 @@ describe('parseBaseline', () => {
     });
   });
 
+  it('round-trips unique API description pointers, and counts a group that has a page error', () => {
+    const first = problem('openapi.yaml', 'r', { pointer: '#/paths/~1menu/get/description' });
+    const second = problem('openapi.yaml', 'r', { pointer: '#/info/description' });
+    const mixed = problem('api.md', 'r', { pointer: '#/info/description' });
+    const baseline = buildBaseline(
+      [first, second, first, problem('docs.md', 'r'), mixed, problem('api.md', 'r')],
+      identity
+    );
+
+    expect(parseBaseline(serializeBaseline(baseline), 'x.yaml').files).toEqual({
+      'api.md': { r: 2 },
+      'docs.md': { r: 1 },
+      'openapi.yaml': { r: ['#/info/description', '#/paths/~1menu/get/description'] },
+    });
+  });
+
+  it.each(['[]', '[42]', '[paths/menu]', '{ "#/info/description": 2 }'])(
+    'rejects invalid pointer lists: %s',
+    (entry) => {
+      const yaml = `version: 1
+files:
+  openapi.yaml:
+    r: ${entry}
+`;
+      expect(() => parseBaseline(yaml, 'x.yaml')).toThrow(/JSON pointers/);
+    }
+  );
+
   it('serialization is sorted and stable', () => {
     const a = serializeBaseline({
       version: 1,
@@ -96,6 +124,27 @@ describe('compareToBaseline', () => {
     scannedFiles: files,
     executedRules: new Set(rules),
     toKey: identity,
+  });
+
+  it('marks a pointer stale only when its rule linted that description without an error', () => {
+    const baseline = buildBaseline(
+      [
+        problem('api.yaml', 'r', { pointer: '#/Linted/description' }),
+        problem('api.yaml', 'r', { pointer: '#/Unvisited/description' }),
+      ],
+      identity
+    );
+    const compare = (descriptionRules: string[]) =>
+      compareToBaseline([], baseline, {
+        ...options(['api.yaml'], ['r']),
+        lintedDescriptions: {
+          pointers: new Set(['api.yaml\0#/Linted/description']),
+          rules: new Set(descriptionRules),
+        },
+      });
+
+    expect(compare(['r']).problems.map(({ pointer }) => pointer)).toEqual(['#/Linted/description']);
+    expect(compare([]).staleEntries).toBe(0);
   });
 
   it('suppresses a matching group and passes non-errors through', () => {

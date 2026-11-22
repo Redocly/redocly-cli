@@ -164,24 +164,6 @@ describe('printLintRun', () => {
     expect(noticeAt).toBeLessThan(printed.indexOf('✅ No errors found!'));
   });
 
-  it('prints the count of findings the ignore file suppressed before the baseline line', async () => {
-    const { stderr } = captureLogger();
-    await printLintRun(
-      {
-        status: 'completed',
-        ...LINTED_REPORT,
-        suppressedByIgnoreFile: 1,
-        baseline: { matched: 0, new: 0, stale: 0 },
-      },
-      { format: 'table' },
-      performance.now()
-    );
-    const printed = stderr.join('');
-    const suppressedAt = printed.indexOf('   1 finding(s) suppressed by the ignore file.\n');
-    expect(suppressedAt).toBeGreaterThan(-1);
-    expect(suppressedAt).toBeLessThan(printed.indexOf('   Baseline: 0 matched, 0 new, 0 stale'));
-  });
-
   it('warns about each unreadable file and the count of skipped files', async () => {
     const { stderr } = captureLogger();
     await printLintRun(

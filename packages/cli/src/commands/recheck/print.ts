@@ -82,9 +82,6 @@ function printPreamble(report: LintRunReport): void {
     );
   }
   printFixBlock(report);
-  if (report.suppressedByIgnoreFile > 0) {
-    logger.info(`   ${report.suppressedByIgnoreFile} finding(s) suppressed by the ignore file.\n`);
-  }
 }
 
 // Warns about roots without pages, unless the run has API descriptions to lint.

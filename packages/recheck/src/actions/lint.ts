@@ -278,6 +278,12 @@ export async function runLint(
         // A changed-only run does not scan every file, so a missing file means nothing there.
         scanRoots: options.changedOnly ? undefined : roots.map(toKey),
         skipFiles: new Set((options.unreadableFiles ?? []).map(toKey)),
+        lintedDescriptions: {
+          pointers: new Set(
+            embeddedInputs.map((input) => `${toKey(input.file)}\0${input.pointer}`)
+          ),
+          rules: executedDescriptionRules,
+        },
       });
       report.problems = comparison.problems;
       report.baseline = {
