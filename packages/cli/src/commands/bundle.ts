@@ -28,6 +28,7 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeys,
+  warnOnRepeatedOutput,
   formatPath,
 } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
@@ -49,7 +50,11 @@ export type BundleArgv = {
   overlay?: string[];
 };
 
-export type BundleTelemetry = { bundle_overlays_count?: number };
+export type BundleTelemetry = {
+  bundle_overlays_count?: number;
+  // FIXME: remove this line with `countRepeatedOutput`.
+  bundle_repeated_output?: number;
+};
 
 /** Populated by handleBundle; the wrapper adds it to the telemetry payload. */
 export const bundleTelemetry: BundleTelemetry = {};
@@ -68,6 +73,7 @@ export async function handleBundle({
       `[WARNING] "--metafile" works with one API only, so the metafile is not written. Bundle one API to write it.\n`
     );
   }
+  const outputFiles: (string | undefined)[] = [];
 
   for (const { path, alias, output } of apis) {
     try {
@@ -117,6 +123,10 @@ export async function handleBundle({
         ext: argv.ext,
         entries: argv?.apis?.length || 0,
       });
+      outputFiles.push(outputFile);
+      warnOnRepeatedOutput(outputFiles);
+      // FIXME: remove this line with `countRepeatedOutput`.
+      countRepeatedOutput(outputFiles);
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
@@ -199,5 +209,14 @@ export async function handleBundle({
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new AbortFlowError('Bundle failed.');
+  }
+}
+
+// FIXME: remove this function when it is decided whether `bundle` fails on a repeated output path.
+// Until then, `bundle` warns about such a path, and this usage data field shows how many runs the failure affects.
+function countRepeatedOutput(outputFiles: (string | undefined)[]) {
+  const lastOutput = outputFiles.at(-1);
+  if (lastOutput && outputFiles.indexOf(lastOutput) !== outputFiles.length - 1) {
+    bundleTelemetry.bundle_repeated_output = (bundleTelemetry.bundle_repeated_output ?? 0) + 1;
   }
 }

@@ -39,7 +39,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 
 | Option            | Type    | Description                                                                                                                                                         |
 | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api               | string  | Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.                   |
+| api               | string  | **REQUIRED.** Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.     |
 | --asyncapi        | string  | Customize your output with [Redoc AsyncAPI options](https://redocly.com/docs/realm/config/asyncapi). Use dot notation, for example `--asyncapi.jsonSamplesDepth 4`. |
 | --config          | string  | Path to the [configuration file](#use-an-alternative-configuration-file). Defaults to `redocly.yaml` in the local folder.                                           |
 | --graphql         | string  | Customize your output with [Redoc GraphQL options](https://redocly.com/docs/realm/config/graphql). Use dot notation, for example `--graphql.showBuiltInScalars`.    |
