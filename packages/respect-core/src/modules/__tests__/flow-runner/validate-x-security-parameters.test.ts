@@ -1,4 +1,4 @@
-import type { Oas3SecurityScheme, ApiKeyAuth, BasicAuth, BearerAuth } from '@redocly/openapi-core';
+import type { HttpAuth, ApiKeyAuth, BasicAuth, BearerAuth } from '@redocly/openapi-core';
 
 import { validateXSecurityParameters } from '../../flow-runner/validate-x-security-parameters.js';
 
@@ -28,7 +28,7 @@ describe('validateXSecurityParameters', () => {
   });
 
   it('should validate an HTTP scheme regardless of its casing', () => {
-    const scheme = { type: 'http', scheme: 'Basic' } as Oas3SecurityScheme;
+    const scheme = { type: 'http', scheme: 'Basic' } as HttpAuth;
     const values = { username: 'user', password: 'password' };
 
     const result = validateXSecurityParameters({ scheme, values });
@@ -64,7 +64,7 @@ describe('validateXSecurityParameters', () => {
   });
 
   it('should throw an error for unsupported security http scheme', () => {
-    const scheme = { type: 'http', scheme: 'unknown' } as unknown as Oas3SecurityScheme;
+    const scheme = { type: 'http', scheme: 'unknown' } as unknown as HttpAuth;
     const values = { accessToken: 'xyz' };
 
     expect(() => validateXSecurityParameters({ scheme, values })).toThrow(
@@ -73,7 +73,7 @@ describe('validateXSecurityParameters', () => {
   });
 
   it('should throw an error for unsupported security scheme type', () => {
-    const scheme = { type: 'unknown' } as unknown as Oas3SecurityScheme;
+    const scheme = { type: 'unknown' } as unknown as HttpAuth;
     const values = { accessToken: 'xyz' };
 
     expect(() => validateXSecurityParameters({ scheme, values })).toThrow(

@@ -1,6 +1,7 @@
 import type { ExtendedSecurity, Oas3SecurityScheme } from '@redocly/openapi-core';
 
 import type { Step, RuntimeExpressionContext, TestContext } from '../../types.js';
+import { getOAuth2AccessToken } from '../../utils/oauth2/get-oauth2-access-token.js';
 import { getSecurityParameter } from '../context-parser/get-security-parameters.js';
 import type { ParameterWithIn } from '../context-parser/index.js';
 import type { OperationDetails } from '../description-parser/get-operation-from-description.js';
@@ -8,7 +9,7 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.j
 import { resolveSecurityScheme } from './resolve-security-scheme.js';
 import { validateXSecurityParameters } from './validate-x-security-parameters.js';
 
-export function resolveXSecurityParameters({
+export async function resolveXSecurityParameters({
   ctx,
   runtimeContext,
   step,
@@ -20,7 +21,7 @@ export function resolveXSecurityParameters({
   step: Step;
   operation?: OperationDetails & { securitySchemes: Record<string, Oas3SecurityScheme> };
   workflowLevelXSecurityParameters?: ExtendedSecurity[];
-}): ParameterWithIn[] {
+}): Promise<ParameterWithIn[]> {
   const stepXSecurity = step['x-security'] as ExtendedSecurity[] | undefined;
   const workflowLevelXSecurity = workflowLevelXSecurityParameters as ExtendedSecurity[] | undefined;
 
@@ -56,7 +57,10 @@ export function resolveXSecurityParameters({
       })
     );
 
-    const resolvedSecurity = validateXSecurityParameters({ scheme, values });
+    const resolvedSecurity =
+      scheme.type === 'oauth2'
+        ? { scheme, values: { accessToken: await getOAuth2AccessToken({ ctx, scheme, values }) } }
+        : validateXSecurityParameters({ scheme, values });
     const param = getSecurityParameter(resolvedSecurity, ctx);
 
     if (param) {

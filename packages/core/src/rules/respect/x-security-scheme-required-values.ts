@@ -1,5 +1,9 @@
 import { logger } from '../../logger.js';
 import type { ExtendedSecurity } from '../../typings/arazzo.js';
+import {
+  describeOAuth2ValueOptions,
+  getOAuth2ValueOptions,
+} from '../../utils/oauth2-value-options.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
@@ -8,7 +12,6 @@ const REQUIRED_VALUES_BY_AUTH_TYPE = {
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],
-  oauth2: ['accessToken'],
   openIdConnect: ['accessToken'],
   mutualTLS: [],
 } as const;
@@ -30,6 +33,23 @@ function validateSecuritySchemas(
     }
 
     const { scheme, values } = securitySchema;
+
+    if (scheme?.type === 'oauth2') {
+      const valueOptions = getOAuth2ValueOptions(scheme);
+      const hasRequiredValues = valueOptions.some(({ requiredValues }) =>
+        requiredValues.every((requiredValue) => values && requiredValue in values)
+      );
+
+      if (!hasRequiredValues) {
+        report({
+          message: `The oauth2 authentication security schema requires ${describeOAuth2ValueOptions(valueOptions)} in \`values\`.`,
+          location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
+          reference: 'https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values',
+        });
+      }
+      continue;
+    }
+
     // TODO: Struct rule does not check before this point, so we need to check it here. Investigate if we can move this check to the Struct rule.
     const authType = scheme?.type === 'http' ? scheme.scheme : scheme?.type;
     // RFC 7235 HTTP authentication scheme names are case-insensitive; the

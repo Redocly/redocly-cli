@@ -303,6 +303,7 @@ export type TestContext = RuntimeExpressionContext & {
   testDescription: TestDescription;
   components?: Record<string, any>;
   secretsSet: Set<string>;
+  oauth2TokenCache: Map<string, { accessToken: string; expiresAt: number }>;
   noSecretsMasking: boolean;
   severity: Record<string, RuleSeverity>;
   apiClient: ApiFetcher;

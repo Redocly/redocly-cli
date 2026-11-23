@@ -146,6 +146,11 @@ export { displaySide } from './diff/changes.js';
 export { nameOf, typeOf } from './diff/diff-node.js';
 export { HandledError, AbortFlowError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
+export {
+  getOAuth2ValueOptions,
+  describeOAuth2ValueOptions,
+  type OAuth2ValueOption,
+} from './utils/oauth2-value-options.js';
 export { isBrowser } from './env.js';
 export type { CollectSpecData, Exact } from './utils/types.js';
 export type * from './typings/openapi.js';
