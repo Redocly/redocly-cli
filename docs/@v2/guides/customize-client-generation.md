@@ -366,7 +366,10 @@ Declare `requires: ['typescript']` so the client it wraps is always there.
 If the framework expects a thrown error, choose one of these options:
 
 - Read `emit.errorMode`.
-  When the value is `result`, emit code that throws the `error` of the `{ data, error, response }` result and returns its `data`.
+  When the value is `result`, import `unwrapResult` from the generated client and pass each call to it.
+  The client exports `unwrapResult` in both error modes.
+  `unwrapResult` returns the `data` of the `{ data, error, response }` result.
+  For a failed request, `unwrapResult` throws `ApiError` with the error body in `body`.
   The built-in wrappers do this.
 - Declare `errorModes: ['throw']`.
   Generation then stops with an error when the error mode is `result`.
