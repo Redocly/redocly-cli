@@ -64,7 +64,9 @@ export async function handleBundle({
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const configDir = getConfigDirectory(config);
   if (argv.metafile && apis.length > 1) {
-    logger.warn(`[WARNING] "--metafile" cannot be used with multiple apis. Skipping...\n`);
+    logger.warn(
+      `[WARNING] "--metafile" works with one API only, so the metafile is not written. Bundle one API to write it.\n`
+    );
   }
 
   for (const { path, alias, output } of apis) {

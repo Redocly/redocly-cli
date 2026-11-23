@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,20 +55,30 @@ describe('bundle', () => {
 
   test('bundle writes the file dependencies of one API to the metafile', async () => {
     const testPath = join(folderPath, 'bundle-metafile');
-    const metafilePath = join(mkdtempSync(join(tmpdir(), 'metafile-')), 'meta.json');
-    const args = getParams(indexEntryPoint, ['bundle', 'menu', `--metafile=${metafilePath}`]);
-    getCommandOutput(args, { testPath });
-    const metafile = JSON.parse(readFileSync(metafilePath, 'utf-8'));
-    expect(metafile.fileDependencies).toEqual(['menu.yaml', 'schemas/MenuItem.yaml']);
+    const outputDir = mkdtempSync(join(tmpdir(), 'metafile-'));
+    try {
+      const metafilePath = join(outputDir, 'meta.json');
+      const args = getParams(indexEntryPoint, ['bundle', 'menu', `--metafile=${metafilePath}`]);
+      getCommandOutput(args, { testPath });
+      const metafile = JSON.parse(readFileSync(metafilePath, 'utf-8'));
+      expect(metafile.fileDependencies).toEqual(['menu.yaml', 'schemas/MenuItem.yaml']);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
   });
 
   test('bundle writes no metafile for several APIs', async () => {
     const testPath = join(folderPath, 'bundle-metafile');
-    const metafilePath = join(mkdtempSync(join(tmpdir(), 'metafile-')), 'meta.json');
-    const args = getParams(indexEntryPoint, ['bundle', `--metafile=${metafilePath}`]);
-    const result = getCommandOutput(args, { testPath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
-    expect(existsSync(metafilePath)).toBe(false);
+    const outputDir = mkdtempSync(join(tmpdir(), 'metafile-'));
+    try {
+      const metafilePath = join(outputDir, 'meta.json');
+      const args = getParams(indexEntryPoint, ['bundle', `--metafile=${metafilePath}`]);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(existsSync(metafilePath)).toBe(false);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
   });
 });
 
