@@ -1,0 +1,10 @@
+apis:
+  menu:
+    root: menu.yaml
+    output: output/cafe.yaml
+  orders:
+    root: orders.yaml
+    output: output/cafe.yaml
+  broken:
+    root: broken.yaml
+    output: output/cafe.yaml
