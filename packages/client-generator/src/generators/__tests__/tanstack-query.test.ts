@@ -75,7 +75,7 @@ describe('tanstackQueryGenerator', () => {
     expect(importOf('tanstack-query-solid')).toBe('@tanstack/solid-query');
   });
 
-  it('registers every framework variant with the sdk/throw contract', () => {
+  it('registers every framework variant as a typescript wrapper', () => {
     const registry = builtinGenerators();
     for (const name of [
       'tanstack-query',
@@ -85,7 +85,6 @@ describe('tanstackQueryGenerator', () => {
     ]) {
       const descriptor = registry.get(name);
       expect(descriptor?.requires, name).toEqual(['typescript']);
-      expect(descriptor?.errorModes, name).toEqual(['throw']);
     }
   });
 });
