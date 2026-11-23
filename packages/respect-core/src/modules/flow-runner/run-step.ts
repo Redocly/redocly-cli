@@ -343,7 +343,13 @@ export async function runStep({
     kind: 'failure' | 'success',
     executedStepsCount: ExecutedStepsCount,
     // the context the criteria and the parameters of the actions are evaluated in
-    expressionCtx: TestContext = ctx
+    expressionCtx: TestContext = {
+      ...ctx,
+      $inputs: {
+        ...ctx.$inputs,
+        ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+      },
+    }
   ): Promise<{
     retriesLeft?: number;
     shouldEnd?: boolean;
