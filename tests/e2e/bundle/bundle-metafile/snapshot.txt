@@ -1,0 +1,46 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe Menu
+  version: 1.0.0
+paths:
+  /menu:
+    get:
+      operationId: listMenu
+      summary: List menu
+      responses:
+        '200':
+          description: The menu.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+components:
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+openapi: 3.1.0
+info:
+  title: Redocly Cafe Orders
+  version: 1.0.0
+paths:
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List orders
+      responses:
+        '200':
+          description: The orders.
+components: {}
+
+[WARNING] "--metafile" cannot be used with multiple apis. Skipping...
+bundling menu.yaml using configuration for api 'menu'...
+📦 Created a bundle for menu.yaml at stdout <test>ms.
+bundling orders.yaml using configuration for api 'orders'...
+📦 Created a bundle for orders.yaml at stdout <test>ms.
+
+Exit code: 0

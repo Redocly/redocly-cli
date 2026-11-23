@@ -1,4 +1,5 @@
-import { readdirSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -16,6 +17,7 @@ describe('bundle', () => {
     'bundle-no-output-without-inline-apis',
     'bundle-use-titles-for-component-names-collision',
     'bundle-overlays',
+    'bundle-metafile',
   ];
   const folderPath = __dirname;
   const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -49,6 +51,24 @@ describe('bundle', () => {
     const args = getParams(indexEntryPoint, ['bundle', '--output=dist']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('bundle writes the file dependencies of one API to the metafile', async () => {
+    const testPath = join(folderPath, 'bundle-metafile');
+    const metafilePath = join(mkdtempSync(join(tmpdir(), 'metafile-')), 'meta.json');
+    const args = getParams(indexEntryPoint, ['bundle', 'menu', `--metafile=${metafilePath}`]);
+    getCommandOutput(args, { testPath });
+    const metafile = JSON.parse(readFileSync(metafilePath, 'utf-8'));
+    expect(metafile.fileDependencies).toEqual(['menu.yaml', 'schemas/MenuItem.yaml']);
+  });
+
+  test('bundle writes no metafile for several APIs', async () => {
+    const testPath = join(folderPath, 'bundle-metafile');
+    const metafilePath = join(mkdtempSync(join(tmpdir(), 'metafile-')), 'meta.json');
+    const args = getParams(indexEntryPoint, ['bundle', `--metafile=${metafilePath}`]);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    expect(existsSync(metafilePath)).toBe(false);
   });
 });
 
