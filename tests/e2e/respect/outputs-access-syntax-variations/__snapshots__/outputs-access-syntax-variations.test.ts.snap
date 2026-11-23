@@ -64,9 +64,6 @@ exports[`should resolve outputs access syntax variations 1`] = `
     ✗ unexpected error
  
  
-  ✗ search-menu 
-    ✗ unexpected error
- 
 ──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow outputs-access-syntax-variations.arazzo.yaml / order-attempt 
@@ -115,10 +112,6 @@ exports[`should resolve outputs access syntax variations 1`] = `
     stepId - search-menu 
     ✗ unexpected error 
     Reason: Error in resolving runtime expression '$response.body#/page/total': JSON Pointer "/page/total" reaches no value. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
-    stepId - search-menu 
-    ✗ unexpected error 
-    Reason: Error in resolving runtime expression '$outputs.stepFullBody#/page/total': JSON Pointer "/page/total" reaches no value. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
   Workflow name: order-attempt
  
@@ -135,8 +128,8 @@ exports[`should resolve outputs access syntax variations 1`] = `
   Summary for outputs-access-syntax-variations.arazzo.yaml
   
   Workflows: 3 failed, 3 total
-  Steps: 2 passed, 4 failed, 6 total
-  Checks: 11 passed, 4 failed, 15 total
+  Steps: 2 passed, 3 failed, 5 total
+  Checks: 11 passed, 3 failed, 14 total
   Time: <test>ms 
  
  

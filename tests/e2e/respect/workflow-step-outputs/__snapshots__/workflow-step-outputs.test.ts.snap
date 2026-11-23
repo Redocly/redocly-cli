@@ -1,0 +1,98 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should evaluate the outputs of a step that calls a workflow 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-step-outputs.arazzo.yaml / find-ordered-item 
+ 
+  ✓ GET /menu - step search-menu 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running child workflow for the step find-order-item 
+  Running workflow workflow-step-outputs.arazzo.yaml / submit-order 
+ 
+  ✓ POST /orders - step submit-order 
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✓ GET /menu - step check-outputs 
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $steps.find-order-item.outputs.quantity == 2
+    ✓ success criteria check - $steps.find-order-item.outputs.search == 'mermaid-...
+    ✓ success criteria check - $steps.find-order-item.outputs.firstComment == 'no...
+    ✓ success criteria check - $steps.find-order-item.outputs.menuItemIds#/0 == '...
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-step-outputs.arazzo.yaml / read-response-in-outputs 
+ 
+  Running child workflow for the step response-without-request 
+  Running workflow workflow-step-outputs.arazzo.yaml / submit-order 
+ 
+  ✓ POST /orders - step submit-order 
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  ✗ response-without-request 
+    ✗ unexpected error
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-step-outputs.arazzo.yaml / read-outputs-of-failed-workflow 
+ 
+  Running child workflow for the step failed-workflow 
+  Running workflow workflow-step-outputs.arazzo.yaml / submit-order-after-invalid-search 
+ 
+  ✗ GET /menu - step search-menu-with-invalid-limit 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+
+  Failed tests info:
+
+  Workflow name: read-response-in-outputs
+ 
+    stepId - response-without-request 
+    ✗ unexpected error 
+    Reason: Failed to resolve output "order": $response has no value in a step that calls a workflow, because the step sends no request. Read the outputs of the called workflow with $outputs instead.
+  Workflow name: read-outputs-of-failed-workflow
+ 
+    stepId - search-menu-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+       
+  Summary for workflow-step-outputs.arazzo.yaml
+  
+  Workflows: 1 passed, 2 failed, 3 total
+  Steps: 4 passed, 2 failed, 6 total
+  Checks: 23 passed, 2 failed, 25 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x workflow-step-outputs.arazzo.yaml                                       │ 3          │ 1       │ 2       │ -        │
+└───────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;
