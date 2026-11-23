@@ -8,7 +8,6 @@ import type {
   Parameter,
   OnSuccessObject,
   OnFailureObject,
-  RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
 } from '../../types.js';
@@ -176,12 +175,9 @@ export async function runStep({
       }
 
       for (const [outputKey, outputValue] of Object.entries(step.outputs || {})) {
-        // need to partially emulate $outputs context
         outputs[outputKey] = evaluateRuntimeExpressionPayload({
           payload: outputValue,
-          context: {
-            $outputs: childWorkflowOutputs,
-          } as RuntimeExpressionContext,
+          context: stepCtx,
           logger: ctx.options.logger,
         });
       }
