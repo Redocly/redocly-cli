@@ -146,6 +146,22 @@ const cases: ConfigCase[] = [
     contains: [{ file: 'matched.ts', text: 'serverUrl: "https://per-api.example.com"' }],
   },
   {
+    name: 'a file path that matches an api root does not take its clientOutput',
+    config: outdent`
+      apis:
+        cafe:
+          root: ./openapi.yaml
+          clientOutput: ./out.ts
+          client:
+            generators: [typescript]
+            serverUrl: https://per-api.example.com
+    `,
+    args: ['./openapi.yaml'],
+    status: 0,
+    missingFiles: ['out.ts'],
+    contains: [{ file: 'openapi.client.ts', text: 'serverUrl: "https://per-api.example.com"' }],
+  },
+  {
     name: 'a file path that matches no api root uses the top-level block',
     config: outdent`
       client:
@@ -339,6 +355,26 @@ const cases: ConfigCase[] = [
     `,
     args: [],
     status: 1,
+    missingFiles: ['dupe.ts'],
+    stderr: ['Two APIs write to the same path'],
+  },
+  {
+    // The zod module of `a` is known only after `a` is generated, so the run fails at `b`.
+    name: 'errors when a clientOutput matches a sibling module of an earlier api',
+    config: outdent`
+      apis:
+        a:
+          root: ./openapi.yaml
+          clientOutput: ./a.ts
+          client: { generators: [typescript, zod] }
+        b:
+          root: ./openapi.yaml
+          clientOutput: ./a.zod.ts
+          client: { generators: [typescript] }
+    `,
+    args: [],
+    status: 1,
+    contains: [{ file: 'a.zod.ts', text: 'from "zod"' }],
     stderr: ['Two APIs write to the same path'],
   },
   {
