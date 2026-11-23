@@ -4,6 +4,7 @@ import {
   parseYaml,
   stringifyYaml,
   isAbsoluteUrl,
+  checkPathCasing,
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
@@ -38,6 +39,10 @@ export async function getFallbackApisOrExit(
     ? fallbackToAllDefinitions(config)
     : await expandGlobsInEntrypoints(argsApis!, config);
 
+  for (const { path } of res) {
+    if (!isAbsoluteUrl(path)) assertPathCasing(path);
+  }
+
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
   if (isNotEmptyArray(filteredInvalidEntrypoints)) {
     for (const { path } of filteredInvalidEntrypoints) {
@@ -51,6 +56,14 @@ export async function getFallbackApisOrExit(
     );
   }
   return res;
+}
+
+// Fails for a path that opens on macOS and Windows but not on Linux, where file names are case-sensitive.
+export function assertPathCasing(filePath: string) {
+  const casingError = checkPathCasing(filePath);
+  if (casingError !== undefined) {
+    throw new HandledError(casingError);
+  }
 }
 
 export function getConfigDirectory(config: Config) {
@@ -105,6 +118,8 @@ async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
         if (shouldResolveGlob) {
           const data = await glob(aliasOrPath, {
             cwd: getConfigDirectory(config),
+            // The default follows the operating system: macOS and Windows ignore letter case.
+            nocase: false,
           });
 
           return data.map((g: string) => getAliasOrPath(config, g));

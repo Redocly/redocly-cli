@@ -9,7 +9,7 @@ import {
 } from '@redocly/platform-integration';
 import { green } from 'colorette';
 
-import { printExecutionTime } from '../utils/miscellaneous.js';
+import { assertPathCasing, printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 import {
   handlePushStatus,
@@ -60,6 +60,7 @@ export async function handlePush({
 
   try {
     const apiKey = getApiKeys();
+    for (const file of argv.files) assertPathCasing(file);
     files = collectFilesToPush(argv.files, (existingPath, replacementPath) => {
       logger.warn(`File ${existingPath} is overwritten by ${replacementPath}\n`);
     });

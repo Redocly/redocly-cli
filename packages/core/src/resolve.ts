@@ -4,6 +4,7 @@ import * as url from 'node:url';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 import type { ResolveConfig } from './config/types.js';
+import { isBrowser } from './env.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import { isGraphqlRef } from './graphql/detect-graphql.js';
 import { parseYaml } from './js-yaml/index.js';
@@ -26,6 +27,7 @@ import { isPlainObject } from './utils/is-plain-object.js';
 import { isSupportedExtension } from './utils/is-supported-extension.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { nextTick } from './utils/next-tick.js';
+import { checkPathCasing } from './utils/path-casing.js';
 import { readFileFromUrl } from './utils/read-file-from-url.js';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
@@ -104,7 +106,7 @@ export class BaseResolver {
   // Local files that overlays add to a remote API description. Any other `file:` URL is followed
   // only from a local document, so a remote description can't read the user's files.
   overlayFiles: Set<string> = new Set();
-  #folderEntries: Map<string, Promise<string[]>> = new Map();
+  #folderEntries: Map<string, string[]> = new Map();
 
   constructor(protected config: ResolveConfig = { http: { headers: [] } }) {}
 
@@ -205,47 +207,18 @@ export class BaseResolver {
     return doc;
   }
 
-  // macOS and Windows file systems ignore letter case by default, so a $ref that fails on Linux still loads there.
-  // Compare each path segment below the folder shared with the referencing file with the names on disk,
-  // so the $ref fails the same way on every operating system.
   async #checkPathCasing(base: string | null, absoluteRef: string) {
-    if (base === null || (isAbsoluteUrl(base) && !isFileUrl(base))) return;
-    if (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef)) return;
+    if (isBrowser || (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef))) return;
 
-    const baseFolder = path.dirname(isFileUrl(base) ? url.fileURLToPath(base) : base);
     const filePath = isFileUrl(absoluteRef) ? url.fileURLToPath(absoluteRef) : absoluteRef;
-    const baseSegments = baseFolder.split(path.sep);
-    const segments = filePath.split(path.sep);
-
-    // The first segment is the root of the file system or the drive.
-    let sharedSegmentsCount = 1;
-    while (
-      sharedSegmentsCount < baseSegments.length &&
-      baseSegments[sharedSegmentsCount] === segments[sharedSegmentsCount]
-    ) {
-      sharedSegmentsCount++;
-    }
-
-    let folder = segments.slice(0, sharedSegmentsCount).join(path.sep) + path.sep;
-    for (const segment of segments.slice(sharedSegmentsCount)) {
-      let entries = this.#folderEntries.get(folder);
-      if (entries === undefined) {
-        // A folder can't be listed when it is missing (loadExternalRef reports that), or when the
-        // files don't come from the disk: in the browser, or with a custom loadExternalRef.
-        entries = (async () => fs.promises.readdir(folder))().catch(() => []);
-        this.#folderEntries.set(folder, entries);
-      }
-      const names = await entries;
-      if (!names.includes(segment)) {
-        const nameOnDisk = names.find((name) => name.toLowerCase() === segment.toLowerCase());
-        if (nameOnDisk === undefined) return;
-        throw new ResolveError(
-          new Error(
-            `'${absoluteRef}' doesn't match the letter case on disk: use '${nameOnDisk}' instead of '${segment}'.`
-          )
-        );
-      }
-      folder += segment + path.sep;
+    // A path that no local file references is compared from the current folder.
+    const baseFolder =
+      base === null || (isAbsoluteUrl(base) && !isFileUrl(base))
+        ? process.cwd()
+        : path.dirname(isFileUrl(base) ? url.fileURLToPath(base) : base);
+    const casingError = checkPathCasing(filePath, baseFolder, this.#folderEntries);
+    if (casingError !== undefined) {
+      throw new ResolveError(new Error(casingError));
     }
   }
 }

@@ -42,6 +42,7 @@ The rule also checks the values in a discriminator `mapping`:
 File paths in a `$ref` are case-sensitive on every operating system.
 For example, `$ref: ./Pet.yaml` doesn't resolve to a file named `pet.yaml`, even on macOS and Windows, where file names usually ignore letter case.
 This way, an API description that resolves on your machine also resolves on Linux, for example in CI.
+The same applies to [every file path](../../commands/index.md#file-paths-are-case-sensitive) that Redocly CLI reads.
 
 ## Configuration
 

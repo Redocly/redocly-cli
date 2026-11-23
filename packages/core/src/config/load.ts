@@ -9,6 +9,7 @@ import {
   type Document,
   type ResolvedRefMap,
 } from '../resolve.js';
+import { checkPathCasing } from '../utils/path-casing.js';
 import { resolveConfig } from './config-resolvers.js';
 import { Config } from './config.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
@@ -41,7 +42,11 @@ export async function loadIgnoreConfig(
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
 
-  if (fs?.existsSync && !isAbsoluteUrl(ignorePath) && !fs.existsSync(ignorePath)) {
+  if (
+    fs?.existsSync &&
+    !isAbsoluteUrl(ignorePath) &&
+    (!fs.existsSync(ignorePath) || checkPathCasing(ignorePath, configDir) !== undefined)
+  ) {
     return {};
   }
 
@@ -107,7 +112,9 @@ export async function loadConfig(
 export function findConfig(dir?: string): string | undefined {
   if (!fs?.existsSync) return;
   const configPath = dir ? path.resolve(dir, CONFIG_FILE_NAME) : CONFIG_FILE_NAME;
-  return fs.existsSync(configPath) ? configPath : undefined;
+  return fs.existsSync(configPath) && checkPathCasing(configPath, dir) === undefined
+    ? configPath
+    : undefined;
 }
 
 type CreateConfigOptions = {

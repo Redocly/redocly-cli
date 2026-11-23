@@ -1,6 +1,7 @@
 import {
   AbortFlowError,
   BaseResolver,
+  checkPathCasing,
   isAbsoluteUrl,
   isPlainObject,
   isString,
@@ -22,7 +23,7 @@ import { presets } from '@redocly/recheck/presets';
 import { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 
-import { getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
+import { assertPathCasing, getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { collectEmbeddedInputs, isApiDescription } from './descriptions.js';
 import {
@@ -169,7 +170,8 @@ async function runAction(
       // An alias from the `apis` block names an API, whatever the extension of its root.
       // An existing file or folder with the same name wins over the alias.
       const isAlias =
-        config.resolvedConfig.apis?.[requestedPath] !== undefined && !existsSync(requestedPath);
+        config.resolvedConfig.apis?.[requestedPath] !== undefined &&
+        (!existsSync(requestedPath) || checkPathCasing(requestedPath) !== undefined);
       if (isAlias) {
         apiPaths.push(getAliasOrPath(config, requestedPath).path);
       } else if (
@@ -178,6 +180,7 @@ async function runAction(
       ) {
         apiPaths.push(requestedPath);
       } else {
+        assertPathCasing(requestedPath);
         roots.push(requestedPath);
       }
     }

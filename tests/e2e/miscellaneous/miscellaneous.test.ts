@@ -91,4 +91,29 @@ describe('miscellaneous', () => {
     const result2 = getCommandOutput(args2, { testPath });
     await expect(cleanupOutput(result2)).toMatchFileSnapshot(join(testPath, 'snapshot_4.txt'));
   });
+
+  test('bundle should fail for an API path whose letter case differs from the file name', async () => {
+    const testPath = join(folderPath, 'case-sensitive-paths');
+    const args = getParams(indexEntryPoint, ['bundle', 'Openapi.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('lint should not match a glob whose letter case differs from the file name', async () => {
+    const testPath = join(folderPath, 'case-sensitive-paths');
+    const args = getParams(indexEntryPoint, ['lint', 'Open*.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
+  });
+
+  test('lint should fail for a plugin path whose letter case differs from the file name', async () => {
+    const testPath = join(folderPath, 'case-sensitive-paths');
+    const args = getParams(indexEntryPoint, [
+      'lint',
+      'openapi.yaml',
+      '--config=plugin-config.yaml',
+    ]);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.txt'));
+  });
 });

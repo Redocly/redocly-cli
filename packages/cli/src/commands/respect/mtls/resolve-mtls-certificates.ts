@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import { assertPathCasing } from '../../../utils/miscellaneous.js';
 import type { MtlsPerDomainCerts } from '../connection-client.js';
 
 export function resolveMtlsCertificates(
@@ -33,6 +34,7 @@ function resolveCertificate(cert: string | undefined, workingDir: string): strin
       const certPath = path.resolve(workingDir, cert);
 
       // If not a certificate content, treat as file path
+      assertPathCasing(certPath);
       fs.accessSync(certPath, fs.constants.R_OK);
       return fs.readFileSync(certPath, 'utf-8');
     }

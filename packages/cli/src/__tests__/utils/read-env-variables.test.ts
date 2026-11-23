@@ -13,6 +13,7 @@ describe('readEnvVariables', () => {
     const mockEnvPath = path.resolve(path.dirname(mockExecutionFilePath), '.env');
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readdirSync).mockReturnValue([]);
 
     // Mock dotenv.config to simulate loading of environment variables
     vi.mocked(dotenv.config).mockImplementation(({ path }: any) => {
