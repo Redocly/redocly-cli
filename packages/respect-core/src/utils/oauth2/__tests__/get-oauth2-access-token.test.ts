@@ -21,6 +21,7 @@ function createContext(tokenResponse: Record<string, unknown>, status = 200) {
   const ctx = {
     options: { fetch: fetchMock, maxFetchTimeout: 1000 },
     oauth2TokenCache: new Map(),
+    secretsSet: new Set<string>(),
   } as unknown as TestContext;
 
   return { ctx, fetchMock };
@@ -90,6 +91,41 @@ describe('getOAuth2AccessToken', () => {
     );
   });
 
+  it('should resolve a relative token URL against the server URL', async () => {
+    const { ctx, fetchMock } = createContext({ access_token: 'new-token' });
+
+    await getOAuth2AccessToken({
+      ctx,
+      scheme: {
+        type: 'oauth2',
+        flows: { clientCredentials: { tokenUrl: '/oauth2/token', scopes } },
+      },
+      values: { clientId: 'cafe-client', clientSecret: 'secret' },
+      serverUrl: 'https://api.cafe.redocly.com/v1',
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(tokenUrl, expect.anything());
+  });
+
+  it('should add the credentials of the token request and the tokens of the response to the secrets', async () => {
+    const { ctx } = createContext({ access_token: 'new-token', refresh_token: 'refresh-token' });
+
+    await getOAuth2AccessToken({
+      ctx,
+      scheme,
+      values: {
+        username: 'barista@example.com',
+        password: 'p@ss word',
+        clientId: 'cafe-client',
+        clientSecret: 'secret',
+      },
+    });
+
+    expect(ctx.secretsSet).toEqual(
+      new Set(['p@ss word', btoa('cafe-client:secret'), 'new-token', 'refresh-token'])
+    );
+  });
+
   it('should reuse the token until it is about to expire', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     const { ctx, fetchMock } = createContext({ access_token: 'new-token', expires_in: 60 });
@@ -119,6 +155,21 @@ describe('getOAuth2AccessToken', () => {
     ).rejects.toThrow(
       `The OAuth2 token request to ${tokenUrl} failed with status 401 (invalid_client: Client authentication failed).`
     );
+  });
+
+  it('should report the cause of a token request that got no response', async () => {
+    const { ctx, fetchMock } = createContext({});
+    fetchMock.mockRejectedValue(
+      new TypeError('fetch failed', { cause: new Error('unexpected redirect') })
+    );
+
+    await expect(
+      getOAuth2AccessToken({
+        ctx,
+        scheme,
+        values: { clientId: 'cafe-client', clientSecret: 'secret' },
+      })
+    ).rejects.toThrow(`The OAuth2 token request to ${tokenUrl} failed: unexpected redirect`);
   });
 
   it('should reject a token of a type other than Bearer', async () => {

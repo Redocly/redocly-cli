@@ -14,12 +14,14 @@ export async function resolveXSecurityParameters({
   runtimeContext,
   step,
   operation,
+  serverUrl,
   workflowLevelXSecurityParameters,
 }: {
   ctx: TestContext;
   runtimeContext: RuntimeExpressionContext;
   step: Step;
   operation?: OperationDetails & { securitySchemes: Record<string, Oas3SecurityScheme> };
+  serverUrl?: string;
   workflowLevelXSecurityParameters?: ExtendedSecurity[];
 }): Promise<ParameterWithIn[]> {
   const stepXSecurity = step['x-security'] as ExtendedSecurity[] | undefined;
@@ -59,7 +61,12 @@ export async function resolveXSecurityParameters({
 
     const resolvedSecurity =
       scheme.type === 'oauth2'
-        ? { scheme, values: { accessToken: await getOAuth2AccessToken({ ctx, scheme, values }) } }
+        ? {
+            scheme,
+            values: {
+              accessToken: await getOAuth2AccessToken({ ctx, scheme, values, serverUrl }),
+            },
+          }
         : validateXSecurityParameters({ scheme, values });
     const param = getSecurityParameter(resolvedSecurity, ctx);
 

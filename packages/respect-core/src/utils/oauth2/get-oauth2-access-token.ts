@@ -6,6 +6,10 @@ import {
   type OAuth2Auth,
 } from '@redocly/openapi-core';
 
+import {
+  findPotentiallySecretObjectFields,
+  POTENTIALLY_SECRET_FIELDS,
+} from '../../modules/logger-output/mask-secrets.js';
 import type { TestContext } from '../../types.js';
 import { isJSON } from '../is-json.js';
 
@@ -21,10 +25,12 @@ export async function getOAuth2AccessToken({
   ctx,
   scheme,
   values,
+  serverUrl,
 }: {
   ctx: TestContext;
   scheme: OAuth2Auth;
   values: Record<string, string>;
+  serverUrl?: string;
 }): Promise<string> {
   const valueOptions = getOAuth2ValueOptions(scheme);
   const valueOption = valueOptions.find(({ requiredValues }) =>
@@ -40,13 +46,16 @@ export async function getOAuth2AccessToken({
     return values.accessToken;
   }
 
-  const tokenUrl = scheme.flows[valueOption.flow]?.tokenUrl;
+  const flowTokenUrl = scheme.flows[valueOption.flow]?.tokenUrl;
 
-  if (!tokenUrl) {
+  // OpenAPI lets `tokenUrl` be a relative reference, which is resolved against the server URL.
+  if (!flowTokenUrl || !URL.canParse(flowTokenUrl, serverUrl)) {
     throw new Error(
-      `Missing \`tokenUrl\` in the ${valueOption.flow} flow of the oauth2 security scheme`
+      `Missing or invalid \`tokenUrl\` in the ${valueOption.flow} flow of the oauth2 security scheme`
     );
   }
+
+  const tokenUrl = new URL(flowTokenUrl, serverUrl).href;
 
   const cacheKey = JSON.stringify([tokenUrl, valueOption.flow, values]);
   const cachedToken = ctx.oauth2TokenCache.get(cacheKey);
@@ -65,6 +74,9 @@ export async function getOAuth2AccessToken({
   if (valueOption.flow === 'password') {
     body.set('username', username);
     body.set('password', password);
+    // The token request is in the HAR output, so what it sends and receives is masked there.
+    // YAML can give the password as a number, and the secrets are strings.
+    ctx.secretsSet.add(String(password));
   }
   if (scope) {
     body.set('scope', scope);
@@ -72,8 +84,11 @@ export async function getOAuth2AccessToken({
   if (clientId && clientSecret) {
     // RFC 6749, section 2.3.1: the client ID and secret are form-urlencoded before the Basic encoding.
     // The only `=` left in the encoded pair is the separator.
-    const credentials = new URLSearchParams({ [clientId]: clientSecret }).toString();
-    headers.authorization = `Basic ${btoa(credentials.replace('=', ':'))}`;
+    const credentials = btoa(
+      new URLSearchParams({ [clientId]: clientSecret }).toString().replace('=', ':')
+    );
+    ctx.secretsSet.add(credentials);
+    headers.authorization = `Basic ${credentials}`;
   } else if (clientId) {
     // RFC 6749, section 3.2.1: a client without a secret only identifies itself.
     body.set('client_id', clientId);
@@ -89,13 +104,23 @@ export async function getOAuth2AccessToken({
       signal: AbortSignal.timeout(ctx.options.maxFetchTimeout),
     })
     .catch((error: Error) => {
-      throw new Error(`The OAuth2 token request to ${tokenUrl} failed: ${error.message}`);
+      // The `fetch` of Node.js reports only "fetch failed" and keeps the reason in the cause.
+      const reason = error.cause instanceof Error ? error.cause.message : error.message;
+
+      throw new Error(`The OAuth2 token request to ${tokenUrl} failed: ${reason}`);
     });
   const responseText = await response.text();
   const parsedResponse: unknown = isJSON(responseText) ? JSON.parse(responseText) : undefined;
   const tokenResponse: Record<string, unknown> = isPlainObject(parsedResponse)
     ? parsedResponse
     : {};
+
+  for (const secret of findPotentiallySecretObjectFields(tokenResponse, [
+    ...POTENTIALLY_SECRET_FIELDS,
+    'refresh_token',
+  ])) {
+    ctx.secretsSet.add(secret);
+  }
 
   if (!response.ok) {
     // RFC 6749, section 5.2: an error response names the error and can describe it.

@@ -174,6 +174,7 @@ export async function prepareRequest(
     operation: openapiOperation as OperationDetails & {
       securitySchemes: Record<string, Oas3SecurityScheme>;
     },
+    serverUrl: serverUrl?.url,
     workflowLevelXSecurityParameters: workflowLevelXSecurityParameters as ExtendedSecurity[],
   });
 

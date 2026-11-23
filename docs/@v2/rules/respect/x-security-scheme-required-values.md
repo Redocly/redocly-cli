@@ -23,6 +23,7 @@ An `oauth2` scheme accepts one of the following sets of values:
 - `clientId` and `clientSecret`, when the scheme declares the `clientCredentials` flow.
 
 With the credentials of a flow, Respect requests the access token from the `tokenUrl` of that flow and reuses it until it expires.
+A relative `tokenUrl` is resolved against the server URL of the request.
 An optional `scope` value, a space-separated list, limits the scopes of the requested token.
 
 ## Configuration
