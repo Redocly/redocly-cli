@@ -1,4 +1,4 @@
-import { ApiError } from './errors.js';
+import { ApiError, unwrapResult } from './errors.js';
 import { parse, readError } from './parse.js';
 import { middlewareChain, send, toHeaderRecord, type SendCapabilities } from './send.js';
 import type {
@@ -14,6 +14,7 @@ import type {
   QueryValue,
   RequestOptions,
   ResponseHeaderSpec,
+  Result,
   SecuritySpec,
   ServerSentEvent,
   SseOptions,
@@ -378,22 +379,10 @@ function pageCall(
     return method(args, pageInit);
   };
   if (config.errorMode !== 'result') return callWithoutEnvelope;
-  return async (args?: OperationArgs, init?: RequestOptions) => {
-    const envelope = (await callWithoutEnvelope(args, init)) as {
-      data: unknown;
-      error: unknown;
-      response: Response;
-    };
-    // Failure is `!response.ok` — NOT `data === undefined`: a successful bodyless page
-    // (204/void) also parses to undefined data, and a failed page's `error` can be
-    // undefined too (unreadable body). The pointers then miss on the undefined data
-    // and iteration stops cleanly, which is the correct semantics for an empty page.
-    if (!envelope.response.ok) {
-      const { response } = envelope;
-      throw new ApiError(response.url, response.status, response.statusText, envelope.error);
-    }
-    return envelope.data;
-  };
+  // A bodyless page unwraps to undefined data: the pointers then miss on it and
+  // iteration stops cleanly, which is the correct semantics for an empty page.
+  return (args?: OperationArgs, init?: RequestOptions) =>
+    unwrapResult(callWithoutEnvelope(args, init) as Promise<Result<unknown, unknown>>);
 }
 
 /**

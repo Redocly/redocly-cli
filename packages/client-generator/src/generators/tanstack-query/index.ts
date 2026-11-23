@@ -10,7 +10,8 @@ import { renderTanstackModule } from './render.ts';
  * mutation, all built by `createQueryFactories(c)` (bindable to any client instance)
  * with the module-level exports bound to the sdk's default `client`. It imports the
  * `client` instance + the `<Op>Variables` types from the sdk entry (`./<stem>.js`), so
- * it requires the `typescript` generator and its throw-mode client. The option helpers are
+ * it requires the `typescript` generator; in either error mode a failed request rejects
+ * the `queryFn`/`mutationFn` with `ApiError`. The option helpers are
  * imported from `@tanstack/<framework>-query` (the consumer's peer); the registry binds
  * one framework per generator name, and the emitted body is byte-identical across them.
  *
@@ -27,6 +28,7 @@ export function tanstackQueryGenerator(framework: 'react' | 'vue' | 'svelte' | '
       framework,
       pagination,
       queryKeyPrefix: emit.queryKeyPrefix,
+      errorMode: emit.errorMode,
     });
     if (content === '') return [];
     const header = banner.map((line) => `// ${line}`).join('\n');
