@@ -37,7 +37,7 @@ export const handlerBuildCommand = async ({
   // Remove this banner in the first release after January 31, 2027.
   logger.info(
     renderBanner([
-      'build-docs now renders docs with Redoc 3.',
+      'build-docs renders docs with Redoc 3.',
       'Theme options and custom templates may need updates.',
       `To keep the Redoc 2 output: ${cyan('npx @redocly/cli@v1-archive build-docs <api>')}`,
       `Learn more: ${cyan('https://redocly.com/redoc-ce')}`,

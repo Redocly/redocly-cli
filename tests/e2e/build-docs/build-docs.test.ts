@@ -176,7 +176,7 @@ describe('build-docs', () => {
 
           ╔════════════════════════════════════════════════════════════════════════════╗
           ║                                                                            ║
-          ║  build-docs now renders docs with Redoc 3.                                 ║
+          ║  build-docs renders docs with Redoc 3.                                     ║
           ║  Theme options and custom templates may need updates.                      ║
           ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
           ║  Learn more: https://redocly.com/redoc-ce                                  ║
@@ -223,7 +223,7 @@ describe('build-docs', () => {
 
             ╔════════════════════════════════════════════════════════════════════════════╗
             ║                                                                            ║
-            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  build-docs renders docs with Redoc 3.                                     ║
             ║  Theme options and custom templates may need updates.                      ║
             ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
             ║  Learn more: https://redocly.com/redoc-ce                                  ║
@@ -254,7 +254,7 @@ describe('build-docs', () => {
 
             ╔════════════════════════════════════════════════════════════════════════════╗
             ║                                                                            ║
-            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  build-docs renders docs with Redoc 3.                                     ║
             ║  Theme options and custom templates may need updates.                      ║
             ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
             ║  Learn more: https://redocly.com/redoc-ce                                  ║
@@ -285,7 +285,7 @@ describe('build-docs', () => {
 
             ╔════════════════════════════════════════════════════════════════════════════╗
             ║                                                                            ║
-            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  build-docs renders docs with Redoc 3.                                     ║
             ║  Theme options and custom templates may need updates.                      ║
             ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
             ║  Learn more: https://redocly.com/redoc-ce                                  ║
@@ -316,7 +316,7 @@ describe('build-docs', () => {
 
             ╔════════════════════════════════════════════════════════════════════════════╗
             ║                                                                            ║
-            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  build-docs renders docs with Redoc 3.                                     ║
             ║  Theme options and custom templates may need updates.                      ║
             ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
             ║  Learn more: https://redocly.com/redoc-ce                                  ║
@@ -347,7 +347,7 @@ describe('build-docs', () => {
 
             ╔════════════════════════════════════════════════════════════════════════════╗
             ║                                                                            ║
-            ║  build-docs now renders docs with Redoc 3.                                 ║
+            ║  build-docs renders docs with Redoc 3.                                     ║
             ║  Theme options and custom templates may need updates.                      ║
             ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>  ║
             ║  Learn more: https://redocly.com/redoc-ce                                  ║
