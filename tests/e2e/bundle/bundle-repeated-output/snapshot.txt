@@ -2,7 +2,6 @@
 bundling menu.yaml using configuration for api 'menu'...
 📦 Created a bundle for menu.yaml at ./tests/e2e/bundle/bundle-repeated-output/output/cafe.yaml <test>ms.
 bundling orders.yaml using configuration for api 'orders'...
-[WARNING] Two APIs write to the same path: output/cafe.yaml, so the last bundle replaces the earlier one.
 📦 Created a bundle for orders.yaml at ./tests/e2e/bundle/bundle-repeated-output/output/cafe.yaml <test>ms.
 bundling broken.yaml using configuration for api 'broken'...
 [1] broken.yaml:7:5 at #/paths/~1revenue
@@ -21,5 +20,6 @@ Reference: https://redocly.com/docs/cli/rules/oas/no-unresolved-refs
 
 
 ❌ Errors encountered while bundling broken.yaml: bundle not created (use --force to ignore errors).
+[WARNING] More than one API wrote to the same path, so the last bundle replaced the earlier one: output/cafe.yaml.
 
 Exit code: 1
