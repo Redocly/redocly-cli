@@ -2,9 +2,9 @@ arazzo: 1.1.0
 info:
   title: Outputs of a step that calls a workflow
   description: >-
-    Testing that the outputs of a step with a workflowId read the inputs of the workflow
-    the step belongs to, next to the outputs of the called workflow.
-    The values are selected from a request body so every printed response body stays deterministic.
+    Testing that the outputs of a step with a workflowId read the inputs, the steps, and the
+    workflows of the description next to the outputs of the called workflow, that an output
+    that reads the response fails the step, and that a failed called workflow is reported once.
   version: 1.0.0
 
 sourceDescriptions:
@@ -13,7 +13,7 @@ sourceDescriptions:
     url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
 
 workflows:
-  - workflowId: search-ordered-item
+  - workflowId: find-ordered-item
     inputs:
       type: object
       properties:
@@ -21,25 +21,53 @@ workflows:
           type: integer
           default: 2
     steps:
-      - stepId: find-order-item
-        workflowId: submit-order
-        outputs:
-          quantity: $inputs.quantity
-          comments:
-            context: $outputs.order
-            selector: $.orderItems[?(@.quantity == {$inputs.quantity})].comment
-            type: jsonpath
       - stepId: search-menu
         operationId: cafe-api.listMenuItems
         parameters:
           - in: query
             name: search
-            value: $steps.find-order-item.outputs.comments#/0
-          - in: query
-            name: limit
-            value: $steps.find-order-item.outputs.quantity
+            value: mermaid-treasure-latte
         successCriteria:
           - condition: $statusCode == 200
+        outputs:
+          search: $request.query.search
+      - stepId: find-order-item
+        workflowId: submit-order
+        outputs:
+          quantity: $inputs.quantity
+          search: $steps.search-menu.outputs.search
+          firstComment: $workflows.submit-order.outputs.order#/orderItems/0/comment
+          menuItemIds:
+            context: $outputs.order
+            selector: $.orderItems[?(@.quantity == {$inputs.quantity})].menuItemId
+            type: jsonpath
+      - stepId: check-outputs
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: $steps.find-order-item.outputs.search
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $steps.find-order-item.outputs.quantity == 2
+          - condition: $steps.find-order-item.outputs.search == 'mermaid-treasure-latte'
+          - condition: $steps.find-order-item.outputs.firstComment == 'no-sugar'
+          - condition: $steps.find-order-item.outputs.menuItemIds#/0 == 'prd_0000000000seedtrams0000000'
+  - workflowId: read-response-in-outputs
+    steps:
+      - stepId: response-without-request
+        workflowId: submit-order
+        outputs:
+          order: $response.body
+  - workflowId: read-outputs-of-failed-workflow
+    steps:
+      - stepId: failed-workflow
+        workflowId: submit-order-after-invalid-search
+        outputs:
+          comment:
+            context: $outputs.order
+            selector: $.orderItems[0].comment
+            type: jsonpath
   - workflowId: submit-order
     steps:
       - stepId: submit-order
@@ -53,6 +81,30 @@ workflows:
               - menuItemId: prd_0000000000seedtrams0000000
                 quantity: 2
                 comment: mermaid-treasure-latte
+        successCriteria:
+          - condition: $statusCode == 401
+        outputs:
+          order: $request.body
+    outputs:
+      order: $steps.submit-order.outputs.order
+  - workflowId: submit-order-after-invalid-search
+    steps:
+      - stepId: search-menu-with-invalid-limit
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: submit-order
+        operationId: cafe-api.createOrder
+        requestBody:
+          payload:
+            orderItems:
+              - menuItemId: prd_0000000000seedteabv0000000
+                quantity: 1
+                comment: no-sugar
         successCriteria:
           - condition: $statusCode == 401
         outputs:
