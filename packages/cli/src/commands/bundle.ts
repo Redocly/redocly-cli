@@ -63,6 +63,11 @@ export async function handleBundle({
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const configDir = getConfigDirectory(config);
+  if (argv.metafile && apis.length > 1) {
+    logger.warn(
+      `[WARNING] "--metafile" works with one API only, so the metafile is not written. Bundle one API to write it.\n`
+    );
+  }
 
   for (const { path, alias, output } of apis) {
     try {
@@ -146,13 +151,16 @@ export async function handleBundle({
         command: 'bundle',
       });
 
-      if (argv.metafile) {
-        if (apis.length > 1) {
-          logger.warn(`[WARNING] "--metafile" cannot be used with multiple apis. Skipping...`);
-        }
-        {
-          writeFileSync(argv.metafile, JSON.stringify(meta), 'utf-8');
-        }
+      if (argv.metafile && apis.length === 1) {
+        writeFileSync(
+          argv.metafile,
+          JSON.stringify({
+            ...meta,
+            // `JSON.stringify` writes a `Set` as `{}`.
+            fileDependencies: [...meta.fileDependencies].map(formatPath),
+          }),
+          'utf-8'
+        );
       }
 
       const elapsed = getExecutionTime(startedAt);

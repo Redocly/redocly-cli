@@ -1,0 +1,5 @@
+apis:
+  menu:
+    root: menu.yaml
+  orders:
+    root: orders.yaml
