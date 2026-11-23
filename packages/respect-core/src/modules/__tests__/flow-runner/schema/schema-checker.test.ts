@@ -332,47 +332,20 @@ describe('checkSchema', () => {
     );
   });
 
-  it('should catch ajvStrict.compile error', () => {
-    // oxlint-disable-next-line typescript/no-require-imports
-    vi.spyOn(require('@redocly/ajv/dist/2020').prototype, 'compile').mockImplementationOnce(() => {
-      throw new Error('ajvStrict.compile error');
-    });
-
+  it('should report a response schema that Ajv fails to compile', () => {
     const result = checkSchema({
-      stepCallCtx: {
-        $request: {
-          header: {},
-          path: '/breeds',
-          url: 'https://catfact.ninja/',
-          method: 'get',
-          queryParams: {},
-          pathParams: {},
-          headerParams: {},
+      stepCallCtx,
+      descriptionOperation: {
+        path: '/breeds',
+        method: 'get',
+        descriptionName: 'cats',
+        responses: {
+          '200': {
+            description: 'successful operation',
+            content: { 'application/json': { schema: { type: 'strin' } } },
+          },
         },
-        $response: {
-          body: [
-            {
-              breed: 'Abyssinian',
-              country: 'Ethiopia',
-              origin: 'Natural/Standard',
-              coat: 'Short',
-              pattern: 'Ticked',
-            },
-            {
-              breed: 'Asian',
-              country: 'developed in the United Kingdom (founding stock from Asia)',
-              origin: '',
-              coat: 'Short',
-              pattern: 'Evenly solid',
-            },
-          ],
-          statusCode: 200,
-          header: new Headers({ 'content-type': 'application/json' }),
-          contentType: 'application/json',
-        },
-        $outputs: {},
-      } as unknown as StepCallContext,
-      descriptionOperation,
+      },
       ctx,
       ajvContext: { apiContext: 'response' },
     });
@@ -394,12 +367,56 @@ describe('checkSchema', () => {
         severity: 'error',
       },
       {
-        message: 'Ajv error: ajvStrict.compile error',
+        message: [
+          "The response can't be checked because the schema in the `cats` description is not valid.",
+          'Schema: #/paths/~1breeds/get/responses/200/content/application~1json/schema',
+          'Reason: type must be JSONType or JSONType[]: strin',
+        ].join('\n'),
         name: CHECKS.SCHEMA_CHECK,
         passed: false,
         severity: 'error',
       },
     ]);
+  });
+
+  it('should list a schema with nullable without type when the response schema has boolean schemas', () => {
+    const result = checkSchema({
+      stepCallCtx,
+      descriptionOperation: {
+        path: '/breeds',
+        method: 'get',
+        descriptionName: 'cats',
+        responses: {
+          '200': {
+            description: 'successful operation',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  not: false,
+                  allOf: [true],
+                  properties: { breed: { nullable: true } },
+                },
+              },
+            },
+          },
+        },
+      },
+      ctx,
+      ajvContext: { apiContext: 'response' },
+    });
+
+    expect(result[2]).toEqual({
+      message: [
+        "The response can't be checked because the schema in the `cats` description is not valid.",
+        '`nullable` is used without `type` at:',
+        '- #/paths/~1breeds/get/responses/200/content/application~1json/schema/properties/breed',
+        'Add `type` next to `nullable`, or remove `nullable`.',
+      ].join('\n'),
+      name: CHECKS.SCHEMA_CHECK,
+      passed: false,
+      severity: 'error',
+    });
   });
 
   describe('writeOnly handling via ajvContext', () => {

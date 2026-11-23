@@ -453,7 +453,7 @@ export class ApiFetcher implements IFetcher {
       statusCode: fetchResult.status,
       contentType: responseContentType,
       descriptionResponses: openapiOperation?.responses,
-    });
+    })?.schema;
 
     collectSecretValues(ctx, responseSchema, transformedBody);
 
