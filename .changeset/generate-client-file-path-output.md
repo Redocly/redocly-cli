@@ -2,6 +2,6 @@
 '@redocly/cli': patch
 ---
 
-Changed the `generate-client` command so that a file path does not take the `clientOutput` of the API whose `root` it is, as `bundle` does with `output`.
+Changed the `generate-client` command to ignore the `clientOutput` option of an API when you pass the path to the API's `root` file instead of the API alias.
 
-**Note:** to keep writing to `clientOutput`, pass the alias of the API to the command.
+**Note:** To keep writing the client to the `clientOutput` path, pass the API alias to the command.
