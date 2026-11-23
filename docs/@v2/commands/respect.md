@@ -329,6 +329,32 @@ A Selector Object has a `context`, a `selector`, and a `type` of `jsonpath`, `xp
 `respect` reads every object with these fields as a Selector Object.
 A request body cannot send such an object as a literal value.
 
+## JSONPath criteria
+
+A criterion with `type: jsonpath` passes when its `condition` selects at least one value from its `context`.
+
+- A condition that starts with a member name, such as `$.items[?(@.category == "dessert")]`, queries the `context` value, the same way as a [Selector Object](#selector-objects).
+- Any other condition queries a list that holds the `context` value as its only item, so a filter tests the value itself.
+  With `context: $response.body`, the condition `$[?(@.status == 401)]` passes when the response body is an object with that status.
+
+```yaml
+steps:
+  - stepId: list-menu-items
+    operationId: listMenuItems
+    successCriteria:
+      - context: $response.body
+        condition: $.items[?(@.category == "dessert")]
+        type: jsonpath
+    outputs:
+      dessertIds:
+        context: $response.body
+        selector: $.items[?(@.category == "dessert")].id
+        type: jsonpath
+```
+
+The second form is specific to `respect`: in RFC 9535, the root `$` is the `context` value.
+When the `context` is a list, a criterion filters its items with `$[*][?(@.category == "dessert")]`, and a selector filters them with `$[?(@.category == "dessert")]`.
+
 ## Examples
 
 - Run the tests by running the following command: `npx @redocly/cli@latest respect <your-test-file>`.

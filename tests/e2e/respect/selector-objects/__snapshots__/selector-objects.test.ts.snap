@@ -41,6 +41,7 @@ exports[`should evaluate Selector Objects in outputs, parameters, and request bo
       } 
  
     ✓ success criteria check - $statusCode == 401
+    ✓ success criteria check - $.orderItems[?(@.quantity == {$inputs.quantity})]
     ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
     ✓ content-type check
     ✓ schema check
@@ -195,7 +196,7 @@ exports[`should evaluate Selector Objects in outputs, parameters, and request bo
   
   Workflows: 1 passed, 1 total
   Steps: 6 passed, 6 total
-  Checks: 24 passed, 24 total
+  Checks: 25 passed, 25 total
   Time: <test>ms 
  
  
