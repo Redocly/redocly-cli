@@ -2,7 +2,10 @@
 bundling menu.yaml using configuration for api 'menu'...
 📦 Created a bundle for menu.yaml at ./tests/e2e/bundle/bundle-repeated-output/output/cafe.yaml <test>ms.
 bundling orders.yaml using configuration for api 'orders'...
+[WARNING] Another API already wrote a bundle to output/cafe.yaml, so this bundle replaces it.
 📦 Created a bundle for orders.yaml at ./tests/e2e/bundle/bundle-repeated-output/output/cafe.yaml <test>ms.
+bundling menu.yaml using configuration for api 'menu-copy'...
+📦 Created a bundle for menu.yaml at ./tests/e2e/bundle/bundle-repeated-output/output/menu.yaml <test>ms.
 bundling broken.yaml using configuration for api 'broken'...
 [1] broken.yaml:7:5 at #/paths/~1revenue
 
@@ -20,6 +23,5 @@ Reference: https://redocly.com/docs/cli/rules/oas/no-unresolved-refs
 
 
 ❌ Errors encountered while bundling broken.yaml: bundle not created (use --force to ignore errors).
-[WARNING] More than one API wrote to the same path, so the last bundle replaced the earlier one: output/cafe.yaml.
 
 Exit code: 1

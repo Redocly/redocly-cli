@@ -51,7 +51,7 @@ export type BundleArgv = {
 
 export type BundleTelemetry = {
   bundle_overlays_count?: number;
-  // FIXME: remove this line with the repeated output count in `handleBundle`.
+  // FIXME: remove this line with the repeated output count in `trackWrittenOutput`.
   bundle_repeated_output?: number;
 };
 
@@ -72,7 +72,7 @@ export async function handleBundle({
       `[WARNING] "--metafile" works with one API only, so the metafile is not written. Bundle one API to write it.\n`
     );
   }
-  const writtenOutputs: string[] = [];
+  const writtenOutputs = new Set<string>();
 
   for (const { path, alias, output } of apis) {
     try {
@@ -141,8 +141,8 @@ export async function handleBundle({
             ext,
             argv.dereferenced
           );
+          trackWrittenOutput(outputFile, writtenOutputs);
           saveBundle(outputFile, bundled);
-          writtenOutputs.push(outputFile);
         }
       }
 
@@ -203,20 +203,19 @@ export async function handleBundle({
 
   printUnusedWarnings(config);
 
-  const repeatedOutputs = writtenOutputs.filter(
-    (outputFile, index) => writtenOutputs.indexOf(outputFile) !== index
-  );
-
-  if (repeatedOutputs.length > 0) {
-    const paths = [...new Set(repeatedOutputs)].map(formatPath).join(', ');
-    logger.warn(
-      `[WARNING] More than one API wrote to the same path, so the last bundle replaced the earlier one: ${paths}.\n`
-    );
-    // FIXME: remove this line when it is decided whether `bundle` fails on a repeated output path.
-    bundleTelemetry.bundle_repeated_output = repeatedOutputs.length;
-  }
-
   if (!(totals.errors === 0 || argv.force)) {
     throw new AbortFlowError('Bundle failed.');
   }
+}
+
+// Records the path of a bundle that the command is about to write.
+function trackWrittenOutput(outputFile: string, writtenOutputs: Set<string>) {
+  if (writtenOutputs.has(outputFile)) {
+    logger.warn(
+      `[WARNING] Another API already wrote a bundle to ${formatPath(outputFile)}, so this bundle replaces it.\n`
+    );
+    // FIXME: remove this line when it is decided whether `bundle` fails on a repeated output path.
+    bundleTelemetry.bundle_repeated_output = (bundleTelemetry.bundle_repeated_output ?? 0) + 1;
+  }
+  writtenOutputs.add(outputFile);
 }
