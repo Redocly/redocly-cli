@@ -9,6 +9,15 @@
     ║                                                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
 
+
+    ╔════════════════════════════════════════════════════════════════════════════════════════╗
+    ║                                                                                        ║
+    ║  Deprecated: build-docs without an API takes the first API of the configuration file.  ║
+    ║  A later release requires the API.                                                     ║
+    ║  Pass the API: redocly build-docs <api>                                                ║
+    ║                                                                                        ║
+    ╚════════════════════════════════════════════════════════════════════════════════════════╝
+
 Found redocly.yaml and using 'openapi' options
 Prerendering docs
 

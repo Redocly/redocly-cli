@@ -329,7 +329,6 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     plugins?: string[];
     /** Per-api keys, present after `forAlias` flattens an api entry into the root shape. */
     clientOutput?: string;
-    docsOutput?: string;
     overlays?: string[];
   };
 

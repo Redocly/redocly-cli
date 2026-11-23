@@ -20,8 +20,6 @@ import { convertSwagger2OpenAPI } from 'redoc';
 import { renderBanner } from '../../utils/banner.js';
 import {
   createParentDirectory,
-  formatPath,
-  getConfigDirectory,
   getExecutionTime,
   getFallbackApisOrExit,
 } from '../../utils/miscellaneous.js';
@@ -46,98 +44,72 @@ export const handlerBuildCommand = async ({
     ])
   );
 
+  const startedAt = performance.now();
+
   // FIXME: replace this line with `const { api } = argv;` when `getDeprecatedFirstApi` goes.
   // The first API stays out of `argv`, so the usage data shows that the run had no API argument.
   const api = argv.api ?? getDeprecatedFirstApi(config);
-
-  if (argv.o && !api) {
-    throw new HandledError('At least one inline API must be specified when using --output.');
-  }
-  const configDir = getConfigDirectory(config);
-  const apis = (await getFallbackApisOrExit(api ? [api] : [], config))
-    .map(({ path, alias }) => {
-      const aliasConfig = config.forAlias(alias);
-      // A file path does not get the `docsOutput` of the API whose `root` it is.
-      const docsOutput =
-        api === undefined || api === alias ? aliasConfig.resolvedConfig.docsOutput : undefined;
-      return {
-        path,
-        aliasConfig,
-        docsOutput: docsOutput && formatPath(resolve(configDir, docsOutput)),
-      };
-    })
-    .filter(({ docsOutput }) => api || docsOutput);
-  if (apis.length === 0) {
+  if (api === undefined) {
     throw new HandledError(
-      'No API to build. Set `docsOutput` for an API in the configuration file, or pass an API to the command.'
+      'No API to process. Pass an API to the command: `redocly build-docs <api>`.'
     );
   }
-  const outputs = apis.map(({ docsOutput }) => argv.o ?? docsOutput ?? 'redoc-static.html');
-  const repeatedOutput = outputs.find((output, index) => outputs.indexOf(output) !== index);
-  if (repeatedOutput) {
-    throw new HandledError(
-      `Two APIs write to the same path: ${repeatedOutput}. Give each API a distinct \`docsOutput\`.`
-    );
-  }
+  const [{ path: pathToApi, alias }] = await getFallbackApisOrExit([api], config);
 
-  for (const [index, { path: pathToApi, aliasConfig }] of apis.entries()) {
-    const startedAt = performance.now();
-    const output = outputs[index];
-
-    try {
-      const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
-      const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
-      for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
-        if (optionsKey !== specType && argv[optionsKey] !== undefined) {
-          logger.warn(
-            `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
-          );
-        }
+  try {
+    const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
+    const aliasConfig = config.forAlias(alias);
+    const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
+    for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
+      if (optionsKey !== specType && argv[optionsKey] !== undefined) {
+        logger.warn(
+          `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
+        );
       }
-      const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
-
-      const options = {
-        output,
-        title: argv.title,
-        templateFileName: argv.template,
-        templateOptions: argv.templateOptions || {},
-        redocOptions,
-        redocVersion,
-        disableTelemetry: !isTelemetryEnabled(config),
-        inlineBundle: argv.inlineBundle,
-      };
-
-      const pageHTML = await getPageHTML(definition, options, argv.config);
-
-      createParentDirectory(output);
-      writeFileSync(output, pageHTML);
-      const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
-      const elapsed = getExecutionTime(startedAt);
-      logger.info(`\n🎉 bundled successfully in: ${output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`);
-    } catch (error) {
-      throw new HandledError(error instanceof Error ? error.message : String(error));
     }
+    const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
+
+    const options = {
+      output: argv.o,
+      title: argv.title,
+      templateFileName: argv.template,
+      templateOptions: argv.templateOptions || {},
+      redocOptions,
+      redocVersion,
+      disableTelemetry: !isTelemetryEnabled(config),
+      inlineBundle: argv.inlineBundle,
+    };
+
+    const pageHTML = await getPageHTML(definition, options, argv.config);
+
+    createParentDirectory(options.output);
+    writeFileSync(options.output, pageHTML);
+    const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
+    const elapsed = getExecutionTime(startedAt);
+    logger.info(
+      `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
+    );
+  } catch (error) {
+    throw new HandledError(error instanceof Error ? error.message : String(error));
   }
 };
 
 // FIXME: remove this function when the deprecation period ends, a week to a month after the release.
-// Before the `docsOutput` option, `build-docs` without an API built the first API of the configuration file.
-// Such a run now builds the APIs that have `docsOutput`, so it fails when no API has it.
-// Until then, a run that would fail this way gets the first API as its `api` argument and a deprecation banner.
+// Before, `build-docs` without an API took the first API of the configuration file.
+// Such a run now fails, because the command processes one API, which the command line names.
+// Until then, it gets the first API as its `api` argument and a deprecation banner.
+// `build-docs`, `stats`, `score`, and `scorecard-classic` each hold a copy of this function.
 function getDeprecatedFirstApi(config: Config): string | undefined {
-  const apis = Object.values(config.resolvedConfig.apis ?? {});
   const [firstApi] = Object.keys(config.resolvedConfig.apis ?? {});
-  if (firstApi === undefined || apis.some(({ docsOutput }) => docsOutput)) {
-    return undefined;
+  if (firstApi !== undefined) {
+    logger.info(
+      renderBanner([
+        'Deprecated: build-docs without an API takes the first API of the configuration file.',
+        'A later release requires the API.',
+        `Pass the API: ${cyan('redocly build-docs <api>')}`,
+      ])
+    );
   }
-  logger.info(
-    renderBanner([
-      'Deprecated: build-docs without an API builds the first API of the configuration file.',
-      'A later release builds only the APIs that have docsOutput.',
-      `Pass the API: ${cyan('redocly build-docs <api>')}, or set docsOutput for each API.`,
-      `Learn more: ${cyan('https://redocly.com/docs/cli/commands/build-docs#build-docs-for-several-apis')}`,
-    ])
-  );
   return firstApi;
 }
 

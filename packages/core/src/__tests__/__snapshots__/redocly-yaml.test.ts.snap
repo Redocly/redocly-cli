@@ -537,9 +537,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "decorators": "Decorators",
-      "docsOutput": {
-        "type": "string",
-      },
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
         "documentationLink": "https://redocly.com/docs/cli/configuration/reference/extends#extends",
@@ -3241,7 +3238,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "agent": "PlatformAgent",
-      "aiReadiness": "PlatformAiReadiness",
+      "aiReadiness": "Platform.aiReadiness",
       "ignoreLinkChecker": {
         "type": "boolean",
       },
@@ -3253,6 +3250,25 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "jobs": "PlatformJobList",
+    },
+    "required": undefined,
+  },
+  "Platform.aiReadiness": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "disabled": {
+        "type": "boolean",
+      },
+      "ignore": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
     },
     "required": undefined,
   },
@@ -3746,25 +3762,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "name",
     ],
-  },
-  "PlatformAiReadiness": {
-    "additionalProperties": undefined,
-    "deprecatedProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "disabled": {
-        "type": "boolean",
-      },
-      "ignore": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-    },
-    "required": undefined,
   },
   "PlatformIgnoreLint": {
     "additionalProperties": {
@@ -5746,9 +5743,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "asyncapi": "AsyncApi",
       "decorators": {
         "type": "object",
-      },
-      "docsOutput": {
-        "type": "string",
       },
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
@@ -8434,9 +8428,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "asyncapi": "AsyncApi",
       "decorators": {
         "type": "object",
-      },
-      "docsOutput": {
-        "type": "string",
       },
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",

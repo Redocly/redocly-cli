@@ -140,7 +140,7 @@ function printScore(
 // Before, `score` without an API took the first API of the configuration file.
 // Such a run now fails, because the command processes one API, which the command line names.
 // Until then, it gets the first API as its `api` argument and a deprecation banner.
-// `stats`, `score`, and `scorecard-classic` each hold a copy of this function.
+// `build-docs`, `stats`, `score`, and `scorecard-classic` each hold a copy of this function.
 function getDeprecatedFirstApi(config: Config): string | undefined {
   const [firstApi] = Object.keys(config.resolvedConfig.apis ?? {});
   if (firstApi !== undefined) {

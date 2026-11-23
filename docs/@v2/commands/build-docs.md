@@ -39,7 +39,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 
 | Option            | Type    | Description                                                                                                                                                         |
 | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api               | string  | Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.                   |
+| api               | string  | **REQUIRED.** Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.     |
 | --asyncapi        | string  | Customize your output with [Redoc AsyncAPI options](https://redocly.com/docs/realm/config/asyncapi). Use dot notation, for example `--asyncapi.jsonSamplesDepth 4`. |
 | --config          | string  | Path to the [configuration file](#use-an-alternative-configuration-file). Defaults to `redocly.yaml` in the local folder.                                           |
 | --graphql         | string  | Customize your output with [Redoc GraphQL options](https://redocly.com/docs/realm/config/graphql). Use dot notation, for example `--graphql.showBuiltInScalars`.    |
@@ -47,7 +47,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --inlineBundle    | boolean | Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN. The default value is `false`.                                            |
 | --lint-config     | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                            |
 | --openapi         | string  | Customize your output with [Redoc OpenAPI options](https://redocly.com/docs/realm/config/openapi). Use dot notation, for example `--openapi.hideDownloadButtons`.   |
-| --output, -o      | string  | Set the path and name of the output file. The default value is `redoc-static.html`. It takes precedence over the `docsOutput` of the API in the configuration file. |
+| --output, -o      | string  | Set the path and name of the output file. The default value is `redoc-static.html`.                                                                                 |
 | --template, -t    | string  | Use custom [Handlebars](https://handlebarsjs.com/) templates to render your API description.                                                                        |
 | --templateOptions | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                         |
 | --title           | string  | Set the page title.                                                                                                                                                 |
@@ -87,30 +87,6 @@ redocly build-docs games@v1
 In this case, after resolving the path behind the `games@v1` name, `build-docs` generates a build of the `api-description.json` file.
 For this approach, the Redocly configuration file is mandatory.
 Any additional configurations provided in the file are also used by the command.
-
-#### Build docs for several APIs
-
-Set `docsOutput` for each API in the `apis` object of your Redocly configuration file:
-
-```yaml Configuration file
-apis:
-  games@v1:
-    root: ./openapi/games.yaml
-    docsOutput: ./docs/games.html
-  users@v1:
-    root: ./openapi/users.yaml
-    docsOutput: ./docs/users.html
-```
-
-Then run the command without an API:
-
-```bash Command
-redocly build-docs
-```
-
-In this case, `build-docs` builds every API that has `docsOutput`, and saves each build to that path, relative to the configuration file.
-The `--output` option works only with an API in the command line, and takes precedence over the `docsOutput` of that API.
-An alias in the command line is saved to its `docsOutput` too, and a file path is saved to `redoc-static.html`.
 
 ### Use an alternative configuration file
 

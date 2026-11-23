@@ -20,6 +20,7 @@ Read `redocly.yaml` first. It tells you:
 - Which decorators transform the output at bundle time.
 
 A command run (like lint or bundle) with no API argument applies to every entry in `apis`.
+`build-docs`, `stats`, `score`, and `scorecard-classic` process one API, so always pass it: `redocly build-docs my-api`.
 Point at a different config with `--config <path>`.
 
 ## Quick reference
