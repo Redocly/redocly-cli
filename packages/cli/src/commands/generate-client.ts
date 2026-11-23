@@ -257,6 +257,13 @@ async function generateApiClient(
       `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
     );
   }
+  // The check before the first write compares only the client files of the apis.
+  // A client file can also land on a sibling module (`.zod.ts`, `.cli.ts`, …) of an earlier api.
+  if (seenOutputs.has(outputPath)) {
+    throw new HandledError(
+      `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
+    );
+  }
   seenOutputs.add(outputPath);
   if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
     throw new HandledError(

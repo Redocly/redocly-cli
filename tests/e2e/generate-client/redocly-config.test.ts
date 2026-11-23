@@ -359,6 +359,25 @@ const cases: ConfigCase[] = [
     stderr: ['Two APIs write to the same path'],
   },
   {
+    // The zod module of `a` is known only after `a` is generated, so the run fails at `b`.
+    name: 'errors when a clientOutput matches a sibling module of an earlier api',
+    config: outdent`
+      apis:
+        a:
+          root: ./openapi.yaml
+          clientOutput: ./a.ts
+          client: { generators: [typescript, zod] }
+        b:
+          root: ./openapi.yaml
+          clientOutput: ./a.zod.ts
+          client: { generators: [typescript] }
+    `,
+    args: [],
+    status: 1,
+    contains: [{ file: 'a.zod.ts', text: 'from "zod"' }],
+    stderr: ['Two APIs write to the same path'],
+  },
+  {
     // setup is a local module baked into the client.
     name: 'rejects a URL `client.setup` upfront',
     config: outdent`
