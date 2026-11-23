@@ -18,6 +18,7 @@ Of the features added in Arazzo 1.1.0, it supports only these:
   When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
 - The [`querystring` parameter location](#parameters-with-in-querystring).
 - [Selector Objects](#selector-objects) with a `jsonpath` or `jsonpointer` type.
+- The `rfc9535` version of a [`jsonpath` criterion](#jsonpath-criteria).
 
 AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
@@ -354,6 +355,21 @@ steps:
 
 The second form is specific to `respect`: in RFC 9535, the root `$` is the `context` value.
 When the `context` is a list, a criterion filters its items with `$[*][?(@.category == "dessert")]`, and a selector filters them with `$[?(@.category == "dessert")]`.
+
+To query the `context` value with every condition, set the `rfc9535` version in the criterion type.
+The criterion then uses the same query as a Selector Object, also when the `context` is a list.
+It needs an Arazzo 1.1.0 description.
+
+```yaml
+successCriteria:
+  - context: $response.body#/items
+    condition: $[?(@.category == "dessert")]
+    type:
+      type: jsonpath
+      version: rfc9535
+```
+
+With this version, a filter such as `$[?(@.status == 401)]` tests the member values of an object `context`, not the object itself.
 
 ## Examples
 
