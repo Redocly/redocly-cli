@@ -28,7 +28,6 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeys,
-  warnOnRepeatedOutput,
   formatPath,
 } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
@@ -52,7 +51,7 @@ export type BundleArgv = {
 
 export type BundleTelemetry = {
   bundle_overlays_count?: number;
-  // FIXME: remove this line with `countRepeatedOutput`.
+  // FIXME: remove this line with the repeated output count in `trackWrittenOutput`.
   bundle_repeated_output?: number;
 };
 
@@ -73,7 +72,7 @@ export async function handleBundle({
       `[WARNING] "--metafile" works with one API only, so the metafile is not written. Bundle one API to write it.\n`
     );
   }
-  const outputFiles: (string | undefined)[] = [];
+  const writtenOutputs = new Set<string>();
 
   for (const { path, alias, output } of apis) {
     try {
@@ -123,10 +122,6 @@ export async function handleBundle({
         ext: argv.ext,
         entries: argv?.apis?.length || 0,
       });
-      outputFiles.push(outputFile);
-      warnOnRepeatedOutput(outputFiles);
-      // FIXME: remove this line with `countRepeatedOutput`.
-      countRepeatedOutput(outputFiles);
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
@@ -146,6 +141,7 @@ export async function handleBundle({
             ext,
             argv.dereferenced
           );
+          trackWrittenOutput(outputFile, writtenOutputs);
           saveBundle(outputFile, bundled);
         }
       }
@@ -212,11 +208,14 @@ export async function handleBundle({
   }
 }
 
-// FIXME: remove this function when it is decided whether `bundle` fails on a repeated output path.
-// Until then, `bundle` warns about such a path, and this usage data field shows how many runs the failure affects.
-function countRepeatedOutput(outputFiles: (string | undefined)[]) {
-  const lastOutput = outputFiles.at(-1);
-  if (lastOutput && outputFiles.indexOf(lastOutput) !== outputFiles.length - 1) {
+// Records the path of a bundle that the command is about to write.
+function trackWrittenOutput(outputFile: string, writtenOutputs: Set<string>) {
+  if (writtenOutputs.has(outputFile)) {
+    logger.warn(
+      `[WARNING] Another API already wrote a bundle to ${formatPath(outputFile)}, so this bundle replaces it.\n`
+    );
+    // FIXME: remove this line when it is decided whether `bundle` fails on a repeated output path.
     bundleTelemetry.bundle_repeated_output = (bundleTelemetry.bundle_repeated_output ?? 0) + 1;
   }
+  writtenOutputs.add(outputFile);
 }

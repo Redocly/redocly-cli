@@ -355,15 +355,6 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   logger.info('\n');
 }
 
-export function warnOnRepeatedOutput(outputs: (string | undefined)[]) {
-  const lastOutput = outputs.at(-1);
-  if (lastOutput && outputs.indexOf(lastOutput) !== outputs.length - 1) {
-    logger.warn(
-      `Two APIs write to the same path: ${formatPath(lastOutput)}, so the last bundle replaces the earlier one.\n`
-    );
-  }
-}
-
 export function getOutputFileName({
   entrypoint,
   output,
