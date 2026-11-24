@@ -1,3 +1,9 @@
+---
+seo:
+  title: Redocly CLI bundle command
+  description: Combine separate API description files into a single JSON or YAML output by resolving and pulling referenced components into one file.
+---
+
 # `bundle`
 
 ## Introduction

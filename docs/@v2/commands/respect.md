@@ -1,4 +1,7 @@
 ---
+seo:
+  title: Redocly CLI respect command
+  description: Execute API tests described in an Arazzo description and validate responses against your OpenAPI description.
 slug:
   - /docs/cli/commands/respect
   - /docs/respect/commands/respect

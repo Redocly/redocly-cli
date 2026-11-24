@@ -1,6 +1,7 @@
 ---
 seo:
-  title: Usage data
+  title: Redocly CLI usage data and telemetry
+  description: Understand what anonymized usage data and product metrics Redocly CLI collects and how to opt out of telemetry collection.
 ---
 
 # Usage data and product metrics
