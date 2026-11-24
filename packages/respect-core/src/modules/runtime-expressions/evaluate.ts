@@ -1,10 +1,15 @@
-import { isPlainObject, type LoggerInterface, type SelectorObject } from '@redocly/openapi-core';
+import {
+  isPlainObject,
+  parseRuntimeExpression,
+  type LoggerInterface,
+  type SelectorObject,
+} from '@redocly/openapi-core';
 import { query, type JsonValue } from 'jsonpath-rfc9535';
 import parseJsonPath from 'jsonpath-rfc9535/parser';
 
 import type { RuntimeExpressionContext } from '../../types.js';
 import { getFakeData, parseJson } from '../context-parser/index.js';
-import { atPointer, interpretExpression } from './interpret-expression.js';
+import { atPointer, interpretExpression, resolveSingleExpression } from './interpret-expression.js';
 import { lintExpression } from './lint.js';
 
 // Matches Arazzo embedded runtime expressions of the form `{$...}`, which must be
@@ -32,7 +37,7 @@ export function evaluateRuntimeExpressionPayload({
   if (typeof payload === 'string') {
     // Resolve string expressions
     return isPureRuntimeExpression(payload)
-      ? evaluateRuntimeExpression(payload, context, logger)
+      ? evaluateSingleRuntimeExpression(payload, context, logger)
       : evaluateExpressionsInString(payload, context, logger);
   } else if (payload instanceof Blob) {
     // A file of a multipart payload is sent as it is.
@@ -80,6 +85,29 @@ export function evaluateRuntimeExpression(
   }
 }
 
+// Evaluates a value that holds one runtime expression: an output, a parameter value, an embedded
+// expression, or a `context`. Such a value can use the names and the JSON Pointers of the Arazzo
+// ABNF that the grammar of a condition leaves out, because they would run into an operator.
+// It returns `any`, as `evaluateRuntimeExpression` does: the value comes from the context as it is.
+export function evaluateSingleRuntimeExpression(
+  expression: string,
+  context: RuntimeExpressionContext,
+  logger: LoggerInterface,
+  keepsObjectKeys = false
+): any {
+  const singleExpression = withoutBraces(expression);
+
+  if (isValidRuntimeExpression(expression) || !isSingleExpression(singleExpression)) {
+    return evaluateExpressionString(expression, context, logger, keepsObjectKeys);
+  }
+
+  try {
+    return resolveSingleExpression(singleExpression, context, keepsObjectKeys);
+  } catch (error) {
+    throw createResolvingError(expression, error);
+  }
+}
+
 function evaluateExpressionString(
   expression: string,
   context: RuntimeExpressionContext,
@@ -109,12 +137,16 @@ function evaluateExpressionString(
   try {
     return interpretExpression(expression, context, keepsObjectKeys);
   } catch (error) {
-    const cause = error instanceof Error ? `: ${error.message}` : '';
-    throw new Error(
-      `Error in resolving runtime expression '${expression}'${cause}. \n` +
-        "This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set."
-    );
+    throw createResolvingError(expression, error);
   }
+}
+
+function createResolvingError(expression: string, error: unknown): Error {
+  const cause = error instanceof Error ? `: ${error.message}` : '';
+  return new Error(
+    `Error in resolving runtime expression '${expression}'${cause}. \n` +
+      "This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set."
+  );
 }
 
 // Helper function to evaluate expressions within a string
@@ -137,14 +169,16 @@ function evaluateExpressionsInString(
     const isFakerExpression =
       /^\{?\s*\$/.test(exprToEvaluate) && exprToEvaluate.includes('$faker.');
 
-    if (!isValidRuntimeExpression(exprToEvaluate) && !isFakerExpression) {
+    const isEmbeddedExpression = match.startsWith('{') && isSingleExpression(match.slice(1, -1));
+
+    if (!isValidRuntimeExpression(exprToEvaluate) && !isFakerExpression && !isEmbeddedExpression) {
       return match.startsWith('{')
         ? `{${evaluateExpressionsInString(match.slice(1, -1), context, logger, true)}}`
         : match;
     }
 
-    // For dollar expressions, include the leading $ when passing to evaluateRuntimeExpression
-    const evaluatedValue = evaluateRuntimeExpression(exprToEvaluate, context, logger);
+    // For dollar expressions, include the leading $ when passing to evaluateSingleRuntimeExpression
+    const evaluatedValue = evaluateSingleRuntimeExpression(exprToEvaluate, context, logger);
 
     // Keeping the expression text would send it as a literal value, so fail instead
     if (evaluatedValue === undefined) {
@@ -174,7 +208,10 @@ export function isPureRuntimeExpression(expression: string): boolean {
     return false;
   }
 
-  return isValidRuntimeExpression(trimmedExpression);
+  return (
+    isValidRuntimeExpression(trimmedExpression) ||
+    isSingleExpression(withoutBraces(trimmedExpression))
+  );
 }
 
 function isValidRuntimeExpression(expression: string): boolean {
@@ -184,6 +221,25 @@ function isValidRuntimeExpression(expression: string): boolean {
   } catch {
     return false;
   }
+}
+
+// The Arazzo 1.0.1 ABNF does not limit the characters of a name, and the 1.1.0 ABNF adds
+// expressions that Respect does not evaluate, so a single expression is what both of them accept.
+function isSingleExpression(expression: string): boolean {
+  try {
+    parseRuntimeExpression(expression, { startRule: 'Arazzo1Expression' });
+    parseRuntimeExpression(expression, { startRule: 'Arazzo1_1Expression' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function withoutBraces(expression: string): string {
+  const trimmedExpression = expression.trim();
+  return trimmedExpression.startsWith('{') && trimmedExpression.endsWith('}')
+    ? trimmedExpression.slice(1, -1)
+    : trimmedExpression;
 }
 
 // A literal object is a Selector Object (Arazzo 1.1.0) only when it has all three of its fields.
@@ -209,7 +265,7 @@ function evaluateSelectorObject(
       ? { type: selectorObject.type, version: undefined }
       : selectorObject.type;
   // A selector reads the data as it is, so the context keeps its object keys.
-  const data = evaluateExpressionString(selectorObject.context, context, logger, true);
+  const data = evaluateSingleRuntimeExpression(selectorObject.context, context, logger, true);
 
   if (data === undefined) {
     throw new Error(`Selector context "${selectorObject.context}" has no value.`);
@@ -294,7 +350,7 @@ export function resolveEmbeddedExpressions(
     }
     scannedLength = offset + match.length;
 
-    const value = evaluateRuntimeExpression(expression, context, logger);
+    const value = evaluateSingleRuntimeExpression(expression, context, logger);
     if (!quote || value === undefined) {
       return formatJsonPathLiteral(value, match);
     }

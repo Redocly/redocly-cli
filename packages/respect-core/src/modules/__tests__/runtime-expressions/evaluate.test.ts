@@ -5,6 +5,7 @@ import { createFaker } from '../../faker.js';
 import {
   evaluateRuntimeExpressionPayload,
   evaluateRuntimeExpression,
+  evaluateSingleRuntimeExpression,
 } from '../../runtime-expressions/index.js';
 
 const faker = createFaker();
@@ -1109,5 +1110,122 @@ describe('evaluateRuntimeExpressionPayload with a Selector Object', () => {
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Invalid JSON Pointer selector "items". A JSON Pointer is empty or starts with "/".]`
     );
+  });
+});
+
+describe('a value that holds a single runtime expression', () => {
+  const context = {
+    $request: {
+      query: { $filter: "name eq 'tea'", 'page[size]': 10 },
+      path: { 'user.id': 'usr_1' },
+    },
+    $response: {
+      body: {
+        id: 'ord_1',
+        '@odata.nextLink': 'https://cafe.example/orders?page=2',
+        'hydra:member': [{ id: 'ord_1', owner: 'usr_1' }],
+        'first name': 'Ada',
+        café: 'Redocly Cafe',
+      },
+    },
+    $steps: { 'create-order': { outputs: { order: { id: { value: 7 } } } } },
+  } as unknown as RuntimeExpressionContext;
+
+  it('should read a JSON Pointer token with the characters the Arazzo ABNF allows', () => {
+    const payload = {
+      nextLink: '$response.body#/@odata.nextLink',
+      firstOrderId: '$response.body#/hydra:member/0/id',
+      cafe: '$response.body#/café',
+      firstName: '{$response.body#/first name}',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      nextLink: 'https://cafe.example/orders?page=2',
+      firstOrderId: 'ord_1',
+      cafe: 'Redocly Cafe',
+      firstName: 'Ada',
+    });
+  });
+
+  it('should read a query or a path name up to the end of the expression', () => {
+    const payload = {
+      filter: '$request.query.$filter',
+      pageSize: '$request.query.page[size]',
+      userId: '$request.path.user.id',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      filter: "name eq 'tea'",
+      pageSize: 10,
+      userId: 'usr_1',
+    });
+  });
+
+  it('should read the dots of an output name as a property chain before a JSON Pointer', () => {
+    const payload = '$steps.create-order.outputs.order.id#/value';
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual(7);
+  });
+
+  it('should evaluate an embedded expression in a string', () => {
+    const payload = '{$response.body#/@odata.nextLink}&size={$request.query.page[size]}';
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual(
+      'https://cafe.example/orders?page=2&size=10'
+    );
+  });
+
+  it('should keep a value with a space and an expression that Respect does not support as text', () => {
+    const payload = {
+      message: '$response.body#/id is ready',
+      self: '$self',
+      messagePayload: '$message.payload#/id',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      message: 'ord_1 is ready',
+      self: '$self',
+      messagePayload: '$message.payload#/id',
+    });
+  });
+
+  it('should throw for a JSON Pointer that reaches no value', () => {
+    const payload = '$response.body#/@odata.count';
+
+    expect(() => evaluateRuntimeExpressionPayload({ payload, context, logger })).toThrow(
+      `Error in resolving runtime expression '$response.body#/@odata.count': JSON Pointer "/@odata.count" reaches no value.`
+    );
+  });
+
+  it('should evaluate a context, also with a space in a JSON Pointer token', () => {
+    const payload = {
+      byPointer: {
+        context: '$response.body#/hydra:member',
+        selector: '/0/id',
+        type: 'jsonpointer',
+      },
+      byPath: {
+        context: '$response.body',
+        selector: "$['hydra:member'][?@.owner == {$request.path.user.id}].id",
+        type: 'jsonpath',
+      },
+    };
+
+    expect(evaluateSingleRuntimeExpression('$response.body#/first name', context, logger)).toEqual(
+      'Ada'
+    );
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      byPointer: 'ord_1',
+      byPath: ['ord_1'],
+    });
+  });
+
+  it('should parse a condition as before', () => {
+    expect(() =>
+      evaluateRuntimeExpression('$response.body#/@odata.count > 0', context, logger)
+    ).toThrow('Runtime expression is not valid: $response.body#/@odata.count > 0');
+    expect(() =>
+      evaluateRuntimeExpression("$request.query.$filter == 'tea'", context, logger)
+    ).toThrow("Runtime expression is not valid: $request.query.$filter == 'tea'");
   });
 });

@@ -10,6 +10,8 @@ type Token =
 const REFERENCE_CHAR = /[\w.-]/;
 // The `Unescaped` and `Escaped` characters of `jsonPointer` in abnf-parser.pegjs.
 const POINTER_CHAR = /[!-.0-9A-Z_a-z/~]/;
+// `$request.query.<name>` and `$request.path.<name>`: the name can hold a dot or a `#`.
+const NAMED_VALUE = /^(\$(?:request|response)\.(?:query|path))\.(.*)$/;
 const NUMBER = /^\d+(?:\.\d+)?/;
 const KEYWORD = /^(?:true|false|null|undefined)\b/;
 const EMPTY_ARRAY = /^\[\s*\]/;
@@ -144,6 +146,26 @@ function resolveReference(
 
   const [pointer, ...chain] = text.slice(hashIndex + 1).split('.');
   return walk(atPointer(value, pointer), chain);
+}
+
+/**
+ * Reads a single runtime expression as the Arazzo ABNF defines it: a query or a path name runs to
+ * the end of the expression, and a JSON Pointer token can hold any character. The dots of the
+ * other names start a property chain, as they do in a condition.
+ */
+export function resolveSingleExpression(
+  expression: string,
+  context: RuntimeExpressionContext,
+  keepsObjectKeys: boolean
+): unknown {
+  const [, source, name] = NAMED_VALUE.exec(expression) ?? [];
+  if (source) return walk(context, [...source.split('.'), name]);
+
+  const hashIndex = expression.indexOf('#');
+  if (hashIndex === -1) return resolveReference(expression, context, keepsObjectKeys);
+
+  const value = resolveReference(expression.slice(0, hashIndex), context, true);
+  return atPointer(value, expression.slice(hashIndex + 1));
 }
 
 /** Property access as JavaScript does it, on own properties only. */

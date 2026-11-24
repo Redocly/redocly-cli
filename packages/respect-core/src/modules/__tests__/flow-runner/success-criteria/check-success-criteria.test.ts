@@ -1142,4 +1142,37 @@ describe('checkSuccessCriteria', () => {
 
     expect(result.map((check) => check.passed)).toEqual([true]);
   });
+
+  it('should evaluate a context with a JSON Pointer token that a condition cannot hold', () => {
+    const step = {
+      stepId: 'stepId',
+      checks: [],
+      response: {
+        body: { 'hydra:member': [{ status: 'available' }], '@odata.context': 'orders' },
+        statusCode: 200,
+        header: {},
+      },
+    } as unknown as Step;
+
+    const result = checkCriteria({
+      workflowId: 'workflowId',
+      step,
+      criteria: [
+        {
+          type: 'jsonpath',
+          context: '$response.body#/hydra:member/0',
+          condition: '$[?(@.status == "available")]',
+        },
+        { type: 'regex', context: '$response.body#/@odata.context', condition: '^orders$' },
+      ],
+      ctx: {
+        $workflows: { workflowId: { steps: { stepId: {} } } },
+        $steps: {},
+        severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: { logger },
+      } as unknown as TestContext,
+    });
+
+    expect(result.map((check) => check.passed)).toEqual([true, true]);
+  });
 });
