@@ -205,7 +205,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - boolean
 - Disables masking of secrets in the output.
   By default, `respect` masks sensitive information with `********` in both terminal logs and file outputs.
-  Sensitive information includes values described with `format: password`, and tokens and authentication headers from `x-security`.
+  Sensitive information includes values described with `format: password`, tokens and authentication headers from `x-security`, and the credentials and tokens of an OAuth2 token request.
 
   When this flag is set to `true`, the raw (unmasked) data shows in all outputs.
 
