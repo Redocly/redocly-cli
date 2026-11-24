@@ -1,4 +1,11 @@
-import { BuildsApi, PullRequestsApi, PlatformApiClient } from './api/api-client.js';
+import {
+  BuildsApi,
+  OrganizationsApi,
+  PlatformApiError,
+  ProjectsApi,
+  PullRequestsApi,
+  PlatformApiClient,
+} from './api/api-client.js';
 import { isValidPlatformUrl } from './api/domains.js';
 import type { PullRequestCheck, PullRequestResponse } from './api/types.js';
 
@@ -19,6 +26,12 @@ export type CreatePullRequestOptions = HostedProjectOptions & {
   // Defaults to the default branch of the project.
   base?: string;
   draft?: boolean;
+};
+
+// `organization` and `project` are ids; the slugs address the project in the Redocly platform UI.
+export type ResolvedHostedProject = HostedProject & {
+  organizationSlug: string;
+  projectSlug: string;
 };
 
 export type PullRequestStatus = {
@@ -45,6 +58,33 @@ export function parseProjectGitUrl(url: string): HostedProject | undefined {
     platformUrl,
     organization: decodeURIComponent(organization),
     project: decodeURIComponent(project),
+  };
+}
+
+// `organization` and `project` may be ids or slugs.
+export async function resolveHostedProject({
+  command,
+  ...options
+}: HostedProjectOptions & { command: string }): Promise<ResolvedHostedProject> {
+  const { platformUrl, organization, project } = options;
+  const { organizations, projects } = createApis(options, command);
+  const [foundOrganization, foundProject] = await Promise.all([
+    organizations.find(organization),
+    projects.find(organization, project),
+  ]);
+  if (!foundProject) {
+    throw new PlatformApiError(
+      `Project "${project}" was not found in organization "${organization}".`,
+      404
+    );
+  }
+
+  return {
+    platformUrl,
+    organization: foundOrganization.id,
+    project: foundProject.id,
+    organizationSlug: foundOrganization.slug,
+    projectSlug: foundProject.slug,
   };
 }
 
@@ -98,6 +138,8 @@ function createApis({ platformUrl, accessToken, version }: HostedProjectOptions,
   const authHeaders = { Cookie: `accessToken=${accessToken}` };
 
   return {
+    organizations: new OrganizationsApi(client, platformUrl, authHeaders),
+    projects: new ProjectsApi(client, platformUrl, authHeaders),
     pullRequests: new PullRequestsApi(client, platformUrl, authHeaders),
     builds: new BuildsApi(client, platformUrl, authHeaders),
   };

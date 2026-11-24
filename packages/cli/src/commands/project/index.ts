@@ -1,8 +1,13 @@
 import { HandledError, logger } from '@redocly/openapi-core';
-import { buildProjectGitUrl, getPlatformUrl } from '@redocly/platform-integration';
+import {
+  buildProjectGitUrl,
+  getPlatformUrl,
+  RedoclyOAuthClient,
+  resolveHostedProject,
+} from '@redocly/platform-integration';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { getCredentialHelperConfig, runGit } from './utils.js';
+import { asHandledError, getCredentialHelperConfig, runGit } from './utils.js';
 
 export type ProjectCloneArgv = {
   project: string;
@@ -20,7 +25,19 @@ export async function handleProjectClone({ argv, config, version }: CommandArgs<
   }
 
   const platformUrl = getPlatformUrl(config, argv.residency);
-  const url = buildProjectGitUrl(platformUrl, organization, project);
+  const accessToken = await new RedoclyOAuthClient(version).getAccessToken(platformUrl);
+  // Without a login, git authenticates with REDOCLY_AUTHORIZATION, whose key may not look the project up.
+  const ids = accessToken
+    ? await resolveHostedProject({
+        platformUrl,
+        organization,
+        project,
+        accessToken,
+        version,
+        command: 'project clone',
+      }).catch(asHandledError)
+    : { organization, project };
+  const url = buildProjectGitUrl(platformUrl, ids.organization, ids.project);
   const helperConfig = getCredentialHelperConfig(platformUrl, version);
 
   logger.info(`Cloning ${organization}/${project} from ${platformUrl}\n`);

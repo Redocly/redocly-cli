@@ -38,6 +38,10 @@ export async function runGit(
   });
 }
 
+export function asHandledError(error: Error): never {
+  throw new HandledError(error.message);
+}
+
 function isOnPath(command: string): boolean {
   const extensions = process.platform === 'win32' ? ['.cmd', '.exe'] : [''];
 

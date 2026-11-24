@@ -7,6 +7,7 @@ import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-w
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
 import type {
   CreatePullRequestPayload,
+  OrganizationResponse,
   ProjectBuildResponse,
   ProjectResponse,
   ProjectSourcesListResponse,
@@ -154,7 +155,18 @@ abstract class ResourceApi {
   }
 }
 
-class ProjectsApi extends ResourceApi {
+export class OrganizationsApi extends ResourceApi {
+  // `organization` accepts an id or a slug.
+  find(organization: string): Promise<OrganizationResponse> {
+    return this.fetchJson(
+      `${this.domain}/api/orgs/${encodeURIComponent(organization)}`,
+      { method: 'GET', timeout: DEFAULT_FETCH_TIMEOUT },
+      'Failed to get the organization'
+    );
+  }
+}
+
+export class ProjectsApi extends ResourceApi {
   // Both segments accept an id or a slug; the response carries the ids.
   async find(organization: string, project: string): Promise<ProjectResponse | undefined> {
     try {

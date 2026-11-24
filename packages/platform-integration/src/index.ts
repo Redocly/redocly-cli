@@ -33,10 +33,12 @@ export {
   createPullRequest,
   getPullRequestStatus,
   parseProjectGitUrl,
+  resolveHostedProject,
   type CreatePullRequestOptions,
   type HostedProject,
   type HostedProjectOptions,
   type PullRequestStatus,
+  type ResolvedHostedProject,
 } from './hosted-project.js';
 export {
   RedoclyOAuthDeviceFlow,
