@@ -24,7 +24,13 @@ An `oauth2` scheme accepts one of the following sets of values:
 
 With the credentials of a flow, Respect requests the access token from the `tokenUrl` of that flow and reuses it until it expires.
 A relative `tokenUrl` is resolved against the server URL of the request.
-An optional `scope` value, a space-separated list, limits the scopes of the requested token.
+
+The token request has the following limits:
+
+- Respect sends the client secret only in the HTTP Basic header, not in the request body.
+- The token request is not in the `--verbose` output.
+- A redirect from the token endpoint is an error.
+  An optional `scope` value, a space-separated list, limits the scopes of the requested token.
 
 ## Configuration
 

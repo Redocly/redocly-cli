@@ -122,7 +122,7 @@ describe('getOAuth2AccessToken', () => {
     });
 
     expect(ctx.secretsSet).toEqual(
-      new Set(['p@ss word', btoa('cafe-client:secret'), 'new-token', 'refresh-token'])
+      new Set(['p@ss word', btoa('cafe-client:secret'), 'secret', 'new-token', 'refresh-token'])
     );
   });
 
@@ -184,6 +184,19 @@ describe('getOAuth2AccessToken', () => {
     ).rejects.toThrow(
       `The OAuth2 token response from ${tokenUrl} has the token type \`mac\`, but Respect supports only \`Bearer\`.`
     );
+  });
+
+  it('should report an empty access token instead of using the credentials of a flow', async () => {
+    const { ctx, fetchMock } = createContext({ access_token: 'new-token' });
+
+    await expect(
+      getOAuth2AccessToken({
+        ctx,
+        scheme,
+        values: { accessToken: '', clientId: 'cafe-client', clientSecret: 'secret' },
+      })
+    ).rejects.toThrow('Missing required value `accessToken` for oauth2 security scheme');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('should list the accepted values when none of the options is complete', async () => {

@@ -42,7 +42,7 @@ function validateSecuritySchemas(
 
       if (!hasRequiredValues) {
         report({
-          message: `The oauth2 authentication security schema requires ${describeOAuth2ValueOptions(valueOptions)} in \`values\`.`,
+          message: `The \`values\` of an oauth2 security scheme must have ${describeOAuth2ValueOptions(valueOptions)}.`,
           location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
           reference: 'https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values',
         });

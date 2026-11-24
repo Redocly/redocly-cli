@@ -21,6 +21,7 @@ import {
   createFormData,
   parseRequestBody,
   resolveReusableComponentItem,
+  resolvePath,
   isParameterWithIn,
   handlePayloadReplacements,
   type ParameterWithIn,
@@ -174,7 +175,15 @@ export async function prepareRequest(
     operation: openapiOperation as OperationDetails & {
       securitySchemes: Record<string, Oas3SecurityScheme>;
     },
-    serverUrl: serverUrl?.url,
+    // A relative `tokenUrl` is resolved against the server URL, so its variables are set first.
+    serverUrl: resolvePath(
+      serverUrl?.url,
+      evaluateRuntimeExpressionPayload({
+        payload: groupParametersValuesByName(parameters, 'path'),
+        context: expressionContext,
+        logger: ctx.options.logger,
+      })
+    ),
     workflowLevelXSecurityParameters: workflowLevelXSecurityParameters as ExtendedSecurity[],
   });
 

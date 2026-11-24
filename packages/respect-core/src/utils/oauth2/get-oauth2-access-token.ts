@@ -33,14 +33,22 @@ export async function getOAuth2AccessToken({
   serverUrl?: string;
 }): Promise<string> {
   const valueOptions = getOAuth2ValueOptions(scheme);
+  // The keys choose the option, the same way as in the `x-security-scheme-required-values` rule,
+  // so an empty value is an error and not a reason to try the next option.
   const valueOption = valueOptions.find(({ requiredValues }) =>
-    requiredValues.every((requiredValue) => values[requiredValue])
+    requiredValues.every((requiredValue) => requiredValue in values)
   );
 
   if (!valueOption) {
     throw new Error(
       `Missing required values for oauth2 security scheme: ${describeOAuth2ValueOptions(valueOptions)}`
     );
+  }
+
+  const emptyValue = valueOption.requiredValues.find((requiredValue) => !values[requiredValue]);
+
+  if (emptyValue) {
+    throw new Error(`Missing required value \`${emptyValue}\` for oauth2 security scheme`);
   }
   if (!valueOption.flow) {
     return values.accessToken;
@@ -88,6 +96,7 @@ export async function getOAuth2AccessToken({
       new URLSearchParams({ [clientId]: clientSecret }).toString().replace('=', ':')
     );
     ctx.secretsSet.add(credentials);
+    ctx.secretsSet.add(String(clientSecret));
     headers.authorization = `Basic ${credentials}`;
   } else if (clientId) {
     // RFC 6749, section 3.2.1: a client without a secret only identifies itself.
