@@ -1175,6 +1175,18 @@ describe('a value that holds a single runtime expression', () => {
     );
   });
 
+  it('should evaluate an expression with spaces inside the curly braces', () => {
+    const payload = {
+      firstName: '{ $response.body#/first name }',
+      link: 'next={ $response.body#/@odata.nextLink }',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      firstName: 'Ada',
+      link: 'next=https://cafe.example/orders?page=2',
+    });
+  });
+
   it('should keep a value with a space and an expression that Respect does not support as text', () => {
     const payload = {
       message: '$response.body#/id is ready',

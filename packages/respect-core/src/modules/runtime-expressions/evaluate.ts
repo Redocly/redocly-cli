@@ -169,7 +169,7 @@ function evaluateExpressionsInString(
     const isFakerExpression =
       /^\{?\s*\$/.test(exprToEvaluate) && exprToEvaluate.includes('$faker.');
 
-    const isEmbeddedExpression = match.startsWith('{') && isSingleExpression(match.slice(1, -1));
+    const isEmbeddedExpression = match.startsWith('{') && isSingleExpression(withoutBraces(match));
 
     if (!isValidRuntimeExpression(exprToEvaluate) && !isFakerExpression && !isEmbeddedExpression) {
       return match.startsWith('{')
@@ -238,7 +238,7 @@ function isSingleExpression(expression: string): boolean {
 function withoutBraces(expression: string): string {
   const trimmedExpression = expression.trim();
   return trimmedExpression.startsWith('{') && trimmedExpression.endsWith('}')
-    ? trimmedExpression.slice(1, -1)
+    ? trimmedExpression.slice(1, -1).trim()
     : trimmedExpression;
 }
 
