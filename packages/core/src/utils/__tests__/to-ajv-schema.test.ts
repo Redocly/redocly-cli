@@ -78,4 +78,37 @@ describe('toAjvSchema', () => {
       }
     `);
   });
+
+  it('should replace every converted schema with the result of adjustSchema', () => {
+    const properties: Record<string, unknown> = { name: { type: 'string' } };
+    const menuItem = { type: 'object', properties, 'x-tags': ['menu'] };
+    properties.related = { ...menuItem };
+
+    // The source is the dereferenced schema, so it still has the extension.
+    const converted = toAjvSchema(menuItem, (schema, source) => ({
+      ...schema,
+      description: `Converted from a schema with: ${Object.keys(source).join(', ')}.`,
+    }));
+
+    expect(converted).toMatchInlineSnapshot(`
+      {
+        "$defs": {
+          "0": {
+            "description": "Converted from a schema with: type, properties, x-tags.",
+            "properties": {
+              "name": {
+                "description": "Converted from a schema with: type.",
+                "type": "string",
+              },
+              "related": {
+                "$ref": "#/$defs/0",
+              },
+            },
+            "type": "object",
+          },
+        },
+        "$ref": "#/$defs/0",
+      }
+    `);
+  });
 });

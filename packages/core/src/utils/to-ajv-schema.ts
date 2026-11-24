@@ -43,8 +43,18 @@ const COMPOSITE_KEYWORDS = new Set(['anyOf', 'oneOf', 'not', 'if', 'contains', '
  *   it on the parent schema of the `allOf` form, and there it is not used for validation.
  * - Specification extensions are left out. Ajv does not use them, and a dereferenced extension can
  *   contain the schema itself.
+ *
+ * `adjustSchema` gets every converted schema with the dereferenced schema it comes from, and its
+ * result replaces the converted schema. In the dereferenced schema, a property that became a
+ * `$ref` is still the whole schema.
  */
-export function toAjvSchema(schema: unknown): unknown {
+export function toAjvSchema(
+  schema: unknown,
+  adjustSchema?: (
+    converted: Record<string, unknown>,
+    source: Record<string, unknown>
+  ) => Record<string, unknown>
+): unknown {
   const names = new Map<object, string>();
   const definitions: Record<string, unknown> = {};
   const ancestors: Record<string, unknown>[] = [];
@@ -73,24 +83,40 @@ export function toAjvSchema(schema: unknown): unknown {
     const hadName = names.has(node);
 
     ancestors.push(node);
-    const kept = Object.fromEntries(
-      Object.entries(node).filter(
-        ([keyword]) =>
-          !keyword.startsWith('x-') &&
-          (keyword !== 'discriminator' || variantsKeyword !== undefined)
-      )
+    const convertedNode = Object.fromEntries(
+      Object.entries(node)
+        .filter(
+          ([keyword]) =>
+            !keyword.startsWith('x-') &&
+            (keyword !== 'discriminator' || variantsKeyword !== undefined)
+        )
+        .map(([keyword, value]) => {
+          // The variants of a discriminator are not compiled as a composite keyword.
+          const isVariants = tagName !== undefined && keyword === variantsKeyword;
+          const isComposite = isUnderComposite || (COMPOSITE_KEYWORDS.has(keyword) && !isVariants);
+          const convertItem = (item: unknown) =>
+            convert(
+              item,
+              isComposite,
+              isVariants && !isComposite && hasSeveralValues(item, tagName)
+            );
+
+          if (SCHEMA_MAP_KEYWORDS.has(keyword) && isPlainObject(value)) {
+            return [
+              keyword,
+              Object.fromEntries(
+                Object.entries(value).map(([key, item]) => [key, convertItem(item)])
+              ),
+            ];
+          }
+          if (SCHEMA_KEYWORDS.has(keyword)) {
+            return [keyword, Array.isArray(value) ? value.map(convertItem) : convertItem(value)];
+          }
+          return [keyword, value];
+        })
     );
-    const converted = mapSubschemas(kept, (subschema, keyword) => {
-      // The variants of a discriminator are not compiled as a composite keyword.
-      const isVariants = tagName !== undefined && keyword === variantsKeyword;
-      const isComposite = isUnderComposite || (COMPOSITE_KEYWORDS.has(keyword) && !isVariants);
-      return convert(
-        subschema,
-        isComposite,
-        isVariants && !isComposite && hasSeveralValues(subschema, tagName)
-      );
-    });
     ancestors.pop();
+    const converted = adjustSchema ? adjustSchema(convertedNode, node) : convertedNode;
 
     // The schema got a name when a copy of it was found below.
     const isRecursive = !hadName && names.has(node);
@@ -109,32 +135,6 @@ export function toAjvSchema(schema: unknown): unknown {
 
   const ownDefinitions = isPlainObject(converted.$defs) ? converted.$defs : {};
   return { ...converted, $defs: { ...ownDefinitions, ...definitions } };
-}
-
-/**
- * Returns a copy of a schema where every schema it holds under a keyword is replaced with the
- * result of `mapSubschema`. The other keywords keep their values.
- */
-export function mapSubschemas(
-  schema: Record<string, unknown>,
-  mapSubschema: (subschema: unknown, keyword: string) => unknown
-): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(schema).map(([keyword, value]) => {
-      const mapItem = (item: unknown) => mapSubschema(item, keyword);
-
-      if (SCHEMA_MAP_KEYWORDS.has(keyword) && isPlainObject(value)) {
-        return [
-          keyword,
-          Object.fromEntries(Object.entries(value).map(([key, item]) => [key, mapItem(item)])),
-        ];
-      }
-      if (SCHEMA_KEYWORDS.has(keyword)) {
-        return [keyword, Array.isArray(value) ? value.map(mapItem) : mapItem(value)];
-      }
-      return [keyword, value];
-    })
-  );
 }
 
 // Dereferencing replaces a `$ref` with a shallow copy of its target, so a copy holds the same values.

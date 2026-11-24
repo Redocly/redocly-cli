@@ -95,6 +95,26 @@ describe('SchemaValidator discriminated oneOf', () => {
 
     expect(result).toEqual({ valid: true, errors: [] });
   });
+
+  it('keeps discriminator support next to a discriminator without oneOf', () => {
+    // The parent schema of the `allOf` form of a discriminator.
+    const refundBase = {
+      type: 'object',
+      discriminator: { propertyName: 'method' },
+      properties: { method: { type: 'string' } },
+    };
+    const orderSchema = {
+      type: 'object',
+      properties: { payment: paymentSchema, refund: { allOf: [refundBase] } },
+    };
+    const paymentWithInvalidId = { ...validBankTransferPayment, id: 'PAY-123' };
+
+    const result = validator.validate(orderSchema, { payment: paymentWithInvalidId }, 'response');
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toMatchObject({ keyword: 'pattern', instancePath: '/payment/id' });
+  });
 });
 
 describe('SchemaValidator readOnly and writeOnly through allOf', () => {
@@ -133,9 +153,16 @@ describe('SchemaValidator decimal multipleOf', () => {
 describe('SchemaValidator recursive schema', () => {
   const validator = new SchemaValidator();
   const menu = { name: 'Menu', sections: [{ name: 'Drinks', sections: [{ name: 42 }] }] };
+  // The schema path starts at the recursive schema, with and without a target.
   const wrongNameAtThirdLevel = {
     valid: false,
-    errors: [{ keyword: 'type', instancePath: '/sections/0/sections/0/name' }],
+    errors: [
+      {
+        keyword: 'type',
+        instancePath: '/sections/0/sections/0/name',
+        schemaPath: '#/properties/name/type',
+      },
+    ],
   };
 
   it.each([undefined, 'request', 'response'] as const)(

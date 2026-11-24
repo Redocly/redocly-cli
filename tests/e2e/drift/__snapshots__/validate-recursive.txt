@@ -34,7 +34,7 @@ Problems by type (showing first 2 of 2)
     http://api.example.com/tree
 
     spec: recursive-openapi.yaml
-    schemaPath= #/items/properties/value/type
+    schemaPath= #/properties/value/type
     dataPath= /children/0/children/0/value
 
     schema: Response field "children[0].children[0].value" must be integer.

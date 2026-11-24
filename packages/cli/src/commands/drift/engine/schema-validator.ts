@@ -4,7 +4,7 @@ import Ajv2020, {
   type ValidateFunction,
   type Ajv2020 as Ajv2020Instance,
 } from '@redocly/ajv/dist/2020.js';
-import { isPlainObject, mapSubschemas, toAjvSchema } from '@redocly/openapi-core';
+import { isPlainObject, toAjvSchema } from '@redocly/openapi-core';
 import addFormats from 'ajv-formats';
 
 import type { SchemaValidationError } from '../types/index.js';
@@ -62,38 +62,24 @@ function isRequiredNameExcludedFromTarget(
  * writeOnly properties are absent from responses, so they must not be enforced
  * via `required` when validating the corresponding message.
  *
- * A dereferenced recursive schema contains itself, and so does the result: a
- * revisited schema gets the copy that was already made for it.
+ * The flags are read from the dereferenced schema, because a recursive property
+ * is only a `$ref` in the converted one.
  */
 function relaxRequiredForTarget(
-  schema: unknown,
-  target: ValidationTarget,
-  copies = new Map<object, Record<string, unknown>>()
-): unknown {
-  if (!isPlainObject(schema)) {
-    return schema;
+  converted: Record<string, unknown>,
+  source: Record<string, unknown>,
+  target: ValidationTarget
+): Record<string, unknown> {
+  if (!Array.isArray(source.required)) {
+    return converted;
   }
 
-  const copy = copies.get(schema);
-  if (copy) {
-    return copy;
-  }
-
-  // Registered before it is filled, because the schema can be one of its own subschemas.
-  const relaxed: Record<string, unknown> = {};
-  copies.set(schema, relaxed);
-  Object.assign(
-    relaxed,
-    mapSubschemas(schema, (subschema) => relaxRequiredForTarget(subschema, target, copies))
-  );
-
-  if (Array.isArray(schema.required)) {
-    relaxed.required = schema.required.filter(
-      (name) => typeof name !== 'string' || !isRequiredNameExcludedFromTarget(schema, name, target)
-    );
-  }
-
-  return relaxed;
+  return {
+    ...converted,
+    required: source.required.filter(
+      (name) => typeof name !== 'string' || !isRequiredNameExcludedFromTarget(source, name, target)
+    ),
+  };
 }
 
 export class SchemaValidator {
@@ -174,7 +160,10 @@ export class SchemaValidator {
         return cached;
       }
 
-      const effectiveSchema = toAjvSchema(target ? relaxRequiredForTarget(schema, target) : schema);
+      const effectiveSchema = toAjvSchema(
+        schema,
+        target && ((converted, source) => relaxRequiredForTarget(converted, source, target))
+      );
       const compiled = this.compileSchema(effectiveSchema as AnySchema);
       cache.set(schema, compiled);
       return compiled;
