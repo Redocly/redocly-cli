@@ -61,13 +61,29 @@ export function parseProjectGitUrl(url: string): HostedProject | undefined {
   };
 }
 
+// The access token of `redocly login` or an API key; either reads the organization and the project.
+export type HostedProjectCredentials = { accessToken: string } | { apiKey: string };
+
 // `organization` and `project` may be ids or slugs.
 export async function resolveHostedProject({
+  platformUrl,
+  organization,
+  project,
+  version,
   command,
-  ...options
-}: HostedProjectOptions & { command: string }): Promise<ResolvedHostedProject> {
-  const { platformUrl, organization, project } = options;
-  const { organizations, projects } = createApis(options, command);
+  ...credentials
+}: HostedProject &
+  HostedProjectCredentials & {
+    version?: string;
+    command: string;
+  }): Promise<ResolvedHostedProject> {
+  const client = new PlatformApiClient(command, version);
+  const authHeaders: Record<string, string> =
+    'apiKey' in credentials
+      ? { Authorization: `Bearer ${credentials.apiKey}` }
+      : { Cookie: `accessToken=${credentials.accessToken}` };
+  const organizations = new OrganizationsApi(client, platformUrl, authHeaders);
+  const projects = new ProjectsApi(client, platformUrl, authHeaders);
   const [foundOrganization, foundProject] = await Promise.all([
     organizations.find(organization),
     projects.find(organization, project),
@@ -138,8 +154,6 @@ function createApis({ platformUrl, accessToken, version }: HostedProjectOptions,
   const authHeaders = { Cookie: `accessToken=${accessToken}` };
 
   return {
-    organizations: new OrganizationsApi(client, platformUrl, authHeaders),
-    projects: new ProjectsApi(client, platformUrl, authHeaders),
     pullRequests: new PullRequestsApi(client, platformUrl, authHeaders),
     builds: new BuildsApi(client, platformUrl, authHeaders),
   };

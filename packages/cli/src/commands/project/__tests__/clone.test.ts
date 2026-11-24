@@ -42,6 +42,7 @@ describe('redocly project clone', () => {
   const getAccessToken = vi.fn();
 
   beforeEach(() => {
+    vi.stubEnv('REDOCLY_AUTHORIZATION', '');
     vi.mocked(getPlatformUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
     vi.mocked(runGit).mockResolvedValue({ code: 0, output: '' });
@@ -56,6 +57,10 @@ describe('redocly project clone', () => {
       organizationSlug: 'acme',
       projectSlug: 'docs',
     });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   describe('clone', () => {
@@ -73,9 +78,9 @@ describe('redocly project clone', () => {
           platformUrl: 'http://localhost',
           organization: 'acme',
           project: 'docs',
-          accessToken: 'token',
           version: '2.0.0',
           command: 'project clone',
+          accessToken: 'token',
         });
         expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
         expect(runGit).toHaveBeenCalledWith([
@@ -91,7 +96,21 @@ describe('redocly project clone', () => {
       }
     );
 
-    it('clones by the given values without a login, as git then authenticates with REDOCLY_AUTHORIZATION', async () => {
+    it('looks the project up with REDOCLY_AUTHORIZATION, which git also authenticates with', async () => {
+      vi.stubEnv('REDOCLY_AUTHORIZATION', 'sk_1');
+
+      await handleProjectClone(commandArgs<ProjectCloneArgv>({ project: 'acme/docs' }));
+
+      expect(getAccessToken).not.toHaveBeenCalled();
+      expect(resolveHostedProject).toHaveBeenCalledWith(
+        expect.objectContaining({ apiKey: 'sk_1', organization: 'acme', project: 'docs' })
+      );
+      expect(runGit).toHaveBeenCalledWith(
+        expect.arrayContaining(['http://localhost/api/orgs/org_1/projects/prj_1/git'])
+      );
+    });
+
+    it('clones by the given values without a login or an API key', async () => {
       getAccessToken.mockResolvedValue(undefined);
 
       await handleProjectClone(commandArgs<ProjectCloneArgv>({ project: 'acme/docs' }));

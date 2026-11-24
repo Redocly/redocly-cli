@@ -75,8 +75,25 @@ describe('resolveHostedProject', () => {
     }) as any);
   });
 
-  it('returns the ids and the slugs of the project as the logged-in user', async () => {
-    await expect(resolveHostedProject({ ...options, command: 'project clone' })).resolves.toEqual({
+  it.each([
+    {
+      as: 'the logged-in user',
+      credentials: { accessToken: 'token' },
+      header: { Cookie: 'accessToken=token' },
+    },
+    { as: 'an API key', credentials: { apiKey: 'sk_1' }, header: { Authorization: 'Bearer sk_1' } },
+  ])('returns the ids and the slugs of the project as $as', async ({ credentials, header }) => {
+    const { platformUrl, organization, project } = options;
+
+    await expect(
+      resolveHostedProject({
+        platformUrl,
+        organization,
+        project,
+        command: 'project clone',
+        ...credentials,
+      })
+    ).resolves.toEqual({
       platformUrl: 'https://app.cloud.redocly.com',
       organization: 'org_1',
       project: 'prj_1',
@@ -84,7 +101,7 @@ describe('resolveHostedProject', () => {
       projectSlug: 'my-docs',
     });
     for (const [, init] of vi.mocked(fetch).mock.calls as [string, any][]) {
-      expect(init.headers).toMatchObject({ Cookie: 'accessToken=token' });
+      expect(init.headers).toMatchObject(header);
     }
   });
 

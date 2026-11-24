@@ -25,16 +25,21 @@ export async function handleProjectClone({ argv, config, version }: CommandArgs<
   }
 
   const platformUrl = getPlatformUrl(config, argv.residency);
-  const accessToken = await new RedoclyOAuthClient(version).getAccessToken(platformUrl);
-  // Without a login, git authenticates with REDOCLY_AUTHORIZATION, whose key may not look the project up.
-  const ids = accessToken
+  // The same credentials as the git credential helper, so the lookup and the clone share an identity.
+  const apiKey = process.env.REDOCLY_AUTHORIZATION;
+  const credentials = apiKey
+    ? { apiKey }
+    : await new RedoclyOAuthClient(version)
+        .getAccessToken(platformUrl)
+        .then((accessToken) => (accessToken ? { accessToken } : undefined));
+  const ids = credentials
     ? await resolveHostedProject({
         platformUrl,
         organization,
         project,
-        accessToken,
         version,
         command: 'project clone',
+        ...credentials,
       }).catch(asHandledError)
     : { organization, project };
   const url = buildProjectGitUrl(platformUrl, ids.organization, ids.project);
