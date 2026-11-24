@@ -56,7 +56,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - output
 - Output file path
-- When running `bundle` without specifying an API, the bundled API description is saved to this location.
+- `bundle` saves the bundle to this location when you run it without an API or with this API's alias, unless `--output` overrides it.
 
 ---
 

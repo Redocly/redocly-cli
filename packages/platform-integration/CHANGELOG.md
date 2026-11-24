@@ -1,5 +1,13 @@
 # @redocly/platform-integration
 
+## 2.83.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.76.0.
+- Updated @redocly/config to v0.77.0.
+- Updated @redocly/openapi-core to v2.83.0.
+
 ## 2.82.0
 
 ### Patch Changes

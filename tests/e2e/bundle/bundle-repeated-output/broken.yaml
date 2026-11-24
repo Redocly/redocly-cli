@@ -1,0 +1,7 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe Revenue
+  version: 1.0.0
+paths:
+  /revenue:
+    $ref: paths/revenue.yaml

@@ -16,6 +16,7 @@ describe('bundle', () => {
     'bundle-arazzo-valid-test-description',
     'bundle-no-output-without-inline-apis',
     'bundle-output-option-with-alias',
+    'bundle-repeated-output',
     'bundle-use-titles-for-component-names-collision',
     'bundle-overlays',
     'bundle-metafile',
@@ -89,13 +90,11 @@ describe('bundle', () => {
     }
   });
 
-  test('bundle warns when two APIs write to the same path', async () => {
-    const testPath = join(folderPath, 'bundle-output-option-with-alias');
-    const args = getParams(indexEntryPoint, ['bundle', 'menu', 'menu']);
+  test('bundle warns when a written bundle replaces an earlier one', async () => {
+    const testPath = join(folderPath, 'bundle-repeated-output');
+    const args = getParams(indexEntryPoint, ['bundle']);
     const result = getCommandOutput(args, { testPath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(
-      join(testPath, 'repeated-output-snapshot.txt')
-    );
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 });
 

@@ -11601,6 +11601,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name": {
         "type": "string",
       },
+      "nameTranslationKey": {
+        "type": "string",
+      },
     },
     "required": [
       "name",
@@ -16349,6 +16352,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name": {
         "type": "string",
       },
+      "nameTranslationKey": {
+        "type": "string",
+      },
     },
     "required": [
       "name",
@@ -18972,6 +18978,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "name": {
+        "type": "string",
+      },
+      "nameTranslationKey": {
         "type": "string",
       },
     },
