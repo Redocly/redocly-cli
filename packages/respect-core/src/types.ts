@@ -151,7 +151,7 @@ export type RegexpSuccessCriteria = {
   context: string;
   type: 'regex';
 };
-export type JsonPathVerison = 'draft-goessner-dispatch-jsonpath-00';
+export type JsonPathVerison = 'draft-goessner-dispatch-jsonpath-00' | 'rfc9535';
 
 export type JsonPathSuccessCriterionObject = {
   type: 'jsonpath';
