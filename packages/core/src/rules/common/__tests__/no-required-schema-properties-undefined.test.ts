@@ -751,7 +751,7 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
-  it('should NOT report when required property is in allOf sibling of a schema reached via oneOf', async () => {
+  it('should NOT report when required property is in allOf sibling of a schema listed in a oneOf', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.2.0
