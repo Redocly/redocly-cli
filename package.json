@@ -29,7 +29,7 @@
     "precli": "npm run compile",
     "release": "node ./scripts/release-publish.mjs",
     "pack:prepare": "./scripts/local-pack.sh",
-    "runtime-expressions:parser:generate": "pegjs --format es --allowed-start-rules Start,RuntimeExpression --output packages/core/lib/runtime-expressions/abnf-parser.js packages/core/src/runtime-expressions/abnf-parser.pegjs && cp packages/core/lib/runtime-expressions/abnf-parser.js packages/core/src/runtime-expressions/abnf-parser.js"
+    "runtime-expressions:parser:generate": "pegjs --format es --allowed-start-rules Start,Arazzo1Expression,Arazzo1_1Expression --output packages/core/lib/runtime-expressions/abnf-parser.js packages/core/src/runtime-expressions/abnf-parser.pegjs && cp packages/core/lib/runtime-expressions/abnf-parser.js packages/core/src/runtime-expressions/abnf-parser.js"
   },
   "workspaces": [
     "packages/*"
