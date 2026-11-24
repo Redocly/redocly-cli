@@ -119,7 +119,7 @@ exports[`should fail a step that calls a workflow when its success criteria or o
  
     stepId - missing-output 
     ✗ unexpected error 
-    Reason: Error in resolving runtime expression '$outputs.pageLimit#/items/0': JSON Pointer "/items/0" reaches no value. 
+    Reason: Failed to resolve output "firstItem": Error in resolving runtime expression '$outputs.pageLimit#/items/0': JSON Pointer "/items/0" reaches no value. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
   Summary for workflow-step-success-criteria.arazzo.yaml
   

@@ -24,7 +24,7 @@ redocly scorecard-classic <api> --verbose
 
 | Option         | Type    | Description                                                                                                                                                                                          |
 | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api            | string  | Path to the API description filename or alias that you want to evaluate. See [the API section](#specify-api) for more details.                                                                       |
+| api            | string  | **REQUIRED.** Path to the API description filename or alias that you want to evaluate. See [the API section](#specify-api) for more details.                                                         |
 | --config       | string  | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                                                       |
 | --format       | string  | Format for the output.<br />**Possible values:** `stylish`, `json`, `checkstyle`, `junit`. Default value is `stylish`.                                                                               |
 | --help         | boolean | Show help.                                                                                                                                                                                           |

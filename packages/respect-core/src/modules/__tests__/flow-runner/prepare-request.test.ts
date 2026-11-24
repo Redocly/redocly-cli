@@ -1927,4 +1927,68 @@ describe('prepareRequest', () => {
 
     expect(requestBody).toBeNull();
   });
+
+  it('should resolve a relative OAuth2 tokenUrl against the server URL with its variables', async () => {
+    const workflowName = 'list-orders-workflow';
+    const step = {
+      stepId: 'list-orders',
+      operationId: 'listOrders',
+      'x-security': [
+        {
+          schemeName: 'OAuth2',
+          values: { clientId: 'cafe-client', clientSecret: 'secret' },
+        },
+      ],
+      checks: [],
+    } as unknown as Step;
+    const fetchMock = vi.fn(
+      async (_url: string | URL | Request, _init?: RequestInit) =>
+        new Response(JSON.stringify({ access_token: 'new-token' }))
+    );
+
+    const localCtx = {
+      apiClient,
+      $sourceDescriptions: {
+        'cafe-api': {
+          servers: [
+            {
+              url: 'https://{region}.cafe.redocly.com/v1',
+              variables: { region: { default: 'api' } },
+            },
+          ],
+          paths: {
+            '/orders': { get: { operationId: 'listOrders', responses: {} } },
+          },
+          components: {
+            securitySchemes: {
+              OAuth2: {
+                type: 'oauth2',
+                flows: { clientCredentials: { tokenUrl: '/oauth2/token', scopes: {} } },
+              },
+            },
+          },
+        },
+      },
+      sourceDescriptions: [{ name: 'cafe-api', type: 'openapi', url: 'cafe.yaml' }],
+      workflows: [{ workflowId: workflowName, steps: [step] }],
+      $workflows: { [workflowName]: { steps: {} } },
+      $steps: {},
+      $outputs: {},
+      options: { filePath: 'test.yaml', fetch: fetchMock, maxFetchTimeout: 1000 },
+      secretsSet: new Set<string>(),
+      oauth2TokenCache: new Map(),
+    } as unknown as TestContext;
+
+    const { parameters } = await prepareRequest(localCtx, step, workflowName);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.cafe.redocly.com/oauth2/token',
+      expect.anything()
+    );
+    expect(parameters).toContainEqual({
+      in: 'header',
+      name: 'Authorization',
+      value: 'Bearer new-token',
+    });
+  });
 });

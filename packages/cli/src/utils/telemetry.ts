@@ -181,11 +181,8 @@ export async function sendTelemetry({
         eject_generator_to_version: eject_generator?.eject_generator_to_version,
         // bundle usage (a count only — never overlay paths or contents).
         bundle_overlays_count: bundle?.bundle_overlays_count,
-        // FIXME: remove this line with `getBundleOutputOverridesCliFlag`.
-        bundle_output_overrides_cli_flag:
-          command === 'bundle' && args.output
-            ? getBundleOutputOverridesCliFlag(config, apiArguments)
-            : undefined,
+        // FIXME: remove this line with the repeated output count in `trackWrittenOutput` in packages/cli/src/commands/bundle.ts.
+        bundle_repeated_output: bundle?.bundle_repeated_output,
         // introspect-mcp usage (the protocol version only — never the server URL or command).
         introspect_mcp_protocol_version: introspect_mcp?.introspect_mcp_protocol_version,
       },
@@ -244,16 +241,6 @@ function describeApiArguments(config: Config | undefined, apiArguments: string[]
         )
       : undefined,
   };
-}
-
-// FIXME: remove this function when `--output` wins over the `output` of an API in the `bundle` command.
-// Until then, the `output` of an API overrides `--output`, and this field shows how many runs the change affects.
-function getBundleOutputOverridesCliFlag(
-  config: Config | undefined,
-  apiArguments: string[]
-): 'yes' | undefined {
-  const apis = config?.resolvedConfig.apis ?? {};
-  return apiArguments.length === 1 && apis[apiArguments[0]]?.output ? 'yes' : undefined;
 }
 
 export function collectSourceDescriptionTypes(

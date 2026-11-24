@@ -78,7 +78,7 @@ export function checkCriteria({
           condition: condition,
         });
       } else if (isJSONPathSuccessCriteria(criteria)) {
-        const { context } = criteria;
+        const { context, type } = criteria;
         const data = evaluateRuntimeExpression(context, criteriaContext, ctx.options.logger);
 
         checks.push({
@@ -86,6 +86,7 @@ export function checkCriteria({
           passed: evaluateJSONPathCondition({
             condition,
             data,
+            version: typeof type === 'string' ? undefined : type.version,
             context: criteriaContext,
             logger: ctx.options.logger,
           }),

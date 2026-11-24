@@ -4,6 +4,8 @@ info:
   description: >-
     Selects values with Selector Objects in outputs, parameters, request bodies, and a replacement,
     and renders the resolved requests in verbose output.
+    A jsonpath success criterion uses the same query as a selector,
+    and with the version rfc9535 it filters a list context as a selector does.
     The values are selected from a request body so every printed response body stays deterministic.
   version: 1.0.0
 
@@ -34,6 +36,14 @@ workflows:
                 comment: mermaid-treasure-latte
         successCriteria:
           - condition: $statusCode == 401
+          - context: $request.body
+            condition: $.orderItems[?(@.quantity == {$inputs.quantity})]
+            type: jsonpath
+          - context: $request.body#/orderItems
+            condition: $[?(@.quantity == {$inputs.quantity})]
+            type:
+              type: jsonpath
+              version: rfc9535
         outputs:
           order: $request.body
           menuItemIds:

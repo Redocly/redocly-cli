@@ -37,7 +37,7 @@ export const handlerBuildCommand = async ({
   // Remove this banner in the first release after January 31, 2027.
   logger.info(
     renderBanner([
-      'build-docs now renders docs with Redoc 3.',
+      'build-docs renders docs with Redoc 3.',
       'Theme options and custom templates may need updates.',
       `To keep the Redoc 2 output: ${cyan('npx @redocly/cli@v1-archive build-docs <api>')}`,
       `Learn more: ${cyan('https://redocly.com/redoc-ce')}`,
@@ -46,8 +46,15 @@ export const handlerBuildCommand = async ({
 
   const startedAt = performance.now();
 
-  const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-  const { path: pathToApi, alias } = apis[0];
+  // FIXME: replace this line with `const { api } = argv;` when `getDeprecatedFirstApi` goes.
+  // The first API stays out of `argv`, so the usage data shows that the run had no API argument.
+  const api = argv.api ?? getDeprecatedFirstApi(config);
+  if (api === undefined) {
+    throw new HandledError(
+      'No API to process. Pass an API to the command: `redocly build-docs <api>`.'
+    );
+  }
+  const [{ path: pathToApi, alias }] = await getFallbackApisOrExit([api], config);
 
   try {
     const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
@@ -86,6 +93,25 @@ export const handlerBuildCommand = async ({
     throw new HandledError(error instanceof Error ? error.message : String(error));
   }
 };
+
+// FIXME: remove this function when the deprecation period ends, a week to a month after the release.
+// Before, `build-docs` without an API took the first API of the configuration file.
+// Such a run now fails, because the command processes one API, which the command line names.
+// Until then, it gets the first API as its `api` argument and a deprecation banner.
+// `build-docs`, `stats`, `score`, and `scorecard-classic` each hold a copy of this function.
+function getDeprecatedFirstApi(config: Config): string | undefined {
+  const [firstApi] = Object.keys(config.resolvedConfig.apis ?? {});
+  if (firstApi !== undefined) {
+    logger.info(
+      renderBanner([
+        'Deprecated: build-docs without an API takes the first API of the configuration file.',
+        'A later release requires the API.',
+        `Pass the API: ${cyan('redocly build-docs <api>')}`,
+      ])
+    );
+  }
+  return firstApi;
+}
 
 const unsupportedSpecNames: Partial<Record<SpecMajorVersion, string>> = {
   arazzo1: 'Arazzo',
