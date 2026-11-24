@@ -4,10 +4,10 @@ import * as path from 'node:path';
 // macOS and Windows file systems ignore letter case by default, so a path that fails on Linux still opens there.
 // Returns an error message when a segment of the path differs from the name on disk only in letter case,
 // so the path fails the same way on every operating system.
-// The segments shared with the base folder are not compared: they don't come from the path being checked.
+// The base folder is where the path was written from: the segments above it are not compared.
 export function checkPathCasing(
   filePath: string,
-  baseFolder: string = process.cwd(),
+  baseFolder: string,
   folderEntries: Map<string, string[]> = new Map()
 ): string | undefined {
   const baseSegments = path.resolve(baseFolder).split(path.sep);

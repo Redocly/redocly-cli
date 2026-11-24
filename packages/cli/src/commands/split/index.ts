@@ -4,11 +4,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { performance } from 'perf_hooks';
 
-import {
-  assertPathCasing,
-  printExecutionTime,
-  getAndValidateFileExtension,
-} from '../../utils/miscellaneous.js';
+import { printExecutionTime, getAndValidateFileExtension } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { splitAsyncApiDefinition } from './asyncapi/split-asyncapi-definition.js';
 import { splitOASDefinition } from './oas/split-oas-definition.js';
@@ -24,7 +20,6 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
   const { api, outDir, separator } = argv;
   const ext = getAndValidateFileExtension(api);
 
-  assertPathCasing(api);
   if (!fs.existsSync(api)) throw new HandledError(`File ${blue(api)} does not exist.`);
 
   const source = new Source(path.resolve(api), fs.readFileSync(api, 'utf-8'));

@@ -4,7 +4,6 @@ import {
   parseYaml,
   stringifyYaml,
   isAbsoluteUrl,
-  checkPathCasing,
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
@@ -26,6 +25,7 @@ import { Writable } from 'node:stream';
 import { performance } from 'perf_hooks';
 
 import { outputExtensions, type Totals, type Entrypoint, type OutputExtension } from '../types.js';
+import { validatePathCasing } from './validate-path-casing.js';
 
 export type ExitCode = 0 | 1 | 2;
 
@@ -40,7 +40,7 @@ export async function getFallbackApisOrExit(
     : await expandGlobsInEntrypoints(argsApis!, config);
 
   for (const { path } of res) {
-    if (!isAbsoluteUrl(path)) assertPathCasing(path);
+    if (!isAbsoluteUrl(path)) validatePathCasing(path);
   }
 
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
@@ -56,14 +56,6 @@ export async function getFallbackApisOrExit(
     );
   }
   return res;
-}
-
-// Fails for a path that opens on macOS and Windows but not on Linux, where file names are case-sensitive.
-export function assertPathCasing(filePath: string) {
-  const casingError = checkPathCasing(filePath);
-  if (casingError !== undefined) {
-    throw new HandledError(casingError);
-  }
 }
 
 export function getConfigDirectory(config: Config) {

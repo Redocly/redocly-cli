@@ -9,7 +9,6 @@ import {
 } from '@redocly/platform-integration';
 import { readFile } from 'node:fs/promises';
 
-import { assertPathCasing } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { runGit } from './utils.js';
 
@@ -124,7 +123,6 @@ export async function readBody({ body, 'body-file': bodyFile }: ProjectPrCreateA
   }
 
   try {
-    assertPathCasing(bodyFile);
     return await readFile(bodyFile, 'utf8');
   } catch (error) {
     throw new HandledError(`Can't read the body file \`${bodyFile}\`: ${error.message}`);

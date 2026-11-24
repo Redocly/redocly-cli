@@ -112,7 +112,8 @@ export async function loadConfig(
 export function findConfig(dir?: string): string | undefined {
   if (!fs?.existsSync) return;
   const configPath = dir ? path.resolve(dir, CONFIG_FILE_NAME) : CONFIG_FILE_NAME;
-  return fs.existsSync(configPath) && checkPathCasing(configPath, dir) === undefined
+  return fs.existsSync(configPath) &&
+    checkPathCasing(configPath, path.dirname(configPath)) === undefined
     ? configPath
     : undefined;
 }

@@ -14,7 +14,7 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { logoFromSpec, prepareApiDocs, RedoclyApiDocsStandalone, ServerStyleSheet } from 'redoc';
 
-import { assertPathCasing } from '../../utils/miscellaneous.js';
+import { validatePathCasing } from '../../utils/validate-path-casing.js';
 import type { BuildDocsOptions, SpecType } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
@@ -67,7 +67,9 @@ export function getRedocOptions(
 function parseJsonOrFile(value: string, specType: SpecType): unknown {
   try {
     return JSON.parse(
-      existsSync(value) && checkPathCasing(value) === undefined && lstatSync(value).isFile()
+      existsSync(value) &&
+        checkPathCasing(value, process.cwd()) === undefined &&
+        lstatSync(value).isFile()
         ? readFileSync(value, 'utf-8')
         : value
     );
@@ -118,7 +120,7 @@ export async function getPageHTML(
       ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
       : undefined);
 
-  if (customTemplate) assertPathCasing(customTemplate);
+  if (customTemplate) validatePathCasing(customTemplate);
   const templateSource = customTemplate
     ? readFileSync(customTemplate, 'utf-8')
     : DEFAULT_TEMPLATE_SOURCE;

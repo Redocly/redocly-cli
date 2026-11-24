@@ -20,6 +20,7 @@ import { isNotString } from '../utils/is-not-string.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
 import { checkPathCasing } from '../utils/path-casing.js';
+import { resolveRelativePath } from '../utils/yaml-fs-helper.js';
 import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
@@ -182,11 +183,7 @@ export const preResolvePluginPath = (
     return plugin;
   }
 
-  const maybeAbsolutePluginPath = path.resolve(path.dirname(base), plugin);
-  const casingError = checkPathCasing(maybeAbsolutePluginPath, path.dirname(base));
-  if (casingError !== undefined) {
-    throw new Error(casingError);
-  }
+  const maybeAbsolutePluginPath = resolveRelativePath(plugin, base);
 
   if (fs.existsSync(maybeAbsolutePluginPath)) {
     return { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false };

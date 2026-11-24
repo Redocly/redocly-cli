@@ -4,8 +4,8 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, basename } from 'node:path';
 
 import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
-import { assertPathCasing } from '../../utils/miscellaneous.js';
 import { readEnvVariables } from '../../utils/read-env-variables.js';
+import { validatePathCasing } from '../../utils/validate-path-casing.js';
 import { type CommandArgs } from '../../wrapper.js';
 import { withConnectionClient } from './connection-client.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
@@ -86,7 +86,7 @@ export async function handleRespect({
       executionTimeout: argv['execution-timeout'],
       requestFileLoader: {
         getFileBody: async (filePath: string) => {
-          assertPathCasing(filePath);
+          validatePathCasing(filePath);
           if (!existsSync(filePath)) {
             throw new Error(`File ${filePath} doesn't exist or isn't readable.`);
           }

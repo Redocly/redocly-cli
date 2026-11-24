@@ -43,6 +43,7 @@ import { cacheLatestVersion, notify } from './utils/notifier.js';
 import { version } from './utils/package.js';
 import { setOptionAliases } from './utils/telemetry.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
+import { validatePathCasing } from './utils/validate-path-casing.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { commandWrapper } from './wrapper.js';
 
@@ -245,6 +246,7 @@ cli
         .positional('api', {
           description: 'API description file that you want to split',
           type: 'string',
+          coerce: validatePathCasing,
         })
         .option({
           outDir: {
@@ -393,6 +395,7 @@ cli
           type: 'string',
           array: true,
           demandOption: true,
+          coerce: (files: string[]) => files.map(validatePathCasing),
         })
         .option({
           branch: {
@@ -837,6 +840,7 @@ cli
                   alias: ['F'],
                   type: 'string',
                   conflicts: 'body',
+                  coerce: validatePathCasing,
                 },
                 base: {
                   description: "Branch to merge into. Defaults to the project's default branch.",
@@ -1104,6 +1108,7 @@ cli
           type: 'string',
           array: true,
           default: [],
+          coerce: (files: string[]) => files.map(validatePathCasing),
         })
         .options({
           input: {
@@ -1195,6 +1200,7 @@ cli
         .positional('descriptionPath', {
           describe: 'Description file path.',
           type: 'string',
+          coerce: validatePathCasing,
         })
         .options({
           'output-file': {
@@ -1422,6 +1428,7 @@ cli
         .positional('traffic', {
           describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
           type: 'string',
+          coerce: validatePathCasing,
         })
         .option({
           type: {
@@ -1594,12 +1601,14 @@ cli
         .positional('traffic', {
           describe: 'Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).',
           type: 'string',
+          coerce: validatePathCasing,
         })
         .option({
           api: {
             describe: 'OpenAPI description file or folder to validate against.',
             type: 'string',
             demandOption: true,
+            coerce: validatePathCasing,
           },
           'traffic-format': {
             describe: 'Traffic input format.',
@@ -1712,6 +1721,7 @@ cli
           describe:
             'OpenAPI description file or folder to validate captured traffic against (live).',
           type: 'string',
+          coerce: validatePathCasing,
         },
         'report-format': {
           describe: 'Output format for the validation report printed on shutdown.',

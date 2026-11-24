@@ -3,8 +3,6 @@ import { existsSync } from 'node:fs';
 import { open, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 
-import { assertPathCasing } from '../../../utils/miscellaneous.js';
-
 const SPEC_FILE_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
 export async function listOpenApiFiles(rootDir: string): Promise<string[]> {
@@ -50,7 +48,6 @@ export function normalizeFsPath(value: string): string {
 }
 
 export async function listFilesRecursively(rootPath: string): Promise<string[]> {
-  assertPathCasing(rootPath);
   if (!existsSync(rootPath)) {
     throw new HandledError(`Traffic file or folder not found: ${rootPath}`);
   }

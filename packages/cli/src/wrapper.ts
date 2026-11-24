@@ -24,7 +24,7 @@ import {
   ejectGeneratorTelemetry,
   generateClientTelemetry,
 } from './utils/client-generator-telemetry.js';
-import { assertPathCasing, type ExitCode } from './utils/miscellaneous.js';
+import type { ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
   collectCriterionObjectTypes,
@@ -33,6 +33,7 @@ import {
   isTelemetryEnabled,
   sendTelemetry,
 } from './utils/telemetry.js';
+import { validatePathCasing } from './utils/validate-path-casing.js';
 
 export type CollectResults = (results: NormalizedProblem[]) => void;
 
@@ -121,7 +122,7 @@ export function commandWrapper<T extends CommandArgv>(
     };
 
     try {
-      if (argv.config) assertPathCasing(argv.config);
+      if (argv.config) validatePathCasing(argv.config);
       if (argv.config && !doesYamlFileExist(argv.config)) {
         throw new HandledError('Please provide a valid path to the configuration file.');
       }

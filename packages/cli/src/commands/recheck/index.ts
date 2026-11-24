@@ -23,7 +23,8 @@ import { presets } from '@redocly/recheck/presets';
 import { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 
-import { assertPathCasing, getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
+import { getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
+import { validatePathCasing } from '../../utils/validate-path-casing.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { collectEmbeddedInputs, isApiDescription } from './descriptions.js';
 import {
@@ -162,7 +163,7 @@ async function runAction(
     roots.push('.');
     // Two aliases may share one root, which is walked once.
     for (const alias of Object.keys(config.resolvedConfig.apis ?? {})) {
-      const { path } = getAliasOrPath(config, alias);
+      const path = validatePathCasing(getAliasOrPath(config, alias).path);
       if (!apiPaths.includes(path)) apiPaths.push(path);
     }
   } else {
@@ -171,17 +172,16 @@ async function runAction(
       // An existing file or folder with the same name wins over the alias.
       const isAlias =
         config.resolvedConfig.apis?.[requestedPath] !== undefined &&
-        (!existsSync(requestedPath) || checkPathCasing(requestedPath) !== undefined);
+        (!existsSync(requestedPath) || checkPathCasing(requestedPath, process.cwd()) !== undefined);
       if (isAlias) {
-        apiPaths.push(getAliasOrPath(config, requestedPath).path);
+        apiPaths.push(validatePathCasing(getAliasOrPath(config, requestedPath).path));
       } else if (
         isAbsoluteUrl(requestedPath) ||
         (await isApiDescription(requestedPath, resolver))
       ) {
         apiPaths.push(requestedPath);
       } else {
-        assertPathCasing(requestedPath);
-        roots.push(requestedPath);
+        roots.push(validatePathCasing(requestedPath));
       }
     }
   }

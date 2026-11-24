@@ -4,7 +4,6 @@ import * as url from 'node:url';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 import type { ResolveConfig } from './config/types.js';
-import { isBrowser } from './env.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import { isGraphqlRef } from './graphql/detect-graphql.js';
 import { parseYaml } from './js-yaml/index.js';
@@ -207,16 +206,16 @@ export class BaseResolver {
     return doc;
   }
 
+  // Only a path written in a local file is compared: the caller is responsible for the path it passes.
   async #checkPathCasing(base: string | null, absoluteRef: string) {
-    if (isBrowser || (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef))) return;
+    if (base === null || (isAbsoluteUrl(base) && !isFileUrl(base))) return;
+    if (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef)) return;
 
-    const filePath = isFileUrl(absoluteRef) ? url.fileURLToPath(absoluteRef) : absoluteRef;
-    // A path that no local file references is compared from the current folder.
-    const baseFolder =
-      base === null || (isAbsoluteUrl(base) && !isFileUrl(base))
-        ? process.cwd()
-        : path.dirname(isFileUrl(base) ? url.fileURLToPath(base) : base);
-    const casingError = checkPathCasing(filePath, baseFolder, this.#folderEntries);
+    const casingError = checkPathCasing(
+      isFileUrl(absoluteRef) ? url.fileURLToPath(absoluteRef) : absoluteRef,
+      path.dirname(isFileUrl(base) ? url.fileURLToPath(base) : base),
+      this.#folderEntries
+    );
     if (casingError !== undefined) {
       throw new ResolveError(new Error(casingError));
     }
