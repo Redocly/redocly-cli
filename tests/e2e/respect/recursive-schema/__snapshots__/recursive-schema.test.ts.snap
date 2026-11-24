@@ -1,0 +1,32 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should check a response described with a recursive schema 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow recursive-schema.arazzo.yaml / list-menu 
+ 
+  ✓ GET /menu - step list-menu-items-with-invalid-limit 
+    ✓ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [200, 400]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for recursive-schema.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌──────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ recursive-schema.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;

@@ -123,6 +123,9 @@ export function collectSecretValues(
 
   const inputValue = getNestedValue(inputs, path);
 
+  // A recursive schema has no end, so the search stops where the values end.
+  if (inputValue === undefined) return;
+
   if (schema.format === 'password' && inputValue) {
     ctx.secretsSet.add(inputValue);
   }
