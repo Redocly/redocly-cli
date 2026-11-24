@@ -2,8 +2,9 @@ import { parseRuntimeExpression } from '../../runtime-expressions/index.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-// The `{$sourceDescriptions.<name>.url}` part of `{$sourceDescriptions.<name>.url}#/paths/~1orders~1{orderId}/get`.
-// A group without `$`, such as `{orderId}`, is a path template of the source description.
+// An expression embedded in a string, such as `{$sourceDescriptions.<name>.url}` in
+// `{$sourceDescriptions.<name>.url}#/paths/~1orders~1{orderId}/get`.
+// A group without `$`, such as the path template `{orderId}`, is not an expression.
 const EMBEDDED_EXPRESSION = /\{(\$[^{}]*)\}/g;
 
 const STEP_PATH_FIELDS = [
@@ -21,7 +22,9 @@ export const SpecNoInvalidRuntimeExpressions: Arazzo1Rule = () => {
     if (typeof value !== 'string') return;
 
     try {
-      parseRuntimeExpression(value, { startRule: 'RuntimeExpression', specVersion });
+      parseRuntimeExpression(value, {
+        startRule: specVersion === 'arazzo1' ? 'Arazzo1Expression' : 'Arazzo1_1Expression',
+      });
     } catch {
       report({
         message: `\`${value}\` is not a valid runtime expression.`,
@@ -31,20 +34,28 @@ export const SpecNoInvalidRuntimeExpressions: Arazzo1Rule = () => {
     }
   }
 
+  function checkEmbeddedExpressions(value: unknown, ctx: UserContext, field: string) {
+    if (typeof value !== 'string') return;
+
+    for (const [, expression] of value.matchAll(EMBEDDED_EXPRESSION)) {
+      checkExpression(expression, ctx, field);
+    }
+  }
+
   return {
     Outputs(outputs: Record<string, unknown>, ctx: UserContext) {
       for (const [outputName, outputValue] of Object.entries(outputs)) {
-        checkExpression(outputValue, ctx, outputName);
+        // Respect also evaluates a constant and a string with embedded expressions as an output value.
+        if (typeof outputValue === 'string' && outputValue.startsWith('$')) {
+          checkExpression(outputValue, ctx, outputName);
+        } else {
+          checkEmbeddedExpressions(outputValue, ctx, outputName);
+        }
       }
     },
     Step(step, ctx) {
       for (const field of STEP_PATH_FIELDS) {
-        const path = step[field];
-        if (typeof path !== 'string') continue;
-
-        for (const [, expression] of path.matchAll(EMBEDDED_EXPRESSION)) {
-          checkExpression(expression, ctx, field);
-        }
+        checkEmbeddedExpressions(step[field], ctx, field);
       }
     },
     CriterionObject(criterion, ctx) {

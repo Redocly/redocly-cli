@@ -33,9 +33,11 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
                 outputs:
                   orderId: $resposne.body#/id
                   status: $response.body.status
-                  source: cafe
+                  authorization: Bearer {$resposne.body#/token}
             outputs:
               orderId: $message.payload#/id
+              total: $steps.create-order.total
+              orderSchema: $components.schemas.Order
         components:
           parameters:
             page:
@@ -143,12 +145,12 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/steps/1/outputs/source",
+              "pointer": "#/workflows/0/steps/1/outputs/authorization",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "\`cafe\` is not a valid runtime expression.",
+          "message": "\`$resposne.body#/token\` is not a valid runtime expression.",
           "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-no-invalid-runtime-expressions",
           "ruleId": "spec-no-invalid-runtime-expressions",
           "severity": "error",
@@ -158,7 +160,7 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
     `);
   });
 
-  it('accepts the expressions added in Arazzo 1.1 and reports the invalid ones', async () => {
+  it('reports the values that do not follow the Arazzo 1.1 runtime expression syntax', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.1.0'
@@ -191,6 +193,8 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
             outputs:
               description: $self
               email: $steps.receive-signup.outputs.email
+              total: $steps.receive-signup.total
+              orderSchema: $components.schemas.Order
       `,
       'arazzo.yaml'
     );
@@ -205,6 +209,34 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/outputs/total",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "\`$steps.receive-signup.total\` is not a valid runtime expression.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-no-invalid-runtime-expressions",
+          "ruleId": "spec-no-invalid-runtime-expressions",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/outputs/orderSchema",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "\`$components.schemas.Order\` is not a valid runtime expression.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-no-invalid-runtime-expressions",
+          "ruleId": "spec-no-invalid-runtime-expressions",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -251,10 +283,12 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
     `);
   });
 
-  it('does not report valid runtime expressions and parameter values', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        arazzo: '1.0.1'
+  it.each(['1.0.1', '1.1.0'])(
+    'does not report valid runtime expressions and parameter values in Arazzo %s',
+    async (version) => {
+      const document = parseYamlToDocument(
+        outdent`
+        arazzo: '${version}'
         info:
           title: Cafe workflows
           version: 1.0.0
@@ -290,10 +324,18 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
                   customerEmail: $inputs.customer#/email
                   couponCode: $inputs._coupon
                   method: $method
+                  kind: beverage
+                  authorization: Bearer {$response.body#/token}
+                  nextPage: $response.body#/@odata.nextLink
+                  members: $response.body#/hydra:member
+                  filter: $request.query.$filter
+                  userId: $request.path.user.id
               - stepId: get-order
                 operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1orders~1{orderId}/get'
             outputs:
               orderId: $steps.create-order.outputs.orderId
+              orderValue: $steps.create-order.outputs.order.id#/value
+              customerName: $workflows.place-order.inputs.customer#/name
               apiUrl: $sourceDescriptions.cafe-api.url
         components:
           parameters:
@@ -302,17 +344,18 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
               in: query
               value: 1
       `,
-      'arazzo.yaml'
-    );
+        'arazzo.yaml'
+      );
 
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({
-        rules: { 'spec-no-invalid-runtime-expressions': 'error' },
-      }),
-    });
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'spec-no-invalid-runtime-expressions': 'error' },
+        }),
+      });
 
-    expect(results).toEqual([]);
-  });
+      expect(results).toEqual([]);
+    }
+  );
 });

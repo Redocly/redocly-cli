@@ -145,7 +145,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [spec-action-mutually-exclusive-fields](./arazzo/spec-action-mutually-exclusive-fields.md): a success or failure action must use only one of `stepId` and `workflowId`
 - [spec-action-stepId-defined](./arazzo/spec-action-stepId-defined.md): the `stepId` of a success or failure action must reference a step defined in the current workflow
 - [spec-action-workflowId-defined](./arazzo/spec-action-workflowId-defined.md): the `workflowId` of a success or failure action must reference an existing workflow
-- [spec-no-invalid-runtime-expressions](./arazzo/spec-no-invalid-runtime-expressions.md): the `outputs` values, the `context` of a criterion or a selector, the `reference` of a reusable object, and the expressions embedded in the `operationPath` or the `channelPath` of a step must be valid runtime expressions
+- [spec-no-invalid-runtime-expressions](./arazzo/spec-no-invalid-runtime-expressions.md): the runtime expressions in the `outputs`, the `context` of a criterion or a selector, the `reference` of a reusable object, and the `operationPath` or the `channelPath` of a step must be valid
 - [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md): the names in the `outputs` of a workflow or a step must match the regular expression `^[a-zA-Z0-9\.\-_]+$`
 - [spec-querystring-parameters](./arazzo/spec-querystring-parameters.md): a step must use at most one `querystring` parameter and must not mix it with `query` parameters (Arazzo 1.1)
 - [spec-sourceDescriptions-defined](./arazzo/spec-sourceDescriptions-defined.md): a `$sourceDescriptions.<name>` reference must use the `name` of a source description defined in `sourceDescriptions`

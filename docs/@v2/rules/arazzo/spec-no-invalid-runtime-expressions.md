@@ -22,8 +22,13 @@ The specification gives these fields the `{expression}` type, and the rule check
 
 The `spec-no-invalid-runtime-expressions` rule also checks each expression that the `operationPath` or the `channelPath` of a step embeds in curly braces, such as `{$sourceDescriptions.cafe-api.url}`.
 
+An output value can also be a constant or a string that embeds expressions in curly braces, such as `Bearer {$response.body#/token}`.
+The specification does not define these forms for `outputs`, but Respect evaluates them, so the rule accepts them.
+In `outputs`, the rule reports a value that starts with `$` and is not a valid runtime expression, and each embedded expression that is not valid.
+
 The rule checks a value against the grammar of the Arazzo version of the description.
-The `$self` and `$message` expressions and the `payload` source are valid only in Arazzo 1.1.
+Arazzo 1.1 adds the `$self` and `$message` expressions and the `payload` source.
+It also defines the form of the other expressions, so `$steps.create-order.orderId` and `$components.schemas.Order` are valid in Arazzo 1.0 and invalid in Arazzo 1.1.
 
 The rule does not check the `value` of a parameter or a payload replacement, the `payload` of a request body, or the `condition` of a criterion.
 The specification allows a constant in those fields.
