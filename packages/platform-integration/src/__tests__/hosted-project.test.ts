@@ -8,6 +8,7 @@ import {
   getPullRequestStatus,
   parseProjectGitUrl,
   resolveHostedProject,
+  resolveProjectIds,
 } from '../hosted-project.js';
 
 vi.mock('undici', async (importOriginal) => ({
@@ -75,24 +76,9 @@ describe('resolveHostedProject', () => {
     }) as any);
   });
 
-  it.each([
-    {
-      as: 'the logged-in user',
-      credentials: { accessToken: 'token' },
-      header: { Cookie: 'accessToken=token' },
-    },
-    { as: 'an API key', credentials: { apiKey: 'sk_1' }, header: { Authorization: 'Bearer sk_1' } },
-  ])('returns the ids and the slugs of the project as $as', async ({ credentials, header }) => {
-    const { platformUrl, organization, project } = options;
-
+  it('returns the ids and the slugs of the project as the logged-in user', async () => {
     await expect(
-      resolveHostedProject({
-        platformUrl,
-        organization,
-        project,
-        command: 'project clone',
-        ...credentials,
-      })
+      resolveHostedProject({ ...options, command: 'project pr status' })
     ).resolves.toEqual({
       platformUrl: 'https://app.cloud.redocly.com',
       organization: 'org_1',
@@ -101,15 +87,48 @@ describe('resolveHostedProject', () => {
       projectSlug: 'my-docs',
     });
     for (const [, init] of vi.mocked(fetch).mock.calls as [string, any][]) {
-      expect(init.headers).toMatchObject(header);
+      expect(init.headers).toMatchObject({ Cookie: 'accessToken=token' });
     }
   });
 
   it('names the project that was not found', async () => {
     responses[PROJECT_API_URL] = { status: 404, body: { title: 'Not found' } };
 
-    await expect(resolveHostedProject({ ...options, command: 'project clone' })).rejects.toThrow(
+    await expect(
+      resolveHostedProject({ ...options, command: 'project pr status' })
+    ).rejects.toThrow(
       new PlatformApiError('Project "my docs" was not found in organization "acme".', 404)
+    );
+  });
+});
+
+describe('resolveProjectIds', () => {
+  beforeEach(() => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        id: 'prj_1',
+        slug: 'my-docs',
+        name: 'My docs',
+        uri: 'https://app.cloud.redocly.com/api/orgs/org_1/projects/prj_1',
+      }),
+    } as any);
+  });
+
+  it.each([
+    { credentials: { apiKey: 'sk_1' }, header: { Authorization: 'Bearer sk_1' } },
+    { credentials: { accessToken: 'token' }, header: { Cookie: 'accessToken=token' } },
+  ])('returns the ids without reading the organization', async ({ credentials, header }) => {
+    const { platformUrl, organization, project } = options;
+
+    await expect(
+      resolveProjectIds({ platformUrl, organization, project, ...credentials })
+    ).resolves.toEqual({ platformUrl, organization: 'org_1', project: 'prj_1' });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith(
+      PROJECT_API_URL,
+      expect.objectContaining({ headers: expect.objectContaining(header) })
     );
   });
 });

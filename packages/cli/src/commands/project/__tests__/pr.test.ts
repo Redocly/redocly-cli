@@ -1,6 +1,7 @@
 import { HandledError, logger } from '@redocly/openapi-core';
 import type * as PlatformIntegration from '@redocly/platform-integration';
 import {
+  createPullRequest,
   getPullRequestStatus,
   RedoclyOAuthClient,
   resolveHostedProject,
@@ -11,7 +12,12 @@ import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { Readable } from 'node:stream';
 
-import { formatPullRequestStatus, handleProjectPrStatus, readBody } from '../pr.js';
+import {
+  formatPullRequestStatus,
+  handleProjectPrCreate,
+  handleProjectPrStatus,
+  readBody,
+} from '../pr.js';
 import type * as GitUtils from '../utils.js';
 import { runGit } from '../utils.js';
 
@@ -21,6 +27,7 @@ vi.mock('../utils.js', async () => ({
 }));
 vi.mock('@redocly/platform-integration', async () => ({
   ...(await vi.importActual<typeof PlatformIntegration>('@redocly/platform-integration')),
+  createPullRequest: vi.fn(),
   getPullRequestStatus: vi.fn(),
   resolveHostedProject: vi.fn(),
   RedoclyOAuthClient: vi.fn(),
@@ -120,7 +127,7 @@ describe('formatPullRequestStatus', () => {
   });
 });
 
-describe('handleProjectPrStatus', () => {
+describe('project pr create and status', () => {
   const getAccessToken = vi.fn();
   const PLATFORM_URL = 'https://app.cloud.redocly.com';
   const ID_REMOTE = `${PLATFORM_URL}/api/orgs/org_1/projects/prj_1/git`;
@@ -149,8 +156,29 @@ describe('handleProjectPrStatus', () => {
       pullRequest: { id: 'pr_1', number: 7, title: 'Fix a typo', status: 'OPEN' },
       checks: [],
     });
+    vi.mocked(createPullRequest).mockResolvedValue({
+      id: 'pr_1',
+      number: 7,
+      title: 'Fix a typo',
+      status: 'OPEN',
+    });
     vi.spyOn(logger, 'output').mockImplementation(() => {});
     vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  });
+
+  it('creates the pull request by ids and links it by slugs', async () => {
+    cloneWithRemote(ID_REMOTE);
+
+    await handleProjectPrCreate({
+      argv: { title: 'Fix a typo', body: '' },
+      config: {} as any,
+      version: '2.0.0',
+    });
+
+    expect(createPullRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ organization: 'org_1', project: 'prj_1', branch: 'fix-typo' })
+    );
+    expect(logger.output).toHaveBeenCalledWith(`${PR_URL}\n`);
   });
 
   it('calls the API by ids and links the pull request by slugs', async () => {

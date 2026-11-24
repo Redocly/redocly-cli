@@ -6,6 +6,10 @@ import * as path from 'node:path';
 // npx and pnpm dlx run the CLI from a temporary install that is gone once they exit.
 const TEMPORARY_INSTALL_DIR = /[\\/](_npx|dlx)[\\/]/;
 
+export function notLoggedInMessage(platformUrl: string): string {
+  return `You are not logged in to ${platformUrl}. Run \`redocly login --residency ${platformUrl}\` or set the REDOCLY_AUTHORIZATION environment variable.`;
+}
+
 // Git config entries that make `redocly project git-credentials` the only credential helper
 // for the Redocly platform host. The empty entry clears the helpers configured for all hosts.
 export function getCredentialHelperConfig(platformUrl: string, version: string): string[] {

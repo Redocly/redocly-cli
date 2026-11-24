@@ -167,7 +167,7 @@ async function resolveClone(
   if (resolved.organization !== project.organization || resolved.project !== project.project) {
     const url = buildProjectGitUrl(resolved.platformUrl, resolved.organization, resolved.project);
     logger.warn(
-      `Organization and project slugs are deprecated. Point \`origin\` at the ids: \`git remote set-url origin ${url}\`\n`
+      `Organization and project slugs are deprecated. Use the ids instead: git remote set-url origin ${url}\n`
     );
   }
 

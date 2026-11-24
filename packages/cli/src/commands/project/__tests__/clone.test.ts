@@ -1,8 +1,8 @@
 import { HandledError } from '@redocly/openapi-core';
 import {
+  getPlatformCredentials,
   getPlatformUrl,
-  RedoclyOAuthClient,
-  resolveHostedProject,
+  resolveProjectIds,
 } from '@redocly/platform-integration';
 
 import type { CommandArgv } from '../../../types.js';
@@ -23,9 +23,9 @@ vi.mock('@redocly/platform-integration', async () => {
   const actual = await vi.importActual<object>('@redocly/platform-integration');
   return {
     ...actual,
+    getPlatformCredentials: vi.fn(),
     getPlatformUrl: vi.fn(),
-    resolveHostedProject: vi.fn(),
-    RedoclyOAuthClient: vi.fn(),
+    resolveProjectIds: vi.fn(),
   };
 });
 
@@ -39,28 +39,16 @@ function commandArgs<T extends CommandArgv>(argv: T): CommandArgs<T> {
 }
 
 describe('redocly project clone', () => {
-  const getAccessToken = vi.fn();
-
   beforeEach(() => {
-    vi.stubEnv('REDOCLY_AUTHORIZATION', '');
     vi.mocked(getPlatformUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
     vi.mocked(runGit).mockResolvedValue({ code: 0, output: '' });
-    getAccessToken.mockResolvedValue('token');
-    vi.mocked(RedoclyOAuthClient).mockImplementation(function (this: any) {
-      this.getAccessToken = getAccessToken;
-    } as any);
-    vi.mocked(resolveHostedProject).mockResolvedValue({
+    vi.mocked(getPlatformCredentials).mockResolvedValue({ accessToken: 'token' });
+    vi.mocked(resolveProjectIds).mockResolvedValue({
       platformUrl: 'http://localhost',
       organization: 'org_1',
       project: 'prj_1',
-      organizationSlug: 'acme',
-      projectSlug: 'docs',
     });
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
   });
 
   describe('clone', () => {
@@ -74,12 +62,12 @@ describe('redocly project clone', () => {
           commandArgs<ProjectCloneArgv>({ project: 'acme/docs', directory })
         );
 
-        expect(resolveHostedProject).toHaveBeenCalledWith({
+        expect(getPlatformCredentials).toHaveBeenCalledWith('http://localhost', '2.0.0');
+        expect(resolveProjectIds).toHaveBeenCalledWith({
           platformUrl: 'http://localhost',
           organization: 'acme',
           project: 'docs',
           version: '2.0.0',
-          command: 'project clone',
           accessToken: 'token',
         });
         expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
@@ -96,33 +84,28 @@ describe('redocly project clone', () => {
       }
     );
 
-    it('looks the project up with REDOCLY_AUTHORIZATION, which git also authenticates with', async () => {
-      vi.stubEnv('REDOCLY_AUTHORIZATION', 'sk_1');
+    it('looks the project up with the API key that git also authenticates with', async () => {
+      vi.mocked(getPlatformCredentials).mockResolvedValue({ apiKey: 'sk_1' });
 
       await handleProjectClone(commandArgs<ProjectCloneArgv>({ project: 'acme/docs' }));
 
-      expect(getAccessToken).not.toHaveBeenCalled();
-      expect(resolveHostedProject).toHaveBeenCalledWith(
-        expect.objectContaining({ apiKey: 'sk_1', organization: 'acme', project: 'docs' })
-      );
+      expect(resolveProjectIds).toHaveBeenCalledWith(expect.objectContaining({ apiKey: 'sk_1' }));
       expect(runGit).toHaveBeenCalledWith(
         expect.arrayContaining(['http://localhost/api/orgs/org_1/projects/prj_1/git'])
       );
     });
 
-    it('clones by the given values without a login or an API key', async () => {
-      getAccessToken.mockResolvedValue(undefined);
+    it('asks the user to log in without cloning when there is no credential', async () => {
+      vi.mocked(getPlatformCredentials).mockResolvedValue(undefined);
 
-      await handleProjectClone(commandArgs<ProjectCloneArgv>({ project: 'acme/docs' }));
-
-      expect(resolveHostedProject).not.toHaveBeenCalled();
-      expect(runGit).toHaveBeenCalledWith(
-        expect.arrayContaining(['http://localhost/api/orgs/acme/projects/docs/git'])
-      );
+      await expect(
+        handleProjectClone(commandArgs<ProjectCloneArgv>({ project: 'acme/docs' }))
+      ).rejects.toThrow('redocly login --residency http://localhost');
+      expect(runGit).not.toHaveBeenCalled();
     });
 
     it('fails without cloning when the project cannot be looked up', async () => {
-      vi.mocked(resolveHostedProject).mockRejectedValue(
+      vi.mocked(resolveProjectIds).mockRejectedValue(
         new Error('Project "docs" was not found in organization "acme".')
       );
 

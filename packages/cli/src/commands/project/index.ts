@@ -1,13 +1,13 @@
 import { HandledError, logger } from '@redocly/openapi-core';
 import {
   buildProjectGitUrl,
+  getPlatformCredentials,
   getPlatformUrl,
-  RedoclyOAuthClient,
-  resolveHostedProject,
+  resolveProjectIds,
 } from '@redocly/platform-integration';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { asHandledError, getCredentialHelperConfig, runGit } from './utils.js';
+import { asHandledError, getCredentialHelperConfig, notLoggedInMessage, runGit } from './utils.js';
 
 export type ProjectCloneArgv = {
   project: string;
@@ -25,23 +25,18 @@ export async function handleProjectClone({ argv, config, version }: CommandArgs<
   }
 
   const platformUrl = getPlatformUrl(config, argv.residency);
-  // The same credentials as the git credential helper, so the lookup and the clone share an identity.
-  const apiKey = process.env.REDOCLY_AUTHORIZATION;
-  const credentials = apiKey
-    ? { apiKey }
-    : await new RedoclyOAuthClient(version)
-        .getAccessToken(platformUrl)
-        .then((accessToken) => (accessToken ? { accessToken } : undefined));
-  const ids = credentials
-    ? await resolveHostedProject({
-        platformUrl,
-        organization,
-        project,
-        version,
-        command: 'project clone',
-        ...credentials,
-      }).catch(asHandledError)
-    : { organization, project };
+  const credentials = await getPlatformCredentials(platformUrl, version);
+  if (!credentials) {
+    throw new HandledError(notLoggedInMessage(platformUrl));
+  }
+
+  const ids = await resolveProjectIds({
+    platformUrl,
+    organization,
+    project,
+    version,
+    ...credentials,
+  }).catch(asHandledError);
   const url = buildProjectGitUrl(platformUrl, ids.organization, ids.project);
   const helperConfig = getCredentialHelperConfig(platformUrl, version);
 

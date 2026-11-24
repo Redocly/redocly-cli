@@ -27,6 +27,8 @@ export type {
   UpsertRemoteResponse,
 } from './api/types.js';
 export { RedoclyOAuthClient, type AuthFailure, type AuthState } from './auth/oauth-client.js';
+export { getPlatformCredentials } from './auth/platform-credentials.js';
+export { createAuthHeaders, type PlatformCredentials } from './api/auth-headers.js';
 export { FileCredentialsStore, type CredentialsStore } from './auth/credentials-store.js';
 export {
   buildProjectGitUrl,
@@ -34,6 +36,7 @@ export {
   getPullRequestStatus,
   parseProjectGitUrl,
   resolveHostedProject,
+  resolveProjectIds,
   type CreatePullRequestOptions,
   type HostedProject,
   type HostedProjectOptions,
