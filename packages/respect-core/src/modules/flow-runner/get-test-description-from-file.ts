@@ -101,5 +101,7 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
     throw new Error(`${red('Found errors in Arazzo description')} ${bold(fileName)}`);
   }
 
-  return bundledDocument.bundle.parsed || {};
+  // A copy, because the runner writes run results to the workflows and steps,
+  // and the resolver cache returns the same parsed document to the next load.
+  return structuredClone(bundledDocument.bundle.parsed) || {};
 }
