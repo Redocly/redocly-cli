@@ -1,5 +1,101 @@
 # @redocly/cli
 
+## 2.83.0
+
+### Minor Changes
+
+- Added the `spec-step-parameters-in-required` rule for Arazzo descriptions.
+  It reports a step or workflow parameter without the `in` field, unless it only reaches steps that use `workflowId`.
+- Fixed an issue where the `fileDependencies` field of the `bundle` command's `--metafile` file was always empty.
+  `fileDependencies` lists the bundled files, relative to the current directory.
+- Changed the `bundle` command so that the `--output` option takes precedence over the `output` option of an API in `redocly.yaml`.
+  The precedence applies when you pass the API to the command, for example `redocly bundle <api> --output <file>`.
+
+  **Note:** To keep writing the bundle to the `output` path from `redocly.yaml`, remove `--output` from the command.
+
+- Deprecated running the `build-docs`, `stats`, `score`, and `scorecard-classic` commands without the `api` argument.
+  Without the argument, these commands process the first API in `redocly.yaml` and display a deprecation banner.
+  To prepare for a later release that requires the argument, pass an API alias or path, for example `redocly build-docs <api>`.
+- Added support for Arazzo 1.1.0 Selector Objects with a `jsonpath` or `jsonpointer` type to the `respect` command.
+  A Selector Object in step or workflow `outputs`, a parameter value, a request body payload, or a replacement value gives the data that the selector picks from its `context`.
+
+### Patch Changes
+
+- Fixed an issue where the `bundle` command wrote the metadata file of `--metafile` with the data of the last API when it bundled several APIs.
+  The command only writes a metadata file when it bundles a single API.
+- Changed the `generate-client` command to ignore the `clientOutput` option of an API when you pass the path to the API's `root` file instead of the API alias.
+
+  **Note:** To keep writing the client to the `clientOutput` path, pass the API alias to the command.
+
+- Fixed an issue where the `generate-client` command wrote the client of the first API and then failed when the clients of two APIs had the same output path.
+- Fixed an issue where the `generate-client` command failed when `errorMode: result` was set together with the `tanstack-query` or `swr` generator.
+- Fixed an issue where the `criteria` of a success or failure action in `respect` could not read the workflow inputs.
+  A condition such as `$inputs.flag == true` was always false, so the action never ran.
+- Fixed an issue where a `jsonpath` criterion always failed when its condition started with a member name, as in `$.items[?(@.category == "dessert")]`.
+  Respect applies such a condition to the `context` value, the same way as a Selector Object.
+- Fixed an issue where a `jsonpath` success criterion did not match when its condition had a runtime expression inside quotes, as in `$[?(@.status == "{$inputs.expectedStatus}")]`.
+- Fixed an issue where `respect` sent `[object Object]` instead of a form when a step did not set `contentType: multipart/form-data` in its `requestBody`, and the content type came from the OpenAPI operation or from a `Content-Type` header parameter.
+  A `$file(...)` reference in the payload of such a step is loaded as a file when the request body of the operation is `multipart/form-data`.
+- Fixed an issue where `respect` sent `[object Object]` in a `multipart/form-data` request body when a runtime expression gave an object.
+  The object is sent as `parent[child]` fields and a list as repeated fields, the same way as values written in the description.
+  A payload that a runtime expression sets as a whole is sent as a form.
+- Fixed an issue where `respect` reported `Invalid JSON Pointer` for a valid replacement `target` when the replacement `value` could not be evaluated.
+  The step fails with the error of the value.
+- Fixed an issue where Respect failed a step that calls a workflow with `workflowId` when the step's `outputs` used `$inputs`, `$steps`, or `$workflows`.
+  The expressions also work in the `selector` of a Selector Object, for example `{$inputs.name}`.
+- Improved the error that Respect reports when an output of a step that calls a workflow with `workflowId` fails to resolve: the message now names the output.
+- Fixed an issue where Respect reported an extra `unexpected error` for a step that calls a workflow with `workflowId` when the called workflow failed and left a value that the `outputs` of the step read unset.
+- Fixed an issue where Respect did not explain why an output of a step that calls a workflow with `workflowId` had no value when it read the request or the response, as in `$response.body` or `$statusCode`.
+  The step now fails with a message that says it sends no request, the same as for its success criteria.
+- Updated @redocly/client-generator to v0.10.6.
+- Updated @redocly/openapi-core to v2.83.0.
+- Updated @redocly/platform-integration to v2.83.0.
+- Updated @redocly/respect-core to v2.83.0.
+
+## 2.82.0
+
+### Minor Changes
+
+- Added the `spec-action-workflowId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `workflowId` does not reference an existing workflow.
+
+### Patch Changes
+
+- Fixed an issue where the `spec-sourceDescriptions-defined` rule reported the `workflowId` of a success or a failure action with the `end` type.
+- Fixed an issue where the `preview` command previewed the whole workspace package instead of the requested directory when a user ran it with `npx` in an npm workspace.
+  The issue occurred when the command ran from a subdirectory of the package, or when the `--project-dir` option pointed to a subdirectory.
+- Fixed an issue where Respect failed a step when its `end` action had a `workflowId` that did not reference an existing workflow.
+  The `workflowId` of an `end` action is not relevant, so Respect no longer resolves it.
+- Updated @redocly/openapi-core to v2.82.0.
+- Updated redoc to v3.2.0.
+- Updated @redocly/respect-core to v2.82.0.
+
+## 2.81.0
+
+### Minor Changes
+
+- Added the `spec-action-stepId-defined` rule for Arazzo descriptions.
+  It reports a success or failure action whose `stepId` does not reference a step of the current workflow.
+- Added the `spec-sourceDescriptions-defined` rule for Arazzo descriptions.
+  The rule reports a `$sourceDescriptions.<name>` reference in the `operationPath`, `channelPath`, `workflowId`, or `dependsOn` of a step, or in the `workflowId` of a success or failure action, when no source description with that name is defined.
+- Added the `spec-step-operationId-resolved` rule for Arazzo descriptions.
+  The rule reports a step whose `operationId` does not resolve to an operation in an OpenAPI source description, or names an operation that several source descriptions define.
+  To check that, `lint` loads the OpenAPI source descriptions of an Arazzo description.
+- Added the `spec-step-workflowId-defined` rule for Arazzo descriptions.
+  It reports a step whose `workflowId` does not reference an existing workflow.
+- Added standalone binaries for Linux, macOS, and Windows that need no Node.js, with a `SHA256SUMS` checksums file, to each GitHub release.
+- Changed the built-in rulesets to enable `spec-example-values` instead of the deprecated `no-example-value-and-externalValue` rule.
+  The configuration linter warns about the deprecated rule.
+
+### Patch Changes
+
+- Fixed commands that reported you as logged out when another Redocly CLI or editor process refreshed the same login session at the same time.
+  A refreshed session is now also used when the credentials file can't be updated.
+- Fixed an issue where an example with `externalValue` and a `value` of `0`, `false`, `null`, or an empty string was not reported.
+- Updated @redocly/openapi-core to v2.81.0.
+- Updated @redocly/platform-integration to v2.81.0.
+- Updated @redocly/respect-core to v2.81.0.
+
 ## 2.80.0
 
 ### Minor Changes

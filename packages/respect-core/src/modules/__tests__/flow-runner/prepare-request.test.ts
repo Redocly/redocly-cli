@@ -1710,6 +1710,180 @@ describe('prepareRequest', () => {
     ]);
   });
 
+  describe('multipart/form-data request body', () => {
+    function createMultipartCtx(step: Record<string, unknown>) {
+      return {
+        ...ctx,
+        $sourceDescriptions: {
+          cats: {
+            paths: {
+              '/breeds': {
+                post: {
+                  operationId: 'createBreed',
+                  requestBody: {
+                    content: {
+                      'multipart/form-data': {
+                        schema: {
+                          type: 'object',
+                          properties: { breed: { type: 'string' } },
+                        },
+                        example: { breed: 'Maine Coon' },
+                      },
+                    },
+                  },
+                  responses: { '201': { description: 'created' } },
+                },
+              },
+            },
+            servers: [{ url: 'https://api.example.com/' }],
+          },
+        },
+        workflows: [
+          {
+            workflowId: 'create-breed-workflow',
+            steps: [
+              {
+                stepId: 'create-breed-step',
+                operationId: 'cats.createBreed',
+                checks: [],
+                response: {},
+                ...step,
+              },
+            ],
+          },
+        ],
+        $workflows: {
+          'create-breed-workflow': {
+            steps: {
+              'create-breed-step': { request: {} },
+            },
+          },
+        },
+        $steps: {
+          'create-breed-step': { request: {} },
+        },
+      } as unknown as TestContext;
+    }
+
+    it('should send the request body of the description as a form when a multipart step has no payload', async () => {
+      const multipartCtx = createMultipartCtx({
+        requestBody: { contentType: 'multipart/form-data' },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Maine Coon']]);
+    });
+
+    it('should send the request body of the description as a form when the step has no request body', async () => {
+      const multipartCtx = createMultipartCtx({});
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Maine Coon']]);
+    });
+
+    it('should send the payload as a form when only the description sets the multipart content type', async () => {
+      const multipartCtx = createMultipartCtx({
+        requestBody: { payload: { breed: 'Sphynx' } },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Sphynx']]);
+    });
+
+    it('should send the payload as a form when a header parameter sets the multipart content type', async () => {
+      const multipartCtx = createMultipartCtx({
+        operationId: undefined,
+        'x-operation': { url: 'https://api.example.com/breeds', method: 'post' },
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'multipart/form-data' }],
+        requestBody: { payload: { breed: 'Sphynx' } },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect([...requestBody.entries()]).toEqual([['breed', 'Sphynx']]);
+    });
+
+    it('should not send a form when a header parameter replaces the multipart content type of the description', async () => {
+      const multipartCtx = createMultipartCtx({
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'application/json' }],
+        requestBody: { payload: { breed: 'Sphynx' } },
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual({ breed: 'Sphynx' });
+    });
+
+    it('should send no body when a multipart content type has no payload to send', async () => {
+      const multipartCtx = createMultipartCtx({
+        operationId: undefined,
+        'x-operation': { url: 'https://api.example.com/breeds', method: 'get' },
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'multipart/form-data' }],
+      });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toBeUndefined();
+    });
+
+    it('should send a payload that is not an object as it is', async () => {
+      const multipartCtx = createMultipartCtx({ requestBody: { payload: 'raw text body' } });
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual('raw text body');
+    });
+
+    it('should evaluate a Selector Object when a header parameter replaces the multipart content type', async () => {
+      const multipartCtx = createMultipartCtx({
+        parameters: [{ in: 'header', name: 'Content-Type', value: 'application/json' }],
+        requestBody: {
+          payload: { breed: { context: '$inputs.cat', selector: '$.breed', type: 'jsonpath' } },
+        },
+      });
+      multipartCtx.$inputs = { cat: { breed: 'Sphynx' } };
+
+      const { requestBody } = await prepareRequest(
+        multipartCtx,
+        multipartCtx.workflows[0].steps[0],
+        'create-breed-workflow'
+      );
+
+      expect(requestBody).toEqual({ breed: 'Sphynx' });
+    });
+  });
+
   it('should handle null request body', async () => {
     const workflowName = 'create-item-workflow';
     const step = {
@@ -1752,5 +1926,69 @@ describe('prepareRequest', () => {
     const { requestBody } = await prepareRequest(localCtx, step, workflowName);
 
     expect(requestBody).toBeNull();
+  });
+
+  it('should resolve a relative OAuth2 tokenUrl against the server URL with its variables', async () => {
+    const workflowName = 'list-orders-workflow';
+    const step = {
+      stepId: 'list-orders',
+      operationId: 'listOrders',
+      'x-security': [
+        {
+          schemeName: 'OAuth2',
+          values: { clientId: 'cafe-client', clientSecret: 'secret' },
+        },
+      ],
+      checks: [],
+    } as unknown as Step;
+    const fetchMock = vi.fn(
+      async (_url: string | URL | Request, _init?: RequestInit) =>
+        new Response(JSON.stringify({ access_token: 'new-token' }))
+    );
+
+    const localCtx = {
+      apiClient,
+      $sourceDescriptions: {
+        'cafe-api': {
+          servers: [
+            {
+              url: 'https://{region}.cafe.redocly.com/v1',
+              variables: { region: { default: 'api' } },
+            },
+          ],
+          paths: {
+            '/orders': { get: { operationId: 'listOrders', responses: {} } },
+          },
+          components: {
+            securitySchemes: {
+              OAuth2: {
+                type: 'oauth2',
+                flows: { clientCredentials: { tokenUrl: '/oauth2/token', scopes: {} } },
+              },
+            },
+          },
+        },
+      },
+      sourceDescriptions: [{ name: 'cafe-api', type: 'openapi', url: 'cafe.yaml' }],
+      workflows: [{ workflowId: workflowName, steps: [step] }],
+      $workflows: { [workflowName]: { steps: {} } },
+      $steps: {},
+      $outputs: {},
+      options: { filePath: 'test.yaml', fetch: fetchMock, maxFetchTimeout: 1000 },
+      secretsSet: new Set<string>(),
+      oauth2TokenCache: new Map(),
+    } as unknown as TestContext;
+
+    const { parameters } = await prepareRequest(localCtx, step, workflowName);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.cafe.redocly.com/oauth2/token',
+      expect.anything()
+    );
+    expect(parameters).toContainEqual({
+      in: 'header',
+      name: 'Authorization',
+      value: 'Bearer new-token',
+    });
   });
 });

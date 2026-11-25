@@ -1,3 +1,4 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import { blue, white, bold, red } from 'colorette';
 
 import type {
@@ -7,7 +8,6 @@ import type {
   Parameter,
   OnSuccessObject,
   OnFailureObject,
-  RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
 } from '../../types.js';
@@ -26,8 +26,12 @@ import {
   printUnknownStep,
 } from '../logger-output/helpers.js';
 import { calculateTotals } from '../logger-output/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import {
+  evaluateRuntimeExpressionPayload,
+  isSelectorObject,
+} from '../runtime-expressions/index.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
+import { createRuntimeExpressionCtx } from './context/index.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { resolveActionInputs } from './resolve-action-inputs.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
@@ -117,14 +121,12 @@ export async function runStep({
     };
     const workflowInputParameters = resolvedParameters
       ? Object.fromEntries(
-          resolvedParameters.filter(isParameterWithoutIn).map((parameter) => [
-            parameter.name,
-            getValueFromContext({
-              value: parameter.value,
-              ctx: ctxWithInputs,
-              logger: ctx.options.logger,
-            }),
-          ])
+          resolvedParameters
+            .filter(isParameterWithoutIn)
+            .map((parameter) => [
+              parameter.name,
+              evaluateWorkflowInput(parameter.value, ctxWithInputs),
+            ])
         )
       : undefined;
 
@@ -173,14 +175,24 @@ export async function runStep({
       }
 
       for (const [outputKey, outputValue] of Object.entries(step.outputs || {})) {
-        // need to partially emulate $outputs context
-        outputs[outputKey] = evaluateRuntimeExpressionPayload({
-          payload: outputValue,
-          context: {
-            $outputs: childWorkflowOutputs,
-          } as RuntimeExpressionContext,
-          logger: ctx.options.logger,
-        });
+        try {
+          const [requestExpression] = REQUEST_EXPRESSION.exec(JSON.stringify(outputValue)) || [];
+          if (requestExpression) {
+            throw new Error(
+              `${requestExpression} has no value in a step that calls a workflow, because the step sends no request. Read the outputs of the called workflow with $outputs instead.`
+            );
+          }
+          outputs[outputKey] = evaluateRuntimeExpressionPayload({
+            payload: outputValue,
+            context: stepCtx,
+            logger: ctx.options.logger,
+          });
+        } catch (error) {
+          // a failed child workflow has already failed the step, and its outputs can be unset
+          if (childWorkflowFailed) continue;
+          const reason = error instanceof Error ? error.message : String(error);
+          throw new Error(`Failed to resolve output "${outputKey}": ${reason}`);
+        }
       }
     } catch (error: any) {
       // an invalid criterion or an output without a value fails the step
@@ -340,7 +352,13 @@ export async function runStep({
     kind: 'failure' | 'success',
     executedStepsCount: ExecutedStepsCount,
     // the context the criteria and the parameters of the actions are evaluated in
-    expressionCtx: TestContext = ctx
+    expressionCtx: TestContext = {
+      ...ctx,
+      $inputs: {
+        ...ctx.$inputs,
+        ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+      },
+    }
   ): Promise<{
     retriesLeft?: number;
     shouldEnd?: boolean;
@@ -386,6 +404,11 @@ export async function runStep({
       }).every((check) => check.passed);
 
       if (matchesCriteria) {
+        // the `workflowId` and the `stepId` of an `end` action are not relevant, so they are not resolved
+        if (type === 'end') {
+          return { shouldEnd: true };
+        }
+
         const targetWorkflow = action.workflowId
           ? resolveWorkflowReference({ ref: action.workflowId, ctx })
           : undefined;
@@ -499,8 +522,6 @@ export async function runStep({
             }),
             retriesLeft: actionRetriesLeft,
           };
-        } else if (type === 'end') {
-          return { shouldEnd: true };
         } else if (type === 'goto') {
           if (!targetWorkflow && !targetStep) {
             return failStepWithActionError(
@@ -569,4 +590,24 @@ function endStepAtExecutionTimeout(
     printUnknownStep(timedOutStep, ctx.options.logger);
   }
   return { shouldEnd: true };
+}
+
+// Only a Selector Object, also one nested in an object or a list, goes to the evaluator that
+// supports it. Every other value is evaluated as before.
+function evaluateWorkflowInput(value: unknown, ctx: TestContext): unknown {
+  if (isSelectorObject(value)) {
+    return evaluateRuntimeExpressionPayload({
+      payload: value,
+      context: createRuntimeExpressionCtx({ ctx }),
+      logger: ctx.options.logger,
+    });
+  } else if (Array.isArray(value)) {
+    return value.map((item) => evaluateWorkflowInput(item, ctx));
+  } else if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, evaluateWorkflowInput(item, ctx)])
+    );
+  }
+
+  return getValueFromContext({ value, ctx, logger: ctx.options.logger });
 }

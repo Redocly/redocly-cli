@@ -1,4 +1,5 @@
-import { readdirSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,8 +15,11 @@ describe('bundle', () => {
     'bundle-remove-unused-components-from-api-config',
     'bundle-arazzo-valid-test-description',
     'bundle-no-output-without-inline-apis',
+    'bundle-output-option-with-alias',
+    'bundle-repeated-output',
     'bundle-use-titles-for-component-names-collision',
     'bundle-overlays',
+    'bundle-metafile',
   ];
   const folderPath = __dirname;
   const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -47,6 +51,48 @@ describe('bundle', () => {
   test('bundle should NOT be invoked IF no positional apis provided AND --output specified', async () => {
     const testPath = join(folderPath, 'bundle-no-output-without-inline-apis');
     const args = getParams(indexEntryPoint, ['bundle', '--output=dist']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('bundle writes to --output for an alias with output in the config', async () => {
+    const testPath = join(folderPath, 'bundle-output-option-with-alias');
+    const args = getParams(indexEntryPoint, ['bundle', 'menu', '--output=output/option.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('bundle writes the file dependencies of one API to the metafile', async () => {
+    const testPath = join(folderPath, 'bundle-metafile');
+    const outputDir = mkdtempSync(join(tmpdir(), 'metafile-'));
+    try {
+      const metafilePath = join(outputDir, 'meta.json');
+      const args = getParams(indexEntryPoint, ['bundle', 'menu', `--metafile=${metafilePath}`]);
+      getCommandOutput(args, { testPath });
+      const metafile = JSON.parse(readFileSync(metafilePath, 'utf-8'));
+      expect(metafile.fileDependencies).toEqual(['menu.yaml', 'schemas/MenuItem.yaml']);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
+  });
+
+  test('bundle writes no metafile for several APIs', async () => {
+    const testPath = join(folderPath, 'bundle-metafile');
+    const outputDir = mkdtempSync(join(tmpdir(), 'metafile-'));
+    try {
+      const metafilePath = join(outputDir, 'meta.json');
+      const args = getParams(indexEntryPoint, ['bundle', `--metafile=${metafilePath}`]);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(existsSync(metafilePath)).toBe(false);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
+  });
+
+  test('bundle warns when a written bundle replaces an earlier one', async () => {
+    const testPath = join(folderPath, 'bundle-repeated-output');
+    const args = getParams(indexEntryPoint, ['bundle']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });

@@ -1,32 +1,17 @@
 import type { ArazzoDefinition, Parameter, Step, Workflow } from '../../typings/arazzo.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { resolveArazzoParameters } from '../utils.js';
 
 const reference = 'https://redocly.com/docs/cli/rules/arazzo/spec-querystring-parameters';
 
 export const SpecQuerystringParameters: Arazzo1Rule = () => {
-  let reusableParameters: Record<string, Parameter> = {};
-  let workflowParameters: Parameter[] = [];
-
-  // A reusable object points to a parameter with `$components.parameters.<name>`.
-  // The struct rule reports parameters of a wrong type, so this rule only has to skip them.
-  function resolveParameters(parameters?: Parameter[]): Parameter[] {
-    if (!Array.isArray(parameters)) {
-      return [];
-    }
-
-    return parameters.map((parameter) =>
-      typeof parameter?.reference === 'string'
-        ? (reusableParameters[parameter.reference.replace('$components.parameters.', '')] ??
-          parameter)
-        : parameter
-    );
-  }
+  let reusableParameters: Record<string, Parameter> | undefined;
+  let workflowParameters: (Parameter | undefined)[] = [];
 
   function checkParameters(
-    inheritedParameters: Parameter[],
-    parameters: Parameter[],
+    inheritedParameters: (Parameter | undefined)[],
+    parameters: (Parameter | undefined)[],
     { report, location }: UserContext
   ) {
     let hasQuery = inheritedParameters.some((parameter) => parameter?.in === 'query');
@@ -72,14 +57,12 @@ export const SpecQuerystringParameters: Arazzo1Rule = () => {
   return {
     Root: {
       enter(root: ArazzoDefinition) {
-        reusableParameters = isPlainObject(root.components?.parameters)
-          ? root.components.parameters
-          : {};
+        reusableParameters = root.components?.parameters;
       },
     },
     Workflow: {
       enter(workflow: Workflow, ctx: UserContext) {
-        workflowParameters = resolveParameters(workflow.parameters);
+        workflowParameters = resolveArazzoParameters(workflow.parameters, reusableParameters);
         checkParameters([], workflowParameters, ctx);
       },
     },
@@ -90,7 +73,7 @@ export const SpecQuerystringParameters: Arazzo1Rule = () => {
           return;
         }
 
-        const stepParameters = resolveParameters(step.parameters);
+        const stepParameters = resolveArazzoParameters(step.parameters, reusableParameters);
         // a step parameter replaces the workflow parameter with the same `name` and `in`
         const inheritedParameters = workflowParameters.filter(
           (workflowParameter) =>

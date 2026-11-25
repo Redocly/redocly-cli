@@ -419,6 +419,7 @@ export async function resolveWorkflowContext(
   // only outputs are transferred to the parent workflow
   // creating the new ctx for the external workflow or recreate current ctx for local workflow
   // the secrets set is shared, so secrets learned in the external workflow stay masked in the parent
+  // the OAuth2 token cache is shared, so the external workflow reuses the tokens of the parent
   return testDescription
     ? await createTestContext(
         testDescription,
@@ -434,7 +435,8 @@ export async function resolveWorkflowContext(
           config,
         },
         ctx.apiClient,
-        ctx.secretsSet
+        ctx.secretsSet,
+        ctx.oauth2TokenCache
       )
     : {
         ...ctx,

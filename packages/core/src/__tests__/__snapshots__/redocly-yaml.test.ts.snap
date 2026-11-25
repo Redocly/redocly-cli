@@ -3250,7 +3250,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "agent": "PlatformAgent",
-      "aiReadiness": "Platform.aiReadiness",
+      "aiReadiness": "PlatformAiReadiness",
       "ignoreLinkChecker": {
         "type": "boolean",
       },
@@ -3262,25 +3262,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "jobs": "PlatformJobList",
-    },
-    "required": undefined,
-  },
-  "Platform.aiReadiness": {
-    "additionalProperties": undefined,
-    "deprecatedProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "disabled": {
-        "type": "boolean",
-      },
-      "ignore": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
     },
     "required": undefined,
   },
@@ -3488,6 +3469,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+      },
+      "excludedTools": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string",
+        },
+        "type": "array",
       },
       "headers": "PlatformAgentMcpServerHeaders",
       "type": {
@@ -3774,6 +3763,25 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "name",
     ],
+  },
+  "PlatformAiReadiness": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "disabled": {
+        "type": "boolean",
+      },
+      "ignore": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": undefined,
   },
   "PlatformIgnoreLint": {
     "additionalProperties": {
@@ -5701,7 +5709,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "folders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
           "uiHint": "file",
         },
@@ -6112,7 +6119,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -7663,7 +7669,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
@@ -8394,7 +8399,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "folders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
           "uiHint": "file",
         },
@@ -8805,7 +8809,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -10356,7 +10359,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
@@ -10490,7 +10492,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -10544,7 +10545,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -10599,7 +10599,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -10659,7 +10658,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -10856,7 +10854,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -10909,12 +10906,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -11202,7 +11197,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -11256,7 +11250,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -11311,7 +11304,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -11371,7 +11363,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -11625,14 +11616,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
-        "format": "uri-reference",
         "type": "string",
       },
       "icon": {
-        "format": "uri-reference",
         "type": "string",
       },
       "name": {
+        "type": "string",
+      },
+      "nameTranslationKey": {
         "type": "string",
       },
     },
@@ -13074,7 +13066,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -13137,7 +13128,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -13277,7 +13267,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -13298,7 +13287,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -13364,7 +13352,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "path": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -13978,7 +13965,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -15474,7 +15460,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
@@ -15608,7 +15593,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -15662,7 +15646,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -15717,7 +15700,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -15777,7 +15759,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -15873,7 +15854,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -15926,12 +15906,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -16076,7 +16054,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -16130,7 +16107,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -16185,7 +16161,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -16245,7 +16220,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -16394,14 +16368,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
-        "format": "uri-reference",
         "type": "string",
       },
       "icon": {
-        "format": "uri-reference",
         "type": "string",
       },
       "name": {
+        "type": "string",
+      },
+      "nameTranslationKey": {
         "type": "string",
       },
     },
@@ -17498,7 +17473,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -17561,7 +17535,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -17701,7 +17674,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -17900,7 +17872,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -17954,7 +17925,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18009,7 +17979,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18069,7 +18038,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18266,7 +18234,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18319,12 +18286,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18612,7 +18577,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18666,7 +18630,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18721,7 +18684,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -18781,7 +18743,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -19035,14 +18996,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
-        "format": "uri-reference",
         "type": "string",
       },
       "icon": {
-        "format": "uri-reference",
         "type": "string",
       },
       "name": {
+        "type": "string",
+      },
+      "nameTranslationKey": {
         "type": "string",
       },
     },
@@ -20484,7 +20446,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -20547,7 +20508,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -20687,7 +20647,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -20708,7 +20667,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -20774,7 +20732,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "path": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },

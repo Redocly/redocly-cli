@@ -3,6 +3,7 @@ import { distance as levenshtein } from 'fastest-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
 import type { ResolvedRefChainHop } from '../resolve.js';
+import type { Parameter, SourceDescription, Workflow } from '../typings/arazzo.js';
 import type { Async2Operation, Async2OperationTrait } from '../typings/asyncapi2.js';
 import type { Async3Operation, Async3OperationTrait } from '../typings/asyncapi3.js';
 import type {
@@ -417,4 +418,75 @@ export function validateResponseCodes({
 
 export function getTagName(tag: Oas2Tag | Oas3Tag | Oas3_2Tag, ignoreCase: boolean): string {
   return ignoreCase ? tag.name.toLowerCase() : tag.name;
+}
+
+// The `workflowId` of an Arazzo step or action references a workflow of the document,
+// or a workflow of another Arazzo document: $sourceDescriptions.<name>.<workflowId>
+export function validateWorkflowIdDefined({
+  workflowId,
+  workflows,
+  sourceDescriptions,
+  ctx,
+  reference,
+}: {
+  workflowId: unknown;
+  workflows: Workflow[];
+  sourceDescriptions: SourceDescription[];
+  ctx: UserContext;
+  reference: string;
+}) {
+  if (typeof workflowId !== 'string') return;
+
+  const reportUndefined = (message: string) =>
+    ctx.report({
+      message,
+      location: ctx.location.child(['workflowId']),
+      reference,
+    });
+
+  if (workflowId.startsWith('$sourceDescriptions.')) {
+    const [, sourceName, sourceWorkflowId] = workflowId.split('.');
+    // The `spec-sourceDescriptions-defined` rule reports a source description that is not defined,
+    // and the `sourceDescription-type` rule reports one without a `type`.
+    const sourceType = sourceDescriptions.find(
+      (sourceDescription) => sourceDescription?.name === sourceName
+    )?.type;
+
+    if (!sourceName || !sourceWorkflowId) {
+      reportUndefined(
+        `The reference \`${workflowId}\` must have the form \`$sourceDescriptions.<name>.<workflowId>\`.`
+      );
+    } else if (sourceType && sourceType !== 'arazzo') {
+      reportUndefined(
+        `The source description \`${sourceName}\` must have the \`arazzo\` type to contain workflows.`
+      );
+    }
+    return;
+  }
+
+  if (!workflows.some((workflow) => workflow?.workflowId === workflowId)) {
+    reportUndefined(`The workflow \`${workflowId}\` is not defined in \`workflows\`.`);
+  }
+}
+
+// A reusable object points to a parameter with `$components.parameters.<name>`,
+// and resolves to `undefined` when `components` does not define that parameter.
+// The struct rule reports parameters of a wrong type, so the rules only have to skip them.
+export function resolveArazzoParameters(
+  parameters: Parameter[] | undefined,
+  reusableParameters: Record<string, Parameter> | undefined
+): (Parameter | undefined)[] {
+  if (!Array.isArray(parameters)) {
+    return [];
+  }
+
+  return parameters.map((parameter) => {
+    if (typeof parameter?.reference !== 'string') {
+      return parameter;
+    }
+
+    return isPlainObject(reusableParameters)
+      ? reusableParameters[parameter.reference.replace('$components.parameters.', '')]
+      : undefined;
+  });
 }

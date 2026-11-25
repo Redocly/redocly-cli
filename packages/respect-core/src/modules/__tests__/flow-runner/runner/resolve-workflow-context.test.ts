@@ -339,6 +339,7 @@ describe('resolveWorkflowContext', () => {
     },
     apiClient,
     secretsSet: new Set(['parent-secret']),
+    oauth2TokenCache: new Map(),
   } as any;
 
   it('should not createTestContext with the correct parameters when sourceDescriptionId is undefined', async () => {
@@ -378,7 +379,8 @@ describe('resolveWorkflowContext', () => {
         metadata: commonCtx.options.metadata,
       },
       apiClient,
-      commonCtx.secretsSet
+      commonCtx.secretsSet,
+      commonCtx.oauth2TokenCache
     );
   });
 
@@ -403,7 +405,8 @@ describe('resolveWorkflowContext', () => {
         metadata: commonCtx.options.metadata,
       },
       apiClient,
-      commonCtx.secretsSet
+      commonCtx.secretsSet,
+      commonCtx.oauth2TokenCache
     );
   });
 
@@ -432,7 +435,8 @@ describe('resolveWorkflowContext', () => {
         metadata: commonCtx.options.metadata,
       },
       apiClient,
-      commonCtx.secretsSet
+      commonCtx.secretsSet,
+      commonCtx.oauth2TokenCache
     );
   });
 
@@ -457,7 +461,8 @@ describe('resolveWorkflowContext', () => {
         metadata: commonCtx.options.metadata,
       },
       apiClient,
-      commonCtx.secretsSet
+      commonCtx.secretsSet,
+      commonCtx.oauth2TokenCache
     );
   });
 

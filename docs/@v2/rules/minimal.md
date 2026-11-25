@@ -41,11 +41,13 @@ Warnings:
 - [path-parameters-defined](./oas/path-parameters-defined.md)
 - [security-defined](./oas/security-defined.md)
 - [spec-action-stepId-defined](./arazzo/spec-action-stepId-defined.md)
+- [spec-action-workflowId-defined](./arazzo/spec-action-workflowId-defined.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
 - [spec-example-values](./oas/spec-example-values.md)
 - [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)
 - [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
 - [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md)
+- [spec-step-parameters-in-required](./arazzo/spec-step-parameters-in-required.md)
 - [spec-step-workflowId-defined](./arazzo/spec-step-workflowId-defined.md)
 - [tag-description](./oas/tag-description.md)
 

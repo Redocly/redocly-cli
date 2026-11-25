@@ -1,3 +1,9 @@
+export type OrganizationResponse = {
+  id: string;
+  slug: string;
+  name: string;
+};
+
 export type ProjectResponse = {
   id: string;
   slug: string;

@@ -1,11 +1,10 @@
-import type { Oas3SecurityScheme, ResolvedSecurity } from '@redocly/openapi-core';
+import type { OAuth2Auth, Oas3SecurityScheme, ResolvedSecurity } from '@redocly/openapi-core';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
   apiKey: ['apiKey'],
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],
-  oauth2: ['accessToken'],
   openIdConnect: ['accessToken'],
   mutualTLS: [],
 } as const;
@@ -13,11 +12,12 @@ const REQUIRED_VALUES_BY_AUTH_TYPE = {
 type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE;
 
 // TODO: This should be replaced with schema validation in Respect rules
+// The values of an oauth2 scheme depend on its flows: `getOAuth2AccessToken` checks them.
 export function validateXSecurityParameters({
   scheme,
   values,
 }: {
-  scheme: Oas3SecurityScheme;
+  scheme: Exclude<Oas3SecurityScheme, OAuth2Auth>;
   values: Record<string, string>;
 }): ResolvedSecurity {
   // RFC 7235 HTTP authentication scheme names are case-insensitive.

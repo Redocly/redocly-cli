@@ -247,7 +247,7 @@ export const criteriaObject = {
           type: 'object',
           properties: {
             type: { type: 'string', enum: ['jsonpath'] },
-            version: { type: 'string', enum: ['draft-goessner-dispatch-jsonpath-00'] },
+            version: { type: 'string', enum: ['draft-goessner-dispatch-jsonpath-00', 'rfc9535'] },
           },
         },
         {
@@ -395,7 +395,14 @@ export const workflow = {
     outputs: {
       type: 'object',
       additionalProperties: {
-        type: 'string',
+        oneOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'object',
+          },
+        ],
       },
     },
     steps: steps,

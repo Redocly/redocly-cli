@@ -5,8 +5,10 @@ import { FormData } from 'undici';
 import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
+import { createAuthHeaders, type PlatformCredentials } from './auth-headers.js';
 import type {
   CreatePullRequestPayload,
+  OrganizationResponse,
   ProjectBuildResponse,
   ProjectResponse,
   ProjectSourcesListResponse,
@@ -19,7 +21,7 @@ import type {
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
 }
-type CommandOption = 'push' | 'push-status';
+type CommandOption = 'push' | 'push-status' | 'project clone';
 export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean };
 export type SunsetWarningsBuffer = SunsetWarning[];
 
@@ -154,7 +156,18 @@ abstract class ResourceApi {
   }
 }
 
-class ProjectsApi extends ResourceApi {
+export class OrganizationsApi extends ResourceApi {
+  // `organization` accepts an id or a slug.
+  find(organization: string): Promise<OrganizationResponse> {
+    return this.fetchJson(
+      `${this.domain}/api/orgs/${encodeURIComponent(organization)}`,
+      { method: 'GET', timeout: DEFAULT_FETCH_TIMEOUT },
+      'Failed to get the organization'
+    );
+  }
+}
+
+export class ProjectsApi extends ResourceApi {
   // Both segments accept an id or a slug; the response carries the ids.
   async find(organization: string, project: string): Promise<ProjectResponse | undefined> {
     try {
@@ -429,17 +442,16 @@ export class PlatformApi {
 
   constructor({
     domain,
-    apiKey,
     command,
     version,
-  }: {
+    ...credentials
+  }: PlatformCredentials & {
     domain: string;
-    apiKey: string;
     command: CommandOption;
     version?: string;
   }) {
     this.apiClient = new PlatformApiClient(command, version);
-    const authHeaders = { Authorization: `Bearer ${apiKey}` };
+    const authHeaders = createAuthHeaders(credentials);
 
     this.projects = new ProjectsApi(this.apiClient, domain, authHeaders);
     this.remotes = new RemotesApi(this.apiClient, domain, authHeaders);

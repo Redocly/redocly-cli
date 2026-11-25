@@ -146,6 +146,22 @@ const cases: ConfigCase[] = [
     contains: [{ file: 'matched.ts', text: 'serverUrl: "https://per-api.example.com"' }],
   },
   {
+    name: 'a file path that matches an api root does not take its clientOutput',
+    config: outdent`
+      apis:
+        cafe:
+          root: ./openapi.yaml
+          clientOutput: ./out.ts
+          client:
+            generators: [typescript]
+            serverUrl: https://per-api.example.com
+    `,
+    args: ['./openapi.yaml'],
+    status: 0,
+    missingFiles: ['out.ts'],
+    contains: [{ file: 'openapi.client.ts', text: 'serverUrl: "https://per-api.example.com"' }],
+  },
+  {
     name: 'a file path that matches no api root uses the top-level block',
     config: outdent`
       client:
@@ -210,6 +226,30 @@ const cases: ConfigCase[] = [
     args: ['realm'],
     status: 0,
     files: ['out/client.ts', 'out/client.schemas.ts', 'out/client.zod.ts'],
+  },
+  {
+    // The client returns results, and the wrapper beside it throws: one error mode per
+    // `client` block no longer blocks the pair.
+    name: 'a result-mode client generates beside its tanstack-query wrapper',
+    config: outdent`
+      client:
+        generators:
+          - typescript
+          - tanstack-query
+        outputMode: split
+        errorMode: result
+      apis:
+        cafe:
+          root: ./openapi.yaml
+          clientOutput: ./src/openapi.ts
+    `,
+    args: [],
+    status: 0,
+    files: ['src/openapi.ts', 'src/openapi.schemas.ts'],
+    contains: [
+      { file: 'src/openapi.ts', text: 'errorMode: "result"' },
+      { file: 'src/openapi.tanstack.ts', text: 'unwrapResult(instance.' },
+    ],
   },
   {
     // The client is generated from the api's resolved config, so a per-api `remove-x-internal`
@@ -315,6 +355,26 @@ const cases: ConfigCase[] = [
     `,
     args: [],
     status: 1,
+    missingFiles: ['dupe.ts'],
+    stderr: ['Two APIs write to the same path'],
+  },
+  {
+    // The zod module of `a` is known only after `a` is generated, so the run fails at `b`.
+    name: 'errors when a clientOutput matches a sibling module of an earlier api',
+    config: outdent`
+      apis:
+        a:
+          root: ./openapi.yaml
+          clientOutput: ./a.ts
+          client: { generators: [typescript, zod] }
+        b:
+          root: ./openapi.yaml
+          clientOutput: ./a.zod.ts
+          client: { generators: [typescript] }
+    `,
+    args: [],
+    status: 1,
+    contains: [{ file: 'a.zod.ts', text: 'from "zod"' }],
     stderr: ['Two APIs write to the same path'],
   },
   {

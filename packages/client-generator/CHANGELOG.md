@@ -1,5 +1,24 @@
 # @redocly/client-generator
 
+## 0.10.6
+
+### Patch Changes
+
+- Fixed an issue where the `generate-client` command failed when `errorMode: result` was set together with the `tanstack-query` or `swr` generator.
+- Updated @redocly/openapi-core to v2.83.0.
+
+## 0.10.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.82.0.
+
+## 0.10.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.81.0.
+
 ## 0.10.3
 
 ### Patch Changes

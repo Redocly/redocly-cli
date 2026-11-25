@@ -22,14 +22,15 @@ export function handlePayloadReplacements({
       throw new Error(`Invalid JSON Pointer: ${target}`);
     }
 
+    const evaluatedValue = evaluateRuntimeExpressionPayload({
+      payload: value,
+      context: expressionContext,
+      logger,
+    });
+
     try {
       // Get the current value using JSON Pointer
       const currentValue = JsonPointerLib.get(payload, target);
-      const evaluatedValue = evaluateRuntimeExpressionPayload({
-        payload: value,
-        context: expressionContext,
-        logger,
-      });
 
       if (currentValue !== undefined) {
         // Replace the value using JSON Pointer

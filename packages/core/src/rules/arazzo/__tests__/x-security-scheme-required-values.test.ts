@@ -376,7 +376,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`accessToken\` is required when using the oauth2 authentication security schema.",
+          "message": "The \`values\` of an oauth2 security scheme must have \`accessToken\`.",
           "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",
@@ -390,7 +390,76 @@ describe('Arazzo x-security-scheme-required-values', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`accessToken\` is required when using the oauth2 authentication security schema.",
+          "message": "The \`values\` of an oauth2 security scheme must have \`accessToken\`.",
+          "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should accept the credentials of a declared OAuth2 flow instead of the access token', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Redocly Cafe orders
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: list-orders
+            x-security:
+              - scheme:
+                  type: oauth2
+                  flows:
+                    clientCredentials:
+                      tokenUrl: https://api.cafe.redocly.com/oauth2/token
+                      scopes:
+                        orders:read: Read access to orders
+                values:
+                  clientId: $inputs.clientId
+                  clientSecret: $inputs.clientSecret
+            steps:
+              - stepId: list-orders
+                operationId: cafe-api.listOrders
+                x-security:
+                  - scheme:
+                      type: oauth2
+                      flows:
+                        password:
+                          tokenUrl: https://api.cafe.redocly.com/oauth2/token
+                          scopes:
+                            orders:read: Read access to orders
+                    values:
+                      username: $inputs.username
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'x-security-scheme-required-values': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`values\` of an oauth2 security scheme must have \`accessToken\`, or \`username\` and \`password\` for the password flow.",
           "reference": "https://redocly.com/docs/cli/rules/respect/x-security-scheme-required-values",
           "ruleId": "x-security-scheme-required-values",
           "severity": "error",

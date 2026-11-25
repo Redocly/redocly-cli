@@ -20,6 +20,7 @@ Read `redocly.yaml` first. It tells you:
 - Which decorators transform the output at bundle time.
 
 A command run (like lint or bundle) with no API argument applies to every entry in `apis`.
+`build-docs`, `stats`, `score`, and `scorecard-classic` process one API, so always pass it: `redocly build-docs my-api`.
 Point at a different config with `--config <path>`.
 
 ## Quick reference
@@ -229,6 +230,8 @@ Inputs that don't match a workflow's `inputs` schema produce a warning before th
 - `respect` currently covers only synchronous HTTP flow.
 - A `respect` step that lists any `parameters` takes no parameters from the API description; list every required one.
 - An `in: querystring` parameter of a `respect` step needs `arazzo: 1.1.0` and sets the whole query string; it cannot be combined with `in: query` parameters.
+- `respect` evaluates an Arazzo 1.1.0 Selector Object (`context`, `selector`, `type`) in `outputs`, parameter values, request body payloads, and replacement values, for the `jsonpath` and `jsonpointer` types only; a `jsonpath` selector with a filter, a wildcard, or a slice gives a list, so read one item with a JSON Pointer such as `$steps.<stepId>.outputs.<name>#/0`.
+- A `jsonpath` criterion of a `respect` step queries its `context` value when the condition starts with a member name, as in `$.items[?(@.id == 1)]`, the same way as a selector; any other condition tests the `context` value itself, so filter the items of a list with `$[*][?(@.id == 1)]` in a criterion and with `$[?(@.id == 1)]` in a selector; with `type: { type: jsonpath, version: rfc9535 }` in an Arazzo 1.1.0 description, every condition of the criterion queries the `context` value as a selector does.
 - Any `redocly.yaml` in the working directory configures every command — a stray one changes lint results silently.
 - `--extends` on the command line sets the base ruleset for that run; useful for a quick `--extends=spec` conformance check.
 - `bundle` takes a URL: `redocly bundle https://example.com/openapi.yaml -o openapi.yaml` fetches a remote description and its `$ref`s into one local file, with no `curl`. It also fetches `externalValue` URLs and writes no output when one is unreachable; add `--force` to write it anyway.

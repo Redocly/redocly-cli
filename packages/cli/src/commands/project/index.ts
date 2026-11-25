@@ -1,8 +1,13 @@
 import { HandledError, logger } from '@redocly/openapi-core';
-import { buildProjectGitUrl, getPlatformUrl } from '@redocly/platform-integration';
+import {
+  buildProjectGitUrl,
+  getPlatformCredentials,
+  getPlatformUrl,
+  resolveProjectIds,
+} from '@redocly/platform-integration';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { getCredentialHelperConfig, runGit } from './utils.js';
+import { asHandledError, getCredentialHelperConfig, notLoggedInMessage, runGit } from './utils.js';
 
 export type ProjectCloneArgv = {
   project: string;
@@ -20,7 +25,19 @@ export async function handleProjectClone({ argv, config, version }: CommandArgs<
   }
 
   const platformUrl = getPlatformUrl(config, argv.residency);
-  const url = buildProjectGitUrl(platformUrl, organization, project);
+  const credentials = await getPlatformCredentials(platformUrl, version);
+  if (!credentials) {
+    throw new HandledError(notLoggedInMessage(platformUrl));
+  }
+
+  const ids = await resolveProjectIds({
+    platformUrl,
+    organization,
+    project,
+    version,
+    ...credentials,
+  }).catch(asHandledError);
+  const url = buildProjectGitUrl(platformUrl, ids.organization, ids.project);
   const helperConfig = getCredentialHelperConfig(platformUrl, version);
 
   logger.info(`Cloning ${organization}/${project} from ${platformUrl}\n`);

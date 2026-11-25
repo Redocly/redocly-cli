@@ -49,7 +49,11 @@ export type BundleArgv = {
   overlay?: string[];
 };
 
-export type BundleTelemetry = { bundle_overlays_count?: number };
+export type BundleTelemetry = {
+  bundle_overlays_count?: number;
+  // FIXME: remove this line with the repeated output count in `trackWrittenOutput`.
+  bundle_repeated_output?: number;
+};
 
 /** Populated by handleBundle; the wrapper adds it to the telemetry payload. */
 export const bundleTelemetry: BundleTelemetry = {};
@@ -63,6 +67,12 @@ export async function handleBundle({
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const configDir = getConfigDirectory(config);
+  if (argv.metafile && apis.length > 1) {
+    logger.warn(
+      `[WARNING] "--metafile" works with one API only, so the metafile is not written. Bundle one API to write it.\n`
+    );
+  }
+  const writtenOutputs = new Set<string>();
 
   for (const { path, alias, output } of apis) {
     try {
@@ -131,6 +141,7 @@ export async function handleBundle({
             ext,
             argv.dereferenced
           );
+          trackWrittenOutput(outputFile, writtenOutputs);
           saveBundle(outputFile, bundled);
         }
       }
@@ -146,13 +157,16 @@ export async function handleBundle({
         command: 'bundle',
       });
 
-      if (argv.metafile) {
-        if (apis.length > 1) {
-          logger.warn(`[WARNING] "--metafile" cannot be used with multiple apis. Skipping...`);
-        }
-        {
-          writeFileSync(argv.metafile, JSON.stringify(meta), 'utf-8');
-        }
+      if (argv.metafile && apis.length === 1) {
+        writeFileSync(
+          argv.metafile,
+          JSON.stringify({
+            ...meta,
+            // `JSON.stringify` writes a `Set` as `{}`.
+            fileDependencies: [...meta.fileDependencies].map(formatPath),
+          }),
+          'utf-8'
+        );
       }
 
       const elapsed = getExecutionTime(startedAt);
@@ -192,4 +206,16 @@ export async function handleBundle({
   if (!(totals.errors === 0 || argv.force)) {
     throw new AbortFlowError('Bundle failed.');
   }
+}
+
+// Records the path of a bundle that the command is about to write.
+function trackWrittenOutput(outputFile: string, writtenOutputs: Set<string>) {
+  if (writtenOutputs.has(outputFile)) {
+    logger.warn(
+      `[WARNING] Another API already wrote a bundle to ${formatPath(outputFile)}, so this bundle replaces it.\n`
+    );
+    // FIXME: remove this line when it is decided whether `bundle` fails on a repeated output path.
+    bundleTelemetry.bundle_repeated_output = (bundleTelemetry.bundle_repeated_output ?? 0) + 1;
+  }
+  writtenOutputs.add(outputFile);
 }
