@@ -1,16 +1,19 @@
 import { HandledError, logger } from '@redocly/openapi-core';
 import {
+  buildProjectGitUrl,
   createPullRequest,
   getPullRequestStatus,
   parseProjectGitUrl,
   RedoclyOAuthClient,
+  resolveHostedProject,
   type HostedProject,
   type PullRequestStatus,
+  type ResolvedHostedProject,
 } from '@redocly/platform-integration';
 import { readFile } from 'node:fs/promises';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { runGit } from './utils.js';
+import { asHandledError, runGit } from './utils.js';
 
 export type ProjectPrCreateArgv = {
   title?: string;
@@ -48,9 +51,11 @@ export async function handleProjectPrCreate({ argv, version }: CommandArgs<Proje
     throw new HandledError(`Push the branch first: \`git push -u origin ${branch}\`.`);
   }
 
+  const accessToken = await readLoginToken(project.platformUrl, version);
+  const resolved = await resolveClone(project, accessToken, version, 'project pr create');
   const pullRequest = await createPullRequest({
-    ...project,
-    accessToken: await readLoginToken(project.platformUrl, version),
+    ...resolved,
+    accessToken,
     version,
     branch,
     title: argv.title ?? (await runGit(['log', '-1', '--format=%s'], { capture: true })).output,
@@ -59,15 +64,17 @@ export async function handleProjectPrCreate({ argv, version }: CommandArgs<Proje
     draft: argv.draft,
   }).catch(asHandledError);
 
-  logger.output(`${pullRequestUrl(project, pullRequest.number)}\n`);
+  logger.output(`${pullRequestUrl(resolved, pullRequest.number)}\n`);
 }
 
 // Prints the latest pull request of the current branch.
 export async function handleProjectPrStatus({ version }: { version: string }) {
   const { project, branch } = await readClone();
+  const accessToken = await readLoginToken(project.platformUrl, version);
+  const resolved = await resolveClone(project, accessToken, version, 'project pr status');
   const status = await getPullRequestStatus({
-    ...project,
-    accessToken: await readLoginToken(project.platformUrl, version),
+    ...resolved,
+    accessToken,
     version,
     branch,
   }).catch(asHandledError);
@@ -78,7 +85,7 @@ export async function handleProjectPrStatus({ version }: { version: string }) {
   }
 
   logger.output(
-    formatPullRequestStatus(status, pullRequestUrl(project, status.pullRequest.number))
+    formatPullRequestStatus(status, pullRequestUrl(resolved, status.pullRequest.number))
   );
 }
 
@@ -147,6 +154,26 @@ async function readClone() {
   return { project, branch };
 }
 
+// Clones made before `project clone` switched to ids have the slugs in the `origin` URL.
+async function resolveClone(
+  project: HostedProject,
+  accessToken: string,
+  version: string,
+  command: string
+): Promise<ResolvedHostedProject> {
+  const resolved = await resolveHostedProject({ ...project, accessToken, version, command }).catch(
+    asHandledError
+  );
+  if (resolved.organization !== project.organization || resolved.project !== project.project) {
+    const url = buildProjectGitUrl(resolved.platformUrl, resolved.organization, resolved.project);
+    logger.warn(
+      `Organization and project slugs are deprecated. Use the ids instead: git remote set-url origin ${url}\n`
+    );
+  }
+
+  return resolved;
+}
+
 async function readLoginToken(platformUrl: string, version: string) {
   const accessToken = await new RedoclyOAuthClient(version).getAccessToken(platformUrl);
   if (!accessToken) {
@@ -158,10 +185,9 @@ async function readLoginToken(platformUrl: string, version: string) {
   return accessToken;
 }
 
-function pullRequestUrl({ platformUrl, organization, project }: HostedProject, number: number) {
-  return `${platformUrl}/org/${encodeURIComponent(organization)}/project/${encodeURIComponent(project)}/pull-requests/${number}`;
-}
-
-function asHandledError(error: Error): never {
-  throw new HandledError(error.message);
+function pullRequestUrl(
+  { platformUrl, organizationSlug, projectSlug }: ResolvedHostedProject,
+  number: number
+) {
+  return `${platformUrl}/org/${encodeURIComponent(organizationSlug)}/project/${encodeURIComponent(projectSlug)}/pull-requests/${number}`;
 }

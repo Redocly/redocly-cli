@@ -6,6 +6,10 @@ import * as path from 'node:path';
 // npx and pnpm dlx run the CLI from a temporary install that is gone once they exit.
 const TEMPORARY_INSTALL_DIR = /[\\/](_npx|dlx)[\\/]/;
 
+export function notLoggedInMessage(platformUrl: string): string {
+  return `You are not logged in to ${platformUrl}. Run \`redocly login --residency ${platformUrl}\` or set the REDOCLY_AUTHORIZATION environment variable.`;
+}
+
 // Git config entries that make `redocly project git-credentials` the only credential helper
 // for the Redocly platform host. The empty entry clears the helpers configured for all hosts.
 export function getCredentialHelperConfig(platformUrl: string, version: string): string[] {
@@ -36,6 +40,10 @@ export async function runGit(
     child.on('error', (error: NodeJS.ErrnoException) => reject(gitError(error)));
     child.on('close', (code) => resolve({ code: code ?? 1, output: output.trim() }));
   });
+}
+
+export function asHandledError(error: Error): never {
+  throw new HandledError(error.message);
 }
 
 function isOnPath(command: string): boolean {
