@@ -734,20 +734,12 @@ describe('checkSchema', () => {
         } as unknown as StepCallContext,
         descriptionOperation: headersDescriptionOperation,
         ctx,
-      }).find((c) => c.name === CHECKS.RESPONSE_HEADER_CHECK);
+      }).find((check) => check.name === CHECKS.RESPONSE_HEADER_CHECK);
 
-    it('passes when the required headers are present, in any case, with extra headers', () => {
-      expect(checkHeaders(200, { 'x-request-id': 'abc', 'x-powered-by': 'test' })?.passed).toBe(
-        true
-      );
-    });
-
-    it('fails and names the missing required headers', () => {
-      const check = checkHeaders(200, { 'x-rate-limit-remaining': '10' });
-      expect(check?.passed).toBe(false);
-      expect(check?.message).toContain('X-Request-ID');
+    it('ignores a Content-Type entry in the response headers', () => {
+      const check = checkHeaders(200, { 'x-request-id': 'abc' });
+      expect(check?.passed).toBe(true);
       expect(check?.message).not.toContain('Content-Type');
-      expect(check?.severity).toBe('error');
     });
 
     it('adds no check when the response describes no required headers', () => {

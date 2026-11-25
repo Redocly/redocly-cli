@@ -224,7 +224,7 @@ function checkResponseHeadersFromDescription({
       ? `Required headers for ${blue($response.statusCode)} response are missing: ${red(
           missingHeaders.join(', ')
         )}.`
-      : `Required headers ${requiredHeaders.join(', ')} are present.`,
+      : `Required headers are present: ${requiredHeaders.join(', ')}.`,
     severity: ctx.severity['RESPONSE_HEADER_CHECK'],
   });
 }
