@@ -489,7 +489,7 @@ describe('Arazzo 1.1 lint', () => {
     expect(messages).toContain('The field `type` must be present on this level.');
   });
 
-  it('reports a malformed Selector Object used as a parameter value', async () => {
+  it('reports an invalid Selector Object used as a step or an action parameter value', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.1.0'
@@ -509,9 +509,26 @@ describe('Arazzo 1.1 lint', () => {
                   - name: limit
                     in: query
                     value:
+                      context: $response.body
                       selector: $.limit
+                      type: css
+                  - name: filter
+                    in: query
+                    value:
+                      selector: '#main'
+                      attribute: href
                 successCriteria:
                   - condition: $statusCode == 200
+                onSuccess:
+                  - name: place-order
+                    type: goto
+                    workflowId: place-order
+                    parameters:
+                      - name: limit
+                        value:
+                          context: $response.body
+                          selector: $.limit
+                          type: css
       `,
       'arazzo.yaml'
     );
@@ -528,12 +545,12 @@ describe('Arazzo 1.1 lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/workflows/0/steps/0/parameters/0/value",
-              "reportOnKey": true,
+              "pointer": "#/workflows/0/steps/0/parameters/0/value/type",
+              "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The field \`context\` must be present on this level.",
+          "message": "\`type\` can be one of the following only: "jsonpath", "xpath", "jsonpointer".",
           "ruleId": "struct",
           "severity": "error",
           "suggest": [],
@@ -542,12 +559,12 @@ describe('Arazzo 1.1 lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/workflows/0/steps/0/parameters/0/value",
-              "reportOnKey": true,
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/0/value/type",
+              "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The field \`type\` must be present on this level.",
+          "message": "\`type\` can be one of the following only: "jsonpath", "xpath", "jsonpointer".",
           "ruleId": "struct",
           "severity": "error",
           "suggest": [],

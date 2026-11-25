@@ -22,7 +22,7 @@ The specification gives these fields the `{expression}` type, and the rule check
 
 The `spec-no-invalid-runtime-expressions` rule also checks each expression that the `operationPath` or the `channelPath` of a step embeds in curly braces, such as `{$sourceDescriptions.cafe-api.url}`.
 
-An output value can also be a constant or a string that embeds expressions in curly braces, such as `Bearer {$response.body#/token}`.
+An output value can also be a constant, a string that embeds expressions in curly braces, such as `Bearer {$response.body#/token}`, or a `$faker` expression, such as `$faker.string.uuid()`.
 The specification does not define these forms for `outputs`, but Respect evaluates them, so the rule accepts them.
 In `outputs`, the rule reports a value that starts with `$` and is not a valid runtime expression, and each embedded expression that is not valid.
 
