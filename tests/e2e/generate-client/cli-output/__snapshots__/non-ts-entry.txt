@@ -2,7 +2,7 @@
 
   Generating client for shop... 
 
-Client successfully generated: 3 files (125183 bytes) at <project>/src/shop.ts.
+Client successfully generated: 3 files (125352 bytes) at <project>/src/shop.ts.
 
 ❌  client.cliOutput must point at a TypeScript file (ending in .ts).
    Got: <project>/bin/cafe.js

@@ -1,5 +1,6 @@
 import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
-import { blue, dim, red, yellow, green } from 'colorette';
+import { isPlainObject, toAjvSchema } from '@redocly/openapi-core';
+import { blue, dim, red, green } from 'colorette';
 
 import {
   type Check,
@@ -8,7 +9,6 @@ import {
   type TestContext,
 } from '../../../types.js';
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
-import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
 import { CHECKS } from '../../checks/index.js';
 import {
   contentTypeMatchesPattern,
@@ -33,6 +33,13 @@ const ajvStrict = new (Ajv as any)({
   verbose: true,
   defaultUnevaluatedProperties: false,
 });
+
+// Ajv keeps a compiled schema by the object it gets, so a schema is converted only once per target.
+const ajvSchemas = {
+  request: new WeakMap<object, unknown>(),
+  response: new WeakMap<object, unknown>(),
+  none: new WeakMap<object, unknown>(),
+};
 
 export function checkSchema({
   stepCallCtx,
@@ -81,25 +88,22 @@ function checkSchemaFromDescription({
         descriptionResponses: descriptionOperation?.responses,
       })
     : undefined;
-  const isSchemaWithCircularRef = checkCircularRefsInSchema(schemaFromDescription);
 
-  if (isSchemaWithCircularRef) {
-    ctx.options.logger.output(`${yellow('WARNING: schema have circular references')}`);
-    ctx.options.logger.printNewLine();
-  }
-
-  if (schemaFromDescription && !isSchemaWithCircularRef) {
+  if (schemaFromDescription) {
     try {
-      const validate = ajvStrict.compile(schemaFromDescription as JSONSchemaType<unknown>);
+      const target = ajvContext?.apiContext;
+      const convertedSchemas = ajvSchemas[target ?? 'none'];
+      // A boolean schema has nothing to convert.
+      if (isPlainObject(schemaFromDescription) && !convertedSchemas.has(schemaFromDescription)) {
+        convertedSchemas.set(schemaFromDescription, toAjvSchema(schemaFromDescription, { target }));
+      }
+      const schema = convertedSchemas.get(schemaFromDescription) ?? schemaFromDescription;
+      const validate = ajvStrict.compile(schema as JSONSchemaType<unknown>);
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
         passed: validate.call(ajvContext, resultBody),
         message: validate.errors
-          ? printAjvErrors(
-              schemaFromDescription as JSONSchemaType<unknown>,
-              resultBody,
-              validate.errors
-            )
+          ? printAjvErrors(schema as JSONSchemaType<unknown>, resultBody, validate.errors)
           : '',
         severity: ctx.severity['SCHEMA_CHECK'],
       });

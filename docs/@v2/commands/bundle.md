@@ -41,7 +41,7 @@ redocly bundle <apis>... -o <outputName> --ext <ext>
 | --keep-url-references, -k               | boolean  | Preserve absolute URL references.                                                                                                                                                                                                                         |
 | --lint-config                           | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                                                                                                    |
 | --component-renaming-conflicts-severity | string   | Specify the severity level for reporting when schemas are referenced with the same name but different content during bundling. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                            |
-| --metafile                              | string   | Path for the bundle metadata file.                                                                                                                                                                                                                        |
+| --metafile                              | string   | Path for the bundle metadata file. `fileDependencies` lists the bundled files, relative to the current directory. The command only writes a metadata file when it bundles a single API.                                                                   |
 | --overlay                               | [string] | Apply an [Overlay](#apply-overlays) to the bundle. Repeat the option to apply several overlays in order. Replaces the `overlays` set for the API in the configuration file.                                                                               |
 | --output, -o                            | string   | Name or folder for the bundle file specified using the command line. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **Overwrites existing bundler output file.** |
 | --remove-unused-components              | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                        |
@@ -95,6 +95,8 @@ redocly bundle
 
 Please note, that providing an API to the `bundle` command results in the command bundling only the specified API.
 Additionally, the `--output` option is only meaningful when used with APIs specified in the command line.
+For such an API, `--output` takes precedence over the `output` of the configuration file.
+When an API writes its bundle to a path that another API already wrote, the command warns that this bundle replaces the earlier one.
 
 ### Create a fully dereferenced bundle
 

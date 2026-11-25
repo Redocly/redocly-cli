@@ -27,7 +27,8 @@ export async function createTestContext(
   testDescription: TestDescription,
   options: AppOptions,
   apiClient: ApiFetcher,
-  secretsSet = new Set<string>()
+  secretsSet = new Set<string>(),
+  oauth2TokenCache: TestContext['oauth2TokenCache'] = new Map()
 ): Promise<TestContext> {
   const sourceDescriptions = testDescription?.sourceDescriptions;
 
@@ -99,6 +100,7 @@ export async function createTestContext(
     sourceDescriptions: testDescription.sourceDescriptions || [],
     noSecretsMasking: options.noSecretsMasking || false,
     secretsSet,
+    oauth2TokenCache,
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
   };
@@ -122,6 +124,9 @@ export function collectSecretValues(
   if (!schema || isRef(schema) || !inputs) return;
 
   const inputValue = getNestedValue(inputs, path);
+
+  // A recursive schema has no end, so the search stops where the values end.
+  if (inputValue === undefined) return;
 
   if (schema.format === 'password' && inputValue) {
     ctx.secretsSet.add(inputValue);

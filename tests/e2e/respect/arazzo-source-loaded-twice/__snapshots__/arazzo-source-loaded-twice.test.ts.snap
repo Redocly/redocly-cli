@@ -1,0 +1,69 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should load an Arazzo source again after its workflow has run 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow arazzo-source-loaded-twice.arazzo.yaml / search-menu-directly-then-through-middle 
+ 
+  Running child workflow for the step search-directly 
+  Running workflow menu.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Running child workflow for the step search-through-middle 
+  Running workflow middle.arazzo.yaml / search-latte 
+ 
+  Running child workflow for the step search-latte 
+  Running workflow menu.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+ 
+ 
+  Summary for arazzo-source-loaded-twice.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow menu.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for menu.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                       │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ arazzo-source-loaded-twice.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+│ ✓ menu.arazzo.yaml                                                             │ 1          │ 1       │ -       │ -        │
+└────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+
+Exit code: 0"
+`;

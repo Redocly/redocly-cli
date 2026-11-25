@@ -1,0 +1,21 @@
+arazzo: 1.0.1
+info:
+  title: Load an Arazzo source directly and through another Arazzo source
+  version: 1.0.0
+sourceDescriptions:
+  - name: menu
+    type: arazzo
+    url: ./menu.arazzo.yaml
+  - name: middle
+    type: arazzo
+    url: ./middle.arazzo.yaml
+workflows:
+  - workflowId: search-menu-directly-then-through-middle
+    steps:
+      - stepId: search-directly
+        workflowId: $sourceDescriptions.menu.search-menu
+        parameters:
+          - name: search
+            value: mermaid-treasure-espresso
+      - stepId: search-through-middle
+        workflowId: $sourceDescriptions.middle.search-latte

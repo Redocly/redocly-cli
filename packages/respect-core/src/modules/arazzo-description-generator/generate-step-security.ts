@@ -14,7 +14,8 @@ export type GeneratedStepSecurity = {
 /**
  * Express an operation's security requirements the way Respect can execute
  * them: an `x-security` entry with `$inputs` values for every scheme type
- * Respect supports (see flow-runner/validate-x-security-parameters.ts), a
+ * Respect supports (see flow-runner/validate-x-security-parameters.ts, and
+ * utils/oauth2/get-oauth2-access-token.ts for oauth2), a
  * plain Authorization header parameter for other HTTP schemes, and nothing
  * for schemes that a value input cannot satisfy (such as mutualTLS).
  */

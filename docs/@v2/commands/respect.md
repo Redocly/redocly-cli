@@ -18,6 +18,7 @@ Of the features added in Arazzo 1.1.0, it supports only these:
   When an action references a workflow with `workflowId`, `respect` passes the action's parameters to that workflow as inputs.
 - The [`querystring` parameter location](#parameters-with-in-querystring).
 - [Selector Objects](#selector-objects) with a `jsonpath` or `jsonpointer` type.
+- The `rfc9535` version of a [`jsonpath` criterion](#jsonpath-criteria).
 
 AsyncAPI source descriptions are not supported either; if you need them, upvote or open an issue in the [Redocly CLI repository](https://github.com/Redocly/redocly-cli/issues).
 {% /admonition %}
@@ -205,7 +206,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - boolean
 - Disables masking of secrets in the output.
   By default, `respect` masks sensitive information with `********` in both terminal logs and file outputs.
-  Sensitive information includes values described with `format: password`, and tokens and authentication headers from `x-security`.
+  Sensitive information includes values described with `format: password`, tokens and authentication headers from `x-security`, and the credentials and tokens of an OAuth2 token request.
 
   When this flag is set to `true`, the raw (unmasked) data shows in all outputs.
 
@@ -329,6 +330,47 @@ Outside a quoted string, as in `$.items[?(@.category == {$inputs.category})].id`
 A Selector Object has a `context`, a `selector`, and a `type` of `jsonpath`, `xpath`, or `jsonpointer`.
 `respect` reads every object with these fields as a Selector Object.
 A request body cannot send such an object as a literal value.
+
+## JSONPath criteria
+
+A criterion with `type: jsonpath` passes when its `condition` selects at least one value from its `context`.
+
+- A condition that starts with a member name, such as `$.items[?(@.category == "dessert")]`, queries the `context` value, the same way as a [Selector Object](#selector-objects).
+- Any other condition queries a list that holds the `context` value as its only item, so a filter tests the value itself.
+  With `context: $response.body`, the condition `$[?(@.status == 401)]` passes when the response body is an object with that status.
+
+```yaml
+steps:
+  - stepId: list-menu-items
+    operationId: listMenuItems
+    successCriteria:
+      - context: $response.body
+        condition: $.items[?(@.category == "dessert")]
+        type: jsonpath
+    outputs:
+      dessertIds:
+        context: $response.body
+        selector: $.items[?(@.category == "dessert")].id
+        type: jsonpath
+```
+
+The second form is specific to `respect`: in RFC 9535, the root `$` is the `context` value.
+When the `context` is a list, a criterion filters its items with `$[*][?(@.category == "dessert")]`, and a selector filters them with `$[?(@.category == "dessert")]`.
+
+To query the `context` value with every condition, set the `rfc9535` version in the criterion type.
+The criterion then uses the same query as a Selector Object, also when the `context` is a list.
+It needs an Arazzo 1.1.0 description.
+
+```yaml
+successCriteria:
+  - context: $response.body#/items
+    condition: $[?(@.category == "dessert")]
+    type:
+      type: jsonpath
+      version: rfc9535
+```
+
+With this version, a filter such as `$[?(@.status == 401)]` tests the member values of an object `context`, not the object itself.
 
 ## Examples
 

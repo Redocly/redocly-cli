@@ -1,3 +1,5 @@
+import type { Result } from './types.js';
+
 /** The error thrown (throw mode) for a non-2xx response, carrying the decoded error body. */
 export class ApiError extends Error {
   public readonly url: string;
@@ -12,6 +14,19 @@ export class ApiError extends Error {
     this.statusText = statusText;
     this.body = body;
   }
+}
+
+/**
+ * Turn a result-mode call into a throwing one: resolve with the response body, or throw
+ * the `ApiError` a throw-mode client would.
+ */
+export async function unwrapResult<TData>(call: Promise<Result<TData, unknown>>): Promise<TData> {
+  const { data, error, response } = await call;
+  // Failure is `!response.ok`, not `data === undefined`: a successful bodyless response
+  // (204/void) also has undefined data, and a failed one can have an undefined `error`
+  // (unreadable body).
+  if (!response.ok) throw new ApiError(response.url, response.status, response.statusText, error);
+  return data as TData;
 }
 
 /** The error thrown when a request attempt exceeds the configured `timeout` — carries

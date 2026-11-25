@@ -1,11 +1,37 @@
-import { HandledError } from '@redocly/openapi-core';
-import type { PullRequestStatus } from '@redocly/platform-integration';
+import { HandledError, logger } from '@redocly/openapi-core';
+import type * as PlatformIntegration from '@redocly/platform-integration';
+import {
+  createPullRequest,
+  getPullRequestStatus,
+  RedoclyOAuthClient,
+  resolveHostedProject,
+  type PullRequestStatus,
+} from '@redocly/platform-integration';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { Readable } from 'node:stream';
 
-import { formatPullRequestStatus, readBody } from '../pr.js';
+import {
+  formatPullRequestStatus,
+  handleProjectPrCreate,
+  handleProjectPrStatus,
+  readBody,
+} from '../pr.js';
+import type * as GitUtils from '../utils.js';
+import { runGit } from '../utils.js';
+
+vi.mock('../utils.js', async () => ({
+  ...(await vi.importActual<typeof GitUtils>('../utils.js')),
+  runGit: vi.fn(),
+}));
+vi.mock('@redocly/platform-integration', async () => ({
+  ...(await vi.importActual<typeof PlatformIntegration>('@redocly/platform-integration')),
+  createPullRequest: vi.fn(),
+  getPullRequestStatus: vi.fn(),
+  resolveHostedProject: vi.fn(),
+  RedoclyOAuthClient: vi.fn(),
+}));
 
 const PR_URL = 'https://app.cloud.redocly.com/org/acme/project/docs/pull-requests/7';
 const PREVIEW_URL = 'https://docs-fix-typo.preview.redocly.app';
@@ -97,6 +123,86 @@ describe('formatPullRequestStatus', () => {
 
     expect(formatPullRequestStatus({ ...status, pullRequest }, PR_URL)).toContain(
       `State: ${shown}\n`
+    );
+  });
+});
+
+describe('project pr create and status', () => {
+  const getAccessToken = vi.fn();
+  const PLATFORM_URL = 'https://app.cloud.redocly.com';
+  const ID_REMOTE = `${PLATFORM_URL}/api/orgs/org_1/projects/prj_1/git`;
+  const resolved = {
+    platformUrl: PLATFORM_URL,
+    organization: 'org_1',
+    project: 'prj_1',
+    organizationSlug: 'acme',
+    projectSlug: 'docs',
+  };
+
+  function cloneWithRemote(remote: string) {
+    vi.mocked(runGit).mockImplementation(async (args) => ({
+      code: 0,
+      output: args[0] === 'remote' ? remote : 'fix-typo',
+    }));
+  }
+
+  beforeEach(() => {
+    getAccessToken.mockResolvedValue('token');
+    vi.mocked(RedoclyOAuthClient).mockImplementation(function (this: any) {
+      this.getAccessToken = getAccessToken;
+    } as any);
+    vi.mocked(resolveHostedProject).mockResolvedValue(resolved);
+    vi.mocked(getPullRequestStatus).mockResolvedValue({
+      pullRequest: { id: 'pr_1', number: 7, title: 'Fix a typo', status: 'OPEN' },
+      checks: [],
+    });
+    vi.mocked(createPullRequest).mockResolvedValue({
+      id: 'pr_1',
+      number: 7,
+      title: 'Fix a typo',
+      status: 'OPEN',
+    });
+    vi.spyOn(logger, 'output').mockImplementation(() => {});
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  });
+
+  it('creates the pull request by ids and links it by slugs', async () => {
+    cloneWithRemote(ID_REMOTE);
+
+    await handleProjectPrCreate({
+      argv: { title: 'Fix a typo', body: '' },
+      config: {} as any,
+      version: '2.0.0',
+    });
+
+    expect(createPullRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ organization: 'org_1', project: 'prj_1', branch: 'fix-typo' })
+    );
+    expect(logger.output).toHaveBeenCalledWith(`${PR_URL}\n`);
+  });
+
+  it('calls the API by ids and links the pull request by slugs', async () => {
+    cloneWithRemote(ID_REMOTE);
+
+    await handleProjectPrStatus({ version: '2.0.0' });
+
+    expect(getPullRequestStatus).toHaveBeenCalledWith(
+      expect.objectContaining({ organization: 'org_1', project: 'prj_1', branch: 'fix-typo' })
+    );
+    expect(logger.output).toHaveBeenCalledWith(expect.stringContaining(PR_URL));
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  it('tells a clone with slugs in its `origin` URL how to switch it to ids', async () => {
+    cloneWithRemote(`${PLATFORM_URL}/api/orgs/acme/projects/docs/git`);
+
+    await handleProjectPrStatus({ version: '2.0.0' });
+
+    expect(getPullRequestStatus).toHaveBeenCalledWith(
+      expect.objectContaining({ organization: 'org_1', project: 'prj_1' })
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining(`git remote set-url origin ${ID_REMOTE}`)
     );
   });
 });

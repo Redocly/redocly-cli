@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe Menu
+  version: 1.0.0
+paths:
+  /menu:
+    get:
+      operationId: listMenu
+      summary: List menu
+      responses:
+        '200':
+          description: The menu.
+          content:
+            application/json:
+              schema:
+                $ref: schemas/MenuItem.yaml

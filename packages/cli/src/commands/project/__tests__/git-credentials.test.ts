@@ -1,13 +1,13 @@
 import { logger } from '@redocly/openapi-core';
 import type * as PlatformIntegration from '@redocly/platform-integration';
-import { RedoclyOAuthClient } from '@redocly/platform-integration';
+import { getPlatformCredentials } from '@redocly/platform-integration';
 import { Readable } from 'node:stream';
 
 import { handleProjectGitCredentials } from '../git-credentials.js';
 
 vi.mock('@redocly/platform-integration', async () => ({
   ...(await vi.importActual<typeof PlatformIntegration>('@redocly/platform-integration')),
-  RedoclyOAuthClient: vi.fn(),
+  getPlatformCredentials: vi.fn(),
 }));
 
 const GET_REQUEST =
@@ -22,38 +22,24 @@ function credential(operation: string, request = GET_REQUEST) {
 }
 
 describe('handleProjectGitCredentials', () => {
-  const originalEnv = process.env;
-  const getAccessToken = vi.fn();
-
   beforeEach(() => {
-    process.env = { ...originalEnv };
-    delete process.env.REDOCLY_AUTHORIZATION;
-    getAccessToken.mockResolvedValue('token-123');
-    vi.mocked(RedoclyOAuthClient).mockImplementation(function (this: any) {
-      this.getAccessToken = getAccessToken;
-    } as any);
+    vi.mocked(getPlatformCredentials).mockResolvedValue({ accessToken: 'token-123' });
     vi.spyOn(logger, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    process.env = originalEnv;
   });
 
   it('answers with the login token for the Redocly platform host', async () => {
     await expect(credential('get')).resolves.toBe('username=redocly\npassword=token-123\n');
-    expect(RedoclyOAuthClient).toHaveBeenCalledWith('2.0.0');
-    expect(getAccessToken).toHaveBeenCalledWith('https://app.cloud.redocly.com');
+    expect(getPlatformCredentials).toHaveBeenCalledWith('https://app.cloud.redocly.com', '2.0.0');
   });
 
-  it('answers with the API key from REDOCLY_AUTHORIZATION', async () => {
-    process.env.REDOCLY_AUTHORIZATION = 'sk_test';
+  it('answers with the API key', async () => {
+    vi.mocked(getPlatformCredentials).mockResolvedValue({ apiKey: 'sk_test' });
 
     await expect(credential('get')).resolves.toBe('username=redocly\npassword=sk_test\n');
-    expect(getAccessToken).not.toHaveBeenCalled();
   });
 
   it('tells git to stop and asks the user to log in when there is no credential', async () => {
-    getAccessToken.mockResolvedValue(null);
+    vi.mocked(getPlatformCredentials).mockResolvedValue(undefined);
 
     await expect(credential('get')).resolves.toBe('quit=1\n');
     expect(logger.error).toHaveBeenCalledWith(
@@ -63,11 +49,11 @@ describe('handleProjectGitCredentials', () => {
 
   it('gives nothing for a host that is not a valid Redocly platform URL', async () => {
     await expect(credential('get', 'protocol=http\nhost=example.com\n')).resolves.toBe('');
-    expect(getAccessToken).not.toHaveBeenCalled();
+    expect(getPlatformCredentials).not.toHaveBeenCalled();
   });
 
   it.each(['store', 'erase'])('ignores %s', async (operation) => {
     await expect(credential(operation)).resolves.toBe('');
-    expect(getAccessToken).not.toHaveBeenCalled();
+    expect(getPlatformCredentials).not.toHaveBeenCalled();
   });
 });

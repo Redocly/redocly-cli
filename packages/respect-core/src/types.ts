@@ -151,7 +151,7 @@ export type RegexpSuccessCriteria = {
   context: string;
   type: 'regex';
 };
-export type JsonPathVerison = 'draft-goessner-dispatch-jsonpath-00';
+export type JsonPathVerison = 'draft-goessner-dispatch-jsonpath-00' | 'rfc9535';
 
 export type JsonPathSuccessCriterionObject = {
   type: 'jsonpath';
@@ -303,6 +303,7 @@ export type TestContext = RuntimeExpressionContext & {
   testDescription: TestDescription;
   components?: Record<string, any>;
   secretsSet: Set<string>;
+  oauth2TokenCache: Map<string, { accessToken: string; expiresAt: number }>;
   noSecretsMasking: boolean;
   severity: Record<string, RuleSeverity>;
   apiClient: ApiFetcher;

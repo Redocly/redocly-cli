@@ -9,6 +9,7 @@ export { isTruthy } from './utils/is-truthy.js';
 export { keysOf } from './utils/keys-of.js';
 export { pause } from './utils/pause.js';
 export { pluralize } from './utils/pluralize.js';
+export { isPropertyExcludedFromTarget, toAjvSchema } from './utils/to-ajv-schema.js';
 export { capitalize } from './utils/capitalize.js';
 export { readFileFromUrl } from './utils/read-file-from-url.js';
 export { slash } from './utils/slash.js';
@@ -145,6 +146,11 @@ export { displaySide } from './diff/changes.js';
 export { nameOf, typeOf } from './diff/diff-node.js';
 export { HandledError, AbortFlowError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
+export {
+  getOAuth2ValueOptions,
+  describeOAuth2ValueOptions,
+  type OAuth2ValueOption,
+} from './utils/oauth2-value-options.js';
 export { isBrowser } from './env.js';
 export type { CollectSpecData, Exact } from './utils/types.js';
 export type * from './typings/openapi.js';

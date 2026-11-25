@@ -8,7 +8,6 @@ import type {
   Parameter,
   OnSuccessObject,
   OnFailureObject,
-  RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
 } from '../../types.js';
@@ -176,14 +175,24 @@ export async function runStep({
       }
 
       for (const [outputKey, outputValue] of Object.entries(step.outputs || {})) {
-        // need to partially emulate $outputs context
-        outputs[outputKey] = evaluateRuntimeExpressionPayload({
-          payload: outputValue,
-          context: {
-            $outputs: childWorkflowOutputs,
-          } as RuntimeExpressionContext,
-          logger: ctx.options.logger,
-        });
+        try {
+          const [requestExpression] = REQUEST_EXPRESSION.exec(JSON.stringify(outputValue)) || [];
+          if (requestExpression) {
+            throw new Error(
+              `${requestExpression} has no value in a step that calls a workflow, because the step sends no request. Read the outputs of the called workflow with $outputs instead.`
+            );
+          }
+          outputs[outputKey] = evaluateRuntimeExpressionPayload({
+            payload: outputValue,
+            context: stepCtx,
+            logger: ctx.options.logger,
+          });
+        } catch (error) {
+          // a failed child workflow has already failed the step, and its outputs can be unset
+          if (childWorkflowFailed) continue;
+          const reason = error instanceof Error ? error.message : String(error);
+          throw new Error(`Failed to resolve output "${outputKey}": ${reason}`);
+        }
       }
     } catch (error: any) {
       // an invalid criterion or an output without a value fails the step
@@ -343,7 +352,13 @@ export async function runStep({
     kind: 'failure' | 'success',
     executedStepsCount: ExecutedStepsCount,
     // the context the criteria and the parameters of the actions are evaluated in
-    expressionCtx: TestContext = ctx
+    expressionCtx: TestContext = {
+      ...ctx,
+      $inputs: {
+        ...ctx.$inputs,
+        ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+      },
+    }
   ): Promise<{
     retriesLeft?: number;
     shouldEnd?: boolean;

@@ -11,7 +11,7 @@ describe('resolveXSecurityParameters', () => {
     },
   } as TestContext;
 
-  it('should resolve x-security parameters', () => {
+  it('should resolve x-security parameters', async () => {
     const runtimeContext = {
       $steps: {
         basicAuth: {
@@ -38,7 +38,7 @@ describe('resolveXSecurityParameters', () => {
       ],
     } as unknown as Step;
 
-    const parameters = resolveXSecurityParameters({
+    const parameters = await resolveXSecurityParameters({
       ctx,
       runtimeContext,
       step,
@@ -55,7 +55,7 @@ describe('resolveXSecurityParameters', () => {
     });
   });
 
-  it('should merge x-security schemes on workflow level to steps', () => {
+  it('should merge x-security schemes on workflow level to steps', async () => {
     const runtimeContext = {
       $steps: {
         basicAuth: {
@@ -135,7 +135,7 @@ describe('resolveXSecurityParameters', () => {
       securitySchemes: { MuseumPlaceholderAuth: { type: 'http', scheme: 'basic' } },
     } as any;
 
-    const parameters = resolveXSecurityParameters({
+    const parameters = await resolveXSecurityParameters({
       ctx,
       runtimeContext,
       step,
@@ -182,7 +182,7 @@ describe('resolveXSecurityParameters', () => {
     ]);
   });
 
-  it('should throw when schemeName is provided but scheme cannot be resolved', () => {
+  it('should throw when schemeName is provided but scheme cannot be resolved', async () => {
     const runtimeContext = {} as RuntimeExpressionContext;
     const step = {
       stepId: 'getPet',
@@ -196,8 +196,8 @@ describe('resolveXSecurityParameters', () => {
       $sourceDescriptions: { 'museum-api': { components: { securitySchemes: {} } } },
     };
 
-    expect(() => resolveXSecurityParameters({ ctx: ctxWithSources, runtimeContext, step })).toThrow(
-      'Security scheme "$sourceDescriptions.museum-api.Missing" not found'
-    );
+    await expect(
+      resolveXSecurityParameters({ ctx: ctxWithSources, runtimeContext, step })
+    ).rejects.toThrow('Security scheme "$sourceDescriptions.museum-api.Missing" not found');
   });
 });

@@ -368,7 +368,7 @@ export function getOutputFileName({
   ext?: OutputExtension;
   entries: number;
 }) {
-  let outputFile = output || argvOutput;
+  let outputFile = argvOutput || output;
   if (!outputFile) {
     return { ext: ext || 'yaml' };
   }

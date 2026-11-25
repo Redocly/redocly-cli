@@ -115,6 +115,8 @@ redocly generate-client cafe       # just the `cafe` api
 ### Generate from a file path or URL
 
 An unmatched path or URL uses the top-level `client` defaults.
+A file path that is the `root` of an api uses the `client` block of that api.
+It is saved to `--output` or to `<name>.client.ts`, where `<name>` is the name of the file, and not to the `clientOutput` of that api.
 The `--output` flag names the entry file:
 
 ```bash

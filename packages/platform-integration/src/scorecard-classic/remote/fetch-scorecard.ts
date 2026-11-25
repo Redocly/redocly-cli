@@ -1,5 +1,6 @@
 import { HandledError } from '@redocly/openapi-core';
 
+import { createAuthHeaders } from '../../api/auth-headers.js';
 import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 
 export type RemoteScorecardErrorReason =
@@ -102,7 +103,9 @@ async function fetchProjectConfigBySlugs({
   onDebug?: (message: string) => void;
 }): Promise<Project> {
   const projectUrl = new URL(`${residency}/api/orgs/${orgSlug}/projects/${projectSlug}`);
-  const projectResponse = await fetch(projectUrl, { headers: createAuthHeaders(auth, isApiKey) });
+  const projectResponse = await fetch(projectUrl, {
+    headers: createAuthHeaders(isApiKey ? { apiKey: auth } : { accessToken: auth }),
+  });
 
   onDebug?.(`Project fetch response status: ${projectResponse.status}`);
 
@@ -149,12 +152,4 @@ async function fetchPlugins(
     onDebug?.(`Error fetching plugins: ${error instanceof Error ? error.message : String(error)}`);
     return;
   }
-}
-
-function createAuthHeaders(auth: string, isApiKey: boolean): Record<string, string> {
-  if (isApiKey) {
-    return { Authorization: `Bearer ${auth}` };
-  }
-
-  return { Cookie: `accessToken=${auth}` };
 }
