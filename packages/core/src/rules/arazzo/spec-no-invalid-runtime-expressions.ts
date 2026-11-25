@@ -12,6 +12,10 @@ const STEP_PATH_FIELDS = [
   'channelPath', // added in Arazzo 1.1
 ] as const;
 
+function embeddedExpressions(text: string): string[] {
+  return Array.from(text.matchAll(EMBEDDED_EXPRESSION), ([, expression]) => expression);
+}
+
 export const SpecNoInvalidRuntimeExpressions: Arazzo1Rule = () => {
   // The value can have a wrong type: this rule also runs on a description that `struct` rejects.
   function checkExpression(
@@ -34,28 +38,29 @@ export const SpecNoInvalidRuntimeExpressions: Arazzo1Rule = () => {
     }
   }
 
-  function checkEmbeddedExpressions(value: unknown, ctx: UserContext, field: string) {
-    if (typeof value !== 'string') return;
-
-    for (const [, expression] of value.matchAll(EMBEDDED_EXPRESSION)) {
-      checkExpression(expression, ctx, field);
-    }
-  }
-
   return {
     Outputs(outputs: Record<string, unknown>, ctx: UserContext) {
       for (const [outputName, outputValue] of Object.entries(outputs)) {
-        // Respect also evaluates a constant and a string with embedded expressions as an output value.
-        if (typeof outputValue === 'string' && outputValue.startsWith('$')) {
-          checkExpression(outputValue, ctx, outputName);
-        } else {
-          checkEmbeddedExpressions(outputValue, ctx, outputName);
+        if (typeof outputValue !== 'string') continue;
+
+        // Respect also evaluates a constant, a string with embedded expressions, and a `$faker`
+        // expression as an output value.
+        const expressions = outputValue.startsWith('$')
+          ? [outputValue]
+          : embeddedExpressions(outputValue);
+        for (const expression of expressions) {
+          if (!expression.startsWith('$faker.')) checkExpression(expression, ctx, outputName);
         }
       }
     },
     Step(step, ctx) {
       for (const field of STEP_PATH_FIELDS) {
-        checkEmbeddedExpressions(step[field], ctx, field);
+        const path = step[field];
+        if (typeof path !== 'string') continue;
+
+        for (const expression of embeddedExpressions(path)) {
+          checkExpression(expression, ctx, field);
+        }
       }
     },
     CriterionObject(criterion, ctx) {

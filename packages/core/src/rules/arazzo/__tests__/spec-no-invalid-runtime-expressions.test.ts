@@ -326,6 +326,8 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
                   method: $method
                   kind: beverage
                   authorization: Bearer {$response.body#/token}
+                  correlationId: $faker.string.uuid()
+                  orderLabel: order-{$faker.string.uuid()}
                   nextPage: $response.body#/@odata.nextLink
                   members: $response.body#/hydra:member
                   filter: $request.query.$filter
