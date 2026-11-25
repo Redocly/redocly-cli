@@ -34,13 +34,11 @@ mockServer:
   $ref: nested/config.yaml#/shared
 client:
   $ref: nested/config.yaml#/client
-navbar:
-  items:
-    $ref: nested/config.yaml#/nav
-footer:
-  items:
-    $ref: nested/config.yaml#/nav
 openapi:
   $ref: nested/config.yaml#/openapi
 recheck:
   $ref: nested/config.yaml#/recheck
+env:
+  production:
+    recheck:
+      $ref: nested/config.yaml#/recheck

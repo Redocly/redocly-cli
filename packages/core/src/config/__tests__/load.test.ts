@@ -2844,10 +2844,12 @@ describe('loadConfig', () => {
     });
 
     it('should resolve an object that two options share once', async () => {
-      const { navbar, footer } = await loadFilePathsConfig();
+      const { recheck, env } = await loadFilePathsConfig();
 
-      expect(navbar?.items).toEqual([{ label: 'Home', page: 'nested/index.md' }]);
-      expect(footer?.items).toEqual([{ label: 'Home', page: 'nested/index.md' }]);
+      expect(recheck).toMatchObject({ markdoc: { extend: { tagsFile: 'nested/tags.js' } } });
+      expect(env?.production.recheck).toMatchObject({
+        markdoc: { extend: { tagsFile: 'nested/tags.js' } },
+      });
     });
 
     it('should resolve an object that is first reached as an option without paths', async () => {

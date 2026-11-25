@@ -23,9 +23,6 @@ untouched:
   clientOutput: ''
 shared:
   root: ./openapi.yaml
-nav:
-  - label: Home
-    page: ./index.md
 client:
   setup: ./setup.mjs
   cliOutput: ./cli/index.ts
