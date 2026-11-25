@@ -131,7 +131,7 @@ function withUnderscoreKeys(value: unknown): unknown {
 /**
  * Reads `$source.path.to.value`, optionally followed by a JSON Pointer. A pointer that reaches no
  * value throws. As a Respect extension, a `.` after the pointer starts a property chain, as in
- * `$response.body#/items.length`, so a pointer cannot reach a key that contains `.`.
+ * `$response.body#/items.length`, unless the pointer with the dot reaches a value itself.
  */
 function resolveReference(
   text: string,
@@ -144,14 +144,21 @@ function resolveReference(
   const value = walk(context, [`$${root}`, ...segments]);
   if (hashIndex === -1) return keepsObjectKeys ? value : withUnderscoreKeys(value);
 
-  const [pointer, ...chain] = text.slice(hashIndex + 1).split('.');
-  return walk(atPointer(value, pointer), chain);
+  const pointer = text.slice(hashIndex + 1);
+  // The longest pointer wins: the whole text first, then the text before each dot from the right.
+  for (let end = pointer.length; end !== -1; end = pointer.lastIndexOf('.', end - 1)) {
+    const target = findAtPointer(value, pointer.slice(0, end));
+    if (target) {
+      return walk(target.value, end === pointer.length ? [] : pointer.slice(end + 1).split('.'));
+    }
+  }
+  throw new Error(`JSON Pointer "${pointer}" reaches no value`);
 }
 
 /**
  * Reads a single runtime expression as the Arazzo ABNF defines it: a query or a path name runs to
- * the end of the expression, and a JSON Pointer token can hold any character. The dots of the
- * other names start a property chain, as they do in a condition.
+ * the end of the expression, and a JSON Pointer token can hold any character. Every other
+ * expression is read as it is in a condition.
  */
 export function resolveSingleExpression(
   expression: string,
@@ -161,11 +168,7 @@ export function resolveSingleExpression(
   const [, source, name] = NAMED_VALUE.exec(expression) ?? [];
   if (source) return walk(context, [...source.split('.'), name]);
 
-  const hashIndex = expression.indexOf('#');
-  if (hashIndex === -1) return resolveReference(expression, context, keepsObjectKeys);
-
-  const value = resolveReference(expression.slice(0, hashIndex), context, true);
-  return atPointer(value, expression.slice(hashIndex + 1));
+  return resolveReference(expression, context, keepsObjectKeys);
 }
 
 /** Property access as JavaScript does it, on own properties only. */
@@ -199,17 +202,21 @@ function normalizeName(name: string, ignoresCase: boolean): string {
 }
 
 export function atPointer(value: unknown, pointer: string): unknown {
+  const target = findAtPointer(value, pointer);
+  if (!target) throw new Error(`JSON Pointer "${pointer}" reaches no value`);
+  return target.value;
+}
+
+function findAtPointer(value: unknown, pointer: string): { value: unknown } | undefined {
   let current = value;
   for (const segment of pointer.split('/').slice(1)) {
     const key = segment.replace(/~1/g, '/').replace(/~0/g, '~');
     const object: Record<string, unknown> | undefined =
       current === null || current === undefined ? undefined : Object(current);
-    if (!object || !Object.hasOwn(object, key)) {
-      throw new Error(`JSON Pointer "${pointer}" reaches no value`);
-    }
+    if (!object || !Object.hasOwn(object, key)) return undefined;
     current = object[key];
   }
-  return current;
+  return { value: current };
 }
 
 function tokenize(expression: string): Token[] {

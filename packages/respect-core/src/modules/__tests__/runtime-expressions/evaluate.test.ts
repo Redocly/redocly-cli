@@ -1147,6 +1147,46 @@ describe('a value that holds a single runtime expression', () => {
     });
   });
 
+  it('should read a JSON Pointer with a dot as a key first, and then as a key with a property', () => {
+    const context = {
+      $response: {
+        body: {
+          'hydra:member': [{ id: 'ord_1' }, { id: 'ord_2' }],
+          'odata.count': 2,
+          items: ['tea'],
+          'items.length': 'key',
+        },
+      },
+    } as unknown as RuntimeExpressionContext;
+    const payload = {
+      memberCount: '$response.body#/hydra:member.length',
+      secondOrderId: '$response.body#/hydra:member.1.id',
+      count: '$response.body#/odata.count',
+      key: '$response.body#/items.length',
+      itemCount: '$response.body#/items/0.length',
+    };
+
+    expect(evaluateRuntimeExpressionPayload({ payload, context, logger })).toEqual({
+      memberCount: 2,
+      secondOrderId: 'ord_2',
+      count: 2,
+      key: 'key',
+      itemCount: 3,
+    });
+    expect(evaluateRuntimeExpression('$response.body#/odata.count == 2', context, logger)).toEqual(
+      true
+    );
+    expect(() =>
+      evaluateRuntimeExpressionPayload({
+        payload: '$response.body#/hydra:total.length',
+        context,
+        logger,
+      })
+    ).toThrow(
+      `Error in resolving runtime expression '$response.body#/hydra:total.length': JSON Pointer "/hydra:total.length" reaches no value.`
+    );
+  });
+
   it('should read a query or a path name up to the end of the expression', () => {
     const payload = {
       filter: '$request.query.$filter',
