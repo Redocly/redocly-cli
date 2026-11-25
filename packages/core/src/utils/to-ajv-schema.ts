@@ -1,3 +1,5 @@
+import type { AnySchema } from '@redocly/ajv/dist/2020.js';
+
 import { isPlainObject } from './is-plain-object.js';
 
 // The keywords of a Schema Object that hold a schema or a list of schemas.
@@ -48,7 +50,10 @@ type MessageTarget = 'request' | 'response';
  * - With a `target`, the properties that are not part of that message are left out of `required`:
  *   the `readOnly` ones for a request, and the `writeOnly` ones for a response.
  */
-export function toAjvSchema(schema: unknown, { target }: { target?: MessageTarget } = {}): unknown {
+export function toAjvSchema(
+  schema: AnySchema,
+  { target }: { target?: MessageTarget } = {}
+): AnySchema {
   const names = new Map<object, string>();
   const definitions: Record<string, unknown> = {};
   const ancestors: Record<string, unknown>[] = [];
@@ -129,7 +134,11 @@ export function toAjvSchema(schema: unknown, { target }: { target?: MessageTarge
   };
 
   const converted = convert(schema, false);
-  if (!isPlainObject(converted) || names.size === 0) {
+  // A boolean schema has nothing to convert.
+  if (!isPlainObject(converted)) {
+    return schema;
+  }
+  if (names.size === 0) {
     return converted;
   }
 

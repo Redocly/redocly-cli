@@ -92,7 +92,7 @@ export class SchemaValidator {
         return cached;
       }
 
-      const compiled = this.compileSchema(toAjvSchema(schema, { target }) as AnySchema);
+      const compiled = this.compileSchema(toAjvSchema(schema, { target }));
       cache.set(schema, compiled);
       return compiled;
     }
