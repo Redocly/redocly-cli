@@ -8,6 +8,7 @@ import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
 import { createAuthHeaders, type PlatformCredentials } from './auth-headers.js';
 import type {
   CreatePullRequestPayload,
+  OidcCredentialResponse,
   OrganizationResponse,
   ProjectBuildResponse,
   ProjectResponse,
@@ -149,10 +150,40 @@ abstract class ResourceApi {
       return responseBody as T;
     }
 
-    throw new PlatformApiError(
-      `${responseBody.title || response.statusText || 'Unknown error'}.`,
-      response.status
+    throw new PlatformApiError(this.getErrorMessage(response, responseBody), response.status);
+  }
+
+  protected getErrorMessage(response: Response, responseBody: { title?: string }): string {
+    return `${responseBody.title || response.statusText || 'Unknown error'}.`;
+  }
+}
+
+export class OidcCredentialsApi extends ResourceApi {
+  // Needs no auth headers: the GitHub Actions OIDC token in the body is the credential.
+  exchange(
+    organization: string,
+    project: string,
+    idToken: string
+  ): Promise<OidcCredentialResponse> {
+    return this.fetchJson(
+      `${this.projectUrl(organization, project)}/oidc-credentials`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ idToken }),
+        timeout: DEFAULT_FETCH_TIMEOUT,
+        redirect: 'error',
+      },
+      'Failed to exchange the GitHub OIDC token for an API key'
     );
+  }
+
+  // A refusal says in its detail what to fix, such as the repository ids to trust.
+  protected override getErrorMessage(
+    response: Response,
+    responseBody: { title?: string; detail?: string }
+  ): string {
+    const message = super.getErrorMessage(response, responseBody);
+    return responseBody.detail ? `${message} ${responseBody.detail}` : message;
   }
 }
 

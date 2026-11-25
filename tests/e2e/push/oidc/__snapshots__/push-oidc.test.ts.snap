@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`push > exchanges the GitHub Actions OIDC token and shows why the platform refused it 1`] = `
+"
+✗ File upload failed. Reason: Failed to exchange the GitHub OIDC token for an API key. No trusted repository matches the token. repository: acme/docs, ref: refs/heads/main. (status: 403)
+
+
+
+Exit code: 1"
+`;

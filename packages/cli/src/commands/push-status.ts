@@ -1,6 +1,6 @@
 import { capitalize, HandledError, logger, type OutputFormat } from '@redocly/openapi-core';
 import {
-  getApiKeys,
+  getApiKey,
   getDomain,
   getMostUrgentSunsetWarning,
   getPushStatus,
@@ -30,6 +30,8 @@ export type PushStatusArgv = {
   'max-execution-time'?: number; // in seconds
   'retry-interval'?: number; // in seconds
   'start-time'?: number; // in milliseconds
+  // The organization and the project as `push` named them, so that the wait reuses its API key.
+  'api-key-project'?: { organization: string; project: string };
   'continue-on-deploy-failures'?: boolean;
 };
 
@@ -59,10 +61,10 @@ export async function handlePushStatus({
   let projectRef = { organization, project };
 
   try {
-    const apiKey = getApiKeys();
+    const keyProject = argv['api-key-project'] ?? { organization, project };
     const statusOptions = {
       domain,
-      apiKey,
+      apiKey: () => getApiKey({ domain, ...keyProject, command: 'push-status', version }),
       ...projectRef,
       pushId,
       version,

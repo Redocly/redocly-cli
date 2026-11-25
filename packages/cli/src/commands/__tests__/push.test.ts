@@ -1,17 +1,25 @@
 import {
   collectFilesToPush,
+  getApiKey,
   pushFiles,
   PlatformApiError,
   waitForDeployment,
   type PushResponse,
   type UpsertRemoteResponse,
 } from '@redocly/platform-integration';
+import type * as platformIntegration from '@redocly/platform-integration';
 
 import { handlePush, type PushArgv } from '../push.js';
 
 vi.mock('@redocly/platform-integration', async () => {
-  const actual = await vi.importActual('@redocly/platform-integration');
-  return { ...actual, collectFilesToPush: vi.fn(), pushFiles: vi.fn(), waitForDeployment: vi.fn() };
+  const actual = await vi.importActual<typeof platformIntegration>('@redocly/platform-integration');
+  return {
+    ...actual,
+    collectFilesToPush: vi.fn(),
+    getApiKey: vi.fn(actual.getApiKey),
+    pushFiles: vi.fn(),
+    waitForDeployment: vi.fn(),
+  };
 });
 
 const version = '1.2.3';
@@ -79,12 +87,39 @@ describe('handlePush()', () => {
     expect(result).toEqual({ pushId: 'test-id' });
   });
 
-  it('does not push when there are no files to upload', async () => {
+  it('does not push and gets no API key when there are no files to upload', async () => {
     vi.mocked(collectFilesToPush).mockReturnValue([]);
 
     await handlePush({ argv: { ...argv, files: [] }, config, version });
 
     expect(pushFiles).not.toHaveBeenCalled();
+    expect(getApiKey).not.toHaveBeenCalled();
+  });
+
+  it('waits with the API key of the push when the push resolved slugs to ids', async () => {
+    vi.mocked(pushFiles).mockResolvedValue({
+      pushId: 'test-id',
+      organizationId: 'org_1',
+      projectId: 'prj_1',
+    });
+    vi.mocked(waitForDeployment).mockResolvedValue({
+      isMainBranch: false,
+      isOutdated: false,
+      hasChanges: true,
+      status: { preview: { deploy: { status: 'success', url: null }, scorecard: [] } },
+    } as unknown as PushResponse);
+
+    await handlePush({ argv: { ...argv, 'wait-for-deployment': true }, config, version });
+    const [[{ apiKey, organization, project }]] = vi.mocked(waitForDeployment).mock.calls;
+    if (typeof apiKey === 'function') {
+      await apiKey();
+    }
+
+    expect({ organization, project }).toEqual({ organization: 'org_1', project: 'prj_1' });
+    expect(vi.mocked(getApiKey).mock.calls.map(([target]) => target.project)).toEqual([
+      'test-project',
+      'test-project',
+    ]);
   });
 
   it('waits for the preview deployment when asked to', async () => {

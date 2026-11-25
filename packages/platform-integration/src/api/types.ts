@@ -126,3 +126,5 @@ export type ProjectBuildResponse = {
   url: string;
   deploymentStatus: 'NOT_STARTED' | 'SKIPPED' | 'IN_PROGRESS' | 'SUCCESS' | 'FAILED';
 };
+
+export type OidcCredentialResponse = { apiKey: string; expiresAt: string };

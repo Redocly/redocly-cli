@@ -19,6 +19,29 @@ Have the following values ready to use with the `push` command:
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
 See the [Manage API keys](https://redocly.com/docs/platform/organization/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
 
+## Authenticate from GitHub Actions without an API key
+
+A GitHub Actions workflow can run the `push` command without a stored API key.
+The command exchanges the GitHub OIDC token of the workflow for a short-lived credential that works for one project.
+
+1. In the project, trust the GitHub repository on the **CI/CD access** tab of **Remote content**.
+   See [Push without an API key](https://redocly.com/docs/realm/reunite/project/remote-content/push-without-api-key).
+   This feature is available on the Enterprise plan and in the Scale plan add-on.
+2. Grant the job the `id-token: write` permission.
+3. Run the command without setting `REDOCLY_AUTHORIZATION`.
+
+```yaml
+permissions:
+  id-token: write
+  contents: read
+
+steps:
+  - uses: actions/checkout@v4
+  - run: npx @redocly/cli push docs/museum.yaml --organization <organizationId> --project <projectId> --mount-path docs/museum --branch "$GITHUB_REF_NAME" --author "$GITHUB_ACTOR <$GITHUB_ACTOR@users.noreply.github.com>" --message "Update the docs"
+```
+
+If `REDOCLY_AUTHORIZATION` is set, the command uses it instead of the OIDC token.
+
 ## Command usage
 
 ```bash
