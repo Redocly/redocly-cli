@@ -1,4 +1,5 @@
-import { logger, type Oas3Definition, type Oas3Schema } from '@redocly/openapi-core';
+import { logger, parseYaml, type Oas3Definition, type Oas3Schema } from '@redocly/openapi-core';
+import { outdent } from 'outdent';
 
 import { NotSupportedError } from '../../errors.js';
 import { buildApiModel, sseFromResponses } from '../build.js';
@@ -1098,6 +1099,67 @@ describe('buildSchema — every schema kind', () => {
         { kind: 'ref', name: 'Base' },
       ],
     });
+  });
+
+  it('applies the keywords beside a schema $ref together with its target', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.1.0
+      info:
+        title: Items
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          ItemWrite:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+          ItemCreate:
+            $ref: '#/components/schemas/ItemWrite'
+            description: An item to create.
+            required:
+              - status
+            properties:
+              status:
+                type: string
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[1]).toMatchInlineSnapshot(`
+      {
+        "description": "An item to create.",
+        "name": "ItemCreate",
+        "schema": {
+          "description": "An item to create.",
+          "kind": "intersection",
+          "members": [
+            {
+              "kind": "object",
+              "properties": [
+                {
+                  "description": undefined,
+                  "name": "status",
+                  "required": true,
+                  "schema": {
+                    "description": undefined,
+                    "kind": "scalar",
+                    "scalar": "string",
+                  },
+                },
+              ],
+            },
+            {
+              "kind": "ref",
+              "name": "ItemWrite",
+            },
+          ],
+        },
+      }
+    `);
   });
 
   it('renders a single `type: "null"` schema as null', () => {

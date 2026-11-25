@@ -1,6 +1,7 @@
 import {
   isPlainObject,
   isRef,
+  isRefWithSiblings,
   type Oas3Definition,
   type Oas3MediaType,
   type Oas3Operation,
@@ -429,7 +430,7 @@ function buildNamedSchemas(doc: Oas3Definition): NamedSchemaModel[] {
   if (!namedSchemas) return [];
 
   return Object.entries(namedSchemas).map(([name, schema]) => {
-    if (isRef(schema)) {
+    if (isRef(schema) && !isRefWithSiblings(schema)) {
       // A top-level entry that is a $ref forwards to another component.
       const target = resolveRef<Oas3Schema>(doc, schema.$ref);
       return {
@@ -438,8 +439,9 @@ function buildNamedSchemas(doc: Oas3Definition): NamedSchemaModel[] {
         description: target.description,
       };
     }
-    const built = buildSchema(schema as Oas3Schema, `components.schemas.${name}`, doc);
-    return { name, schema: built, description: schema.description };
+    const built = buildSchema(schema, `components.schemas.${name}`, doc);
+    // A $ref with siblings is a schema of its own, so it has its own description.
+    return { name, schema: built, description: (schema as Oas3Schema).description };
   });
 }
 
@@ -834,22 +836,35 @@ function schemaFromSlot(
   doc: Oas3Definition
 ): SchemaModel {
   if (slot === undefined || typeof slot === 'boolean') return { kind: 'unknown' };
-  if (isRef(slot)) return { kind: 'ref', name: refName(slot.$ref) };
-  return buildSchema(slot as Oas3Schema, location, doc);
+  return buildSchema(slot as Referenced<Oas3Schema>, location, doc);
 }
 
-function buildSchema(schema: Oas3Schema, location: string, doc: Oas3Definition): SchemaModel {
-  // Note: every caller checks `isRef(schema)` before invoking this function, so a top-level
-  // `{$ref: ...}` never reaches here — see `buildNamedSchemas`, `buildParameter`, etc.
+/**
+ * Decode a `$ref` into a `ref` node carrying the target's local name. A `$ref` with
+ * keywords beside it is the `allOf` of the target and those keywords, in every OpenAPI
+ * version: the walker and the bundler of `@redocly/openapi-core` read it the same way.
+ */
+function buildRef(ref: { $ref: string }, location: string, doc: Oas3Definition): SchemaModel {
+  if (!isRefWithSiblings(ref)) return { kind: 'ref', name: refName(ref.$ref) };
+
+  const { $ref, ...siblings }: { $ref: string } & Oas3Schema = ref;
+
+  const composed = { ...siblings, allOf: [{ $ref }, ...(siblings.allOf ?? [])] };
+
+  return buildSchema(composed, location, doc);
+}
+
+function buildSchema(
+  schema: Referenced<Oas3Schema>,
+  location: string,
+  doc: Oas3Definition
+): SchemaModel {
+  if (isRef(schema)) return buildRef(schema, location, doc);
   const metadata = extractMetadata(schema);
 
   const oneOfish = schema.oneOf ?? schema.anyOf;
   if (oneOfish) {
-    const allMembers = oneOfish.map((sub, idx) =>
-      isRef(sub)
-        ? ({ kind: 'ref', name: refName(sub.$ref) } as SchemaModel)
-        : buildSchema(sub as Oas3Schema, `${location}.[${idx}]`, doc)
-    );
+    const allMembers = oneOfish.map((sub, idx) => buildSchema(sub, `${location}.[${idx}]`, doc));
     // Drop `unknown` members (typeless/empty branches): `T | unknown` collapses to
     // `unknown` in TS, erasing the real members. When only one real member remains,
     // the union degenerates to it.
@@ -873,9 +888,7 @@ function buildSchema(schema: Oas3Schema, location: string, doc: Oas3Definition):
 
   if (schema.allOf) {
     const members = schema.allOf.map((sub, idx) =>
-      isRef(sub)
-        ? ({ kind: 'ref', name: refName(sub.$ref) } as SchemaModel)
-        : buildSchema(sub as Oas3Schema, `${location}.allOf[${idx}]`, doc)
+      buildSchema(sub, `${location}.allOf[${idx}]`, doc)
     );
     // `allOf` does not replace sibling `properties`: a schema may declare its own
     // object shape (often a `const` discriminant) alongside `allOf`. Fold that own
