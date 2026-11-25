@@ -611,6 +611,41 @@ describe('checkSchema', () => {
       expect(schemaCheck?.message).toBe('');
     });
 
+    it('skips a required property that is writeOnly through allOf', () => {
+      const responseSchema =
+        writeOnlyDescriptionOperation.responses['200'].content['application/json'].schema;
+      const writeOnlyThroughAllOfOperation = {
+        ...descriptionOperation,
+        responses: {
+          '200': {
+            description: 'successful operation',
+            content: {
+              'application/json': {
+                schema: {
+                  ...responseSchema,
+                  properties: {
+                    ...responseSchema.properties,
+                    password: { allOf: [{ type: 'string' }, { writeOnly: true }] },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = checkSchema({
+        stepCallCtx: stepCallCtxWithoutWriteOnly,
+        descriptionOperation: writeOnlyThroughAllOfOperation,
+        ctx,
+        ajvContext: { apiContext: 'response' },
+      });
+
+      const schemaCheck = result.find((c) => c.name === CHECKS.SCHEMA_CHECK);
+      expect(schemaCheck?.passed).toBe(true);
+      expect(schemaCheck?.message).toBe('');
+    });
+
     it('enforces writeOnly required property when no ajvContext is provided', () => {
       const result = checkSchema({
         stepCallCtx: stepCallCtxWithoutWriteOnly,
