@@ -14,74 +14,6 @@ const applyFormats = addFormats as unknown as (ajv: Ajv2020Instance) => void;
 
 export type ValidationTarget = 'request' | 'response';
 
-/**
- * A readOnly property never appears in a request and a writeOnly property never
- * appears in a response. OpenAPI 3.0 often attaches the flag through
- * `allOf: [{ $ref }, { readOnly: true }]`, so the allOf branches count as well.
- */
-export function isPropertyExcludedFromTarget(
-  propertySchema: unknown,
-  target: ValidationTarget
-): boolean {
-  if (!isPlainObject(propertySchema)) {
-    return false;
-  }
-  const flag = target === 'request' ? 'readOnly' : 'writeOnly';
-  return (
-    propertySchema[flag] === true ||
-    (Array.isArray(propertySchema.allOf) &&
-      propertySchema.allOf.some((branch) => isPlainObject(branch) && branch[flag] === true))
-  );
-}
-
-function isRequiredNameExcludedFromTarget(
-  schema: unknown,
-  name: string,
-  target: ValidationTarget,
-  seen = new WeakSet<object>()
-): boolean {
-  if (!isPlainObject(schema) || seen.has(schema)) {
-    return false;
-  }
-  seen.add(schema);
-
-  const properties = schema.properties;
-  if (isPlainObject(properties) && isPropertyExcludedFromTarget(properties[name], target)) {
-    return true;
-  }
-
-  return [schema.allOf, schema.oneOf, schema.anyOf].some(
-    (branches) =>
-      Array.isArray(branches) &&
-      branches.some((branch) => isRequiredNameExcludedFromTarget(branch, name, target, seen))
-  );
-}
-
-/**
- * Per OpenAPI semantics, readOnly properties are absent from requests and
- * writeOnly properties are absent from responses, so they must not be enforced
- * via `required` when validating the corresponding message.
- *
- * The flags are read from the dereferenced schema, because a recursive property
- * is only a `$ref` in the converted one.
- */
-function relaxRequiredForTarget(
-  converted: Record<string, unknown>,
-  source: Record<string, unknown>,
-  target: ValidationTarget
-): Record<string, unknown> {
-  if (!Array.isArray(source.required)) {
-    return converted;
-  }
-
-  return {
-    ...converted,
-    required: source.required.filter(
-      (name) => typeof name !== 'string' || !isRequiredNameExcludedFromTarget(source, name, target)
-    ),
-  };
-}
-
 export class SchemaValidator {
   private readonly ajv: Ajv2020Instance;
   private readonly fallbackAjv: Ajv2020Instance;
@@ -160,11 +92,7 @@ export class SchemaValidator {
         return cached;
       }
 
-      const effectiveSchema = toAjvSchema(
-        schema,
-        target && ((converted, source) => relaxRequiredForTarget(converted, source, target))
-      );
-      const compiled = this.compileSchema(effectiveSchema as AnySchema);
+      const compiled = this.compileSchema(toAjvSchema(schema, { target }) as AnySchema);
       cache.set(schema, compiled);
       return compiled;
     }

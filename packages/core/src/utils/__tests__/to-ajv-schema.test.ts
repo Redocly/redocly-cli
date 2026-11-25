@@ -79,35 +79,81 @@ describe('toAjvSchema', () => {
     `);
   });
 
-  it('should replace every converted schema with the result of adjustSchema', () => {
-    const properties: Record<string, unknown> = { name: { type: 'string' } };
-    const menuItem = { type: 'object', properties, 'x-tags': ['menu'] };
-    properties.related = { ...menuItem };
+  it('should leave the properties that are not part of the target out of required', () => {
+    // A recursive property is only a `$ref` after the conversion, and a flag can be in `allOf`.
+    const properties: Record<string, unknown> = {
+      name: { type: 'string' },
+      id: { allOf: [{ type: 'string' }, { readOnly: true }] },
+      password: { type: 'string', writeOnly: true },
+    };
+    const menuItem = {
+      type: 'object',
+      required: ['id', 'name', 'password', 'related'],
+      properties,
+    };
+    properties.related = { ...menuItem, readOnly: true };
 
-    // The source is the dereferenced schema, so it still has the extension.
-    const converted = toAjvSchema(menuItem, (schema, source) => ({
-      ...schema,
-      description: `Converted from a schema with: ${Object.keys(source).join(', ')}.`,
-    }));
-
-    expect(converted).toMatchInlineSnapshot(`
+    expect(toAjvSchema(menuItem, { target: 'request' })).toMatchInlineSnapshot(`
       {
         "$defs": {
           "0": {
-            "description": "Converted from a schema with: type, properties, x-tags.",
             "properties": {
+              "id": {
+                "allOf": [
+                  {
+                    "type": "string",
+                  },
+                  {
+                    "readOnly": true,
+                  },
+                ],
+              },
               "name": {
-                "description": "Converted from a schema with: type.",
                 "type": "string",
+              },
+              "password": {
+                "type": "string",
+                "writeOnly": true,
               },
               "related": {
                 "$ref": "#/$defs/0",
               },
             },
+            "readOnly": true,
+            "required": [
+              "name",
+              "password",
+            ],
             "type": "object",
           },
         },
-        "$ref": "#/$defs/0",
+        "properties": {
+          "id": {
+            "allOf": [
+              {
+                "type": "string",
+              },
+              {
+                "readOnly": true,
+              },
+            ],
+          },
+          "name": {
+            "type": "string",
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+          },
+          "related": {
+            "$ref": "#/$defs/0",
+          },
+        },
+        "required": [
+          "name",
+          "password",
+        ],
+        "type": "object",
       }
     `);
   });
