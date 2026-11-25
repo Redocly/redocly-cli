@@ -1,3 +1,5 @@
+import type { AnySchema } from '@redocly/ajv/dist/2020.js';
+
 import { isPlainObject } from './is-plain-object.js';
 
 // The keywords of a Schema Object that hold a schema or a list of schemas.
@@ -31,6 +33,8 @@ const SCHEMA_MAP_KEYWORDS = new Set([
 // Ajv reports the undeclared properties of a schema under these keywords only when the schema is referenced.
 const COMPOSITE_KEYWORDS = new Set(['anyOf', 'oneOf', 'not', 'if', 'contains', 'propertyNames']);
 
+type MessageTarget = 'request' | 'response';
+
 /**
  * Returns a schema of a dereferenced API description in the form that Ajv can compile and run.
  * A dereferenced description has a copy of the target in place of every `$ref`.
@@ -43,8 +47,13 @@ const COMPOSITE_KEYWORDS = new Set(['anyOf', 'oneOf', 'not', 'if', 'contains', '
  *   it on the parent schema of the `allOf` form, and there it is not used for validation.
  * - Specification extensions are left out. Ajv does not use them, and a dereferenced extension can
  *   contain the schema itself.
+ * - With a `target`, the properties that are not part of that message are left out of `required`:
+ *   the `readOnly` ones for a request, and the `writeOnly` ones for a response.
  */
-export function toAjvSchema(schema: unknown): unknown {
+export function toAjvSchema(
+  schema: AnySchema,
+  { target }: { target?: MessageTarget } = {}
+): AnySchema {
   const names = new Map<object, string>();
   const definitions: Record<string, unknown> = {};
   const ancestors: Record<string, unknown>[] = [];
@@ -107,6 +116,13 @@ export function toAjvSchema(schema: unknown): unknown {
     );
     ancestors.pop();
 
+    // The flags are read from the dereferenced schema: a recursive property is only a `$ref` here.
+    if (target && Array.isArray(node.required)) {
+      converted.required = node.required.filter(
+        (name) => typeof name !== 'string' || !isRequiredNameExcludedFromTarget(node, name, target)
+      );
+    }
+
     // The schema got a name when a copy of it was found below.
     const isRecursive = !hadName && names.has(node);
     if (!isReferenced && !isRecursive) {
@@ -118,12 +134,60 @@ export function toAjvSchema(schema: unknown): unknown {
   };
 
   const converted = convert(schema, false);
-  if (!isPlainObject(converted) || names.size === 0) {
+  // A boolean schema has nothing to convert.
+  if (!isPlainObject(converted)) {
+    return schema;
+  }
+  if (names.size === 0) {
     return converted;
   }
 
   const ownDefinitions = isPlainObject(converted.$defs) ? converted.$defs : {};
   return { ...converted, $defs: { ...ownDefinitions, ...definitions } };
+}
+
+/**
+ * A `readOnly` property is not part of a request, and a `writeOnly` property is not part of a
+ * response. OpenAPI 3.0 often attaches the flag through `allOf: [{ $ref }, { readOnly: true }]`,
+ * so the `allOf` branches count as well.
+ */
+export function isPropertyExcludedFromTarget(
+  propertySchema: unknown,
+  target: MessageTarget
+): boolean {
+  if (!isPlainObject(propertySchema)) {
+    return false;
+  }
+  const flag = target === 'request' ? 'readOnly' : 'writeOnly';
+  return (
+    propertySchema[flag] === true ||
+    (Array.isArray(propertySchema.allOf) &&
+      propertySchema.allOf.some((branch) => isPlainObject(branch) && branch[flag] === true))
+  );
+}
+
+// The property can be declared in the schema itself or in a branch of `allOf`, `oneOf` or `anyOf`.
+function isRequiredNameExcludedFromTarget(
+  schema: unknown,
+  name: string,
+  target: MessageTarget,
+  seen = new WeakSet<object>()
+): boolean {
+  if (!isPlainObject(schema) || seen.has(schema)) {
+    return false;
+  }
+  seen.add(schema);
+
+  const properties = schema.properties;
+  if (isPlainObject(properties) && isPropertyExcludedFromTarget(properties[name], target)) {
+    return true;
+  }
+
+  return [schema.allOf, schema.oneOf, schema.anyOf].some(
+    (branches) =>
+      Array.isArray(branches) &&
+      branches.some((branch) => isRequiredNameExcludedFromTarget(branch, name, target, seen))
+  );
 }
 
 // Dereferencing replaces a `$ref` with a shallow copy of its target, so a copy holds the same values.

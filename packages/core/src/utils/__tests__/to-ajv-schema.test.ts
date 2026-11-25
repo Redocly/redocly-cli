@@ -78,4 +78,83 @@ describe('toAjvSchema', () => {
       }
     `);
   });
+
+  it('should leave the properties that are not part of the target out of required', () => {
+    // A recursive property is only a `$ref` after the conversion, and a flag can be in `allOf`.
+    const properties: Record<string, unknown> = {
+      name: { type: 'string' },
+      id: { allOf: [{ type: 'string' }, { readOnly: true }] },
+      password: { type: 'string', writeOnly: true },
+    };
+    const menuItem = {
+      type: 'object',
+      required: ['id', 'name', 'password', 'related'],
+      properties,
+    };
+    properties.related = { ...menuItem, readOnly: true };
+
+    expect(toAjvSchema(menuItem, { target: 'request' })).toMatchInlineSnapshot(`
+      {
+        "$defs": {
+          "0": {
+            "properties": {
+              "id": {
+                "allOf": [
+                  {
+                    "type": "string",
+                  },
+                  {
+                    "readOnly": true,
+                  },
+                ],
+              },
+              "name": {
+                "type": "string",
+              },
+              "password": {
+                "type": "string",
+                "writeOnly": true,
+              },
+              "related": {
+                "$ref": "#/$defs/0",
+              },
+            },
+            "readOnly": true,
+            "required": [
+              "name",
+              "password",
+            ],
+            "type": "object",
+          },
+        },
+        "properties": {
+          "id": {
+            "allOf": [
+              {
+                "type": "string",
+              },
+              {
+                "readOnly": true,
+              },
+            ],
+          },
+          "name": {
+            "type": "string",
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+          },
+          "related": {
+            "$ref": "#/$defs/0",
+          },
+        },
+        "required": [
+          "name",
+          "password",
+        ],
+        "type": "object",
+      }
+    `);
+  });
 });

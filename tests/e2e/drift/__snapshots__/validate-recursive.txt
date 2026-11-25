@@ -4,16 +4,16 @@
 ┃ Traffic: ./tests/e2e/drift/fixtures/traffic-recursive.ndjson
 ┃ Match mode: strict-host
 ┃ Traffic format: auto (auto-detect)
-┃ Exchanges: total=2 documented=2 undocumented=0
-┃ Findings: total=1 error=1 warning=0 info=0
-┗ Problems: total=1
+┃ Exchanges: total=3 documented=3 undocumented=0
+┃ Findings: total=2 error=2 warning=0 info=0
+┗ Problems: total=2
 
 Types (1)
-  • schema-consistency: 1 problems / 1 findings
+  • schema-consistency: 2 problems / 2 findings
 
-Problems by type (showing first 1 of 1)
+Problems by type (showing first 2 of 2)
 
-◉ schema-consistency (1 problems shown / 1 total, 1 findings)
+◉ schema-consistency (2 problems shown / 2 total, 2 findings)
 ✖ ERROR #1 → Response is missing required field "value".
   ↳ sample exchange=1 GET /tree (200) getTree
 
@@ -27,6 +27,20 @@ Problems by type (showing first 1 of 1)
     path: /value
     expected: required field "value"
     actual: [missing]
+
+✖ ERROR #2 → Response field "children[0].children[0].value" must be integer.
+  ↳ sample exchange=2 GET /tree (200) getTree
+
+    http://api.example.com/tree
+
+    spec: recursive-openapi.yaml
+    schemaPath= #/properties/value/type
+    dataPath= /children/0/children/0/value
+
+    schema: Response field "children[0].children[0].value" must be integer.
+    path: /children/0/children/0/value
+    expected: type "integer"
+    actual: "three"
 
 
 recursive-openapi.yaml: drift processed in <test>ms

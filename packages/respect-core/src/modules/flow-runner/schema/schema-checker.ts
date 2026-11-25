@@ -34,8 +34,12 @@ const ajvStrict = new (Ajv as any)({
   defaultUnevaluatedProperties: false,
 });
 
-// Ajv keeps a compiled schema by the object it gets, so a schema is converted only once.
-const ajvSchemas = new WeakMap<object, unknown>();
+// Ajv keeps a compiled schema by the object it gets, so a schema is converted only once per target.
+const ajvSchemas = {
+  request: new WeakMap<object, unknown>(),
+  response: new WeakMap<object, unknown>(),
+  none: new WeakMap<object, unknown>(),
+};
 
 export function checkSchema({
   stepCallCtx,
@@ -85,11 +89,13 @@ function checkSchemaFromDescription({
 
   if (schemaFromDescription) {
     try {
+      const target = ajvContext?.apiContext;
+      const convertedSchemas = ajvSchemas[target ?? 'none'];
       // A boolean schema has nothing to convert.
-      if (isPlainObject(schemaFromDescription) && !ajvSchemas.has(schemaFromDescription)) {
-        ajvSchemas.set(schemaFromDescription, toAjvSchema(schemaFromDescription));
+      if (isPlainObject(schemaFromDescription) && !convertedSchemas.has(schemaFromDescription)) {
+        convertedSchemas.set(schemaFromDescription, toAjvSchema(schemaFromDescription, { target }));
       }
-      const schema = ajvSchemas.get(schemaFromDescription) ?? schemaFromDescription;
+      const schema = convertedSchemas.get(schemaFromDescription) ?? schemaFromDescription;
       const validate = ajvStrict.compile(schema as JSONSchemaType<unknown>);
       checks.push({
         name: CHECKS.SCHEMA_CHECK,

@@ -1,4 +1,4 @@
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject, isPropertyExcludedFromTarget } from '@redocly/openapi-core';
 
 import type {
   CoverageCount,
@@ -13,7 +13,6 @@ import type {
 import { isJsonMime, pickSchemaByMime } from '../utils/http.js';
 import { resolveResponseKey } from '../utils/openapi.js';
 import { getActualParameterValue } from '../utils/parameters.js';
-import { isPropertyExcludedFromTarget } from './schema-validator.js';
 
 interface CoverageEntry {
   item: CoverageItem;

@@ -9,7 +9,7 @@ export { isTruthy } from './utils/is-truthy.js';
 export { keysOf } from './utils/keys-of.js';
 export { pause } from './utils/pause.js';
 export { pluralize } from './utils/pluralize.js';
-export { toAjvSchema } from './utils/to-ajv-schema.js';
+export { isPropertyExcludedFromTarget, toAjvSchema } from './utils/to-ajv-schema.js';
 export { capitalize } from './utils/capitalize.js';
 export { readFileFromUrl } from './utils/read-file-from-url.js';
 export { slash } from './utils/slash.js';
