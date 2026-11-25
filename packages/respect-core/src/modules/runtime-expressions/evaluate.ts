@@ -119,7 +119,7 @@ function evaluateExpressionString(
   if (/^\$faker\.[a-zA-Z0-9._-]+(\([^\\)]*\))?$/.test(expression)) {
     return getFakeData({ pointer: expression.slice(1), ctx: context, logger });
   } else if (expression.includes('$faker.')) {
-    const fakerRegex = /\$faker\.[a-zA-Z0-9._-]+(\([^\\)]*\))?/g;
+    const fakerRegex = /\$faker\.[a-zA-Z0-9._-]+(\([^\\()]*\))?/g;
     expression = expression
       .replace(fakerRegex, (match) => {
         return getFakeData({ pointer: match.slice(1), ctx: context, logger });
