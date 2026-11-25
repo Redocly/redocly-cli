@@ -76,6 +76,7 @@ describe('bundle', () => {
     const apis = ['foo.yaml', 'bar.yaml'];
 
     await commandWrapper(handleBundle)({
+      _: ['bundle'],
       apis,
       ext: 'yaml',
     } as Arguments<BundleArgv>);
@@ -87,6 +88,7 @@ describe('bundle', () => {
     const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
     await commandWrapper(handleBundle)({
+      _: ['bundle'],
       apis,
       ext: 'yaml',
     } as Arguments<BundleArgv>);
@@ -99,6 +101,7 @@ describe('bundle', () => {
     const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
     await commandWrapper(handleBundle)({
+      _: ['bundle'],
       apis,
       ext: 'yaml',
     } as Arguments<BundleArgv>);
@@ -117,6 +120,7 @@ describe('bundle', () => {
     });
 
     await commandWrapper(handleBundle)({
+      _: ['bundle'],
       apis,
       ext: 'yaml',
     } as Arguments<BundleArgv>);
@@ -133,6 +137,7 @@ describe('bundle', () => {
     });
 
     await commandWrapper(handleBundle)({
+      _: ['bundle'],
       apis,
       ext: 'json',
     } as Arguments<BundleArgv>);
@@ -151,6 +156,7 @@ describe('bundle', () => {
     });
 
     await commandWrapper(handleBundle)({
+      _: ['bundle'],
       apis,
       ext: 'yaml',
     } as Arguments<BundleArgv>);

@@ -33,7 +33,7 @@ import {
   isTelemetryEnabled,
   sendTelemetry,
 } from './utils/telemetry.js';
-import { validatePathCasing } from './utils/validate-path-casing.js';
+import { validatePathCasing, validatePathOptions } from './utils/validate-path-casing.js';
 
 export type CollectResults = (results: NormalizedProblem[]) => void;
 
@@ -128,6 +128,7 @@ export function commandWrapper<T extends CommandArgv>(
       }
       config = await loadAndCheckConfig(argv as Exact<T>, version, options.plugins);
       code = 1;
+      validatePathOptions(argv);
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData, collectResults });
       }

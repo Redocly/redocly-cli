@@ -45,7 +45,7 @@ describe('commandWrapper', () => {
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
-    await wrappedHandler({} as any);
+    await wrappedHandler({ _: ['lint'] } as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledWith(
@@ -55,7 +55,7 @@ describe('commandWrapper', () => {
             telemetry: 'on',
           },
         },
-        argv: {},
+        argv: { _: ['lint'] },
         execution_time: expect.any(Number),
         exit_code: 0,
         spec_version: 'oas3_1',
@@ -78,7 +78,7 @@ describe('commandWrapper', () => {
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
-    await wrappedHandler({} as any);
+    await wrappedHandler({ _: ['lint'] } as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledWith(
@@ -88,7 +88,7 @@ describe('commandWrapper', () => {
             telemetry: 'on',
           },
         },
-        argv: {},
+        argv: { _: ['lint'] },
         execution_time: expect.any(Number),
         exit_code: 0,
         spec_version: undefined,
@@ -111,7 +111,7 @@ describe('commandWrapper', () => {
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
-    await wrappedHandler({} as any);
+    await wrappedHandler({ _: ['lint'] } as any);
     expect(sendTelemetry).toHaveBeenCalledWith(
       expect.objectContaining({
         spec_version: 'graphql',
@@ -135,7 +135,7 @@ describe('commandWrapper', () => {
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
-    await wrappedHandler({} as any);
+    await wrappedHandler({ _: ['lint'] } as any);
     expect(sendTelemetry).toHaveBeenCalledWith(
       expect.objectContaining({
         spec_version: 'graphql',
@@ -159,7 +159,7 @@ describe('commandWrapper', () => {
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
-    await wrappedHandler({} as any);
+    await wrappedHandler({ _: ['lint'] } as any);
     expect(sendTelemetry).toHaveBeenCalledWith(
       expect.objectContaining({
         lint_rules_with_errors: ['no-unused-components'],
@@ -176,7 +176,7 @@ describe('commandWrapper', () => {
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
-    await wrappedHandler({} as any);
+    await wrappedHandler({ _: ['lint'] } as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
 
     expect(sendTelemetry).toHaveBeenCalledTimes(0);
