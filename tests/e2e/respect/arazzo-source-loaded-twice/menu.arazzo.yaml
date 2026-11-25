@@ -1,0 +1,24 @@
+arazzo: 1.0.1
+info:
+  title: Shared menu workflows
+  version: 1.0.0
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+workflows:
+  - workflowId: search-menu
+    inputs:
+      type: object
+      properties:
+        search:
+          type: string
+    steps:
+      - stepId: search-menu-items
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'
+        parameters:
+          - name: search
+            in: query
+            value: $inputs.search
+        successCriteria:
+          - condition: $statusCode == 200
