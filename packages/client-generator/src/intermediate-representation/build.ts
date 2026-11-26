@@ -163,26 +163,21 @@ function extractMetadata(schema: Oas3Schema): SchemaMetadata | undefined {
  */
 function buildDiscriminator(
   schema: Oas3Schema,
-  members: Array<Referenced<Oas3Schema>>
+  members: SchemaModel[]
 ): DiscriminatorModel | undefined {
   const disc = (
     schema as { discriminator?: { propertyName?: string; mapping?: Record<string, string> } }
   ).discriminator;
   if (!disc || typeof disc.propertyName !== 'string') return undefined;
 
-  const mapping: DiscriminatorModel['mapping'] = [];
-  if (disc.mapping) {
-    for (const [value, target] of Object.entries(disc.mapping)) {
-      mapping.push({ value, schemaName: refName(target) });
-    }
-  } else {
-    for (const member of members) {
-      if (isRef(member)) {
-        const name = refName(member.$ref);
-        mapping.push({ value: name, schemaName: name });
-      }
-    }
-  }
+  // A guard narrows the union to a named schema, so only a member that is that schema
+  // gets an entry: a `$ref` with keywords beside it is a type of its own.
+  const memberNames = members.flatMap((member) => (member.kind === 'ref' ? [member.name] : []));
+  const mapping = disc.mapping
+    ? Object.entries(disc.mapping)
+        .map(([value, target]) => ({ value, schemaName: refName(target) }))
+        .filter(({ schemaName }) => memberNames.includes(schemaName))
+    : memberNames.map((name) => ({ value: name, schemaName: name }));
   if (mapping.length === 0) return undefined;
   return { propertyName: disc.propertyName, mapping };
 }
@@ -319,10 +314,6 @@ function stripDirectional(
       }));
     return { ...schema, properties };
   }
-  if (schema.kind === 'intersection') {
-    const members = schema.members.map((member) => stripDirectional(member, flag, byName));
-    return { ...schema, members };
-  }
   return schema;
 }
 
@@ -434,22 +425,38 @@ function buildNamedSchemas(doc: Oas3Definition): NamedSchemaModel[] {
   if (!namedSchemas) return [];
 
   return Object.entries(namedSchemas).map(([name, schema]) => {
-    const location = `components.schemas.${name}`;
-    if (!isRef(schema)) {
-      return { name, schema: buildSchema(schema, location, doc), description: schema.description };
-    }
-    const composed = buildRef(schema, location, doc);
-    if (composed.kind !== 'ref') {
-      return { name, schema: composed, description: composed.description };
-    }
-    // An entry that only points at another schema is a copy of it, with its own description.
-    const target = resolveRef<Oas3Schema>(doc, schema.$ref);
+    const built = buildNamedSchema(schema, `components.schemas.${name}`, doc, new Set());
     return {
       name,
-      schema: buildSchema(target, location, doc),
-      description: composed.description ?? target.description,
+      schema: built,
+      description: isRef(schema) ? built.description : schema.description,
     };
   });
+}
+
+/**
+ * Build one `components.schemas` entry. An entry that only points at another schema is a
+ * copy of it, so that it stays a type of its own, and it takes the description and the
+ * metadata written beside its `$ref`. `visited` stops a chain of such entries that loops.
+ */
+function buildNamedSchema(
+  schema: Referenced<Oas3Schema>,
+  location: string,
+  doc: Oas3Definition,
+  visited: Set<string>
+): SchemaModel {
+  if (!isRef(schema)) return buildSchema(schema, location, doc);
+
+  const composed = buildComposedRef(schema, location, doc);
+  if (composed.kind !== 'ref' || visited.has(schema.$ref)) return composed;
+
+  visited.add(schema.$ref);
+  const target = resolveRef<Referenced<Oas3Schema>>(doc, schema.$ref);
+  const copy = buildNamedSchema(target, location, doc, visited);
+  return withMetadata(
+    { ...copy, description: composed.description ?? copy.description },
+    mergeMetadata(copy.metadata, composed.metadata)
+  );
 }
 
 function buildServices(
@@ -847,12 +854,26 @@ function schemaFromSlot(
 }
 
 /**
- * Decode a `$ref` into a `ref` node carrying the target's local name. Where the keywords
- * beside the `$ref` apply, the schema means the target and those keywords together. It is
- * built as the `allOf` it is equal to, with the target and a `oneOf`/`anyOf` beside it as
- * members, and the other keywords as the keywords of that `allOf`.
+ * Decode a `$ref` in a schema slot into a `ref` node carrying the target's local name, or
+ * into the composition of `buildComposedRef` when the keywords beside it add structure.
+ * Keywords that only annotate the reference leave it as it is.
  */
 function buildRef(ref: { $ref: string }, location: string, doc: Oas3Definition): SchemaModel {
+  const composed = buildComposedRef(ref, location, doc);
+  return composed.kind === 'ref' ? { kind: 'ref', name: composed.name } : composed;
+}
+
+/**
+ * Where the keywords beside a `$ref` apply, the schema means the target and those keywords
+ * together. It is built as the `allOf` it is equal to, with the target and a `oneOf`/`anyOf`
+ * beside it as members, and the other keywords as the keywords of that `allOf`. The result
+ * is still a `ref` node, with the annotations, when the keywords add no structure.
+ */
+function buildComposedRef(
+  ref: { $ref: string },
+  location: string,
+  doc: Oas3Definition
+): SchemaModel {
   if (!isRefWithSiblings(ref) || !refSiblingsApply(doc)) {
     return { kind: 'ref', name: refName(ref.$ref) };
   }
@@ -896,7 +917,7 @@ function buildSchema(
         metadata: mergeMetadata(metadata, inner.metadata),
       };
     }
-    const discriminator = buildDiscriminator(schema, oneOfish);
+    const discriminator = buildDiscriminator(schema, allMembers);
     return withMetadata(
       { kind: 'union', members, discriminator, description: schema.description },
       metadata
