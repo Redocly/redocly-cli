@@ -1,5 +1,26 @@
 # @redocly/respect-core
 
+## 2.84.0
+
+### Minor Changes
+
+- Added support for the OAuth2 `clientCredentials` and `password` flows to the `x-security` extension in Respect.
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule didn't report an Arazzo criterion that has a `type` and no `context`.
+- Fixed an issue where the `struct` rule reported an Arazzo request body that had no `payload`, even though the field was optional.
+- Fixed an issue where Respect failed steps that called a workflow from a previously run Arazzo description with `Property time is not expected here` and `Property checks is not expected here` errors.
+- Fixed an issue where the Respect schema check failed with the `Ajv error: Maximum call stack size exceeded` message when a response schema had a discriminator with many values.
+- Fixed an issue where the Respect schema check failed with the `Ajv error: discriminator: requires oneOf or anyOf composite keyword` message when a response schema had a `discriminator` without `oneOf` or `anyOf`.
+  Respect checks such a response against the rest of the schema.
+- Fixed an issue where Respect ignored the `rfc9535` version of a `jsonpath` criterion.
+  A criterion with `type: { type: jsonpath, version: rfc9535 }` queries its `context` value the same way as a Selector Object, so `$[?(@.category == "dessert")]` filters the items of a list.
+- Fixed an issue where Respect failed a step with the `Maximum call stack size exceeded` error when a request or a response was described with a recursive schema.
+  Respect checks a response against a recursive schema instead of skipping the schema check with a warning.
+- Fixed an issue where the Respect schema check failed with the `must have required property` message when a response did not have a required property that is marked `writeOnly` through `allOf`.
+- Updated @redocly/openapi-core to v2.84.0.
+
 ## 2.83.0
 
 ### Minor Changes

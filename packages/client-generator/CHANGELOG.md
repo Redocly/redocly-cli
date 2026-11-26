@@ -1,5 +1,15 @@
 # @redocly/client-generator
 
+## 0.10.7
+
+### Patch Changes
+
+- Fixed an issue where the `generate-client` command typed a schema as `unknown` when its `$ref` pointed at a schema that was itself only a `$ref`.
+- Fixed an issue where the `generate-client` command dropped the keywords next to a schema `$ref` in OpenAPI 3.1 and later descriptions.
+  The generated types and schemas combine the `properties`, `required`, `allOf`, `oneOf`, and `anyOf` next to a `$ref` with the referenced schema.
+  A schema in `components` that is only a `$ref` takes the `description` and `deprecated` written next to it.
+- Updated @redocly/openapi-core to v2.84.0.
+
 ## 0.10.6
 
 ### Patch Changes

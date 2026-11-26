@@ -1,5 +1,16 @@
 # @redocly/platform-integration
 
+## 2.84.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.79.0.
+- Updated the `project clone` command to address the project by its organization and project IDs in the Git remote URL, also when the project is given by slugs.
+
+  Updated the `project pr create` and `project pr status` commands to call the Redocly platform API by IDs, and to show the Git command that switches a clone made with slugs to IDs.
+
+- Updated @redocly/openapi-core to v2.84.0.
+
 ## 2.83.0
 
 ### Patch Changes
