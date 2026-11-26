@@ -1428,6 +1428,83 @@ describe('buildSchema — every schema kind', () => {
     `);
   });
 
+  it('keeps the explicit discriminator mapping of a union whose members are not plain $refs', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Beverage:
+            type: object
+            properties:
+              category:
+                type: string
+          Dessert:
+            type: object
+            properties:
+              category:
+                type: string
+          Merchandise:
+            type: object
+            properties:
+              category:
+                type: string
+          Food:
+            oneOf:
+              - $ref: '#/components/schemas/Beverage'
+              - $ref: '#/components/schemas/Dessert'
+          MenuItem:
+            oneOf:
+              - $ref: '#/components/schemas/Food'
+              - $ref: '#/components/schemas/Merchandise'
+            discriminator:
+              propertyName: category
+              mapping:
+                beverage: '#/components/schemas/Beverage'
+                dessert: '#/components/schemas/Dessert'
+                merchandise: '#/components/schemas/Merchandise'
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[4].schema).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "discriminator": {
+          "mapping": [
+            {
+              "schemaName": "Beverage",
+              "value": "beverage",
+            },
+            {
+              "schemaName": "Dessert",
+              "value": "dessert",
+            },
+            {
+              "schemaName": "Merchandise",
+              "value": "merchandise",
+            },
+          ],
+          "propertyName": "category",
+        },
+        "kind": "union",
+        "members": [
+          {
+            "kind": "ref",
+            "name": "Food",
+          },
+          {
+            "kind": "ref",
+            "name": "Merchandise",
+          },
+        ],
+      }
+    `);
+  });
+
   it('copies the target of a named schema $ref and takes the annotations beside it', () => {
     const document = parseYaml(outdent`
       openapi: 3.2.0

@@ -163,23 +163,32 @@ function extractMetadata(schema: Oas3Schema): SchemaMetadata | undefined {
  */
 function buildDiscriminator(
   schema: Oas3Schema,
-  members: SchemaModel[]
+  members: Array<Referenced<Oas3Schema>>,
+  composedMembers: string[]
 ): DiscriminatorModel | undefined {
   const disc = (
     schema as { discriminator?: { propertyName?: string; mapping?: Record<string, string> } }
   ).discriminator;
   if (!disc || typeof disc.propertyName !== 'string') return undefined;
 
-  // A guard narrows the union to a named schema, so only a member that is that schema
-  // gets an entry: a `$ref` with keywords beside it is a type of its own.
-  const memberNames = members.flatMap((member) => (member.kind === 'ref' ? [member.name] : []));
-  const mapping = disc.mapping
-    ? Object.entries(disc.mapping)
-        .map(([value, target]) => ({ value, schemaName: refName(target) }))
-        .filter(({ schemaName }) => memberNames.includes(schemaName))
-    : memberNames.map((name) => ({ value: name, schemaName: name }));
-  if (mapping.length === 0) return undefined;
-  return { propertyName: disc.propertyName, mapping };
+  const mapping: DiscriminatorModel['mapping'] = [];
+  if (disc.mapping) {
+    for (const [value, target] of Object.entries(disc.mapping)) {
+      mapping.push({ value, schemaName: refName(target) });
+    }
+  } else {
+    for (const member of members) {
+      if (isRef(member)) {
+        const name = refName(member.$ref);
+        mapping.push({ value: name, schemaName: name });
+      }
+    }
+  }
+  // A `$ref` member with keywords beside it is a type of its own, so no guard narrows the
+  // union to its target.
+  const narrowable = mapping.filter(({ schemaName }) => !composedMembers.includes(schemaName));
+  if (narrowable.length === 0) return undefined;
+  return { propertyName: disc.propertyName, mapping: narrowable };
 }
 
 /** Attach metadata to a freshly-built SchemaModel (no-op when undefined). */
@@ -917,7 +926,10 @@ function buildSchema(
         metadata: mergeMetadata(metadata, inner.metadata),
       };
     }
-    const discriminator = buildDiscriminator(schema, allMembers);
+    const composedMembers = oneOfish.flatMap((sub, idx) =>
+      isRef(sub) && allMembers[idx].kind !== 'ref' ? [refName(sub.$ref)] : []
+    );
+    const discriminator = buildDiscriminator(schema, oneOfish, composedMembers);
     return withMetadata(
       { kind: 'union', members, discriminator, description: schema.description },
       metadata
