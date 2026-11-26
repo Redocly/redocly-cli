@@ -34,8 +34,12 @@ const ajvStrict = new (Ajv as any)({
   verbose: true,
   defaultUnevaluatedProperties: false,
 });
-// the same formats as the lint rules in openapi-core
+// The same formats as the lint rules in openapi-core.
+// TypeScript sees the default import of the CommonJS `ajv-formats` as the module object, so the call needs a cast.
 (addFormats as any)(ajvStrict);
+// The `url` format from `ajv-formats` accepts only public host names, so `http://localhost:3000/x` fails it.
+// Respect often runs against a local server, so any URL that `URL` can parse passes.
+ajvStrict.addFormat('url', (value: string) => URL.canParse(value));
 
 // Ajv keeps a compiled schema by the object it gets, so a schema is converted only once per target.
 const ajvSchemas = {

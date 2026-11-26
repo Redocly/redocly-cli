@@ -715,6 +715,8 @@ describe('checkSchema', () => {
                   createdAt: { type: 'string', format: 'date-time' },
                   email: { type: 'string', format: 'email' },
                   count: { type: 'integer', format: 'int32' },
+                  link: { type: 'string', format: 'url' },
+                  phone: { type: 'string', format: 'phone' },
                 },
               },
             },
@@ -736,12 +738,34 @@ describe('checkSchema', () => {
         } as unknown as StepCallContext,
         descriptionOperation: formatDescriptionOperation,
         ctx,
-      }).find((c) => c.name === CHECKS.SCHEMA_CHECK);
+      }).find((check) => check.name === CHECKS.SCHEMA_CHECK);
 
     it('accepts values that match their format', () => {
       expect(
         checkBody({ createdAt: '2026-11-20T10:00:00Z', email: 'ada@example.com', count: 3 })?.passed
       ).toBe(true);
+    });
+
+    it('reports an int32 value out of range', () => {
+      const check = checkBody({ count: 3000000000 });
+      expect(check?.passed).toBe(false);
+      expect(check?.message).toContain('int32');
+    });
+
+    it('accepts local URLs in the url format', () => {
+      for (const link of [
+        'http://localhost:3000/orders/1',
+        'http://127.0.0.1:8080/x',
+        'http://192.168.1.5/x',
+        'http://orders-service:8080/x',
+      ]) {
+        expect(checkBody({ link })?.passed).toBe(true);
+      }
+      expect(checkBody({ link: 'not a url' })?.passed).toBe(false);
+    });
+
+    it('ignores formats that ajv-formats does not know', () => {
+      expect(checkBody({ phone: 'call me maybe' })?.passed).toBe(true);
     });
 
     it('reports values that do not match their format', () => {
