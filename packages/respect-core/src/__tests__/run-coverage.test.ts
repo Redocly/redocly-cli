@@ -36,7 +36,10 @@ function fetchCafe(): typeof globalThis.fetch {
     .mockResolvedValueOnce(jsonResponse(200, 'application/json', {}));
 }
 
-async function runOptions(fileName: string): Promise<RespectOptions> {
+async function runOptions(
+  fileName: string,
+  fetch: typeof globalThis.fetch = fetchCafe()
+): Promise<RespectOptions> {
   return {
     files: [fileURLToPath(new URL(fileName, import.meta.url))],
     config: await createConfig({}),
@@ -44,7 +47,7 @@ async function runOptions(fileName: string): Promise<RespectOptions> {
     maxFetchTimeout: 40_000,
     requestFileLoader: { getFileBody: async () => new Blob() },
     logger: SILENT_LOGGER,
-    fetch: fetchCafe(),
+    fetch,
     coverage: true,
   };
 }
@@ -277,6 +280,137 @@ describe('run with coverage', () => {
               "total": 5,
             },
           },
+        },
+      ]
+    `);
+  });
+
+  it('measures query parameters and form fields by the keys a step sent', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => new Response(null, { status: 204 }));
+
+    const [{ coverage = [] }] = await run(await runOptions('./coverage-forms.arazzo.yaml', fetch));
+
+    expect(
+      coverage.flatMap(({ operations }) =>
+        operations.map(({ operationId, covered, missing }) => ({ operationId, covered, missing }))
+      )
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "covered": [
+            {
+              "kind": "operation",
+            },
+            {
+              "kind": "property",
+              "path": "name",
+              "target": "request",
+            },
+            {
+              "kind": "property",
+              "path": "nutrition",
+              "target": "request",
+            },
+            {
+              "kind": "response",
+              "status": "204",
+            },
+          ],
+          "missing": [
+            {
+              "kind": "property",
+              "path": "price",
+              "target": "request",
+            },
+            {
+              "kind": "property",
+              "path": "photo",
+              "target": "request",
+            },
+          ],
+          "operationId": "createMenuItem",
+        },
+        {
+          "covered": [
+            {
+              "kind": "operation",
+            },
+            {
+              "kind": "property",
+              "path": "grant_type",
+              "target": "request",
+            },
+            {
+              "kind": "property",
+              "path": "client_id",
+              "target": "request",
+            },
+            {
+              "kind": "response",
+              "status": "204",
+            },
+          ],
+          "missing": [
+            {
+              "kind": "property",
+              "path": "scope",
+              "target": "request",
+            },
+          ],
+          "operationId": "requestToken",
+        },
+        {
+          "covered": [
+            {
+              "kind": "operation",
+            },
+            {
+              "in": "query",
+              "kind": "parameter",
+              "name": "filter",
+            },
+            {
+              "in": "query",
+              "kind": "parameter",
+              "name": "page",
+            },
+            {
+              "kind": "response",
+              "status": "204",
+            },
+          ],
+          "missing": [
+            {
+              "in": "query",
+              "kind": "parameter",
+              "name": "sort",
+            },
+          ],
+          "operationId": "listOrders",
+        },
+        {
+          "covered": [
+            {
+              "kind": "operation",
+            },
+            {
+              "in": "querystring",
+              "kind": "parameter",
+              "name": "search.status",
+            },
+            {
+              "kind": "response",
+              "status": "204",
+            },
+          ],
+          "missing": [
+            {
+              "in": "querystring",
+              "kind": "parameter",
+              "name": "search.limit",
+            },
+          ],
+          "operationId": "listOrderItems",
         },
       ]
     `);

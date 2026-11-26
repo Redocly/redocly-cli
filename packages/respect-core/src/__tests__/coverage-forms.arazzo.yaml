@@ -1,0 +1,52 @@
+arazzo: 1.1.0
+info:
+  title: Send forms and queries to the cafe
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ./coverage-forms-cafe.yaml
+
+workflows:
+  - workflowId: forms-and-queries
+    steps:
+      - stepId: create-menu-item
+        operationId: createMenuItem
+        requestBody:
+          contentType: multipart/form-data
+          payload:
+            name: Espresso
+            nutrition:
+              calories: 3
+        successCriteria:
+          - condition: $statusCode == 204
+      - stepId: request-token
+        operationId: requestToken
+        requestBody:
+          contentType: application/x-www-form-urlencoded
+          payload:
+            grant_type: client_credentials
+            client_id: cafe-client
+        successCriteria:
+          - condition: $statusCode == 204
+      - stepId: list-placed-orders
+        operationId: listOrders
+        parameters:
+          - in: query
+            name: status
+            value: placed
+          - in: query
+            name: page[limit]
+            value: 5
+        successCriteria:
+          - condition: $statusCode == 204
+      - stepId: list-placed-order-items
+        operationId: listOrderItems
+        parameters:
+          - in: querystring
+            name: search
+            value: status=placed
+        successCriteria:
+          - condition: $statusCode == 204

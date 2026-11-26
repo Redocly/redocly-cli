@@ -1,11 +1,13 @@
 import {
   BaseResolver,
+  getSchemaPropertyNames,
   getSchemaPropertyPaths,
   getValuePropertyPaths,
+  isPlainObject,
   isRef,
   type Oas3Operation,
+  type Oas3Parameter,
   type Oas3PathItem,
-  type Referenced,
 } from '@redocly/openapi-core';
 
 import type {
@@ -19,6 +21,7 @@ import type {
   WorkflowExecutionResult,
 } from '../../types.js';
 import { isJsonContentType } from '../../utils/api-fetcher.js';
+import { isFormUrlencoded } from '../../utils/url-encoding.js';
 import {
   getOperationFromDescriptionBySource,
   getRequestBodySchema,
@@ -30,6 +33,8 @@ import { isWorkflowExecutionResult } from '../flow-runner/runner.js';
 interface CoverageEntry {
   item: CoverageItem;
   covered: boolean;
+  // the keys of a query string that cover a query or querystring parameter; without them, any key does
+  queryKeys?: string[];
 }
 
 interface OperationState {
@@ -46,6 +51,7 @@ interface DescriptionState {
   operations: Map<string, OperationState>;
 }
 
+// The methods Respect can call. The `additionalOperations` of a path are not among them.
 const HTTP_METHODS = [
   'get',
   'put',
@@ -123,18 +129,11 @@ function addDescriptions(ctx: TestContext, descriptions: Map<string, Description
       if (!pathItem) {
         continue;
       }
-      const pathOperations: Record<string, Referenced<Oas3Operation> | undefined> = {
-        ...Object.fromEntries(
-          HTTP_METHODS.map((method) => [method.toUpperCase(), pathItem[method]])
-        ),
-        // the key of an additional operation is the method as it is sent
-        ...pathItem.additionalOperations,
-      };
-
-      for (const [method, operation] of Object.entries(pathOperations)) {
-        if (operation && !isRef(operation)) {
-          operations.set(`${method.toLowerCase()} ${path}`, {
-            method,
+      for (const method of HTTP_METHODS) {
+        const operation = pathItem[method];
+        if (operation) {
+          operations.set(`${method} ${path}`, {
+            method: method.toUpperCase(),
             path,
             operationId: operation.operationId,
             entries: createOperationEntries(operation, pathItem),
@@ -162,26 +161,21 @@ function createOperationEntries(
   addEntry(entries, { kind: 'operation' });
 
   for (const parameter of [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]) {
-    if (isRef(parameter)) {
-      continue;
-    }
-    const location = PARAMETER_LOCATIONS.find(
-      (parameterLocation) => parameterLocation === parameter.in
-    );
-    if (
-      location &&
-      !(location === 'header' && IGNORED_HEADER_PARAMETERS.includes(parameter.name.toLowerCase()))
-    ) {
-      addEntry(entries, { kind: 'parameter', in: location, name: parameter.name });
+    if (!isRef(parameter)) {
+      addParameterEntries(entries, parameter);
     }
   }
 
   const requestBodyContent = isRef(operation.requestBody) ? {} : operation.requestBody?.content;
   for (const [mediaType, mediaTypeObject] of Object.entries(requestBodyContent ?? {})) {
-    if (isJsonContentType(mediaType)) {
-      for (const path of getSchemaPropertyPaths(mediaTypeObject.schema, 'request')) {
-        addEntry(entries, { kind: 'property', target: 'request', path });
-      }
+    // a form sends its fields flat, so only the properties of the schema itself are counted for it
+    const paths = isJsonContentType(mediaType)
+      ? getSchemaPropertyPaths(mediaTypeObject.schema, 'request')
+      : isFormContentType(mediaType)
+        ? getSchemaPropertyNames(mediaTypeObject.schema, 'request')
+        : [];
+    for (const path of paths) {
+      addEntry(entries, { kind: 'property', target: 'request', path });
     }
   }
 
@@ -200,6 +194,44 @@ function createOperationEntries(
   }
 
   return entries;
+}
+
+function addParameterEntries(entries: Map<string, CoverageEntry>, parameter: Oas3Parameter): void {
+  const { name } = parameter;
+  const location = PARAMETER_LOCATIONS.find(
+    (parameterLocation) => parameterLocation === parameter.in
+  );
+  if (
+    !location ||
+    (location === 'header' && IGNORED_HEADER_PARAMETERS.includes(name.toLowerCase()))
+  ) {
+    return;
+  }
+
+  if (location === 'querystring') {
+    const [mediaType, mediaTypeObject] = Object.entries(parameter.content ?? {})[0] ?? [];
+    const keys =
+      mediaType && isFormUrlencoded(mediaType)
+        ? Array.from(getSchemaPropertyNames(mediaTypeObject.schema, 'request'))
+        : [];
+    // each key of a form-urlencoded query string counts as a parameter of its own
+    for (const key of keys) {
+      addEntry(entries, { kind: 'parameter', in: location, name: `${name}.${key}` }, [key]);
+    }
+    if (keys.length > 0) {
+      return;
+    }
+  }
+
+  // an object in the default `form` style with `explode` is sent as a key for each of its properties
+  const isExplodedObject = (parameter.style ?? 'form') === 'form' && parameter.explode !== false;
+  addEntry(
+    entries,
+    { kind: 'parameter', in: location, name },
+    location === 'query'
+      ? [name, ...(isExplodedObject ? getSchemaPropertyNames(parameter.schema, 'request') : [])]
+      : undefined
+  );
 }
 
 function recordStep(
@@ -231,12 +263,13 @@ function recordStep(
 
   markEntry(entries, { kind: 'operation' });
 
-  const queryKeys = Array.from(new URL(response.requestUrl).searchParams.keys());
+  const sentQueryKeys = Array.from(new URL(response.requestUrl).searchParams.keys());
   for (const entry of entries.values()) {
     if (entry.item.kind !== 'parameter') {
       continue;
     }
     const { name } = entry.item;
+    const { queryKeys } = entry;
     switch (entry.item.in) {
       case 'path':
         entry.covered ||= request.path?.[name] !== undefined;
@@ -245,21 +278,30 @@ function recordStep(
         entry.covered ||= request.header[name.toLowerCase()] !== undefined;
         break;
       case 'query':
-        // a `deepObject` parameter is sent as `name[property]=value`
-        entry.covered ||= queryKeys.some((key) => key === name || key.startsWith(`${name}[`));
-        break;
       case 'querystring':
-        entry.covered ||= queryKeys.length > 0;
+        entry.covered ||= sentQueryKeys.some(
+          (key) =>
+            !queryKeys ||
+            queryKeys.includes(key) ||
+            // a `deepObject` parameter is sent as `name[property]=value`
+            key.startsWith(`${name}[`)
+        );
         break;
     }
   }
 
   const [requestContentType] = String(request.header['content-type'] ?? '').split(';');
-  if (isJsonContentType(requestContentType)) {
-    const requestSchema = getRequestBodySchema(requestContentType, operation);
-    for (const path of getValuePropertyPaths(request.body, requestSchema, 'request')) {
-      markEntry(entries, { kind: 'property', target: 'request', path });
-    }
+  const requestPaths = isJsonContentType(requestContentType)
+    ? getValuePropertyPaths(
+        request.body,
+        getRequestBodySchema(requestContentType, operation),
+        'request'
+      )
+    : isFormContentType(requestContentType)
+      ? getFormFieldNames(request.body)
+      : [];
+  for (const path of requestPaths) {
+    markEntry(entries, { kind: 'property', target: 'request', path });
   }
 
   const status = getResponseKeyByStatusCode(operation.responses ?? {}, response.statusCode);
@@ -294,11 +336,32 @@ function entryKey(item: CoverageItem): string {
   }
 }
 
-function addEntry(entries: Map<string, CoverageEntry>, item: CoverageItem): void {
+function addEntry(
+  entries: Map<string, CoverageEntry>,
+  item: CoverageItem,
+  queryKeys?: string[]
+): void {
   const key = entryKey(item);
   if (!entries.has(key)) {
-    entries.set(key, { item, covered: false });
+    entries.set(key, { item, covered: false, queryKeys });
   }
+}
+
+function isFormContentType(mediaType: string): boolean {
+  return isFormUrlencoded(mediaType) || mediaType.includes('multipart/form-data');
+}
+
+function getFormFieldNames(body: unknown): string[] {
+  const fields = typeof body === 'string' ? new URLSearchParams(body) : body;
+  const keys =
+    fields instanceof FormData || fields instanceof URLSearchParams
+      ? Array.from(fields.keys())
+      : isPlainObject(fields)
+        ? Object.keys(fields)
+        : [];
+
+  // a nested field of a multipart form is sent as `parent[child]`
+  return keys.map((key) => key.split('[')[0]);
 }
 
 function markEntry(entries: Map<string, CoverageEntry>, item: CoverageItem): void {

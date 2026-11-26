@@ -1,0 +1,104 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe forms and queries
+  description: >
+    Part of the Redocly Cafe API description with the operations that take a form,
+    an object in the query, or the whole query string.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /menu:
+    post:
+      summary: Create menu item
+      operationId: createMenuItem
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: integer
+                photo:
+                  type: string
+                  format: binary
+                nutrition:
+                  type: object
+                  properties:
+                    calories:
+                      type: number
+      responses:
+        '204':
+          description: Menu item created.
+  /oauth2/token:
+    post:
+      summary: Request an access token
+      operationId: requestToken
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                client_id:
+                  type: string
+                scope:
+                  type: string
+      responses:
+        '204':
+          description: Token issued.
+  /orders:
+    get:
+      summary: List all orders
+      operationId: listOrders
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              customerName:
+                type: string
+        - name: page
+          in: query
+          style: deepObject
+          schema:
+            type: object
+            properties:
+              limit:
+                type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successful operation.
+  /order-items:
+    get:
+      summary: List all order items
+      operationId: listOrderItems
+      parameters:
+        - name: search
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  limit:
+                    type: integer
+      responses:
+        '204':
+          description: Successful operation.

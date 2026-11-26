@@ -10,8 +10,18 @@ import { isPropertyExcludedFromTarget, type MessageTarget } from './to-ajv-schem
  */
 export function getSchemaPropertyPaths(schema: unknown, target: MessageTarget): Set<string> {
   const paths = new Set<string>();
-  collectSchemaPropertyPaths(schema, target, '', paths, new Set());
+  collectSchemaPropertyPaths(schema, target, '', paths, new Set(), true);
   return paths;
+}
+
+/**
+ * Returns the names of the properties of a dereferenced schema itself, without the nested ones.
+ * A form sends its fields flat, so these are the fields that a form can carry.
+ */
+export function getSchemaPropertyNames(schema: unknown, target: MessageTarget): Set<string> {
+  const names = new Set<string>();
+  collectSchemaPropertyPaths(schema, target, '', names, new Set(), false);
+  return names;
 }
 
 /**
@@ -35,7 +45,8 @@ function collectSchemaPropertyPaths(
   target: MessageTarget,
   path: string,
   paths: Set<string>,
-  ancestors: Set<object>
+  ancestors: Set<object>,
+  nested: boolean
 ): void {
   // A dereferenced recursive schema is circular, so the walk stops when it meets an ancestor.
   if (!isPlainObject(schema) || ancestors.has(schema)) {
@@ -46,7 +57,7 @@ function collectSchemaPropertyPaths(
   for (const branches of [schema.allOf, schema.oneOf, schema.anyOf]) {
     if (Array.isArray(branches)) {
       for (const branch of branches) {
-        collectSchemaPropertyPaths(branch, target, path, paths, ancestors);
+        collectSchemaPropertyPaths(branch, target, path, paths, ancestors, nested);
       }
     }
   }
@@ -58,12 +69,14 @@ function collectSchemaPropertyPaths(
       }
       const propertyPath = path ? `${path}.${name}` : name;
       paths.add(propertyPath);
-      collectSchemaPropertyPaths(propertySchema, target, propertyPath, paths, ancestors);
+      if (nested) {
+        collectSchemaPropertyPaths(propertySchema, target, propertyPath, paths, ancestors, nested);
+      }
     }
   }
 
-  if (isPlainObject(schema.items)) {
-    collectSchemaPropertyPaths(schema.items, target, `${path}[]`, paths, ancestors);
+  if (nested && isPlainObject(schema.items)) {
+    collectSchemaPropertyPaths(schema.items, target, `${path}[]`, paths, ancestors, nested);
   }
 
   ancestors.delete(schema);

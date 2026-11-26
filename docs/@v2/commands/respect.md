@@ -423,12 +423,12 @@ Below the table, the command lists the operations that no step called, up to 10 
     GET /orders/{orderId} (getOrderById)
 ```
 
-| Category          | Documented items                                                          | Covered when                                                                         |
-| ----------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Operations        | Every operation under `paths` of the description.                         | A step called the operation and received a response.                                 |
-| Parameters        | Every path, query, querystring, and header parameter of an operation.     | A step sent the parameter.                                                           |
-| Schema properties | Every property reachable from the JSON request and response body schemas. | A step sent the property in a JSON request body or received it in a JSON response.   |
-| Response codes    | Every response of an operation.                                           | A step received the status. Status ranges such as `4XX` and `default` count as well. |
+| Category          | Documented items                                                                                                               | Covered when                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Operations        | Every operation under `paths` of the description.                                                                              | A step called the operation and received a response.                                 |
+| Parameters        | Every path, query, querystring, and header parameter of an operation.                                                          | A step sent the parameter.                                                           |
+| Schema properties | Every property reachable from the JSON request and response body schemas, and every field of a form or multipart request body. | A step sent the property in a request body or received it in a JSON response.        |
+| Response codes    | Every response of an operation.                                                                                                | A step received the status. Status ranges such as `4XX` and `default` count as well. |
 
 The rows of a file show its OpenAPI source descriptions by name.
 When a step calls a workflow from another Arazzo file, Respect measures the OpenAPI source descriptions of that file too.
@@ -472,6 +472,13 @@ Keep the following in mind when you read the numbers:
 - Cookie parameters are not counted.
   Header parameters named `Accept`, `Content-Type`, and `Authorization` are not counted either, because OpenAPI ignores their definitions.
 - The operations under `webhooks` and `callbacks` are not counted, because the API sends those requests.
+  The `additionalOperations` of a path are not counted either, because Respect cannot call them.
+- An object query parameter in the `form` style is covered when a step sends any of its properties as a query key.
+  One in the `deepObject` style is covered when a step sends a `name[property]` key.
+- Each property of a form-urlencoded `querystring` schema counts as its own parameter, named after the parameter and the key, for example `search.status`.
+  A `querystring` parameter with any other media type, or with a schema that documents no keys, counts as one parameter.
+- For a form-urlencoded or multipart request body, only the fields of the form are counted, not the properties nested in them.
+  Bodies in other formats, such as XML, are not counted.
 - Respect collects schema properties from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
   Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
   A schema that references itself is followed for one level of nesting: `cause.title` is counted, and `cause.cause.title` is not.

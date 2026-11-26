@@ -1,4 +1,8 @@
-import { getSchemaPropertyPaths, getValuePropertyPaths } from '../schema-property-paths.js';
+import {
+  getSchemaPropertyNames,
+  getSchemaPropertyPaths,
+  getValuePropertyPaths,
+} from '../schema-property-paths.js';
 
 // A problem can carry the problem that caused it, so the dereferenced schema is circular.
 const problemProperties: Record<string, unknown> = { title: { type: 'string' } };
@@ -46,6 +50,17 @@ describe('getSchemaPropertyPaths', () => {
       'problem',
       'problem.title',
       'problem.cause',
+    ]);
+  });
+});
+
+describe('getSchemaPropertyNames', () => {
+  it('lists the properties of the schema itself, through its composition', () => {
+    expect(Array.from(getSchemaPropertyNames(order, 'response'))).toEqual([
+      'id',
+      'customerName',
+      'orderItems',
+      'problem',
     ]);
   });
 });
