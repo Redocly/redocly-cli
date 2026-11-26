@@ -789,6 +789,214 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
+  it('should report a shared required-only allOf schema for the oneOf branch that lacks the property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.2.0
+          components:
+            schemas:
+              MenuItem:
+                oneOf:
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Snack'
+              Beverage:
+                allOf:
+                  - $ref: '#/components/schemas/BeverageBase'
+                  - $ref: '#/components/schemas/NeedsVolume'
+              Snack:
+                allOf:
+                  - $ref: '#/components/schemas/Dessert'
+                  - $ref: '#/components/schemas/NeedsVolume'
+              BeverageBase:
+                type: object
+                properties:
+                  volume:
+                    type: number
+              Dessert:
+                type: object
+                properties:
+                  calories:
+                    type: number
+              NeedsVolume:
+                required:
+                  - volume
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/components/schemas/Snack/allOf/1",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/NeedsVolume/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'volume' is not defined.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report a shared required-only allOf schema whichever oneOf branch comes first', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.2.0
+          components:
+            schemas:
+              MenuItem:
+                oneOf:
+                  - $ref: '#/components/schemas/Snack'
+                  - $ref: '#/components/schemas/Beverage'
+              Beverage:
+                allOf:
+                  - $ref: '#/components/schemas/BeverageBase'
+                  - $ref: '#/components/schemas/NeedsVolume'
+              Snack:
+                allOf:
+                  - $ref: '#/components/schemas/Dessert'
+                  - $ref: '#/components/schemas/NeedsVolume'
+              BeverageBase:
+                type: object
+                properties:
+                  volume:
+                    type: number
+              Dessert:
+                type: object
+                properties:
+                  calories:
+                    type: number
+              NeedsVolume:
+                required:
+                  - volume
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/components/schemas/Snack/allOf/1",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/NeedsVolume/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'volume' is not defined.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report a shared required-only allOf schema once for each allOf that lacks the property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.2.0
+          components:
+            schemas:
+              MenuItem:
+                oneOf:
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Snack'
+              Beverage:
+                allOf:
+                  - $ref: '#/components/schemas/Dessert'
+                  - $ref: '#/components/schemas/NeedsVolume'
+              Snack:
+                allOf:
+                  - $ref: '#/components/schemas/Dessert'
+                  - $ref: '#/components/schemas/NeedsVolume'
+              Dessert:
+                type: object
+                properties:
+                  calories:
+                    type: number
+              NeedsVolume:
+                required:
+                  - volume
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/components/schemas/Beverage/allOf/1",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/NeedsVolume/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'volume' is not defined.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": {
+            "pointer": "#/components/schemas/Snack/allOf/1",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/NeedsVolume/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'volume' is not defined.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should work for AsyncAPI 3', async () => {
     const document = parseYamlToDocument(
       outdent`
