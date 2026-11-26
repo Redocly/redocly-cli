@@ -1075,4 +1075,146 @@ describe('Arazzo struct', () => {
       ]
     `);
   });
+
+  it('should report a criterion that has a type and no context', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: cafe-api.listMenuItems
+                successCriteria:
+                  - condition: $statusCode == 200
+                  - context: $response.body
+                    condition: $.items[?(@.category == 'beverage')]
+                    type: jsonpath
+                  - condition: ^200$
+                    type: regex
+                  - condition: $statusCode == 200
+                    type: simple
+                onFailure:
+                  - name: stop
+                    type: end
+                    criteria:
+                      - condition: $.title
+                        type:
+                          type: jsonpath
+                          version: draft-goessner-dispatch-jsonpath-00
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/successCriteria/2",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`context\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/successCriteria/3",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`context\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onFailure/0/criteria/0",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`context\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report a criterion that has a type and no context in Arazzo 1.1.0', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.1.0
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: cafe-api.listMenuItems
+                successCriteria:
+                  - condition: $.items[?(@.category == 'beverage')]
+                    type:
+                      type: jsonpath
+                      version: rfc9535
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/successCriteria/0",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`context\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

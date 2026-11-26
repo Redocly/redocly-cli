@@ -361,7 +361,9 @@ const CriterionObject: NodeType = {
       }
     },
   },
-  required: ['condition'],
+  required(value) {
+    return value?.type === undefined ? ['condition'] : ['condition', 'context'];
+  },
   description:
     'An object used to specify the context, conditions, and condition types that can be used to prove or satisfy assertions specified in Step Object successCriteria, Success Action Object criteria, and Failure Action Object criteria.',
 };
