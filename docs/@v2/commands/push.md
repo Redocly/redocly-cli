@@ -25,7 +25,6 @@ A GitHub Actions workflow can run the `push` command without a stored API key.
 The command exchanges the GitHub OIDC token of the workflow for a short-lived credential that works for one project.
 
 1. In the project, trust the GitHub repository on the **CI/CD access** tab of **Remote content**.
-   See [Push without an API key](https://redocly.com/docs/realm/reunite/project/remote-content/push-without-api-key).
    This feature is available on the Enterprise plan and in the Scale plan add-on.
 2. Grant the job the `id-token: write` permission.
 3. Run the command without setting `REDOCLY_AUTHORIZATION`.
