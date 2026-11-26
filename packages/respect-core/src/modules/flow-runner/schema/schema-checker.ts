@@ -16,7 +16,7 @@ import {
   getResponseSchema,
 } from '../../description-parser/index.js';
 
-const ajvStrict = new (Ajv as any)({
+const ajvOptions = {
   schemaId: '$id',
   meta: true,
   allErrors: true,
@@ -32,7 +32,12 @@ const ajvStrict = new (Ajv as any)({
   logger: false,
   verbose: true,
   defaultUnevaluatedProperties: false,
-});
+};
+const ajvStrict = new (Ajv as any)(ajvOptions);
+// Header values are strings, so they are coerced to the type in their schema, for example `10` to an integer.
+const ajvHeaders = new (Ajv as any)({ ...ajvOptions, coerceTypes: 'array' });
+// A header schema is compiled once per header name, since the name is part of the wrapper schema.
+const headerValidators = new WeakMap<object, Map<string, { schema: object; validate: any }>>();
 
 // Ajv keeps a compiled schema by the object it gets, so a schema is converted only once per target.
 const ajvSchemas = {
@@ -200,31 +205,82 @@ function checkResponseHeadersFromDescription({
   const descriptionResponses = descriptionOperation?.responses || {};
   const responseKey = getResponseKeyByStatusCode(descriptionResponses, $response.statusCode);
   // the description is bundled with `dereference: true`, so header objects have no `$ref`
-  const describedHeaders = ((responseKey && descriptionResponses[responseKey]?.headers) ||
-    {}) as Record<string, { required?: boolean }>;
-  // OpenAPI ignores a `Content-Type` entry in the response headers
-  const requiredHeaders = Object.entries(describedHeaders)
-    .filter(([name, header]) => header?.required && name.toLowerCase() !== 'content-type')
-    .map(([name]) => name);
+  const describedHeaders = Object.entries(
+    ((responseKey && descriptionResponses[responseKey]?.headers) || {}) as Record<
+      string,
+      { required?: boolean; schema?: unknown }
+    >
+    // OpenAPI ignores a `Content-Type` entry in the response headers
+  ).filter(([name]) => name.toLowerCase() !== 'content-type');
 
-  if (!requiredHeaders.length) {
+  // header names are case-insensitive, extra headers are fine
+  const receivedHeaders = new Map(
+    Object.entries($response.header || {}).map(([name, value]) => [name.toLowerCase(), value])
+  );
+  const missingHeaders: string[] = [];
+  const headerErrors: string[] = [];
+
+  for (const [name, header] of describedHeaders) {
+    const value = receivedHeaders.get(name.toLowerCase());
+    if (value === undefined) {
+      if (header?.required) missingHeaders.push(name);
+      continue;
+    }
+    if (!isPlainObject(header?.schema)) {
+      continue;
+    }
+    try {
+      const validators = headerValidators.get(header.schema) ?? new Map();
+      headerValidators.set(header.schema, validators);
+      let validator = validators.get(name);
+      if (!validator) {
+        const schema = {
+          type: 'object',
+          properties: { [name]: toAjvSchema(header.schema, { target: 'response' }) },
+        };
+        validator = { schema, validate: ajvHeaders.compile(schema) };
+        validators.set(name, validator);
+      }
+      // Ajv coerces only values inside an object, so the header value is wrapped in one.
+      const data = { [name]: value };
+      if (!validator.validate(data)) {
+        headerErrors.push(
+          printAjvErrors(
+            validator.schema as JSONSchemaType<unknown>,
+            data,
+            validator.validate.errors
+          )
+        );
+      }
+    } catch (error: any) {
+      headerErrors.push(`Ajv error for the ${name} header: ${error.message as string}`);
+    }
+  }
+
+  const checkedHeaders = describedHeaders.filter(
+    ([name, header]) => header?.required || receivedHeaders.has(name.toLowerCase())
+  );
+  if (!checkedHeaders.length) {
     return;
   }
 
-  // header names are case-insensitive, extra headers are fine
-  const receivedHeaders = new Set(
-    Object.keys($response.header || {}).map((name) => name.toLowerCase())
-  );
-  const missingHeaders = requiredHeaders.filter((name) => !receivedHeaders.has(name.toLowerCase()));
+  const problems = [
+    ...(missingHeaders.length
+      ? [
+          `Required headers for ${blue($response.statusCode)} response are missing: ${red(
+            missingHeaders.join(', ')
+          )}.`,
+        ]
+      : []),
+    ...headerErrors,
+  ];
 
   checks.push({
     name: CHECKS.RESPONSE_HEADER_CHECK,
-    passed: missingHeaders.length === 0,
-    message: missingHeaders.length
-      ? `Required headers for ${blue($response.statusCode)} response are missing: ${red(
-          missingHeaders.join(', ')
-        )}.`
-      : `Required headers are present: ${requiredHeaders.join(', ')}.`,
+    passed: problems.length === 0,
+    message: problems.length
+      ? problems.join('\n')
+      : `Response headers match the description: ${checkedHeaders.map(([name]) => name).join(', ')}.`,
     severity: ctx.severity['RESPONSE_HEADER_CHECK'],
   });
 }

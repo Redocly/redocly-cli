@@ -745,6 +745,24 @@ describe('checkSchema', () => {
     it('adds no check when the response describes no required headers', () => {
       expect(checkHeaders(404, {})).toBeUndefined();
     });
+
+    it('checks header values against their schema', () => {
+      expect(
+        checkHeaders(200, { 'x-request-id': 'abc', 'x-rate-limit-remaining': '10' })?.passed
+      ).toBe(true);
+
+      const check = checkHeaders(200, { 'x-request-id': 'abc', 'x-rate-limit-remaining': 'many' });
+      expect(check?.passed).toBe(false);
+      expect(check?.message).toContain('X-Rate-Limit-Remaining');
+      expect(check?.message).toContain('must be integer');
+    });
+
+    it('reports a missing header and a wrong value together', () => {
+      const check = checkHeaders(200, { 'x-rate-limit-remaining': 'many' });
+      expect(check?.passed).toBe(false);
+      expect(check?.message).toContain('are missing');
+      expect(check?.message).toContain('must be integer');
+    });
   });
 
   it('should return empty checks if no response available', () => {

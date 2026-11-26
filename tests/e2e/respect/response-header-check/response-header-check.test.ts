@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 test('should check that the response includes the required headers', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'response-header-check.arazzo.yaml');
-  const args = getParams(indexEntryPoint, ['respect', fixturesPath]);
+  const args = getParams(indexEntryPoint, ['respect', fixturesPath, '--verbose']);
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();

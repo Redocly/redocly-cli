@@ -3,7 +3,8 @@ info:
   title: Redocly Cafe with required response headers
   description: >
     Part of the Redocly Cafe API description where the responses mark headers
-    as required. The API returns `ETag` but not `X-Request-ID`.
+    as required. The API returns `ETag` but not `X-Request-ID`, and the
+    photo description is longer than its `Content-Length` schema allows.
   version: 1.0.0
 servers:
   - url: https://api.cafe.redocly.com
@@ -13,6 +14,11 @@ paths:
       summary: List all menu items
       operationId: listMenuItems
       security: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation.
@@ -51,5 +57,12 @@ paths:
               required: true
               schema:
                 type: string
+            Content-Length:
+              schema:
+                type: integer
+                maximum: 10
           content:
             image/png: {}
+            text/plain:
+              schema:
+                type: string

@@ -14,11 +14,16 @@ workflows:
     steps:
       - stepId: list-menu-items
         operationId: listMenuItems
-        outputs:
-          menuItemId: $response.body#/items/0/id
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
       - stepId: get-menu-item-photo
         operationId: getMenuItemPhoto
         parameters:
           - in: path
             name: menuItemId
-            value: $steps.list-menu-items.outputs.menuItemId
+            value: prd_0000000000seedtrams0000000
+          - in: header
+            name: accept
+            value: text/plain
