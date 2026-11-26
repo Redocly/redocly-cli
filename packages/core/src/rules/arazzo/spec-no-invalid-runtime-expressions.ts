@@ -3,9 +3,9 @@ import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 // An expression embedded in a string, such as `{$sourceDescriptions.<name>.url}` in
-// `{$sourceDescriptions.<name>.url}#/paths/~1orders~1{orderId}/get`.
+// `{$sourceDescriptions.<name>.url}#/paths/~1orders~1{orderId}/get`. Spaces can surround it.
 // A group without `$`, such as the path template `{orderId}`, is not an expression.
-const EMBEDDED_EXPRESSION = /\{(\$[^{}]*)\}/g;
+const EMBEDDED_EXPRESSION = /\{\s*(\$[^{}]*)\}/g;
 
 const STEP_PATH_FIELDS = [
   'operationPath',
@@ -13,7 +13,7 @@ const STEP_PATH_FIELDS = [
 ] as const;
 
 function embeddedExpressions(text: string): string[] {
-  return Array.from(text.matchAll(EMBEDDED_EXPRESSION), ([, expression]) => expression);
+  return Array.from(text.matchAll(EMBEDDED_EXPRESSION), ([, expression]) => expression.trimEnd());
 }
 
 export const SpecNoInvalidRuntimeExpressions: Arazzo1Rule = () => {

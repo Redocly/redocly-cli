@@ -34,6 +34,7 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
                   orderId: $resposne.body#/id
                   status: $response.body.status
                   authorization: Bearer {$resposne.body#/token}
+                  customerId: '{ $resposne.body#/customerId }'
             outputs:
               orderId: $message.payload#/id
               total: $steps.create-order.total
@@ -151,6 +152,20 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
             },
           ],
           "message": "\`$resposne.body#/token\` is not a valid runtime expression.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-no-invalid-runtime-expressions",
+          "ruleId": "spec-no-invalid-runtime-expressions",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/1/outputs/customerId",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "\`$resposne.body#/customerId\` is not a valid runtime expression.",
           "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-no-invalid-runtime-expressions",
           "ruleId": "spec-no-invalid-runtime-expressions",
           "severity": "error",
@@ -326,6 +341,7 @@ describe('Arazzo spec-no-invalid-runtime-expressions', () => {
                   method: $method
                   kind: beverage
                   authorization: Bearer {$response.body#/token}
+                  customerId: '{ $response.body#/customerId }'
                   correlationId: $faker.string.uuid()
                   orderLabel: order-{$faker.string.uuid()}
                   nextPage: $response.body#/@odata.nextLink
