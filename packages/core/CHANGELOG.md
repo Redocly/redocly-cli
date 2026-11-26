@@ -1,5 +1,17 @@
 # @redocly/openapi-core
 
+## 2.84.0
+
+### Minor Changes
+
+- Added support for the OAuth2 `clientCredentials` and `password` flows to the `x-security` extension in Respect.
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule didn't report an Arazzo criterion that has a `type` and no `context`.
+- Fixed an issue where the `struct` rule reported an Arazzo request body that had no `payload`, even though the field was optional.
+- Updated @redocly/config to v0.79.0.
+
 ## 2.83.0
 
 ### Minor Changes
