@@ -1162,6 +1162,67 @@ describe('buildSchema — every schema kind', () => {
     `);
   });
 
+  it('keeps the target of a schema $ref that has a oneOf beside it', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.1.0
+      info:
+        title: Items
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Item:
+            type: object
+            properties:
+              name:
+                type: string
+          Draft:
+            type: object
+            properties:
+              draftedAt:
+                type: string
+          Scheduled:
+            type: object
+            properties:
+              scheduledAt:
+                type: string
+          ItemCreate:
+            $ref: '#/components/schemas/Item'
+            oneOf:
+              - $ref: '#/components/schemas/Draft'
+              - $ref: '#/components/schemas/Scheduled'
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[3].schema).toMatchInlineSnapshot(`
+      {
+        "kind": "intersection",
+        "members": [
+          {
+            "kind": "ref",
+            "name": "Item",
+          },
+          {
+            "description": undefined,
+            "discriminator": undefined,
+            "kind": "union",
+            "members": [
+              {
+                "kind": "ref",
+                "name": "Draft",
+              },
+              {
+                "kind": "ref",
+                "name": "Scheduled",
+              },
+            ],
+          },
+        ],
+      }
+    `);
+  });
+
   it('renders a single `type: "null"` schema as null', () => {
     expect(buildSchemaOnly({ type: 'null' } as never)).toEqual({ kind: 'null' });
   });

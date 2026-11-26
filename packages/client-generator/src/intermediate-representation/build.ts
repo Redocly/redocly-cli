@@ -860,6 +860,19 @@ function buildSchema(
   doc: Oas3Definition
 ): SchemaModel {
   if (isRef(schema)) return buildRef(schema, location, doc);
+
+  if (schema.allOf && (schema.oneOf ?? schema.anyOf)) {
+    // A value matches every `allOf` member and the `oneOf`/`anyOf` union beside them.
+    const { allOf, ...union } = schema;
+    return {
+      kind: 'intersection',
+      members: [
+        ...allOf.map((sub, idx) => buildSchema(sub, `${location}.allOf[${idx}]`, doc)),
+        buildSchema(union, location, doc),
+      ],
+    };
+  }
+
   const metadata = extractMetadata(schema);
 
   const oneOfish = schema.oneOf ?? schema.anyOf;
