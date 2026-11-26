@@ -146,6 +146,8 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   - `SUCCESS_CRITERIA_CHECK`: Verifies if the success criteria defined in the provided Arazzo description has been met.
   - `CONTENT_TYPE_CHECK`: Verifies if the `Content-Type` matches what is defined in the provided OpenAPI description.
   - `RESPONSE_HEADER_CHECK`: Verifies if the response includes the headers marked as `required` in the provided OpenAPI description, and if every described header that the response includes matches its schema.
+    A header described as an array is read as a comma-separated list, as the `simple` style serializes it.
+    Headers described as objects or with `content` are checked for presence only.
 
   The following severity values are available:
   - `error`: Validation failures cause the workflow to fail.

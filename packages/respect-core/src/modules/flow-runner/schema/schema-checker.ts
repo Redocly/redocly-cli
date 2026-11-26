@@ -1,4 +1,8 @@
-import Ajv, { type JSONSchemaType, type Context as AjvContext } from '@redocly/ajv/dist/2020.js';
+import Ajv, {
+  type JSONSchemaType,
+  type Context as AjvContext,
+  type ValidateFunction,
+} from '@redocly/ajv/dist/2020.js';
 import { isPlainObject, toAjvSchema } from '@redocly/openapi-core';
 import { blue, dim, red, green } from 'colorette';
 
@@ -37,7 +41,10 @@ const ajvStrict = new (Ajv as any)(ajvOptions);
 // Header values are strings, so they are coerced to the type in their schema, for example `10` to an integer.
 const ajvHeaders = new (Ajv as any)({ ...ajvOptions, coerceTypes: 'array' });
 // A header schema is compiled once per header name, since the name is part of the wrapper schema.
-const headerValidators = new WeakMap<object, Map<string, { schema: object; validate: any }>>();
+const headerValidators = new WeakMap<
+  object,
+  Map<string, { schema: object; validate: ValidateFunction }>
+>();
 
 // Ajv keeps a compiled schema by the object it gets, so a schema is converted only once per target.
 const ajvSchemas = {
@@ -219,6 +226,7 @@ function checkResponseHeadersFromDescription({
   );
   const missingHeaders: string[] = [];
   const headerErrors: string[] = [];
+  const validatedHeaders: string[] = [];
 
   for (const [name, header] of describedHeaders) {
     const value = receivedHeaders.get(name.toLowerCase());
@@ -226,9 +234,12 @@ function checkResponseHeadersFromDescription({
       if (header?.required) missingHeaders.push(name);
       continue;
     }
-    if (!isPlainObject(header?.schema)) {
+    // A header described with `content` or as an object is checked for presence only.
+    const types = isPlainObject(header?.schema) ? [header.schema.type].flat() : [];
+    if (!isPlainObject(header?.schema) || types.includes('object')) {
       continue;
     }
+    validatedHeaders.push(name);
     try {
       const validators = headerValidators.get(header.schema) ?? new Map();
       headerValidators.set(header.schema, validators);
@@ -242,7 +253,14 @@ function checkResponseHeadersFromDescription({
         validators.set(name, validator);
       }
       // Ajv coerces only values inside an object, so the header value is wrapped in one.
-      const data = { [name]: value };
+      // A header uses the `simple` style, so an array arrives as a comma-separated list.
+      const data = {
+        [name]: types.includes('array')
+          ? String(value)
+              .split(',')
+              .map((item) => item.trim())
+          : value,
+      };
       if (!validator.validate(data)) {
         headerErrors.push(
           printAjvErrors(
@@ -252,8 +270,9 @@ function checkResponseHeadersFromDescription({
           )
         );
       }
-    } catch (error: any) {
-      headerErrors.push(`Ajv error for the ${name} header: ${error.message as string}`);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      headerErrors.push(`Ajv error for the ${name} header: ${reason}`);
     }
   }
 
@@ -275,12 +294,22 @@ function checkResponseHeadersFromDescription({
     ...headerErrors,
   ];
 
+  const presentHeaders = checkedHeaders
+    .map(([name]) => name)
+    .filter((name) => !validatedHeaders.includes(name));
+  const passMessage = [
+    ...(validatedHeaders.length
+      ? [`Response headers match the description: ${validatedHeaders.join(', ')}.`]
+      : []),
+    ...(presentHeaders.length
+      ? [`Response headers are present, with no value check: ${presentHeaders.join(', ')}.`]
+      : []),
+  ].join('\n');
+
   checks.push({
     name: CHECKS.RESPONSE_HEADER_CHECK,
     passed: problems.length === 0,
-    message: problems.length
-      ? problems.join('\n')
-      : `Response headers match the description: ${checkedHeaders.map(([name]) => name).join(', ')}.`,
+    message: problems.length ? problems.join('\n') : passMessage,
     severity: ctx.severity['RESPONSE_HEADER_CHECK'],
   });
 }

@@ -710,6 +710,9 @@ describe('checkSchema', () => {
           headers: {
             'X-Request-ID': { required: true, schema: { type: 'string' } },
             'X-Rate-Limit-Remaining': { required: false, schema: { type: 'integer' } },
+            'X-Ids': { schema: { type: 'array', items: { type: 'integer' }, minItems: 2 } },
+            'X-Point': { schema: { type: 'object' } },
+            'X-Meta': { content: { 'application/json': { schema: { type: 'object' } } } },
             'Content-Type': { required: true, schema: { type: 'string' } },
           },
           content: { 'application/json': { schema: { type: 'object' } } },
@@ -757,11 +760,24 @@ describe('checkSchema', () => {
       expect(check?.message).toContain('must be integer');
     });
 
-    it('reports a missing header and a wrong value together', () => {
-      const check = checkHeaders(200, { 'x-rate-limit-remaining': 'many' });
+    it('splits an array header on commas', () => {
+      expect(checkHeaders(200, { 'x-request-id': 'abc', 'x-ids': '1, 2,3' })?.passed).toBe(true);
+
+      const check = checkHeaders(200, { 'x-request-id': 'abc', 'x-ids': '1,x' });
       expect(check?.passed).toBe(false);
-      expect(check?.message).toContain('are missing');
       expect(check?.message).toContain('must be integer');
+      expect(checkHeaders(200, { 'x-request-id': 'abc', 'x-ids': '1' })?.passed).toBe(false);
+    });
+
+    it('checks object and content headers for presence only', () => {
+      const check = checkHeaders(200, {
+        'x-request-id': 'abc',
+        'x-point': 'x,1,y,2',
+        'x-meta': 'not json',
+      });
+      expect(check?.passed).toBe(true);
+      expect(check?.message).toContain('Response headers match the description: X-Request-ID.');
+      expect(check?.message).toContain('with no value check: X-Point, X-Meta.');
     });
   });
 
