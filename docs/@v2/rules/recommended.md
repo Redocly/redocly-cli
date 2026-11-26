@@ -66,6 +66,7 @@ Warnings:
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md)
 - [no-required-schema-properties-undefined](./common/no-required-schema-properties-undefined.md)
 - [no-server-example.com](./oas/no-server-example-com.md)
+- [no-step-requestBody-with-workflowId](./arazzo/no-step-requestBody-with-workflowId.md)
 - [no-unsafe-markdown](./common/no-unsafe-markdown.md)
 - [no-unused-components](./oas/no-unused-components.md)
 - [operation-2xx-response](./oas/operation-2xx-response.md)

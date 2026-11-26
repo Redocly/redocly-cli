@@ -16,6 +16,7 @@ import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-sc
 import { XSecuritySchemeNameReference } from '../respect/x-security-scheme-name-reference.js';
 import { XSecuritySchemaRequiredValues } from '../respect/x-security-scheme-required-values.js';
 import { CriteriaUnique } from './criteria-unique.js';
+import { NoStepRequestBodyWithWorkflowId } from './no-step-requestBody-with-workflowId.js';
 import { OutputsDefined } from './outputs-defined.js';
 import { ParametersUnique } from './parameters-unique.js';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique.js';
@@ -49,6 +50,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Arazzo1Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Arazzo1Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Arazzo1Rule,
+  'no-step-requestBody-with-workflowId': NoStepRequestBodyWithWorkflowId,
   'no-unresolved-refs': NoUnresolvedRefs as Arazzo1Rule,
   'no-x-security-both-scheme-and-scheme-name': NoXSecurityBothSchemeAndSchemeName,
   'no-x-security-scheme-name-without-openapi': NoXSecuritySchemeNameWithoutOpenAPI,
