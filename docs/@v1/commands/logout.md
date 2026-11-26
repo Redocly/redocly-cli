@@ -1,3 +1,9 @@
+---
+seo:
+  title: logout command in Redocly CLI v1
+  description: Clear the stored Redocly API key from your device using the redocly logout command.
+---
+
 # `logout`
 
 ## Introduction

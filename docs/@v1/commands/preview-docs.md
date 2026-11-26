@@ -1,3 +1,8 @@
+---
+seo:
+  description: Generate local API documentation previews for OpenAPI descriptions before deployment using the redocly preview-docs command.
+---
+
 # `preview-docs`
 
 ## Introduction

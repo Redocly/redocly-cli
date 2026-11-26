@@ -1,3 +1,9 @@
+---
+seo:
+  title: eject command in Redocly CLI v1
+  description: Create a local copy of component source code in your Redocly project to customize styles, structure, or behavior with redocly eject.
+---
+
 # `eject`
 
 ## Introduction

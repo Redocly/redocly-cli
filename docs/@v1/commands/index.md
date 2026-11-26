@@ -1,4 +1,7 @@
 ---
+seo:
+  title: Redocly CLI v1 commands reference
+  description: Reference list of Redocly CLI 1.x commands for documentation, API management, linting, Arazzo testing, and Redocly platform actions.
 tocMaxDepth: 2
 ---
 

@@ -1,6 +1,7 @@
 ---
 seo:
-  title: API standards
+  title: API standards and governance in Redocly CLI v1
+  description: Lint OpenAPI descriptions with built-in, configurable, or custom rulesets and transform API descriptions with decorators in Redocly CLI v1.
 ---
 
 # API standards and governance

@@ -1,3 +1,9 @@
+---
+seo:
+  title: join command in Redocly CLI v1
+  description: Combine two or more OpenAPI 3.x description files into a single unified YAML or JSON file with the redocly join command.
+---
+
 # `join`
 
 ## Introduction
