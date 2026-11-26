@@ -99,6 +99,13 @@ describe('miscellaneous', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('split should fail for an API path whose letter case differs from the file name', async () => {
+    const testPath = join(folderPath, 'case-sensitive-paths');
+    const args = getParams(indexEntryPoint, ['split', 'Openapi.yaml', '--outDir=output']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_4.txt'));
+  });
+
   test('lint should not match a glob whose letter case differs from the file name', async () => {
     const testPath = join(folderPath, 'case-sensitive-paths');
     const args = getParams(indexEntryPoint, ['lint', 'Open*.yaml']);

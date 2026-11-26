@@ -25,7 +25,8 @@ export function checkPathCasing(
   let folder = segments.slice(0, sharedSegmentsCount).join(path.sep) + path.sep;
   for (const segment of segments.slice(sharedSegmentsCount)) {
     let names = folderEntries.get(folder);
-    if (names === undefined) {
+    // A saved list can be out of date after a file is renamed, so a name that is not in it is looked up again.
+    if (names === undefined || !names.includes(segment)) {
       try {
         names = fs.readdirSync(folder);
       } catch {

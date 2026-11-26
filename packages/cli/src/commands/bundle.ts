@@ -30,6 +30,7 @@ import {
   sortTopLevelKeys,
   formatPath,
 } from '../utils/miscellaneous.js';
+import { validatePathCasing } from '../utils/validate-path-casing.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type BundleArgv = {
@@ -83,7 +84,7 @@ export async function handleBundle({
       const overlays =
         argv.overlay ??
         aliasConfig.resolvedConfig.overlays?.map((overlay) =>
-          isAbsoluteUrl(overlay) ? overlay : resolve(configDir, overlay)
+          isAbsoluteUrl(overlay) ? overlay : validatePathCasing(resolve(configDir, overlay))
         );
       if (overlays?.length) {
         bundleTelemetry.bundle_overlays_count =

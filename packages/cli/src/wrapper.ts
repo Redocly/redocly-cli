@@ -122,9 +122,11 @@ export function commandWrapper<T extends CommandArgv>(
     };
 
     try {
-      if (argv.config) validatePathCasing(argv.config);
-      if (argv.config && !doesYamlFileExist(argv.config)) {
-        throw new HandledError('Please provide a valid path to the configuration file.');
+      if (argv.config) {
+        validatePathCasing(argv.config);
+        if (!doesYamlFileExist(argv.config)) {
+          throw new HandledError('Please provide a valid path to the configuration file.');
+        }
       }
       config = await loadAndCheckConfig(argv as Exact<T>, version, options.plugins);
       code = 1;

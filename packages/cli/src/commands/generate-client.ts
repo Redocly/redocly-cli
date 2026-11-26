@@ -26,6 +26,7 @@ import {
   parseEjectedProvenance,
 } from '../utils/client-generator-telemetry.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
+import { validatePathCasing } from '../utils/validate-path-casing.js';
 import { type CommandArgs } from '../wrapper.js';
 
 export type GenerateClientCommandArgv = {
@@ -68,10 +69,7 @@ function resolveSetup(client: GenerateClientConfig, configDir: string): Generate
       `\n❌  \`client.setup\` must be a local file path — remote setup modules are not supported.\n   Got: ${setup}\n`
     );
   }
-  if (!isAbsolute(setup)) {
-    return { ...client, setup: resolvePath(configDir, setup) };
-  }
-  return client;
+  return { ...client, setup: validatePathCasing(resolvePath(configDir, setup)) };
 }
 
 function fileNameFor(name: string): string {

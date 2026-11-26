@@ -4,6 +4,7 @@ import type { Arguments } from 'yargs';
 // The options that take a path to read, by command.
 // An option that also takes an API alias or a glob, such as `apis`, is checked where it is expanded.
 const pathOptionsByCommand: Record<string, string[]> = {
+  bundle: ['overlay'],
   split: ['api'],
   push: ['files'],
   respect: ['files'],

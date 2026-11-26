@@ -2,6 +2,7 @@
 import './utils/assert-node-version.js';
 
 import {
+  checkPathCasing,
   impacts,
   logger,
   type OutputFormat,
@@ -46,7 +47,10 @@ import { validateMountPath } from './utils/validate-mount-path.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { commandWrapper } from './wrapper.js';
 
-dotenv.config({ path: path.resolve(process.cwd(), './.env') });
+const envFilePath = path.resolve(process.cwd(), './.env');
+if (checkPathCasing(envFilePath, process.cwd()) === undefined) {
+  dotenv.config({ path: envFilePath });
+}
 
 cacheLatestVersion();
 
