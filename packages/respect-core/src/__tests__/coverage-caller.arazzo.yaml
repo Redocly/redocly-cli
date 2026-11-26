@@ -1,0 +1,16 @@
+arazzo: 1.0.1
+info:
+  title: Run the cafe orders workflow of another file
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: orders
+    type: arazzo
+    url: ./coverage.arazzo.yaml
+
+workflows:
+  - workflowId: run-orders
+    steps:
+      - stepId: run-orders-workflow
+        workflowId: $sourceDescriptions.orders.orders

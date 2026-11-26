@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe orders
+  description: >
+    Part of the Redocly Cafe API description with the order operations.
+    A problem can carry the problem that caused it, so the `Problem` schema references itself.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /orders:
+    parameters:
+      - name: X-Request-Id
+        in: header
+        schema:
+          type: string
+    post:
+      summary: Create order
+      operationId: createOrder
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+        - name: dryRun
+          in: query
+          schema:
+            type: boolean
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Order created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        4XX:
+          description: The order is not accepted.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /orders/{orderId}:
+    get:
+      summary: Retrieve order
+      operationId: getOrderById
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        default:
+          description: Any other response.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    delete:
+      summary: Delete order
+      operationId: deleteOrder
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Order deleted.
+components:
+  schemas:
+    Order:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
+            customerName:
+              type: string
+            couponCode:
+              type: string
+              writeOnly: true
+            comment:
+              type: string
+    Problem:
+      type: object
+      properties:
+        title:
+          type: string
+        status:
+          type: integer
+        cause:
+          $ref: '#/components/schemas/Problem'

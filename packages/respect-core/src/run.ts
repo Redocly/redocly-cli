@@ -5,6 +5,7 @@ import {
   type BaseResolver,
 } from '@redocly/openapi-core';
 
+import { calculateCoverage } from './modules/api-coverage/calculate-coverage.js';
 import { runTestFile } from './modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from './modules/logger-output/index.js';
 import { type ExecutedStepsCount, type RunFileResult, type RunOptions } from './types.js';
@@ -30,6 +31,7 @@ export type RespectOptions = {
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
   noSecretsMasking?: boolean;
+  coverage?: boolean;
 };
 
 export async function run(options: RespectOptions): Promise<RunFileResult[]> {
@@ -92,5 +94,6 @@ async function runFile({
     totalRequests: totals.totalRequests,
     globalTimeoutError: hasGlobalTimeoutError,
     ...(ctx.noSecretsMasking && { secretValues: Array.from(ctx.secretsSet) || [] }),
+    ...(options.coverage && { coverage: calculateCoverage([{ ctx, executedWorkflows }]) }),
   };
 }

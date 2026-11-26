@@ -268,6 +268,7 @@ export type RunFileResult = {
   totalRequests: number;
   globalTimeoutError: boolean;
   secretValues?: string[];
+  coverage?: SourceDescriptionCoverage[];
 };
 
 export interface WorkflowExecutionResult {
@@ -353,10 +354,41 @@ export type JsonLogs = {
       totalTimeMs: number;
       globalTimeoutError: boolean;
       secretValues?: string[];
+      coverage?: SourceDescriptionCoverage[];
     }
   >;
   status: string;
   totalTime: number;
+};
+
+export type CoverageItem =
+  | { kind: 'operation' }
+  | { kind: 'parameter'; name: string; in: 'path' | 'query' | 'querystring' | 'header' }
+  | { kind: 'response'; status: string }
+  // the path is relative to the body, and `[]` marks the items of an array
+  | { kind: 'property'; target: 'request' | 'response'; status?: string; path: string };
+
+export type CoverageCount = { covered: number; total: number };
+
+export type OperationCoverage = {
+  method: string;
+  path: string;
+  operationId?: string;
+  covered: CoverageItem[];
+  missing: CoverageItem[];
+};
+
+export type SourceDescriptionCoverage = {
+  name: string;
+  // the resolved location of the API description
+  url: string;
+  totals: {
+    operations: CoverageCount;
+    parameters: CoverageCount;
+    properties: CoverageCount;
+    responses: CoverageCount;
+  };
+  operations: OperationCoverage[];
 };
 
 export type DescriptionChecks = {

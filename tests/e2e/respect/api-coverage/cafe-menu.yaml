@@ -1,0 +1,120 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe menu
+  description: >
+    Part of the Redocly Cafe API description with the public menu operations.
+    The list of menu items describes only the properties that every item has.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /menu:
+    get:
+      summary: List all menu items
+      operationId: listMenuItems
+      security: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  object:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        price:
+                          type: integer
+        '400':
+          description: Bad request.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    post:
+      summary: Create menu item
+      operationId: createMenuItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: integer
+      responses:
+        '201':
+          description: Menu item created.
+  /menu-item-images/{menuItemId}:
+    parameters:
+      - name: menuItemId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieve a menu item photo
+      operationId: getMenuItemPhoto
+      security: []
+      parameters:
+        - name: photoSize
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Menu item photo retrieved successfully.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Menu item not found.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+components:
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        instance:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+      required:
+        - type
+        - title
+        - status

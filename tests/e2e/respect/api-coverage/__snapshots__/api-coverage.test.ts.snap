@@ -1,0 +1,431 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should list the covered and the not covered items of every operation with --verbose 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow menu-errors.arazzo.yaml / menu-errors 
+ 
+  ✓ GET /menu - step list-menu-items-with-invalid-limit 
+
+    Request URL: https://api.cafe.redocly.com/menu?limit=abc
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Invalid limit",
+        "status": 400,
+        "instance": "/menu?limit=abc"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [200, 400]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /menu-item-images/{menuItemId} - step get-photo-of-unknown-menu-item 
+
+    Request URL: https://api.cafe.redocly.com/menu-item-images/prd_01h1s5z6vf2mm1mz3hevnn9va7
+    Request Headers:
+      accept: image/png, application/problem+json 
+ 
+
+    Response status code: 404
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Menu item not found",
+        "status": 404,
+        "instance": "/menu-item-images/prd_01h1s5z6vf2mm1mz3hevnn9va7"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 404
+    ✓ status code check - $statusCode in [200, 404]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for menu-errors.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                        │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ menu-errors.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+┌─────────────────────────┬────────────┬────────────┬───────────────────┬────────────────┐
+│ API coverage            │ Operations │ Parameters │ Schema properties │ Response codes │
+├─────────────────────────┼────────────┼────────────┼───────────────────┼────────────────┤
+│ menu-errors.arazzo.yaml │            │            │                   │                │
+│   menu-api              │ 66% (2/3)  │ 50% (2/4)  │ 47% (8/17)        │ 40% (2/5)      │
+└─────────────────────────┴────────────┴────────────┴───────────────────┴────────────────┘
+
+┌─────────────────────────────────────────────────────────┬─────────────────────────┬───────────────────┬───────────────────┐
+│ Operations of menu-api                                  │ Items                   │ Covered           │ Not covered       │
+├─────────────────────────────────────────────────────────┼─────────────────────────┼───────────────────┼───────────────────┤
+│ ✓ GET /menu (listMenuItems)                             │ Parameters              │ limit (query)     │ search (query)    │
+│                                                         │ Response codes          │ 400               │ 200               │
+│                                                         │ Response 200 properties │                   │ object            │
+│                                                         │                         │                   │ items             │
+│                                                         │                         │                   │ items[].id        │
+│                                                         │                         │                   │ items[].name      │
+│                                                         │                         │                   │ items[].price     │
+│                                                         │ Response 400 properties │ type              │ details           │
+│                                                         │                         │ title             │                   │
+│                                                         │                         │ status            │                   │
+│                                                         │                         │ instance          │                   │
+│ x POST /menu (createMenuItem)                           │ No step called it       │                   │                   │
+│ ✓ GET /menu-item-images/{menuItemId} (getMenuItemPhoto) │ Parameters              │ menuItemId (path) │ photoSize (query) │
+│                                                         │ Response codes          │ 404               │ 200               │
+│                                                         │ Response 404 properties │ type              │ details           │
+│                                                         │                         │ title             │                   │
+│                                                         │                         │ status            │                   │
+│                                                         │                         │ instance          │                   │
+└─────────────────────────────────────────────────────────┴─────────────────────────┴───────────────────┴───────────────────┘
+ 
+
+
+Exit code: 0"
+`;
+
+exports[`should measure a description that several files use for all of them together 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow menu.arazzo.yaml / list-menu 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for menu.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow menu-errors.arazzo.yaml / menu-errors 
+ 
+  ✓ GET /menu - step list-menu-items-with-invalid-limit 
+    ✓ success criteria check - $statusCode == 400
+    ✓ status code check - $statusCode in [200, 400]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /menu-item-images/{menuItemId} - step get-photo-of-unknown-menu-item 
+    ✓ success criteria check - $statusCode == 404
+    ✓ status code check - $statusCode in [200, 404]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for menu-errors.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                        │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ menu.arazzo.yaml                                              │ 1          │ 1       │ -       │ -        │
+│ ✓ menu-errors.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+┌─────────────────────────┬────────────┬────────────┬───────────────────┬────────────────┐
+│ API coverage            │ Operations │ Parameters │ Schema properties │ Response codes │
+├─────────────────────────┼────────────┼────────────┼───────────────────┼────────────────┤
+│ menu.arazzo.yaml        │            │            │                   │                │
+│   cafe-menu             │ 33% (1/3)  │ 25% (1/4)  │ 29% (5/17)        │ 20% (1/5)      │
+│   cafe-orders           │ 0% (0/3)   │ 0% (0/2)   │ 0% (0/16)         │ 0% (0/4)       │
+│ menu-errors.arazzo.yaml │            │            │                   │                │
+│   menu-api              │ 66% (2/3)  │ 50% (2/4)  │ 47% (8/17)        │ 40% (2/5)      │
+│ All files               │            │            │                   │                │
+│   cafe-menu.yaml        │ 66% (2/3)  │ 50% (2/4)  │ 76% (13/17)       │ 60% (3/5)      │
+│   cafe-orders.yaml      │ 0% (0/3)   │ 0% (0/2)   │ 0% (0/16)         │ 0% (0/4)       │
+└─────────────────────────┴────────────┴────────────┴───────────────────┴────────────────┘
+
+  Operations of cafe-menu.yaml that no step called:
+    POST /menu (createMenuItem)
+
+  Operations of cafe-orders.yaml that no step called:
+    GET /orders (listOrders)
+    POST /orders (createOrder)
+    GET /orders/{orderId} (getOrderById)
+ 
+
+
+Exit code: 0"
+`;
+
+exports[`should show the coverage of every OpenAPI source description with --coverage 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow menu.arazzo.yaml / list-menu 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for menu.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌──────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                 │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ menu.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└──────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+┌──────────────────┬────────────┬────────────┬───────────────────┬────────────────┐
+│ API coverage     │ Operations │ Parameters │ Schema properties │ Response codes │
+├──────────────────┼────────────┼────────────┼───────────────────┼────────────────┤
+│ menu.arazzo.yaml │            │            │                   │                │
+│   cafe-menu      │ 33% (1/3)  │ 25% (1/4)  │ 29% (5/17)        │ 20% (1/5)      │
+│   cafe-orders    │ 0% (0/3)   │ 0% (0/2)   │ 0% (0/16)         │ 0% (0/4)       │
+└──────────────────┴────────────┴────────────┴───────────────────┴────────────────┘
+
+  Operations of cafe-menu that no step called:
+    POST /menu (createMenuItem)
+    GET /menu-item-images/{menuItemId} (getMenuItemPhoto)
+
+  Operations of cafe-orders that no step called:
+    GET /orders (listOrders)
+    POST /orders (createOrder)
+    GET /orders/{orderId} (getOrderById)
+ 
+
+
+Exit code: 0"
+`;
+
+exports[`should write the coverage of a file to the --json-output file 1`] = `
+{
+  "name": "menu-api",
+  "operations": [
+    {
+      "covered": [
+        {
+          "kind": "operation",
+        },
+        {
+          "in": "query",
+          "kind": "parameter",
+          "name": "limit",
+        },
+        {
+          "kind": "response",
+          "status": "400",
+        },
+        {
+          "kind": "property",
+          "path": "type",
+          "status": "400",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "title",
+          "status": "400",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "status",
+          "status": "400",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "instance",
+          "status": "400",
+          "target": "response",
+        },
+      ],
+      "method": "GET",
+      "missing": [
+        {
+          "in": "query",
+          "kind": "parameter",
+          "name": "search",
+        },
+        {
+          "kind": "response",
+          "status": "200",
+        },
+        {
+          "kind": "property",
+          "path": "object",
+          "status": "200",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "items",
+          "status": "200",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "items[].id",
+          "status": "200",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "items[].name",
+          "status": "200",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "items[].price",
+          "status": "200",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "details",
+          "status": "400",
+          "target": "response",
+        },
+      ],
+      "operationId": "listMenuItems",
+      "path": "/menu",
+    },
+    {
+      "covered": [],
+      "method": "POST",
+      "missing": [
+        {
+          "kind": "operation",
+        },
+        {
+          "kind": "property",
+          "path": "name",
+          "target": "request",
+        },
+        {
+          "kind": "property",
+          "path": "price",
+          "target": "request",
+        },
+        {
+          "kind": "response",
+          "status": "201",
+        },
+      ],
+      "operationId": "createMenuItem",
+      "path": "/menu",
+    },
+    {
+      "covered": [
+        {
+          "kind": "operation",
+        },
+        {
+          "in": "path",
+          "kind": "parameter",
+          "name": "menuItemId",
+        },
+        {
+          "kind": "response",
+          "status": "404",
+        },
+        {
+          "kind": "property",
+          "path": "type",
+          "status": "404",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "title",
+          "status": "404",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "status",
+          "status": "404",
+          "target": "response",
+        },
+        {
+          "kind": "property",
+          "path": "instance",
+          "status": "404",
+          "target": "response",
+        },
+      ],
+      "method": "GET",
+      "missing": [
+        {
+          "in": "query",
+          "kind": "parameter",
+          "name": "photoSize",
+        },
+        {
+          "kind": "response",
+          "status": "200",
+        },
+        {
+          "kind": "property",
+          "path": "details",
+          "status": "404",
+          "target": "response",
+        },
+      ],
+      "operationId": "getMenuItemPhoto",
+      "path": "/menu-item-images/{menuItemId}",
+    },
+  ],
+  "totals": {
+    "operations": {
+      "covered": 2,
+      "total": 3,
+    },
+    "parameters": {
+      "covered": 2,
+      "total": 4,
+    },
+    "properties": {
+      "covered": 8,
+      "total": 17,
+    },
+    "responses": {
+      "covered": 2,
+      "total": 5,
+    },
+  },
+  "url": "cafe-menu.yaml",
+}
+`;

@@ -33,7 +33,7 @@ const SCHEMA_MAP_KEYWORDS = new Set([
 // Ajv reports the undeclared properties of a schema under these keywords only when the schema is referenced.
 const COMPOSITE_KEYWORDS = new Set(['anyOf', 'oneOf', 'not', 'if', 'contains', 'propertyNames']);
 
-type MessageTarget = 'request' | 'response';
+export type MessageTarget = 'request' | 'response';
 
 /**
  * Returns a schema of a dereferenced API description in the form that Ajv can compile and run.

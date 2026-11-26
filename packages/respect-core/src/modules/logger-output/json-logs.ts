@@ -37,17 +37,21 @@ function composeJsonLogsFiles(filesResult: Omit<RunFileResult, 'options'>[]): Js
       secretValues,
     } = fileResult;
 
-    files[fileResult.file] = conditionallyMaskSecrets({
-      value: {
-        totalRequests: fileResult.totalRequests,
-        executedWorkflows: executedWorkflows.map((workflow) => mapJsonWorkflow(workflow)),
-        totalTimeMs: fileResult.totalTimeMs,
-        globalTimeoutError: fileGlobalTimeoutError,
-        secretValues,
-      },
-      noSecretsMasking: ctx.noSecretsMasking,
-      secretsSet: ctx.secretsSet || new Set(),
-    });
+    files[fileResult.file] = {
+      ...conditionallyMaskSecrets({
+        value: {
+          totalRequests: fileResult.totalRequests,
+          executedWorkflows: executedWorkflows.map((workflow) => mapJsonWorkflow(workflow)),
+          totalTimeMs: fileResult.totalTimeMs,
+          globalTimeoutError: fileGlobalTimeoutError,
+          secretValues,
+        },
+        noSecretsMasking: ctx.noSecretsMasking,
+        secretsSet: ctx.secretsSet || new Set(),
+      }),
+      // the coverage holds names from the API description and no values, so it is not masked
+      ...(fileResult.coverage && { coverage: fileResult.coverage }),
+    };
   }
 
   return files;

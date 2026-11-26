@@ -26,7 +26,7 @@ AsyncAPI source descriptions are not supported either; if you need them, upvote 
 ## Usage
 
 ```sh
-npx @redocly/cli@latest respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input] [-S | --server] [-H | --har-output] [-J | --json-output] [--max-steps] [--max-fetch-timeout] [--execution-timeout] [--severity] [--no-secrets-masking]
+npx @redocly/cli@latest respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input] [-S | --server] [-H | --har-output] [-J | --json-output] [--max-steps] [--max-fetch-timeout] [--execution-timeout] [--severity] [--no-secrets-masking] [--coverage]
 ```
 
 ## Options
@@ -213,6 +213,19 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
   `npx @redocly/cli@latest respect test-file.yaml --no-secrets-masking`
 
+---
+
+- --coverage
+- boolean
+- Shows the [API coverage](#api-coverage) after the run: how much of each OpenAPI source description the executed steps covered.
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and shows the coverage of its OpenAPI source descriptions:
+
+  `npx @redocly/cli@latest respect test-file.yaml --coverage`
+
+  Add `--verbose` to list the covered and the not covered items of every operation:
+
+  `npx @redocly/cli@latest respect test-file.yaml --coverage --verbose`
+
 {% /table %}
 
 ## Request data from the API description
@@ -370,6 +383,135 @@ successCriteria:
 ```
 
 With this version, a filter such as `$[?(@.status == 401)]` tests the member values of an object `context`, not the object itself.
+
+## API coverage
+
+{% admonition type="warning" name="Experimental" %}
+The `--coverage` option is experimental.
+Its output and the coverage data in the JSON logs may change in future releases.
+{% /admonition %}
+
+The checks tell you whether the API responded as described to the requests your workflows sent.
+Coverage tells you how much of the API description those requests reached.
+Use it to find the operations, parameters, and responses that no workflow tests yet.
+Respect measures coverage the same way test runners measure code coverage: each documented item is either covered by at least one step or missing.
+
+With `--coverage`, the command prints a table after the summary.
+The table has a row for every OpenAPI source description of every Arazzo file.
+Below the table, the command lists the operations that no step called, up to 10 for each description.
+
+```bash
+┌─────────────────────────┬────────────┬────────────┬───────────────────┬────────────────┐
+│ API coverage            │ Operations │ Parameters │ Schema properties │ Response codes │
+├─────────────────────────┼────────────┼────────────┼───────────────────┼────────────────┤
+│ menu.arazzo.yaml        │            │            │                   │                │
+│   cafe-menu             │ 33% (1/3)  │ 25% (1/4)  │ 29% (5/17)        │ 20% (1/5)      │
+│   cafe-orders           │ 0% (0/3)   │ 0% (0/2)   │ 0% (0/16)         │ 0% (0/4)       │
+│ menu-errors.arazzo.yaml │            │            │                   │                │
+│   menu-api              │ 66% (2/3)  │ 50% (2/4)  │ 47% (8/17)        │ 40% (2/5)      │
+│ All files               │            │            │                   │                │
+│   cafe-menu.yaml        │ 66% (2/3)  │ 50% (2/4)  │ 76% (13/17)       │ 60% (3/5)      │
+│   cafe-orders.yaml      │ 0% (0/3)   │ 0% (0/2)   │ 0% (0/16)         │ 0% (0/4)       │
+└─────────────────────────┴────────────┴────────────┴───────────────────┴────────────────┘
+
+  Operations of cafe-menu.yaml that no step called:
+    POST /menu (createMenuItem)
+
+  Operations of cafe-orders.yaml that no step called:
+    GET /orders (listOrders)
+    POST /orders (createOrder)
+    GET /orders/{orderId} (getOrderById)
+```
+
+| Category          | Documented items                                                          | Covered when                                                                         |
+| ----------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Operations        | Every operation under `paths` of the description.                         | A step called the operation and received a response.                                 |
+| Parameters        | Every path, query, querystring, and header parameter of an operation.     | A step sent the parameter.                                                           |
+| Schema properties | Every property reachable from the JSON request and response body schemas. | A step sent the property in a JSON request body or received it in a JSON response.   |
+| Response codes    | Every response of an operation.                                           | A step received the status. Status ranges such as `4XX` and `default` count as well. |
+
+The rows of a file show its OpenAPI source descriptions by name.
+When a step calls a workflow from another Arazzo file, Respect measures the OpenAPI source descriptions of that file too.
+When you run several files, the `All files` rows measure each API description once for all the files that use it.
+The requests of different files add up there.
+
+With `--verbose`, the command prints a table for every API description in place of the list of operations.
+The table shows the covered and the not covered parameters, response codes, and schema properties of every operation that a step called.
+An operation that no step called takes one row, because all its items are missing.
+
+```bash
+┌─────────────────────────────────────────────────────────┬─────────────────────────┬───────────────────┬───────────────────┐
+│ Operations of menu-api                                  │ Items                   │ Covered           │ Not covered       │
+├─────────────────────────────────────────────────────────┼─────────────────────────┼───────────────────┼───────────────────┤
+│ ✓ GET /menu (listMenuItems)                             │ Parameters              │ limit (query)     │ search (query)    │
+│                                                         │ Response codes          │ 400               │ 200               │
+│                                                         │ Response 200 properties │                   │ object            │
+│                                                         │                         │                   │ items             │
+│                                                         │                         │                   │ items[].id        │
+│                                                         │                         │                   │ items[].name      │
+│                                                         │                         │                   │ items[].price     │
+│                                                         │ Response 400 properties │ type              │ details           │
+│                                                         │                         │ title             │                   │
+│                                                         │                         │ status            │                   │
+│                                                         │                         │ instance          │                   │
+│ x POST /menu (createMenuItem)                           │ No step called it       │                   │                   │
+│ ✓ GET /menu-item-images/{menuItemId} (getMenuItemPhoto) │ Parameters              │ menuItemId (path) │ photoSize (query) │
+│                                                         │ Response codes          │ 404               │ 200               │
+│                                                         │ Response 404 properties │ type              │ details           │
+│                                                         │                         │ title             │                   │
+│                                                         │                         │ status            │                   │
+│                                                         │                         │ instance          │                   │
+└─────────────────────────────────────────────────────────┴─────────────────────────┴───────────────────┴───────────────────┘
+```
+
+Keep the following in mind when you read the numbers:
+
+- A step covers an operation when it sends the request and receives a response, also when its checks fail.
+- Respect measures only the workflows that ran, so the `--workflow` and `--skip` options change the coverage.
+- A step with `x-operation` calls a URL instead of a described operation, so it covers nothing.
+- Cookie parameters are not counted.
+  Header parameters named `Accept`, `Content-Type`, and `Authorization` are not counted either, because OpenAPI ignores their definitions.
+- The operations under `webhooks` and `callbacks` are not counted, because the API sends those requests.
+- Respect collects schema properties from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
+  Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
+  A schema that references itself is followed for one level of nesting: `cause.title` is counted, and `cause.cause.title` is not.
+
+With `--json-output`, the JSON logs of each file get a `coverage` list with an entry for every API description.
+An entry holds the same totals as the table and, for every operation, the items the steps covered and the items they missed:
+
+```json
+{
+  "name": "menu-api",
+  "url": "/path/to/cafe-menu.yaml",
+  "totals": {
+    "operations": { "covered": 2, "total": 3 },
+    "parameters": { "covered": 2, "total": 4 },
+    "properties": { "covered": 8, "total": 17 },
+    "responses": { "covered": 2, "total": 5 }
+  },
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/menu",
+      "operationId": "listMenuItems",
+      "covered": [
+        { "kind": "operation" },
+        { "kind": "parameter", "in": "query", "name": "limit" },
+        { "kind": "response", "status": "400" },
+        { "kind": "property", "target": "response", "status": "400", "path": "title" }
+      ],
+      "missing": [
+        { "kind": "parameter", "in": "query", "name": "search" },
+        { "kind": "response", "status": "200" },
+        { "kind": "property", "target": "response", "status": "200", "path": "items[].name" }
+      ]
+    }
+  ]
+}
+```
+
+A property `path` is relative to the body, and `[]` marks the items of an array.
+Coverage does not affect the exit code.
 
 ## Examples
 
