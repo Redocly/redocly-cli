@@ -14,16 +14,15 @@ The field lists the steps that must complete before the step runs.
 The Arazzo specification requires each value in the list to be a `stepId`.
 A tool cannot wait for a step that does not exist.
 
-The `spec-step-dependsOn-defined` rule checks both forms that point to a step of the same document:
+The `spec-step-dependsOn-defined` rule checks the three forms of a value:
 
 - A plain `stepId` must match a step of the current workflow.
 - A reference to a step of another workflow must have the form `$workflows.<workflowId>.steps.<stepId>`.
   It must name a workflow of the same document and a step of that workflow.
+- A reference to a step of another Arazzo document must have the form `$sourceDescriptions.<name>.<workflowId>.steps.<stepId>`.
 
-The rule treats every other value as a plain `stepId`.
-For example, it reports `$steps.create-order`, because no step of the workflow has that `stepId`.
+The rule reports every other value that starts with `$`, such as `$steps.create-order` or `$sourceDescriptions.loyalty.earn-points`.
 
-A reference to a step of another Arazzo document has the form `$sourceDescriptions.<name>.<workflowId>.steps.<stepId>`.
 The rule does not open the other Arazzo document, so it does not check that the workflow and the step exist there.
 The [spec-sourceDescriptions-defined](./spec-sourceDescriptions-defined.md) rule reports a reference to a source description that is not defined.
 

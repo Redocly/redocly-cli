@@ -17,6 +17,9 @@ describe('Arazzo spec-step-dependsOn-defined', () => {
           - name: cafe-api
             type: openapi
             url: openapi.yaml
+          - name: loyalty
+            type: arazzo
+            url: loyalty.arazzo.yaml
         workflows:
           - workflowId: browse-menu
             steps:
@@ -34,6 +37,7 @@ describe('Arazzo spec-step-dependsOn-defined', () => {
                   - $workflows.checkout.steps.create-order
                   - $workflows.browse-menu.steps.create-order
                   - $steps.create-order
+                  - $sourceDescriptions.loyalty.earn-points
       `,
       'arazzo.yaml'
     );
@@ -112,7 +116,21 @@ describe('Arazzo spec-step-dependsOn-defined', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The step \`$steps.create-order\` is not defined in the current workflow.",
+          "message": "The value \`$steps.create-order\` must be a \`stepId\` of the current workflow, or have the form \`$workflows.<workflowId>.steps.<stepId>\` or \`$sourceDescriptions.<name>.<workflowId>.steps.<stepId>\`.",
+          "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-step-dependson-defined",
+          "ruleId": "spec-step-dependsOn-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/1/steps/1/dependsOn/5",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The value \`$sourceDescriptions.loyalty.earn-points\` must be a \`stepId\` of the current workflow, or have the form \`$workflows.<workflowId>.steps.<stepId>\` or \`$sourceDescriptions.<name>.<workflowId>.steps.<stepId>\`.",
           "reference": "https://redocly.com/docs/cli/rules/arazzo/spec-step-dependson-defined",
           "ruleId": "spec-step-dependsOn-defined",
           "severity": "error",
@@ -144,6 +162,8 @@ describe('Arazzo spec-step-dependsOn-defined', () => {
                 dependsOn:
                   - create-order
                   - $workflows.browse-menu.steps.list-menu-items
+                  - $workflows.browse-menu.steps.list.items
+                  - $workflows.menu.photos.steps.get-photo
                   - $sourceDescriptions.loyalty.earn-points.steps.add-points
               - stepId: create-order
                 operationId: cafe-api.createOrder
@@ -151,6 +171,12 @@ describe('Arazzo spec-step-dependsOn-defined', () => {
             steps:
               - stepId: list-menu-items
                 operationId: cafe-api.listMenuItems
+              - stepId: list.items
+                operationId: cafe-api.listMenuItems
+          - workflowId: menu.photos
+            steps:
+              - stepId: get-photo
+                operationId: cafe-api.getMenuItemPhoto
       `,
       'arazzo.yaml'
     );
