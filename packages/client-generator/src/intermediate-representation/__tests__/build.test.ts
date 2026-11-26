@@ -1103,27 +1103,27 @@ describe('buildSchema — every schema kind', () => {
 
   it('applies the keywords beside a schema $ref together with its target', () => {
     const document = parseYaml(outdent`
-      openapi: 3.1.0
+      openapi: 3.2.0
       info:
-        title: Items
+        title: Redocly Cafe
         version: 1.0.0
       paths: {}
       components:
         schemas:
-          ItemWrite:
+          Order:
             type: object
             required:
-              - name
+              - customerName
             properties:
-              name:
+              customerName:
                 type: string
-          ItemCreate:
-            $ref: '#/components/schemas/ItemWrite'
-            description: An item to create.
+          OrderCreate:
+            $ref: '#/components/schemas/Order'
+            description: An order to place.
             required:
-              - status
+              - paymentMethod
             properties:
-              status:
+              paymentMethod:
                 type: string
     `) as Oas3Definition;
 
@@ -1131,10 +1131,10 @@ describe('buildSchema — every schema kind', () => {
 
     expect(schemas[1]).toMatchInlineSnapshot(`
       {
-        "description": "An item to create.",
-        "name": "ItemCreate",
+        "description": "An order to place.",
+        "name": "OrderCreate",
         "schema": {
-          "description": "An item to create.",
+          "description": "An order to place.",
           "kind": "intersection",
           "members": [
             {
@@ -1142,7 +1142,7 @@ describe('buildSchema — every schema kind', () => {
               "properties": [
                 {
                   "description": undefined,
-                  "name": "status",
+                  "name": "paymentMethod",
                   "required": true,
                   "schema": {
                     "description": undefined,
@@ -1154,7 +1154,7 @@ describe('buildSchema — every schema kind', () => {
             },
             {
               "kind": "ref",
-              "name": "ItemWrite",
+              "name": "Order",
             },
           ],
         },
@@ -1162,46 +1162,120 @@ describe('buildSchema — every schema kind', () => {
     `);
   });
 
-  it('keeps the target of a schema $ref that has a oneOf beside it', () => {
+  it('ignores the keywords beside a schema $ref in OpenAPI 3.0', () => {
     const document = parseYaml(outdent`
-      openapi: 3.1.0
+      openapi: 3.0.4
       info:
-        title: Items
+        title: Redocly Cafe
         version: 1.0.0
       paths: {}
       components:
         schemas:
-          Item:
+          Order:
+            type: object
+            required:
+              - customerName
+            properties:
+              customerName:
+                type: string
+          OrderCreate:
+            $ref: '#/components/schemas/Order'
+            description: An order to place.
+            required:
+              - paymentMethod
+            properties:
+              paymentMethod:
+                type: string
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[1]).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "name": "OrderCreate",
+        "schema": {
+          "description": undefined,
+          "kind": "object",
+          "properties": [
+            {
+              "description": undefined,
+              "name": "customerName",
+              "required": true,
+              "schema": {
+                "description": undefined,
+                "kind": "scalar",
+                "scalar": "string",
+              },
+            },
+          ],
+        },
+      }
+    `);
+  });
+
+  it('applies a oneOf and the properties beside a schema $ref together with its target', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          MenuBaseItem:
             type: object
             properties:
-              name:
+              id:
                 type: string
-          Draft:
+          Beverage:
             type: object
             properties:
-              draftedAt:
-                type: string
-          Scheduled:
+              volume:
+                type: number
+          Dessert:
             type: object
             properties:
-              scheduledAt:
+              calories:
+                type: number
+          MenuItem:
+            $ref: '#/components/schemas/MenuBaseItem'
+            deprecated: true
+            required:
+              - category
+            properties:
+              category:
                 type: string
-          ItemCreate:
-            $ref: '#/components/schemas/Item'
             oneOf:
-              - $ref: '#/components/schemas/Draft'
-              - $ref: '#/components/schemas/Scheduled'
+              - $ref: '#/components/schemas/Beverage'
+              - $ref: '#/components/schemas/Dessert'
     `) as Oas3Definition;
 
     const { schemas } = buildApiModel(document);
 
     expect(schemas[3].schema).toMatchInlineSnapshot(`
       {
+        "description": undefined,
         "kind": "intersection",
         "members": [
           {
+            "kind": "object",
+            "properties": [
+              {
+                "description": undefined,
+                "name": "category",
+                "required": true,
+                "schema": {
+                  "description": undefined,
+                  "kind": "scalar",
+                  "scalar": "string",
+                },
+              },
+            ],
+          },
+          {
             "kind": "ref",
-            "name": "Item",
+            "name": "MenuBaseItem",
           },
           {
             "description": undefined,
@@ -1210,15 +1284,64 @@ describe('buildSchema — every schema kind', () => {
             "members": [
               {
                 "kind": "ref",
-                "name": "Draft",
+                "name": "Beverage",
               },
               {
                 "kind": "ref",
-                "name": "Scheduled",
+                "name": "Dessert",
               },
             ],
           },
         ],
+        "metadata": {
+          "deprecated": true,
+        },
+      }
+    `);
+  });
+
+  it('copies the target of a named schema $ref that has only a description beside it', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Order:
+            type: object
+            description: An order.
+            properties:
+              customerName:
+                type: string
+          TakeawayOrder:
+            $ref: '#/components/schemas/Order'
+            description: An order to take away.
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[1]).toMatchInlineSnapshot(`
+      {
+        "description": "An order to take away.",
+        "name": "TakeawayOrder",
+        "schema": {
+          "description": "An order.",
+          "kind": "object",
+          "properties": [
+            {
+              "description": undefined,
+              "name": "customerName",
+              "required": false,
+              "schema": {
+                "description": undefined,
+                "kind": "scalar",
+                "scalar": "string",
+              },
+            },
+          ],
+        },
       }
     `);
   });
@@ -2035,6 +2158,74 @@ describe('buildApiModel — request body readOnly stripping', () => {
     } finally {
       warn.mockRestore();
     }
+  });
+
+  it('omits readOnly keys from the target of a body $ref that has properties beside it', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths:
+        /orders:
+          post:
+            operationId: createOrder
+            requestBody:
+              required: true
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Order'
+                    required:
+                      - paymentMethod
+                    properties:
+                      paymentMethod:
+                        type: string
+            responses:
+              '201':
+                description: Order created.
+      components:
+        schemas:
+          Order:
+            type: object
+            properties:
+              id:
+                type: string
+                readOnly: true
+    `) as Oas3Definition;
+
+    const { services } = buildApiModel(document);
+
+    expect(services[0].operations[0].requestBody?.schema).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "kind": "intersection",
+        "members": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "description": undefined,
+                "name": "paymentMethod",
+                "required": true,
+                "schema": {
+                  "description": undefined,
+                  "kind": "scalar",
+                  "scalar": "string",
+                },
+              },
+            ],
+          },
+          {
+            "base": "Order",
+            "keys": [
+              "id",
+            ],
+            "kind": "omit",
+          },
+        ],
+      }
+    `);
   });
 
   it('collects readOnly keys through allOf members (deduped)', () => {

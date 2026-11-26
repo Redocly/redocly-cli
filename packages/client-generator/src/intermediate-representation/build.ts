@@ -319,6 +319,10 @@ function stripDirectional(
       }));
     return { ...schema, properties };
   }
+  if (schema.kind === 'intersection') {
+    const members = schema.members.map((member) => stripDirectional(member, flag, byName));
+    return { ...schema, members };
+  }
   return schema;
 }
 
@@ -430,18 +434,21 @@ function buildNamedSchemas(doc: Oas3Definition): NamedSchemaModel[] {
   if (!namedSchemas) return [];
 
   return Object.entries(namedSchemas).map(([name, schema]) => {
-    if (isRef(schema) && !isRefWithSiblings(schema)) {
-      // A top-level entry that is a $ref forwards to another component.
-      const target = resolveRef<Oas3Schema>(doc, schema.$ref);
-      return {
-        name,
-        schema: buildSchema(target, `components.schemas.${name}`, doc),
-        description: target.description,
-      };
+    const location = `components.schemas.${name}`;
+    if (!isRef(schema)) {
+      return { name, schema: buildSchema(schema, location, doc), description: schema.description };
     }
-    const built = buildSchema(schema, `components.schemas.${name}`, doc);
-    // A $ref with siblings is a schema of its own, so it has its own description.
-    return { name, schema: built, description: (schema as Oas3Schema).description };
+    const composed = buildRef(schema, location, doc);
+    if (composed.kind !== 'ref') {
+      return { name, schema: composed, description: composed.description };
+    }
+    // An entry that only points at another schema is a copy of it, with its own description.
+    const target = resolveRef<Oas3Schema>(doc, schema.$ref);
+    return {
+      name,
+      schema: buildSchema(target, location, doc),
+      description: composed.description ?? target.description,
+    };
   });
 }
 
@@ -840,18 +847,27 @@ function schemaFromSlot(
 }
 
 /**
- * Decode a `$ref` into a `ref` node carrying the target's local name. A `$ref` with
- * keywords beside it is the `allOf` of the target and those keywords, in every OpenAPI
- * version: the walker and the bundler of `@redocly/openapi-core` read it the same way.
+ * Decode a `$ref` into a `ref` node carrying the target's local name. Where the keywords
+ * beside the `$ref` apply, the schema means the target and those keywords together. It is
+ * built as the `allOf` it is equal to, with the target and a `oneOf`/`anyOf` beside it as
+ * members, and the other keywords as the keywords of that `allOf`.
  */
 function buildRef(ref: { $ref: string }, location: string, doc: Oas3Definition): SchemaModel {
-  if (!isRefWithSiblings(ref)) return { kind: 'ref', name: refName(ref.$ref) };
+  if (!isRefWithSiblings(ref) || !refSiblingsApply(doc)) {
+    return { kind: 'ref', name: refName(ref.$ref) };
+  }
 
-  const { $ref, ...siblings }: { $ref: string } & Oas3Schema = ref;
+  const {
+    $ref,
+    oneOf,
+    anyOf,
+    discriminator,
+    allOf = [],
+    ...keywords
+  }: { $ref: string } & Oas3Schema = ref;
+  const union = oneOf || anyOf ? [{ oneOf, anyOf, discriminator }] : [];
 
-  const composed = { ...siblings, allOf: [{ $ref }, ...(siblings.allOf ?? [])] };
-
-  return buildSchema(composed, location, doc);
+  return buildSchema({ ...keywords, allOf: [{ $ref }, ...union, ...allOf] }, location, doc);
 }
 
 function buildSchema(
@@ -860,18 +876,6 @@ function buildSchema(
   doc: Oas3Definition
 ): SchemaModel {
   if (isRef(schema)) return buildRef(schema, location, doc);
-
-  if (schema.allOf && (schema.oneOf ?? schema.anyOf)) {
-    // A value matches every `allOf` member and the `oneOf`/`anyOf` union beside them.
-    const { allOf, ...union } = schema;
-    return {
-      kind: 'intersection',
-      members: [
-        ...allOf.map((sub, idx) => buildSchema(sub, `${location}.allOf[${idx}]`, doc)),
-        buildSchema(union, location, doc),
-      ],
-    };
-  }
 
   const metadata = extractMetadata(schema);
 
