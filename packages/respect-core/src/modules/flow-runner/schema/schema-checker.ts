@@ -38,8 +38,8 @@ const ajvStrict = new (Ajv as any)({
 // TypeScript sees the default import of the CommonJS `ajv-formats` as the module object, so the call needs a cast.
 (addFormats as any)(ajvStrict);
 // The `url` format from `ajv-formats` accepts only public host names, so `http://localhost:3000/x` fails it.
-// Respect often runs against a local server, so any URL that `URL` can parse passes.
-ajvStrict.addFormat('url', (value: string) => URL.canParse(value));
+// Respect often runs against a local server, so any URL with a host passes.
+ajvStrict.addFormat('url', (value: string) => URL.canParse(value) && new URL(value).host !== '');
 
 // Ajv keeps a compiled schema by the object it gets, so a schema is converted only once per target.
 const ajvSchemas = {
