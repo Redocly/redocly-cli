@@ -396,6 +396,7 @@ rules:
   no-mixed-number-range-constraints: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
+  no-step-requestBody-with-workflowId: error
   no-unsafe-markdown: warn
   outputs-defined: warn
   parameters-unique: error

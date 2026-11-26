@@ -137,6 +137,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 ### Arazzo
 
 - [criteria-unique](./arazzo/criteria-unique.md): the criteria list must not contain duplicated assertions
+- [no-step-requestBody-with-workflowId](./arazzo/no-step-requestBody-with-workflowId.md): a step that uses `workflowId` must not define `requestBody`
 - [outputs-defined](./arazzo/outputs-defined.md): the output value should be defined before usage
 - [parameters-unique](./arazzo/parameters-unique.md): the `parameters` list must not include duplicate parameters
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique

@@ -15,6 +15,7 @@ Errors:
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md)
 - [no-server-trailing-slash](./oas/no-server-trailing-slash.md)
 - [no-server-variables-empty-enum](./oas/no-server-variables-empty-enum.md)
+- [no-step-requestBody-with-workflowId](./arazzo/no-step-requestBody-with-workflowId.md)
 - [no-undefined-server-variable](./oas/no-undefined-server-variable.md)
 - [no-unresolved-refs](./common/no-unresolved-refs.md)
 - [nullable-type-sibling](./oas/nullable-type-sibling.md)

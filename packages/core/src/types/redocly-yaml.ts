@@ -200,6 +200,7 @@ const builtInArazzo1Rules = [
   'step-onSuccess-unique',
   'step-onFailure-unique',
   'requestBody-replacements-unique',
+  'no-step-requestBody-with-workflowId',
   'no-criteria-xpath',
   'criteria-unique',
   'no-x-security-scheme-name-without-openapi',
