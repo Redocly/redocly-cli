@@ -64,6 +64,7 @@ export {
   unescapePointerFragment,
   parsePointer,
   isRef,
+  isRefWithSiblings,
   isMappingRef,
   isAbsoluteUrl,
   getDir,
