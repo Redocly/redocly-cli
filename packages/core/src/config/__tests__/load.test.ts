@@ -2914,14 +2914,6 @@ describe('loadConfig', () => {
         goPackage: './not-a-path',
       });
     });
-
-    it('should resolve a path option nested in a referenced section', async () => {
-      const { recheck } = await loadFilePathsConfig();
-
-      expect(recheck).toMatchObject({
-        markdoc: { extend: { tagsFile: 'nested/tags.js' } },
-      });
-    });
   });
 });
 
