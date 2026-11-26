@@ -32,6 +32,6 @@ workflows:
         successCriteria:
           - condition: $statusCode == 201
         outputs:
-          ticketId: $response.body.ticketId
+          ticketId: $response.body#/ticketId
     outputs:
       ticketId: $steps.buy-tickets.outputs.ticketId

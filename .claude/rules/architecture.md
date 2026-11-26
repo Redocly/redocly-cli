@@ -17,6 +17,7 @@ Key directories:
 - `src/decorators/` — Built-in decorators for transforming API descriptions.
 - `src/bundle/` — Bundling logic that resolves `$ref` across multiple files.
 - `src/resolve.ts` — Document resolution for multi-file specs (local and remote).
+- `src/runtime-expressions/` — The PEG grammar and the generated parser of Arazzo runtime expressions, used by the Arazzo rules and by Respect.
 - `src/types/` — TypeScript type definitions for OAS2, OAS3, AsyncAPI, Arazzo.
 
 ## `packages/cli` (@redocly/cli)

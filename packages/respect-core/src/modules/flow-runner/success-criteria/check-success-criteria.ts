@@ -6,7 +6,10 @@ import type {
   CriterionObject,
 } from '../../../types.js';
 import { CHECKS } from '../../checks/index.js';
-import { evaluateRuntimeExpression } from '../../runtime-expressions/index.js';
+import {
+  evaluateRuntimeExpression,
+  evaluateSingleRuntimeExpression,
+} from '../../runtime-expressions/index.js';
 import { createRuntimeExpressionCtx } from '../context/index.js';
 import { evaluateJSONPathCondition } from './evaluate-jsonpath-condition.js';
 import {
@@ -71,7 +74,7 @@ export function checkCriteria({
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
           passed: regex.test(
-            evaluateRuntimeExpression(context, criteriaContext, ctx.options.logger)
+            evaluateSingleRuntimeExpression(context, criteriaContext, ctx.options.logger)
           ),
           message: `Checking regex criteria: ${JSON.stringify(criteria)}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
@@ -79,7 +82,7 @@ export function checkCriteria({
         });
       } else if (isJSONPathSuccessCriteria(criteria)) {
         const { context, type } = criteria;
-        const data = evaluateRuntimeExpression(context, criteriaContext, ctx.options.logger);
+        const data = evaluateSingleRuntimeExpression(context, criteriaContext, ctx.options.logger);
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,

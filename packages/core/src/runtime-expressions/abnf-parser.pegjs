@@ -33,7 +33,7 @@ BasicExpression
   / "$statusCode"
   / "$request." Source
   / "$response." Source
-  / "$inputs." PropertyNameChain
+  / "$inputs." PropertyNameChain jsonPointer?
   / OutputsExpression
   / "$steps." StepsExpression
   / "$workflows." WorkflowsExpression
@@ -62,9 +62,10 @@ PropertyNameChain
   = PropertyName (("." _ PropertyName)*) 
 
 // Property names for chained access (limited to specific formats)
+// A number is a property name unless it only starts a name, as in `2fa`
 PropertyName
-  = Name
-  / Number
+  = Number ![a-zA-Z0-9_-]
+  / Name
 
 // Reference sources
 Source
@@ -102,9 +103,9 @@ Escaped
   = "~" ("0" / "1")  
 
 // Names and tokens as defined by your ABNF rules
-// Name can start with a letter followed by letters, digits, underscores, or hyphens
+// Name is the `identifier-strict` rule of Arazzo 1.1: letters, digits, underscores, or hyphens
 Name
-  = [a-zA-Z][a-zA-Z0-9_-]* 
+  = [a-zA-Z0-9_-]+
 
 // Token with specific characters
 Token
@@ -152,3 +153,49 @@ Undefined
 
 // Optional whitespace handling
 _ = [ \t\r\n]*
+
+// The rules below are the runtime expression ABNF of the Arazzo specification, for a field that
+// holds a single expression. Each one is a start rule: pass its name as the `startRule` option.
+// The rules above parse a condition, with the names and JSON Pointers that Respect evaluates.
+
+// https://spec.openapis.org/arazzo/v1.0.1.html#runtime-expressions
+Arazzo1Expression
+  = "$url"
+  / "$method"
+  / "$statusCode"
+  / ("$request." / "$response.") (HeaderReference / ("query." / "path.") AnyName / "body" Arazzo1Fragment?)
+  / ("$inputs." / "$outputs." / "$steps." / "$workflows." / "$sourceDescriptions." / "$components.") AnyName
+
+// https://spec.openapis.org/arazzo/v1.1.0.html#runtime-expressions
+Arazzo1_1Expression
+  = "$url"
+  / "$method"
+  / "$statusCode"
+  / "$self"
+  / ("$request." / "$response." / "$message.") (HeaderReference / ("query." / "path.") Char* / ("body" / "payload") Arazzo1_1Fragment?)
+  / ("$inputs." / "$outputs.") Identifier Arazzo1_1Fragment?
+  / "$steps." Name ".outputs." Identifier Arazzo1_1Fragment?
+  / "$workflows." Name "." ("inputs" / "outputs") "." Identifier Arazzo1_1Fragment?
+  / "$sourceDescriptions." Name "." Char+
+  / "$components." ("parameters" / "successActions" / "failureActions") "." Identifier
+
+// `name = *( CHAR )`, and Arazzo 1.0 does not define CHAR
+AnyName
+  = .*
+
+// A JSON Pointer: every character except `/` and `~` is unescaped
+Arazzo1Fragment
+  = "#" ("/" ([^/~] / Escaped)*)*
+
+// Arazzo 1.1 also excludes the curly braces
+Arazzo1_1Fragment
+  = "#" ("/" ([^/~{}] / Escaped)*)*
+
+// The `identifier` rule of Arazzo 1.1: a name that can contain dots
+Identifier
+  = [a-zA-Z0-9._-]+
+
+// The `CHAR` rule of Arazzo 1.1: a character of a JSON string, without the curly braces
+Char
+  = [\x20-\x21\x23-\x5B\x5D-\x7A\x7C\x7E-\uFFFF]
+  / "\\" (["\\/bfnrt] / "u" [0-9A-Fa-f] [0-9A-Fa-f] [0-9A-Fa-f] [0-9A-Fa-f])

@@ -50,10 +50,19 @@ const AsyncAPISourceDescription: NodeType = {
     'Describes a source description (such as an AsyncAPI description) that will be referenced by one or more workflows described within an Arazzo Description.',
 };
 
+// The value can be a constant (including a plain object), a runtime expression, or a Selector
+// Object. As Respect does, read an object as a Selector Object only when it has all three of
+// its required fields. Every other object is a constant.
+const parameterValue = (value: unknown) =>
+  isPlainObject(value) && 'context' in value && 'selector' in value && 'type' in value
+    ? 'SelectorObject'
+    : {};
+
 const Parameter: NodeType = {
   ...Arazzo1Types.Parameter,
   properties: {
     ...Arazzo1Types.Parameter.properties,
+    value: parameterValue,
     in: {
       type: 'string',
       enum: ['header', 'query', 'path', 'cookie', 'querystring'],
@@ -68,7 +77,7 @@ const ActionParameter: NodeType = {
   ...Arazzo1Types.Parameter,
   properties: {
     name: Arazzo1Types.Parameter.properties.name,
-    value: Arazzo1Types.Parameter.properties.value,
+    value: parameterValue,
   },
   description:
     'Describes a single parameter of a success or failure action. The parameter is passed to the workflow that the action references with workflowId as an input.',
