@@ -16,7 +16,7 @@ To pass values to the workflow, use the `parameters` of the step.
 They map to the inputs of the workflow.
 
 The specification does not forbid the field with a `MUST NOT`, and the Arazzo JSON Schema accepts `requestBody` in every step.
-That is why the [struct](../common/struct.md) rule does not report it, and why this rule is not part of the `spec` ruleset.
+That is why the [struct](../common/struct.md) rule does not report it, and why the `no-step-requestBody-with-workflowId` rule is not part of the `spec` ruleset.
 
 ## Configuration
 
