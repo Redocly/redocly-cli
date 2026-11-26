@@ -99,7 +99,7 @@ export async function parseRequestBody(
   descriptionContentType?: string
 ): Promise<
   Omit<RequestBody, 'payload'> & {
-    payload:
+    payload?:
       | string
       | number
       | boolean
@@ -107,8 +107,7 @@ export async function parseRequestBody(
       | Array<unknown>
       | BodyInit
       | FormData
-      | URLSearchParams
-      | undefined;
+      | URLSearchParams;
   }
 > {
   if (!stepRequestBody) {
