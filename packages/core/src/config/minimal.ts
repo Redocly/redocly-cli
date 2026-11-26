@@ -345,6 +345,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-outputs-invalid-map-name': 'warn',
     'spec-sourceDescriptions-defined': 'warn',
     'spec-querystring-parameters': 'warn',
+    'spec-step-dependsOn-defined': 'warn',
     'spec-step-mutually-exclusive-fields': 'warn',
     'spec-step-operationId-resolved': 'warn',
     'spec-step-parameters-in-required': 'warn',

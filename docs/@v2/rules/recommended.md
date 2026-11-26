@@ -42,6 +42,7 @@ Errors:
 - [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md)
 - [spec-querystring-parameters (Arazzo)](./arazzo/spec-querystring-parameters.md)
 - [spec-sourceDescriptions-defined](./arazzo/spec-sourceDescriptions-defined.md)
+- [spec-step-dependsOn-defined](./arazzo/spec-step-dependsOn-defined.md)
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md)
 - [spec-step-operationId-resolved](./arazzo/spec-step-operationId-resolved.md)
 - [spec-step-parameters-in-required](./arazzo/spec-step-parameters-in-required.md)
