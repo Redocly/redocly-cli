@@ -1,0 +1,35 @@
+openapi: 3.1.0
+info:
+  title: Redocly Cafe Orders
+  version: 1.0.0
+  description: Place and track orders.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://orders.example.com
+tags:
+  - name: Orders
+    description: Customer orders.
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create an order
+      description: Places an order for one menu item.
+      tags: [Orders]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemId:
+                  type: string
+      responses:
+        '201':
+          description: The order.
+        '400':
+          description: Bad request.

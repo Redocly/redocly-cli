@@ -1,0 +1,14 @@
+
+🎉 No issues found!
+
+🏃 Running recheck on: docs
+
+🔧 Running 4 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 0
+
+✅ No errors found!
+   Completed in <test>ms
+
+Exit code: 0

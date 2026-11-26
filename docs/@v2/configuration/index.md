@@ -260,6 +260,10 @@ mockServer:
   $ref: ./mockserver.yaml
 ```
 
+File paths in a referenced file are relative to that file.
+The file options of decorators and the paths to custom generators are an exception: they stay relative to the root `redocly.yaml`.
+Glob patterns and the paths that are relative to the working directory stay as written.
+
 {% admonition type="info" %}
 When using the `push` command with a config file that includes `$ref`s, all referenced files are explicitly uploaded using the `--files` option.
 {% /admonition %}

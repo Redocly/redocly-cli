@@ -7,6 +7,7 @@ export type ScalarSchema = {
   resolvable?: boolean;
   directResolveAs?: string;
   minimum?: number;
+  format?: string;
   description?: string;
   documentationLink?: string;
 };
@@ -19,6 +20,7 @@ export type NormalizedScalarSchema = {
   directResolveAs?: NormalizedNodeType;
   resolvable: boolean;
   minimum?: number;
+  format?: string;
   description?: string;
   documentationLink?: string;
 };
@@ -42,6 +44,8 @@ export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
+  // the properties whose schema, or whose list items' schema, has `format: uri-reference`
+  uriReferenceProperties?: string[];
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedPropType | NormalizedResolveTypeFn;
   minItems?: number;
@@ -132,6 +136,12 @@ export function normalizeTypes(
         }
       }
       type.properties = mappedProps;
+      const uriReferenceProperties = Object.keys(mappedProps).filter((propName) =>
+        isUriReference(mappedProps[propName])
+      );
+      if (uriReferenceProperties.length) {
+        type.uriReferenceProperties = uriReferenceProperties;
+      }
     }
   }
 
@@ -164,4 +174,11 @@ export function normalizeTypes(
 
 export function isNamedType(t: NormalizedPropType): t is NormalizedNodeType {
   return typeof t?.name === 'string';
+}
+
+function isUriReference(prop: NormalizedPropType | NormalizedResolveTypeFn) {
+  if (typeof prop === 'function' || !prop || isNamedType(prop)) {
+    return false;
+  }
+  return (prop.format ?? prop.items?.format) === 'uri-reference';
 }
