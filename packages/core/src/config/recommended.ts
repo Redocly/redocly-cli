@@ -345,6 +345,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'spec-outputs-invalid-map-name': 'error',
     'spec-sourceDescriptions-defined': 'error',
     'spec-querystring-parameters': 'error',
+    'spec-step-dependsOn-defined': 'error',
     'spec-step-mutually-exclusive-fields': 'error',
     'spec-step-operationId-resolved': 'error',
     'spec-step-parameters-in-required': 'error',

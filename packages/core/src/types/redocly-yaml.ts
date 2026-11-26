@@ -190,6 +190,7 @@ const builtInArazzo1Rules = [
   'spec-outputs-invalid-map-name',
   'spec-sourceDescriptions-defined',
   'spec-querystring-parameters',
+  'spec-step-dependsOn-defined',
   'spec-step-mutually-exclusive-fields',
   'spec-step-operationId-resolved',
   'spec-step-parameters-in-required',

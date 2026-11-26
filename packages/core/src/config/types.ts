@@ -102,7 +102,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
   async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
   arazzo1Rules?: RuleMap<
-    Exclude<BuiltInArazzo1RuleId, 'spec-querystring-parameters'>,
+    Exclude<BuiltInArazzo1RuleId, 'spec-querystring-parameters' | 'spec-step-dependsOn-defined'>,
     RuleConfig,
     T
   >;

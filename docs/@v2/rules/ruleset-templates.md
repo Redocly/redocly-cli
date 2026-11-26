@@ -171,6 +171,7 @@ rules:
   spec-outputs-invalid-map-name: warn
   spec-querystring-parameters: warn
   spec-sourceDescriptions-defined: warn
+  spec-step-dependsOn-defined: warn
   spec-step-mutually-exclusive-fields: warn
   spec-step-operationId-resolved: warn
   spec-step-parameters-in-required: warn
@@ -411,6 +412,7 @@ rules:
   spec-outputs-invalid-map-name: error
   spec-querystring-parameters: error
   spec-sourceDescriptions-defined: error
+  spec-step-dependsOn-defined: error
   spec-step-mutually-exclusive-fields: error
   spec-step-operationId-resolved: error
   spec-step-parameters-in-required: error

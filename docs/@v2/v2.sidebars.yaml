@@ -211,6 +211,7 @@
             - page: rules/arazzo/spec-outputs-invalid-map-name.md
             - page: rules/arazzo/spec-querystring-parameters.md
             - page: rules/arazzo/spec-sourceDescriptions-defined.md
+            - page: rules/arazzo/spec-step-dependsOn-defined.md
             - page: rules/arazzo/spec-step-mutually-exclusive-fields.md
             - page: rules/arazzo/spec-step-operationId-resolved.md
             - page: rules/arazzo/spec-step-parameters-in-required.md
