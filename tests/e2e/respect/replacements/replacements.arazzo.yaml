@@ -60,3 +60,12 @@ workflows:
               value: 'Jakarta'
         successCriteria:
           - condition: $statusCode == 401
+      - stepId: step-with-replacements-and-no-payload
+        operationId: createOrder
+        requestBody:
+          contentType: application/json
+          replacements:
+            - target: /customerName
+              value: 'Jane Doe'
+        successCriteria:
+          - condition: $statusCode == 401
