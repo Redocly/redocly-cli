@@ -1,0 +1,35 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/shared-recursive-schema
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-shared-recursive-schema.ndjson
+┃ Match mode: strict-host
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=2 documented=2 undocumented=0
+┃ Findings: total=1 error=1 warning=0 info=0
+┗ Problems: total=1
+
+Types (1)
+  • schema-consistency: 1 problems / 1 findings
+
+Problems by type (showing first 1 of 1)
+
+◉ schema-consistency (1 problems shown / 1 total, 1 findings)
+✖ ERROR #1 → Response field "cause.status" must be integer.
+  ↳ sample exchange=1 GET /orders (400) listOrders
+
+    https://api.cafe.redocly.com/orders?limit=abc
+
+    spec: shared-recursive-schema/orders.yaml
+    schemaPath= #/properties/status/type
+    dataPath= /cause/status
+
+    schema: Response field "cause.status" must be integer.
+    path: /cause/status
+    expected: type "integer"
+    actual: "400"
+
+
+shared-recursive-schema: drift processed in <test>ms
+
+
+Exit code: 1

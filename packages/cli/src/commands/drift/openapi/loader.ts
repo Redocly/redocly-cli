@@ -321,8 +321,7 @@ function indexDocument(
 ): void {
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
   // The document is fully dereferenced during bundling, so there are no $refs
-  // left to resolve; recursive schemas become circular objects that
-  // resolveDocument cannot walk safely, hence the empty ref map.
+  // left to resolve, hence the empty ref map.
   const resolvedRefMap: ResolvedRefMap = new Map();
 
   const ctx: WalkContext = { problems: [], specVersion, config, visitorsData: {} };

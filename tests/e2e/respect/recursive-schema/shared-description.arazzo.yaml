@@ -1,0 +1,22 @@
+arazzo: 1.0.1
+info:
+  title: Test a second file that uses the description with a recursive schema
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ./cafe-with-recursive-schema.yaml
+
+workflows:
+  - workflowId: list-menu-with-negative-limit
+    steps:
+      - stepId: list-menu-items-with-negative-limit
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: '-1'
+        successCriteria:
+          - condition: $statusCode == 400
