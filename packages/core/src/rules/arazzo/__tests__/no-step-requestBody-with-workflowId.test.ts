@@ -59,7 +59,7 @@ describe('Arazzo no-step-requestBody-with-workflowId', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "A step that uses \`workflowId\` must not define \`requestBody\`. Use \`parameters\` to pass inputs to the workflow.",
+          "message": "The \`requestBody\` of a step that uses \`workflowId\` is not passed to the workflow. Use \`parameters\` to pass inputs to the workflow.",
           "reference": "https://redocly.com/docs/cli/rules/arazzo/no-step-requestbody-with-workflowid",
           "ruleId": "no-step-requestBody-with-workflowId",
           "severity": "error",

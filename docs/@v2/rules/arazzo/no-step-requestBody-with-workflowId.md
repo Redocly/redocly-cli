@@ -20,9 +20,9 @@ That is why the [struct](../common/struct.md) rule does not report it, and why t
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                 |
-| -------- | ------ | ------------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default: `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `warn` (in `recommended` configuration). |
 
 An example configuration:
 

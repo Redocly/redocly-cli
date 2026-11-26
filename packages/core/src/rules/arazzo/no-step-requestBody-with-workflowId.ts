@@ -9,7 +9,7 @@ export const NoStepRequestBodyWithWorkflowId: Arazzo1Rule = () => {
 
         report({
           message:
-            'A step that uses `workflowId` must not define `requestBody`. Use `parameters` to pass inputs to the workflow.',
+            'The `requestBody` of a step that uses `workflowId` is not passed to the workflow. Use `parameters` to pass inputs to the workflow.',
           location: location.child(['requestBody']).key(),
           reference:
             'https://redocly.com/docs/cli/rules/arazzo/no-step-requestbody-with-workflowid',
