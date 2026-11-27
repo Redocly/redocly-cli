@@ -144,15 +144,18 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   - `STATUS_CODE_CHECK`: Verifies if the status code returned with API responses matches the statuses described in the provided OpenAPI description.
   - `SCHEMA_CHECK`: Verifies if the response body schema matches what is defined in the provided OpenAPI description.
     Respect also validates the `format` keyword, with the same formats as the lint rules:
+
     - date and time: `date`, `time`, `date-time`, `iso-time`, `iso-date-time`, `duration`
     - URIs and URLs: `uri`, `uri-reference`, `uri-template`, `url`
     - email and network addresses: `email`, `hostname`, `ipv4`, `ipv6`
     - JSON Pointers: `json-pointer`, `json-pointer-uri-fragment`, `relative-json-pointer`
     - integers: `int32`, `int64`
     - other strings: `byte`, `regex`, `uuid`
+
     `float`, `double`, `password` and `binary` accept any value, and formats that are not in this list are ignored.
     Unlike the lint rules, the `url` format accepts any URL with a host, so a URL on `localhost` or a private host is valid.
     In OpenAPI 3.1 and 3.2, JSON Schema treats `format` as an annotation by default, so this check is stricter than plain JSON Schema validation.
+
   - `SUCCESS_CRITERIA_CHECK`: Verifies if the success criteria defined in the provided Arazzo description has been met.
   - `CONTENT_TYPE_CHECK`: Verifies if the `Content-Type` matches what is defined in the provided OpenAPI description.
 
