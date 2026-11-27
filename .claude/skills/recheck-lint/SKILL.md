@@ -30,7 +30,7 @@ The command checks nothing in that case and says so.
 1. After you write or edit Markdown files, run recheck on them:
 
    ```bash
-   npx @redocly/cli recheck <file-or-directory>
+   redocly recheck <file-or-directory>
    ```
 
    Pass the files you touched, not the whole repository, so the report is yours to act on.
@@ -38,7 +38,7 @@ The command checks nothing in that case and says so.
 2. If it reports errors, run the auto-fix first — most structural findings repair themselves:
 
    ```bash
-   npx @redocly/cli recheck <file-or-directory> --fix
+   redocly recheck <file-or-directory> --fix
    ```
 
    The command lists every edit it made.
