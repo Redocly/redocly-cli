@@ -919,7 +919,7 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
-  it('should report a shared required-only allOf schema once for each allOf that lacks the property', async () => {
+  it('should report a shared required-only allOf schema once when no allOf defines the property', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.2.0
@@ -958,28 +958,6 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
-          "from": {
-            "pointer": "#/components/schemas/Beverage/allOf/1",
-            "source": "foobar.yaml",
-          },
-          "location": [
-            {
-              "pointer": "#/components/schemas/NeedsVolume/required/0",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Required property 'volume' is not defined.",
-          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
-          "ruleId": "no-required-schema-properties-undefined",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": {
-            "pointer": "#/components/schemas/Snack/allOf/1",
-            "source": "foobar.yaml",
-          },
           "location": [
             {
               "pointer": "#/components/schemas/NeedsVolume/required/0",
@@ -995,6 +973,40 @@ describe('no-required-schema-properties-undefined', () => {
         },
       ]
     `);
+  });
+
+  it('should NOT report required properties in the inline anyOf branches of a shared allOf schema', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.2.0
+          components:
+            schemas:
+              ContactRequired:
+                anyOf:
+                  - required:
+                      - email
+                  - required:
+                      - phone
+              Customer:
+                allOf:
+                  - $ref: '#/components/schemas/ContactRequired'
+                  - type: object
+                    properties:
+                      email:
+                        type: string
+                      phone:
+                        type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should work for AsyncAPI 3', async () => {
