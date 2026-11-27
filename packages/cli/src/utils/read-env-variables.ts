@@ -1,4 +1,3 @@
-import { checkPathCasing } from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -10,7 +9,7 @@ export function readEnvVariables(executionFilePath?: string) {
     while (currentDir !== path.resolve(currentDir, '..')) {
       const envFilePath = path.join(currentDir, '.env');
 
-      if (fs.existsSync(envFilePath) && checkPathCasing(envFilePath, currentDir) === undefined) {
+      if (fs.existsSync(envFilePath)) {
         dotenv.config({ path: envFilePath });
         break;
       }
