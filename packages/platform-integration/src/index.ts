@@ -6,7 +6,7 @@ export {
   type PushPayload,
   type SunsetWarning,
 } from './api/api-client.js';
-export { getApiKeys } from './api/api-keys.js';
+export { getApiKey, getApiKeys, type ApiKeyTarget } from './api/api-keys.js';
 export {
   getDomain,
   getPlatformUrl,

@@ -1,7 +1,7 @@
 import { logger, pluralize, type OutputFormat } from '@redocly/openapi-core';
 import {
   collectFilesToPush,
-  getApiKeys,
+  getApiKey,
   getDomain,
   pushFiles,
   type FileToUpload,
@@ -59,7 +59,6 @@ export async function handlePush({
   const sunsetWarnings: SunsetWarning[] = [];
 
   try {
-    const apiKey = getApiKeys();
     files = collectFilesToPush(argv.files, (existingPath, replacementPath) => {
       logger.warn(`File ${existingPath} is overwritten by ${replacementPath}\n`);
     });
@@ -70,7 +69,7 @@ export async function handlePush({
 
     const push = await pushFiles({
       domain,
-      apiKey,
+      apiKey: await getApiKey({ domain, organization, project, command: 'push', version }),
       organization,
       project,
       mountPath,
@@ -124,6 +123,7 @@ export async function handlePush({
         domain,
         'max-execution-time': argv['max-execution-time'],
         'start-time': startTime,
+        'api-key-project': { organization, project },
         'continue-on-deploy-failures': argv['continue-on-deploy-failures'],
       },
       config,

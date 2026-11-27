@@ -1,4 +1,4 @@
-import { PlatformApi, type SunsetWarning } from './api/index.js';
+import { getMostUrgentSunsetWarning, PlatformApi, type SunsetWarning } from './api/index.js';
 import type { PushResponse } from './api/types.js';
 import { resolveProjectRef, type ProjectRefResolution } from './resolve-project-ref.js';
 import { retryUntilConditionMet } from './utils/retry-until-condition-met.js';
@@ -11,12 +11,13 @@ export type BuildType = 'preview' | 'production';
 
 export type PushStatusOptions = {
   domain: string;
-  apiKey: string;
+  // A function is called before each request, so that a short-lived key is renewed during a wait.
+  apiKey: string | (() => Promise<string>);
   organization: string;
   project: string;
   pushId: string;
   version?: string;
-  // Called after the request with the most urgent sunset warning the Redocly platform API sent, if any.
+  // Called once with the most urgent sunset warning the Redocly platform API sent, if any.
   onSunsetWarning?: (warning: SunsetWarning) => void;
   // Called when the organization or the project was given as a slug.
   onSlugDeprecated?: (resolution: ProjectRefResolution) => void;
@@ -32,14 +33,14 @@ export type WaitForDeploymentOptions = PushStatusOptions & {
 };
 
 export async function getPushStatus(options: PushStatusOptions): Promise<PushResponse> {
-  const client = createClient(options);
+  const sunsetWarnings: SunsetWarning[] = [];
 
   try {
-    const ref = await resolveProjectRef(client, options);
-
-    return await getPush(client, ref, options.pushId);
+    return await withClient(options, sunsetWarnings, async (client) =>
+      getPush(client, await resolveProjectRef(client, options), options.pushId)
+    );
   } finally {
-    reportSunsetWarning(client, options);
+    reportSunsetWarning(sunsetWarnings, options);
   }
 }
 
@@ -51,13 +52,16 @@ export async function waitForDeployment({
   onRetry,
   ...options
 }: WaitForDeploymentOptions): Promise<PushResponse> {
-  const client = createClient(options);
+  const sunsetWarnings: SunsetWarning[] = [];
 
   try {
-    const ref = await resolveProjectRef(client, options);
+    const ref = await withClient(options, sunsetWarnings, (client) =>
+      resolveProjectRef(client, options)
+    );
 
     return await retryUntilConditionMet({
-      operation: () => getPush(client, ref, options.pushId),
+      operation: () =>
+        withClient(options, sunsetWarnings, (client) => getPush(client, ref, options.pushId)),
       condition: (result) =>
         !PENDING_DEPLOYMENT_STATUSES.includes(result.status[buildType].deploy.status),
       onConditionNotMet: onRetry,
@@ -66,17 +70,39 @@ export async function waitForDeployment({
       retryIntervalMs,
     });
   } finally {
-    reportSunsetWarning(client, options);
+    reportSunsetWarning(sunsetWarnings, options);
   }
 }
 
-function createClient({ domain, apiKey, version }: PushStatusOptions) {
-  return new PlatformApi({ domain, apiKey, command: 'push-status', version });
+// Collects the sunset warning of the client whether the request succeeded or not.
+async function withClient<T>(
+  { domain, apiKey, version }: PushStatusOptions,
+  sunsetWarnings: SunsetWarning[],
+  run: (client: PlatformApi) => Promise<T>
+): Promise<T> {
+  const client = new PlatformApi({
+    domain,
+    apiKey: typeof apiKey === 'string' ? apiKey : await apiKey(),
+    command: 'push-status',
+    version,
+  });
+
+  try {
+    return await run(client);
+  } finally {
+    const sunsetWarning = client.getSunsetWarning();
+
+    if (sunsetWarning) {
+      sunsetWarnings.push(sunsetWarning);
+    }
+  }
 }
 
-// Runs whether the request succeeded or not: the client keeps the headers of every response it got.
-function reportSunsetWarning(client: PlatformApi, { onSunsetWarning }: PushStatusOptions) {
-  const sunsetWarning = client.getSunsetWarning();
+function reportSunsetWarning(
+  sunsetWarnings: SunsetWarning[],
+  { onSunsetWarning }: Pick<PushStatusOptions, 'onSunsetWarning'>
+) {
+  const sunsetWarning = getMostUrgentSunsetWarning(sunsetWarnings);
 
   if (sunsetWarning) {
     onSunsetWarning?.(sunsetWarning);

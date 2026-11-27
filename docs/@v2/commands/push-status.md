@@ -20,6 +20,28 @@ Have the following before you use the `push-status` command:
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
 See the [Manage API keys](https://redocly.com/docs/platform/organization/api-keys) page in the documentation for details on how to get your API key in the Redocly platform.
 
+## Authenticate from GitHub Actions without an API key
+
+A GitHub Actions workflow can run the `push-status` command without a stored API key.
+The command exchanges the GitHub OIDC token of the workflow for a short-lived credential that works for one project.
+
+1. In the project, trust the GitHub repository on the **CI/CD access** tab of **Remote content**.
+   This feature is available on the Enterprise plan and in the Scale plan add-on.
+2. Grant the job the `id-token: write` permission.
+3. Run the command without setting `REDOCLY_AUTHORIZATION`.
+
+```yaml
+permissions:
+  id-token: write
+  contents: read
+
+steps:
+  - uses: actions/checkout@v4
+  - run: npx @redocly/cli push-status <pushId> --organization <organizationId> --project <projectId> --wait
+```
+
+If `REDOCLY_AUTHORIZATION` is set, the command uses it instead of the OIDC token.
+
 ## Usage
 
 ```bash

@@ -133,6 +133,25 @@ describe('waitForDeployment()', () => {
     expect(result).toEqual(withDeployStatus('preview', 'success'));
   });
 
+  it('gets the API key again for every poll when the key is a function', async () => {
+    remotes.getPush
+      .mockResolvedValueOnce(withDeployStatus('preview', 'pending'))
+      .mockResolvedValueOnce(withDeployStatus('preview', 'success'));
+    const apiKey = vi
+      .fn()
+      .mockResolvedValueOnce('key-1')
+      .mockResolvedValueOnce('key-2')
+      .mockResolvedValue('key-3');
+
+    await waitForDeployment({ ...options, apiKey, buildType: 'preview', retryIntervalMs: 10 });
+
+    expect(vi.mocked(PlatformApi).mock.calls.map(([credentials]) => credentials)).toEqual([
+      expect.objectContaining({ apiKey: 'key-1' }),
+      expect.objectContaining({ apiKey: 'key-2' }),
+      expect.objectContaining({ apiKey: 'key-3' }),
+    ]);
+  });
+
   it('stops polling when the deployment has failed', async () => {
     remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'failed'));
 

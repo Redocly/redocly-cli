@@ -61,6 +61,10 @@ const pushResponseStub: PushResponse = {
   },
 };
 
+function callApiKey(apiKey: string | (() => Promise<string>)): Promise<string> {
+  return typeof apiKey === 'string' ? Promise.resolve(apiKey) : apiKey();
+}
+
 describe('handlePushStatus()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
@@ -77,7 +81,7 @@ describe('handlePushStatus()', () => {
 
     expect(getPushStatus).toHaveBeenCalledWith({
       domain: 'test-domain',
-      apiKey: 'test-api-key',
+      apiKey: expect.any(Function),
       organization: 'test-org',
       project: 'test-project',
       pushId: 'test-push-id',
@@ -88,6 +92,9 @@ describe('handlePushStatus()', () => {
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
       '🚀 Preview deploy success.\nPreview URL: https://preview-test-url\n'
+    );
+    await expect(callApiKey(vi.mocked(getPushStatus).mock.calls[0][0].apiKey)).resolves.toBe(
+      'test-api-key'
     );
     expect(result).toEqual({
       preview: pushResponseStub.status.preview,
@@ -275,7 +282,7 @@ describe('handlePushStatus()', () => {
       expect(waitForDeployment).toHaveBeenCalledTimes(1);
       expect(waitForDeployment).toHaveBeenCalledWith({
         domain: 'test-domain',
-        apiKey: 'test-api-key',
+        apiKey: expect.any(Function),
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
@@ -290,6 +297,9 @@ describe('handlePushStatus()', () => {
       });
       expect(process.stderr.write).toHaveBeenCalledWith('Pending preview...\n');
       expect(result?.preview).toEqual(pushResponseStub.status.preview);
+      await expect(callApiKey(vi.mocked(waitForDeployment).mock.calls[0][0].apiKey)).resolves.toBe(
+        'test-api-key'
+      );
     });
 
     it('waits for the production deployment after a successful preview on the main branch', async () => {
