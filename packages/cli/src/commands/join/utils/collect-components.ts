@@ -25,7 +25,7 @@ export function collectComponents({
       for (const item of Object.keys(componentObj)) {
         const componentPrefix = addPrefix(item, componentsPrefix!);
         potentialConflicts.components[component][componentPrefix] = [
-          ...(potentialConflicts.components[component][item] || []),
+          ...(potentialConflicts.components[component][componentPrefix] || []),
           { [api]: componentObj[item] },
         ];
         joinedDef.components[component][componentPrefix] = componentObj[item];
