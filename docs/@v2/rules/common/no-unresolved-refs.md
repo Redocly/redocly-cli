@@ -39,6 +39,8 @@ The rule also checks the values in a discriminator `mapping`:
 - A reference, such as `'#/components/schemas/Dog'`, must resolve.
 - A schema name, such as `Dog`, must match the name of a schema in `components.schemas`.
 
+File paths in a `$ref` are [case-sensitive on every operating system](../../commands/index.md#file-paths-are-case-sensitive): `$ref: ./Pet.yaml` doesn't resolve to a file named `pet.yaml`.
+
 ## Configuration
 
 | Option   | Type   | Description                                                                                |

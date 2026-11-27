@@ -1,4 +1,5 @@
 import {
+  checkPathCasing,
   detectSpec,
   getTypes,
   isAbsoluteUrl,
@@ -49,6 +50,7 @@ export interface EmbeddedInputs {
 export async function isApiDescription(path: string, resolver: BaseResolver): Promise<boolean> {
   if (!isSupportedExtension(path.toLowerCase())) return false;
   if (!statSync(path, { throwIfNoEntry: false })?.isFile()) return false;
+  if (checkPathCasing(path, process.cwd()) !== undefined) return false;
   try {
     const document = await resolver.resolveDocument(null, path, true);
     if (document instanceof Error) throw document;

@@ -4,6 +4,7 @@ import * as url from 'node:url';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 import type { ResolveConfig } from './config/types.js';
+import { isBrowser } from './env.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import { isGraphqlRef } from './graphql/detect-graphql.js';
 import { parseYaml } from './js-yaml/index.js';
@@ -26,6 +27,7 @@ import { isPlainObject } from './utils/is-plain-object.js';
 import { isSupportedExtension } from './utils/is-supported-extension.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { nextTick } from './utils/next-tick.js';
+import { checkPathCasing } from './utils/path-casing.js';
 import { readFileFromUrl } from './utils/read-file-from-url.js';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
@@ -104,6 +106,7 @@ export class BaseResolver {
   // Local files that overlays add to a remote API description. Any other `file:` URL is followed
   // only from a local document, so a remote description can't read the user's files.
   overlayFiles: Set<string> = new Set();
+  #folderEntries: Map<string, string[]> = new Map();
 
   constructor(protected config: ResolveConfig = { http: { headers: [] } }) {}
 
@@ -195,13 +198,29 @@ export class BaseResolver {
       return cachedDocument;
     }
 
-    const doc = this.loadExternalRef(absoluteRef).then((source) => {
-      return this.parseDocument(source, isRoot) as Document<T>;
-    });
+    const doc = this.#checkPathCasing(base, absoluteRef)
+      .then(() => this.loadExternalRef(absoluteRef))
+      .then((source) => this.parseDocument(source, isRoot) as Document<T>);
 
     this.cache.set(absoluteRef, doc);
 
     return doc;
+  }
+
+  // Only a path written in a local file is compared: the caller is responsible for the path it passes.
+  async #checkPathCasing(base: string | null, absoluteRef: string) {
+    // A browser has no file system to compare with.
+    if (isBrowser || base === null || (isAbsoluteUrl(base) && !isFileUrl(base))) return;
+    if (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef)) return;
+
+    const casingError = checkPathCasing(
+      isFileUrl(absoluteRef) ? url.fileURLToPath(absoluteRef) : absoluteRef,
+      path.dirname(isFileUrl(base) ? url.fileURLToPath(base) : base),
+      this.#folderEntries
+    );
+    if (casingError !== undefined) {
+      throw new ResolveError(new Error(casingError));
+    }
   }
 }
 

@@ -1,0 +1,5 @@
+
+'Openapi.yaml' doesn't match the letter case on disk: use 'openapi.yaml' instead of 'Openapi.yaml'.
+
+
+Exit code: 1

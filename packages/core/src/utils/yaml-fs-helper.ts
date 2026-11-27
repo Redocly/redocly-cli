@@ -3,6 +3,7 @@ import * as path from 'node:path';
 
 import { parseYaml } from '../js-yaml/index.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
+import { checkPathCasing } from './path-casing.js';
 
 export { parseYaml, stringifyYaml } from '../js-yaml/index.js';
 
@@ -20,7 +21,13 @@ export function resolveRelativePath(filePath: string, base?: string) {
   if (isAbsoluteUrl(filePath) || base === undefined) {
     return filePath;
   }
-  return path.resolve(path.dirname(base), filePath);
+  const baseFolder = path.dirname(base);
+  const resolvedPath = path.resolve(baseFolder, filePath);
+  const casingError = checkPathCasing(resolvedPath, baseFolder);
+  if (casingError !== undefined) {
+    throw new Error(casingError);
+  }
+  return resolvedPath;
 }
 
 export function readFileAsStringSync(filePath: string) {

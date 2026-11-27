@@ -82,6 +82,15 @@ npx @redocly/cli@latest lint --help
 
 Try these with any of the other commands.
 
+## File paths are case-sensitive
+
+Redocly CLI treats file paths as case-sensitive on every operating system, also on macOS and Windows, where file names usually ignore letter case.
+This applies to the paths you pass to a command, the paths in `redocly.yaml`, and the paths in a `$ref`.
+For example, `redocly lint Openapi.yaml` fails when the file name is `openapi.yaml`, and the error message shows the name to use.
+This way, a command that works on your machine also works on Linux, for example in CI.
+
+Redocly CLI finds the files it looks for by name, such as `redocly.yaml` and `.redocly.lint-ignore.yaml`, only when their names are in that exact letter case.
+
 ## Config file
 
 Redocly CLI has one primary configuration file (`redocly.yaml`), also called the Redocly configuration file.

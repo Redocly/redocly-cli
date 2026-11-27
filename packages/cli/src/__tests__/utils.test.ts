@@ -81,6 +81,7 @@ describe('getFallbackApisOrExit', () => {
     yellowColoretteMocks.mockImplementation((text) => text as string);
     redColoretteMocks.mockImplementation((text) => text as string);
     vi.spyOn(process, 'exit').mockImplementation((code) => code as never);
+    vi.mocked(fs.readdirSync).mockReturnValue([]);
   });
 
   it('should exit with error because no path provided', async () => {

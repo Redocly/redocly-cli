@@ -1,4 +1,5 @@
 export { doesYamlFileExist } from './utils/does-yaml-file-exist.js';
+export { checkPathCasing } from './utils/path-casing.js';
 export { dequal } from './utils/dequal.js';
 export { isEmptyObject } from './utils/is-empty-object.js';
 export { isNotEmptyArray } from './utils/is-not-empty-array.js';

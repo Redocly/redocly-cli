@@ -1,0 +1,38 @@
+import { checkPathCasing, HandledError, isString } from '@redocly/openapi-core';
+import type { Arguments } from 'yargs';
+
+// The options that take a path to read, by command.
+// An option that also takes an API alias or a glob, such as `apis`, is checked where it is expanded.
+const pathOptionsByCommand: Record<string, string[]> = {
+  bundle: ['overlay'],
+  split: ['api'],
+  push: ['files'],
+  respect: ['files'],
+  'generate-arazzo': ['descriptionPath'],
+  'generate-spec': ['traffic'],
+  drift: ['traffic', 'api'],
+  proxy: ['api'],
+  project: ['body-file'],
+};
+
+// Fails for a path that opens on macOS and Windows but not on Linux, where file names are case-sensitive.
+// Pass one `folderEntries` map to a series of calls, so that each folder is listed once.
+export function validatePathCasing(
+  filePath: string,
+  folderEntries?: Map<string, string[]>
+): string {
+  const casingError = checkPathCasing(filePath, process.cwd(), folderEntries);
+  if (casingError !== undefined) {
+    throw new HandledError(casingError);
+  }
+  return filePath;
+}
+
+export function validatePathOptions(argv: Arguments): void {
+  const folderEntries = new Map<string, string[]>();
+  for (const option of pathOptionsByCommand[argv._[0]] ?? []) {
+    for (const filePath of [argv[option]].flat().filter(isString)) {
+      validatePathCasing(filePath, folderEntries);
+    }
+  }
+}

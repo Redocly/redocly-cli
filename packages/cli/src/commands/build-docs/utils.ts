@@ -1,4 +1,10 @@
-import { HandledError, isPlainObject, logger, type Config } from '@redocly/openapi-core';
+import {
+  HandledError,
+  checkPathCasing,
+  isPlainObject,
+  logger,
+  type Config,
+} from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
@@ -8,6 +14,7 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { logoFromSpec, prepareApiDocs, RedoclyApiDocsStandalone, ServerStyleSheet } from 'redoc';
 
+import { validatePathCasing } from '../../utils/validate-path-casing.js';
 import type { BuildDocsOptions, SpecType } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
@@ -60,7 +67,11 @@ export function getRedocOptions(
 function parseJsonOrFile(value: string, specType: SpecType): unknown {
   try {
     return JSON.parse(
-      existsSync(value) && lstatSync(value).isFile() ? readFileSync(value, 'utf-8') : value
+      existsSync(value) &&
+        checkPathCasing(value, process.cwd()) === undefined &&
+        lstatSync(value).isFile()
+        ? readFileSync(value, 'utf-8')
+        : value
     );
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
@@ -109,6 +120,7 @@ export async function getPageHTML(
       ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
       : undefined);
 
+  if (customTemplate) validatePathCasing(customTemplate);
   const templateSource = customTemplate
     ? readFileSync(customTemplate, 'utf-8')
     : DEFAULT_TEMPLATE_SOURCE;

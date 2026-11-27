@@ -51,6 +51,7 @@ vi.mock('../../utils/package.js', () => ({
 }));
 
 const argvMock = {
+  _: ['lint'],
   apis: ['openapi.yaml'],
   'lint-config': 'off',
   format: 'codeframe',
@@ -87,6 +88,7 @@ describe('handleLint', () => {
       await commandWrapper(handleLint)(argvMock);
       expect(loadAndCheckConfig).toHaveBeenCalledWith(
         {
+          _: ['lint'],
           apis: ['openapi.yaml'],
           format: 'codeframe',
           'lint-config': 'off',
@@ -105,6 +107,7 @@ describe('handleLint', () => {
       });
       expect(loadAndCheckConfig).toHaveBeenCalledWith(
         {
+          _: ['lint'],
           apis: ['openapi.yaml'],
           config: 'redocly.yaml',
           extends: ['some/path'],

@@ -25,6 +25,7 @@ import { Writable } from 'node:stream';
 import { performance } from 'perf_hooks';
 
 import { outputExtensions, type Totals, type Entrypoint, type OutputExtension } from '../types.js';
+import { validatePathCasing } from './validate-path-casing.js';
 
 export type ExitCode = 0 | 1 | 2;
 
@@ -37,6 +38,11 @@ export async function getFallbackApisOrExit(
   const res = shouldFallbackToAllDefinitions
     ? fallbackToAllDefinitions(config)
     : await expandGlobsInEntrypoints(argsApis!, config);
+
+  const folderEntries = new Map<string, string[]>();
+  for (const { path } of res) {
+    if (!isAbsoluteUrl(path)) validatePathCasing(path, folderEntries);
+  }
 
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
   if (isNotEmptyArray(filteredInvalidEntrypoints)) {
@@ -105,6 +111,8 @@ async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
         if (shouldResolveGlob) {
           const data = await glob(aliasOrPath, {
             cwd: getConfigDirectory(config),
+            // The default follows the operating system: macOS and Windows ignore letter case.
+            nocase: false,
           });
 
           return data.map((g: string) => getAliasOrPath(config, g));

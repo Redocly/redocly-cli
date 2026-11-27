@@ -1,0 +1,18 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /menu:
+    get:
+      summary: List all menu items
+      operationId: listMenuItems
+      security: []
+      responses:
+        '200':
+          description: A list of menu items.

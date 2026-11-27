@@ -13,6 +13,7 @@ vi.mock('node:fs');
 describe('build-docs', () => {
   beforeEach(() => {
     vi.spyOn(logger, 'info').mockImplementation(() => {});
+    vi.mocked(fs.readdirSync).mockReturnValue([]);
   });
 
   describe('getRedocOptions', () => {
