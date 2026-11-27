@@ -476,6 +476,7 @@ Keep the following in mind when you read the numbers:
 - The operations under `webhooks` and `callbacks` are not counted, because the API sends those requests.
   The `additionalOperations` of a path are not counted either, because Respect cannot call them.
 - An object query parameter in the `form` style is covered when a step sends any of its properties as a query key.
+  A key that is also the name of another query parameter covers only that parameter.
   With `explode: false`, only a query key with the name of the parameter covers it.
   One in the `deepObject` style is covered when a step sends a `name[property]` key.
 - Each property of a form-urlencoded `querystring` schema counts as its own parameter, named after the parameter and the key, for example `search.status`.
@@ -491,12 +492,14 @@ Keep the following in mind when you read the numbers:
 
 With `--coverage` and `--json-output` together, the JSON logs of each file get a `coverage` list with an entry for every API description.
 An entry holds the same totals as the table and, for every operation, the items the steps covered and the items they missed.
+For an operation that no step called, `missing` lists the parameters and the response codes, and `missingProperties` gives the number of schema properties.
+The `url` of a description in a local file is its path from the working directory.
 The following entry is shortened to one of its three operations and a few of the items:
 
 ```json
 {
   "name": "menu-api",
-  "url": "/path/to/cafe-menu.yaml",
+  "url": "cafe-menu.yaml",
   "totals": {
     "operations": { "covered": 2, "total": 3 },
     "parameters": { "covered": 2, "total": 4 },

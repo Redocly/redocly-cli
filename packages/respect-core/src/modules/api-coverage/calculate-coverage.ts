@@ -3,12 +3,14 @@ import {
   getSchemaPropertyNames,
   getSchemaPropertyPaths,
   getValuePropertyPaths,
+  isAbsoluteUrl,
   isPlainObject,
   isRef,
   type Oas3Operation,
   type Oas3Parameter,
   type Oas3PathItem,
 } from '@redocly/openapi-core';
+import { relative } from 'node:path';
 
 import type {
   CoverageCount,
@@ -143,7 +145,12 @@ function addDescriptions(ctx: TestContext, descriptions: Map<string, Description
       }
     }
 
-    descriptions.set(url, { name: sourceDescription.name, url, operations });
+    descriptions.set(url, {
+      name: sourceDescription.name,
+      // a local description is reported by its path from the working directory
+      url: isAbsoluteUrl(url) ? url : relative(process.cwd(), url),
+      operations,
+    });
   }
 }
 
@@ -162,9 +169,13 @@ function createOperationEntries(
   addEntry(entries, { kind: 'operation' });
 
   // the definition of an operation overrides the one of its path, and the first definition is kept
-  for (const parameter of [...(operation.parameters ?? []), ...(pathItem.parameters ?? [])]) {
+  const parameters = [...(operation.parameters ?? []), ...(pathItem.parameters ?? [])];
+  const queryParameterNames = parameters.flatMap((parameter) =>
+    !isRef(parameter) && parameter.in === 'query' ? [parameter.name] : []
+  );
+  for (const parameter of parameters) {
     if (!isRef(parameter)) {
-      addParameterEntries(entries, parameter);
+      addParameterEntries(entries, parameter, queryParameterNames);
     }
   }
 
@@ -199,7 +210,11 @@ function createOperationEntries(
   return entries;
 }
 
-function addParameterEntries(entries: Map<string, CoverageEntry>, parameter: Oas3Parameter): void {
+function addParameterEntries(
+  entries: Map<string, CoverageEntry>,
+  parameter: Oas3Parameter,
+  queryParameterNames: string[]
+): void {
   const { name } = parameter;
   const location = PARAMETER_LOCATIONS.find(
     (parameterLocation) => parameterLocation === parameter.in
@@ -226,14 +241,18 @@ function addParameterEntries(entries: Map<string, CoverageEntry>, parameter: Oas
     }
   }
 
-  // an object in the default `form` style with `explode` is sent as a key for each of its properties
+  // an object in the default `form` style with `explode` is sent as a key for each of its properties;
+  // a key that is the name of another query parameter covers only that parameter
   const isExplodedObject = (parameter.style ?? 'form') === 'form' && parameter.explode !== false;
+  const propertyKeys = isExplodedObject
+    ? Array.from(getSchemaPropertyNames(parameter.schema, 'request')).filter(
+        (key) => !queryParameterNames.includes(key)
+      )
+    : [];
   addEntry(
     entries,
     { kind: 'parameter', in: location, name },
-    location === 'query'
-      ? [name, ...(isExplodedObject ? getSchemaPropertyNames(parameter.schema, 'request') : [])]
-      : undefined
+    location === 'query' ? [name, ...propertyKeys] : undefined
   );
 }
 
@@ -409,10 +428,18 @@ function toSourceDescriptionCoverage(description: DescriptionState): SourceDescr
     },
     operations: operations.map(({ entries, ...operation }) => {
       const items = Array.from(entries.values());
+      const covered = items.filter((entry) => entry.covered).map(({ item }) => item);
+      const missing = items.filter((entry) => !entry.covered).map(({ item }) => item);
+      if (covered.length > 0) {
+        return { ...operation, covered, missing };
+      }
+
+      // an operation that no step called misses every item, so its properties are counted, not listed
       return {
         ...operation,
-        covered: items.filter(({ covered }) => covered).map(({ item }) => item),
-        missing: items.filter(({ covered }) => !covered).map(({ item }) => item),
+        covered,
+        missing: missing.filter((item) => item.kind !== 'property'),
+        missingProperties: missing.filter((item) => item.kind === 'property').length,
       };
     }),
   };

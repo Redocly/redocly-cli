@@ -40,6 +40,9 @@ workflows:
           - in: query
             name: page[limit]
             value: 5
+          - in: query
+            name: limit
+            value: 10
         successCriteria:
           - condition: $statusCode == 204
       - stepId: list-placed-order-items

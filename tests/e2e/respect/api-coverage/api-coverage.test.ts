@@ -1,6 +1,6 @@
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { getCommandOutput, getParams } from '../../helpers.js';
@@ -50,6 +50,13 @@ test('should keep the result of the run when the coverage cannot be measured', (
   expect(result).toMatchSnapshot();
 }, 60_000);
 
+test('should say that the coverage is not measured without an OpenAPI source description', () => {
+  const args = getParams(indexEntryPoint, ['respect', 'menu-by-url.arazzo.yaml', '--coverage']);
+
+  const result = getCommandOutput(args, { testPath: __dirname });
+  expect(result).toMatchSnapshot();
+}, 60_000);
+
 test('should write the coverage of a file to the --json-output file', () => {
   const outputDir = mkdtempSync(join(tmpdir(), 'respect-coverage-'));
   const jsonOutputPath = join(outputDir, 'logs.json');
@@ -67,9 +74,8 @@ test('should write the coverage of a file to the --json-output file', () => {
     const { coverage } = JSON.parse(readFileSync(jsonOutputPath, 'utf-8')).files[
       'menu-errors.arazzo.yaml'
     ];
-    // the location of a description is absolute, so the snapshot keeps it relative to the test
-    const [{ url, ...description }] = coverage;
-    expect({ url: relative(__dirname, url), ...description }).toMatchSnapshot();
+    const [description] = coverage;
+    expect(description).toMatchSnapshot();
   } finally {
     rmSync(outputDir, { recursive: true, force: true });
   }

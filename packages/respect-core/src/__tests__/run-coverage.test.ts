@@ -56,7 +56,7 @@ describe('run with coverage', () => {
   it('measures what the steps sent and received against the API description', async () => {
     const [{ coverage = [] }] = await run(await runOptions('./coverage.arazzo.yaml'));
 
-    // the `url` is the location of the description on this machine
+    // the `url` depends on the directory the tests run from
     expect(coverage.map(({ name, totals, operations }) => ({ name, totals, operations })))
       .toMatchInlineSnapshot(`
       [
@@ -262,6 +262,7 @@ describe('run with coverage', () => {
                   "status": "404",
                 },
               ],
+              "missingProperties": 0,
               "operationId": "deleteOrder",
               "path": "/orders/{orderId}",
             },
@@ -379,6 +380,11 @@ describe('run with coverage', () => {
               "name": "page",
             },
             {
+              "in": "query",
+              "kind": "parameter",
+              "name": "limit",
+            },
+            {
               "kind": "response",
               "status": "204",
             },
@@ -388,6 +394,11 @@ describe('run with coverage', () => {
               "in": "query",
               "kind": "parameter",
               "name": "sort",
+            },
+            {
+              "in": "query",
+              "kind": "parameter",
+              "name": "cursor",
             },
           ],
           "operationId": "listOrders",

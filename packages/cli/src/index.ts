@@ -1181,7 +1181,7 @@ cli
           },
           coverage: {
             describe:
-              'Show how much of the OpenAPI source descriptions the executed steps covered. With --verbose, list the covered and the not covered items of every operation.',
+              'Show how much of the OpenAPI source descriptions the executed steps covered. With --verbose, list the covered and the not covered items of every operation [experimental].',
             type: 'boolean',
             default: false,
           },

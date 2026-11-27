@@ -1,4 +1,4 @@
-import { isAbsoluteUrl, type LoggerInterface } from '@redocly/openapi-core';
+import { type LoggerInterface } from '@redocly/openapi-core';
 import {
   calculateCoverage,
   type CoverageCount,
@@ -45,9 +45,7 @@ export function displayCoverageTable(
     sections.push({
       title: 'All files',
       descriptions: calculateCoverage(measuredFiles).map((description) => ({
-        label: isAbsoluteUrl(description.url)
-          ? description.url
-          : path.relative(process.cwd(), description.url),
+        label: description.url,
         description,
       })),
     });
@@ -149,7 +147,7 @@ function formatOperationsDetails(label: string, description: SourceDescriptionCo
 
 // The covered and the not covered items of an operation side by side, group by group.
 function formatOperationRows(operation: OperationCoverage): Row[] {
-  const { covered, missing } = operation;
+  const { covered, missing, missingProperties = 0 } = operation;
   const isCalled = covered.some((item) => item.kind === 'operation');
   const operationCell: Cell = {
     text: `${isCalled ? '✓' : 'x'} ${formatOperation(operation)}`,
@@ -168,18 +166,17 @@ function formatOperationRows(operation: OperationCoverage): Row[] {
     title: `Response ${status} properties`,
     nameOf: (item) => (item.kind === 'property' && item.status === status ? item.path : undefined),
   }));
-  // the properties of an operation that no step called are counted below instead of being listed
   const groups: ItemGroup[] = [
     {
       title: 'Parameters',
       nameOf: (item) => (item.kind === 'parameter' ? `${item.name} (${item.in})` : undefined),
     },
-    ...(isCalled ? [requestProperties] : []),
+    requestProperties,
     {
       title: 'Response codes',
       nameOf: (item) => (item.kind === 'response' ? item.status : undefined),
     },
-    ...(isCalled ? responseProperties : []),
+    ...responseProperties,
   ];
 
   const rows: Row[] = [];
@@ -197,8 +194,8 @@ function formatOperationRows(operation: OperationCoverage): Row[] {
     }
   }
 
-  const missingProperties = missing.filter((item) => item.kind === 'property').length;
-  if (!isCalled && missingProperties > 0) {
+  // the properties of an operation that no step called are counted instead of being listed
+  if (missingProperties > 0) {
     rows.push([
       rows.length === 0 ? operationCell : undefined,
       { text: 'Schema properties', paint: plain },

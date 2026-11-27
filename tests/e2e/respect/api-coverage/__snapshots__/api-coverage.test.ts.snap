@@ -214,6 +214,36 @@ exports[`should measure a description that several files use for all of them tog
 Exit code: 0"
 `;
 
+exports[`should say that the coverage is not measured without an OpenAPI source description 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow menu-by-url.arazzo.yaml / list-menu-by-url 
+ 
+  ✓ GET https://api.cafe.redocly.com/menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+ 
+ 
+  Summary for menu-by-url.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 1 passed, 1 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                        │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ menu-by-url.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+  API coverage is not measured, because no OpenAPI source description is used.
+ 
+
+
+Exit code: 0"
+`;
+
 exports[`should show the coverage of every OpenAPI source description with --coverage 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  
@@ -364,20 +394,11 @@ exports[`should write the coverage of a file to the --json-output file 1`] = `
           "kind": "operation",
         },
         {
-          "kind": "property",
-          "path": "name",
-          "target": "request",
-        },
-        {
-          "kind": "property",
-          "path": "price",
-          "target": "request",
-        },
-        {
           "kind": "response",
           "status": "201",
         },
       ],
+      "missingProperties": 2,
       "operationId": "createMenuItem",
       "path": "/menu",
     },

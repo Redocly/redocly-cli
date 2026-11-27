@@ -376,11 +376,13 @@ export type OperationCoverage = {
   operationId?: string;
   covered: CoverageItem[];
   missing: CoverageItem[];
+  // for an operation that no step called: the number of its properties, which `missing` does not list
+  missingProperties?: number;
 };
 
 export type SourceDescriptionCoverage = {
   name: string;
-  // the resolved location of the API description
+  // the URL of the API description, or its path from the working directory
   url: string;
   totals: {
     operations: CoverageCount;

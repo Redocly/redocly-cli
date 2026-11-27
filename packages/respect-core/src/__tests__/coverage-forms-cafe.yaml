@@ -86,6 +86,20 @@ paths:
           in: query
           schema:
             type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        # the `limit` key belongs to the `limit` parameter, so it does not cover the cursor
+        - name: cursor
+          in: query
+          schema:
+            type: object
+            properties:
+              limit:
+                type: integer
+              after:
+                type: string
       responses:
         '204':
           description: Successful operation.
