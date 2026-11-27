@@ -1,0 +1,35 @@
+arazzo: 1.0.1
+info:
+  title: Test workflow inputs described with a recursive schema
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: search-menu
+    inputs:
+      $ref: '#/components/inputs/menuSearch'
+    steps:
+      - stepId: search-menu-items
+        operationId: cafe-api.listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: $inputs.search
+        successCriteria:
+          - condition: $statusCode == 200
+
+components:
+  inputs:
+    menuSearch:
+      type: object
+      required: [search]
+      properties:
+        search:
+          type: string
+        fallback:
+          $ref: '#/components/inputs/menuSearch'

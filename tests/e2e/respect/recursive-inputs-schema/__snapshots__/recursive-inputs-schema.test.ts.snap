@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should check workflow inputs against a recursive inputs schema 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow recursive-inputs-schema.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for recursive-inputs-schema.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ recursive-inputs-schema.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+Workflow "search-menu" runs with inputs that don't match its inputs schema: inputs/fallback/fallback must have required property 'search'.
+
+Exit code: 0"
+`;

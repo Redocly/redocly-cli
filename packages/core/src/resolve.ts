@@ -267,7 +267,9 @@ export async function resolveDocument(opts: {
 }): Promise<ResolvedRefMap> {
   const { rootDocument, externalRefResolver, rootType } = opts;
   const resolvedRefMap: ResolvedRefMap = new Map();
-  const seenNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
+  // Nodes are compared by identity, not by pointer: dereferencing turns a recursive schema into a
+  // circular object, and the pointer of such a node is different on every lap.
+  const seenNodes = new Map<string, Set<unknown>>(); // key format "${type}::${absoluteRef}"
 
   const resolvePromises: Array<Promise<void>> = [];
   resolveRefsInParallel(rootDocument.parsed, rootDocument, '#/', rootType);
@@ -296,12 +298,17 @@ export async function resolveDocument(opts: {
         return;
       }
 
-      const nodeId = `${type.name}::${nodeAbsoluteRef}`;
-      if (seenNodes.has(nodeId)) {
+      const seenNodesKey = `${type.name}::${rootNodeDocAbsoluteRef}`;
+      let seenNodesOfType = seenNodes.get(seenNodesKey);
+      if (!seenNodesOfType) {
+        seenNodesOfType = new Set();
+        seenNodes.set(seenNodesKey, seenNodesOfType);
+      }
+      if (seenNodesOfType.has(node)) {
         return;
       }
 
-      seenNodes.add(nodeId);
+      seenNodesOfType.add(node);
 
       if (Array.isArray(node)) {
         const itemsType = type.items;

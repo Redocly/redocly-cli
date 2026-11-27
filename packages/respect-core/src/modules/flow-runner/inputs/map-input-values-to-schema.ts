@@ -1,4 +1,5 @@
 import Ajv from '@redocly/ajv/dist/2020.js';
+import { toAjvSchema } from '@redocly/openapi-core';
 
 import type { InputSchema } from '../../../types.js';
 
@@ -33,7 +34,8 @@ export function resolveInputValuesToSchema(
   ajv.addFormat('float', true);
   ajv.addFormat('double', true);
 
-  const validate = ajv.compile(schema);
+  // The Arazzo description is dereferenced, so a recursive schema holds a copy of itself.
+  const validate = ajv.compile(toAjvSchema(schema));
   const result = { ...value };
 
   // Defaults, coercion, and removal of extra properties happen first, so only the problems the user has to fix are reported.
