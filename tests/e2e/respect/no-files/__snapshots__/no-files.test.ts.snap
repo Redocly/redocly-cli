@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should ask for a file when the command is run without one 1`] = `
+"
+No Arazzo files were provided. Specify at least one file as the command argument.
+
+
+Exit code: 1"
+`;

@@ -103,6 +103,12 @@ export async function handleRespect({
       coverage: argv.coverage,
     };
 
+    if (options.files.length === 0) {
+      throw new Error(
+        'No Arazzo files were provided. Specify at least one file as the command argument.'
+      );
+    }
+
     if (options.skip && options.workflow) {
       throw new Error(`Cannot use both --skip and --workflow flags at the same time.`);
     }
