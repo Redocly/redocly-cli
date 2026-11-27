@@ -193,6 +193,7 @@ There is also a "recommended-strict" ruleset which is identical but with all `wa
 rules:
   info-license: warn
   info-license-strict: warn
+  no-ambiguous-component-names: warn
   no-ambiguous-paths: warn
   no-duplicated-enum-values: warn
   no-duplicated-tag-names: warn
@@ -243,6 +244,7 @@ rules:
 rules:
   info-license: warn
   info-license-strict: warn
+  no-ambiguous-component-names: warn
   no-ambiguous-paths: warn
   no-duplicated-enum-values: warn
   no-duplicated-tag-names: warn
@@ -290,6 +292,7 @@ rules:
 rules:
   info-license: warn
   info-license-strict: warn
+  no-ambiguous-component-names: warn
   no-ambiguous-paths: warn
   no-duplicated-enum-values: warn
   no-duplicated-tag-names: warn

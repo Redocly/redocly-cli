@@ -4,6 +4,12 @@
   "retryCount": 3,
   "fallbackRetryDelay": "10s",
   "aliveStatusCodes": [200],
+  "replacementPatterns": [
+    {
+      "pattern": "^https://github\\.com/Redocly/redocly-cli/blob/main/",
+      "replacement": "{{BASEURL}}/"
+    }
+  ],
   "ignorePatterns": [
     { "pattern": "^https://hub\\.docker\\.com/" },
     { "pattern": "^https://www\\.npmjs\\.com/" },
