@@ -1,0 +1,74 @@
+
+openapi: 3.1.0
+info:
+  title: Redocly Cafe menu
+  version: 1.0.0
+  x-prefix: menu
+servers:
+  - url: https://redocly.com/_mock/demo/openapi/cafe
+tags:
+  - name: foo_other
+    x-displayName: other
+  - name: bar_other
+    x-displayName: other
+paths:
+  /menu:
+    get:
+      operationId: listMenuItems
+      responses:
+        '200':
+          description: Menu items.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/menu_menu_Item'
+      tags:
+        - foo_other
+  /orders:
+    get:
+      operationId: listOrders
+      responses:
+        '200':
+          description: Orders with the menu price paid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orders_menu_Price'
+      tags:
+        - bar_other
+components:
+  schemas:
+    menu_Item:
+      description: Name of a menu item.
+      type: string
+    menu_menu_Item:
+      description: A menu item.
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/menu_Item'
+        price:
+          $ref: '#/components/schemas/menu_Price'
+    menu_Price:
+      description: Price in US cents.
+      type: integer
+    orders_menu_Price:
+      description: Menu price paid for an order.
+      type: object
+      properties:
+        amount:
+          type: integer
+        currency:
+          type: string
+x-tagGroups:
+  - name: Redocly Cafe menu
+    tags:
+      - foo_other
+  - name: Redocly Cafe orders
+    tags:
+      - bar_other
+
+openapi.yaml: join processed in <test>ms
+
+
+Exit code: 0
