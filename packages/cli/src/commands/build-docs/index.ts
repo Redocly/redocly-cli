@@ -22,6 +22,7 @@ import {
   createParentDirectory,
   getExecutionTime,
   getFallbackApisOrExit,
+  handleError,
 } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import { isTelemetryEnabled } from '../../utils/telemetry.js';
@@ -56,42 +57,40 @@ export const handlerBuildCommand = async ({
   }
   const [{ path: pathToApi, alias }] = await getFallbackApisOrExit([api], config);
 
-  try {
-    const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
-    const aliasConfig = config.forAlias(alias);
-    const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData);
-    for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
-      if (optionsKey !== specType && argv[optionsKey] !== undefined) {
-        logger.warn(
-          `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
-        );
-      }
+  const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
+  const aliasConfig = config.forAlias(alias);
+  const { definition, specType } = await loadDefinition(apiRef, aliasConfig, collectSpecData).catch(
+    (error) => handleError(error, apiRef)
+  );
+  for (const optionsKey of ['openapi', 'asyncapi', 'graphql'] as const) {
+    if (optionsKey !== specType && argv[optionsKey] !== undefined) {
+      logger.warn(
+        `Ignoring --${optionsKey} because this API description uses --${specType} options.\n`
+      );
     }
-    const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
-
-    const options = {
-      output: argv.o,
-      title: argv.title,
-      templateFileName: argv.template,
-      templateOptions: argv.templateOptions || {},
-      redocOptions,
-      redocVersion,
-      disableTelemetry: !isTelemetryEnabled(config),
-      inlineBundle: argv.inlineBundle,
-    };
-
-    const pageHTML = await getPageHTML(definition, options, argv.config);
-
-    createParentDirectory(options.output);
-    writeFileSync(options.output, pageHTML);
-    const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
-    const elapsed = getExecutionTime(startedAt);
-    logger.info(
-      `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
-    );
-  } catch (error) {
-    throw new HandledError(error instanceof Error ? error.message : String(error));
   }
+  const redocOptions = getRedocOptions(argv[specType], aliasConfig, specType);
+
+  const options = {
+    output: argv.o,
+    title: argv.title,
+    templateFileName: argv.template,
+    templateOptions: argv.templateOptions || {},
+    redocOptions,
+    redocVersion,
+    disableTelemetry: !isTelemetryEnabled(config),
+    inlineBundle: argv.inlineBundle,
+  };
+
+  const pageHTML = await getPageHTML(definition, options, argv.config);
+
+  createParentDirectory(options.output);
+  writeFileSync(options.output, pageHTML);
+  const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
+  const elapsed = getExecutionTime(startedAt);
+  logger.info(
+    `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
+  );
 };
 
 // FIXME: remove this function when the deprecation period ends, a week to a month after the release.
