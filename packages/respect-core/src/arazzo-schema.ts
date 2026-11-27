@@ -233,7 +233,6 @@ export const requestBody = {
     },
   },
   additionalProperties: false,
-  required: ['payload'],
 } as const;
 export const criteriaObject = {
   type: 'object',

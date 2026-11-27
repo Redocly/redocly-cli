@@ -24,6 +24,7 @@ The rule checks only the name of the source description.
 It does not check that the operation or the workflow exists in that source description.
 The `spec-step-operationId-resolved` rule checks the `operationId` of a step.
 The [workflow-dependsOn](./workflow-dependsOn.md) rule checks the references in the `dependsOn` list of a workflow.
+The [spec-step-dependsOn-defined](./spec-step-dependsOn-defined.md) rule checks the steps that the `dependsOn` list of a step references in the same document.
 
 ## Configuration
 
@@ -79,6 +80,7 @@ workflows:
 
 - [sourceDescription-name-unique](./sourceDescription-name-unique.md)
 - [sourceDescriptions-not-empty](./sourceDescriptions-not-empty.md)
+- [spec-step-dependsOn-defined](./spec-step-dependsOn-defined.md)
 - [workflow-dependsOn](./workflow-dependsOn.md)
 
 ## Resources

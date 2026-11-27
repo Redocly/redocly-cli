@@ -4,7 +4,8 @@ slug: /docs/cli/rules/built-in-rules
 
 # Built-in rules
 
-The built-in rules are the ones we use ourselves and think apply to the majority of APIs. Some have some additional [configuration](./configure-rules.md), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
+The built-in rules are the ones we use ourselves and think apply to the majority of APIs.
+Some have some additional [configuration](./configure-rules.md), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
 
 All the built-in rules are listed here, roughly grouped by the OpenAPI object they apply to.
 The _Special rules_ group contains rules that may apply to multiple objects or to the entire OpenAPI document.
@@ -137,6 +138,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 ### Arazzo
 
 - [criteria-unique](./arazzo/criteria-unique.md): the criteria list must not contain duplicated assertions
+- [no-step-requestBody-with-workflowId](./arazzo/no-step-requestBody-with-workflowId.md): a step that uses `workflowId` should not define `requestBody`
 - [outputs-defined](./arazzo/outputs-defined.md): the output value should be defined before usage
 - [parameters-unique](./arazzo/parameters-unique.md): the `parameters` list must not include duplicate parameters
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
@@ -145,9 +147,11 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [spec-action-mutually-exclusive-fields](./arazzo/spec-action-mutually-exclusive-fields.md): a success or failure action must use only one of `stepId` and `workflowId`
 - [spec-action-stepId-defined](./arazzo/spec-action-stepId-defined.md): the `stepId` of a success or failure action must reference a step defined in the current workflow
 - [spec-action-workflowId-defined](./arazzo/spec-action-workflowId-defined.md): the `workflowId` of a success or failure action must reference an existing workflow
+- [spec-no-invalid-runtime-expressions](./arazzo/spec-no-invalid-runtime-expressions.md): the runtime expressions in the `outputs`, the `context` of a criterion or a selector, the `reference` of a reusable object, and the `operationPath` or the `channelPath` of a step must be valid
 - [spec-outputs-invalid-map-name](./arazzo/spec-outputs-invalid-map-name.md): the names in the `outputs` of a workflow or a step must match the regular expression `^[a-zA-Z0-9\.\-_]+$`
 - [spec-querystring-parameters](./arazzo/spec-querystring-parameters.md): a step must use at most one `querystring` parameter and must not mix it with `query` parameters (Arazzo 1.1)
 - [spec-sourceDescriptions-defined](./arazzo/spec-sourceDescriptions-defined.md): a `$sourceDescriptions.<name>` reference must use the `name` of a source description defined in `sourceDescriptions`
+- [spec-step-dependsOn-defined](./arazzo/spec-step-dependsOn-defined.md): each value in the `dependsOn` list of a step must reference a defined step (Arazzo 1.1)
 - [spec-step-mutually-exclusive-fields](./arazzo/spec-step-mutually-exclusive-fields.md): a step must use only one of its mutually exclusive operation fields
 - [spec-step-operationId-resolved](./arazzo/spec-step-operationId-resolved.md): the `operationId` of a step must resolve to an operation in a source description
 - [spec-step-parameters-in-required](./arazzo/spec-step-parameters-in-required.md): a parameter must define the `in` field, unless it only reaches steps that use `workflowId`

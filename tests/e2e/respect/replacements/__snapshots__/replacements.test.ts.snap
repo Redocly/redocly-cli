@@ -118,12 +118,49 @@ exports[`should replace values in the request body 1`] = `
     ✓ content-type check
     ✓ schema check
  
+  ✓ POST /orders - step step-with-replacements-and-no-payload 
+
+    Request URL: https://api.cafe.redocly.com/orders
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+    Request Body:
+      {
+        "customerName": "Jane Doe",
+        "orderItems": [
+          {
+            "menuItemId": "prd_01h1s5z6vf2mm1mz3hevnn9va7",
+            "quantity": 2,
+            "comment": "No sugar!",
+            "discount": 0
+          }
+        ]
+      } 
+ 
+
+    Response status code: 401
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Bearer token is required",
+        "status": 401,
+        "instance": "/orders"
+      } 
+ 
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
  
   Summary for replacements.arazzo.yaml
   
   Workflows: 1 passed, 1 total
-  Steps: 4 passed, 4 total
-  Checks: 15 passed, 15 total
+  Steps: 5 passed, 5 total
+  Checks: 19 passed, 19 total
   Time: <test>ms 
  
  

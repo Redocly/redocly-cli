@@ -195,6 +195,24 @@ describe('drift - validate mode', () => {
     await expect(output).toMatchFileSnapshot(join(snapshots, 'validate-recursive.txt'));
   });
 
+  test('loads every description of a folder when they share a file with a recursive schema', async () => {
+    const args = getParams(indexEntryPoint, [
+      'drift',
+      'traffic-shared-recursive-schema.ndjson',
+      '--api',
+      'shared-recursive-schema',
+      '--rules',
+      'undocumented-endpoint,schema-consistency',
+    ]);
+    const output = cleanupOutput(getCommandOutput(args, { testPath: fixtures })).replace(
+      UUID_RE,
+      '<uuid>'
+    );
+    await expect(output).toMatchFileSnapshot(
+      join(snapshots, 'validate-shared-recursive-schema.txt')
+    );
+  });
+
   test('discards findings below --min-severity', async () => {
     const args = getParams(indexEntryPoint, [
       'drift',

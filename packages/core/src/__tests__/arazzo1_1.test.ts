@@ -489,6 +489,90 @@ describe('Arazzo 1.1 lint', () => {
     expect(messages).toContain('The field `type` must be present on this level.');
   });
 
+  it('reports an invalid Selector Object used as a step or an action parameter value', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: list-menu
+            steps:
+              - stepId: list-menu-items
+                operationId: cafe-api.listMenuItems
+                parameters:
+                  - name: limit
+                    in: query
+                    value:
+                      context: $response.body
+                      selector: $.limit
+                      type: css
+                  - name: filter
+                    in: query
+                    value:
+                      selector: '#main'
+                      attribute: href
+                successCriteria:
+                  - condition: $statusCode == 200
+                onSuccess:
+                  - name: place-order
+                    type: goto
+                    workflowId: place-order
+                    parameters:
+                      - name: limit
+                        value:
+                          context: $response.body
+                          selector: $.limit
+                          type: css
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/parameters/0/value/type",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "\`type\` can be one of the following only: "jsonpath", "xpath", "jsonpointer".",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/0/value/type",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "\`type\` can be one of the following only: "jsonpath", "xpath", "jsonpointer".",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('accepts a constant object as a requestBody replacement value', async () => {
     const document = parseYamlToDocument(
       outdent`

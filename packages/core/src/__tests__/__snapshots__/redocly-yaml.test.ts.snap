@@ -1498,6 +1498,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "importPaths": [Function],
+      "info": "GraphQLInfo",
       "jsonSamplesExpandLevel": [Function],
       "layout": {
         "enum": [
@@ -3278,6 +3279,35 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
+  "PlatformAgentClearFeedSupportDesk": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiToken": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "disabled": {
+        "type": "boolean",
+      },
+      "provider": {
+        "const": "clearfeed",
+        "type": "string",
+      },
+      "webhookSecret": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "apiToken",
+      "webhookSecret",
+    ],
+  },
   "PlatformAgentContentChangeTrigger": {
     "additionalProperties": undefined,
     "deprecatedProperties": undefined,
@@ -3379,6 +3409,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "disabled": {
         "type": "boolean",
       },
+      "mcpServers": [Function],
       "name": {
         "enum": [
           "discovery",
@@ -3414,6 +3445,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "disabled": {
         "type": "boolean",
       },
+      "mcpServers": [Function],
       "name": {
         "enum": [
           "feedback",
@@ -3446,6 +3478,64 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": [
       "event",
+    ],
+  },
+  "PlatformAgentFrontSupportDesk": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiSecret": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "apiToken": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "disabled": {
+        "type": "boolean",
+      },
+      "provider": {
+        "const": "front",
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "apiToken",
+      "apiSecret",
+    ],
+  },
+  "PlatformAgentIntercomSupportDesk": {
+    "additionalProperties": undefined,
+    "deprecatedProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "accessToken": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "clientSecret": {
+        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
+        "type": "string",
+      },
+      "disabled": {
+        "type": "boolean",
+      },
+      "provider": {
+        "const": "intercom",
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "accessToken",
+      "clientSecret",
     ],
   },
   "PlatformAgentMcpServer": {
@@ -3610,6 +3700,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "disabled": {
         "type": "boolean",
       },
+      "mcpServers": [Function],
       "name": {
         "enum": [
           "seo",
@@ -3673,6 +3764,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "disabled": {
         "type": "boolean",
       },
+      "mcpServers": [Function],
       "name": {
         "enum": [
           "supportConversations",
@@ -3689,40 +3781,8 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "name",
     ],
   },
-  "PlatformAgentSupportDesk": {
-    "additionalProperties": undefined,
-    "deprecatedProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "apiToken": {
-        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
-        "type": "string",
-      },
-      "disabled": {
-        "type": "boolean",
-      },
-      "provider": {
-        "enum": [
-          "front",
-          "clearfeed",
-        ],
-        "type": "string",
-      },
-      "signingSecret": {
-        "pattern": "^\\{\\{\\s*process\\.env\\.[A-Za-z0-9_]+\\s*\\}\\}$",
-        "type": "string",
-      },
-    },
-    "required": [
-      "provider",
-      "apiToken",
-      "signingSecret",
-    ],
-  },
   "PlatformAgentSupportDesks": {
-    "additionalProperties": "PlatformAgentSupportDesk",
+    "additionalProperties": [Function],
     "deprecatedProperties": undefined,
     "description": undefined,
     "documentationLink": undefined,
@@ -6120,6 +6180,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "expand": "rootRedoclyConfigSchema.codeSnippet.expand",
+      "previewLines": {
+        "minimum": 0,
+        "type": "integer",
+      },
       "report": "rootRedoclyConfigSchema.codeSnippet.report",
     },
     "required": undefined,
@@ -8805,6 +8869,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "expand": "rootRedoclyConfigSchema.env_additionalProperties.codeSnippet.expand",
+      "previewLines": {
+        "minimum": 0,
+        "type": "integer",
+      },
       "report": "rootRedoclyConfigSchema.env_additionalProperties.codeSnippet.report",
     },
     "required": undefined,
@@ -13409,6 +13477,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "chevronPosition": {
+        "enum": [
+          "left",
+          "right",
+        ],
+        "type": "string",
+      },
       "hide": {
         "type": "boolean",
       },
@@ -13960,6 +14035,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "expand": "rootRedoclyConfigSchema.env_additionalProperties.theme.codeSnippet.expand",
+      "previewLines": {
+        "minimum": 0,
+        "type": "integer",
+      },
       "report": "rootRedoclyConfigSchema.env_additionalProperties.theme.codeSnippet.report",
     },
     "required": undefined,
@@ -17665,6 +17744,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "chevronPosition": {
+        "enum": [
+          "left",
+          "right",
+        ],
+        "type": "string",
+      },
       "hide": {
         "type": "boolean",
       },
@@ -20788,6 +20874,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "chevronPosition": {
+        "enum": [
+          "left",
+          "right",
+        ],
+        "type": "string",
+      },
       "hide": {
         "type": "boolean",
       },

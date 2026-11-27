@@ -1217,4 +1217,137 @@ describe('Arazzo struct', () => {
       ]
     `);
   });
+
+  it('should not report a request body that has replacements and no payload', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                requestBody:
+                  contentType: application/json
+                  replacements:
+                    - target: /customerName
+                      value: $inputs.customerName
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
+  it('should not report a request body that has replacements and no payload in Arazzo 1.1.0', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.1.0
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                requestBody:
+                  contentType: application/json
+                  replacements:
+                    - target: /orderItems/0/menuItemId
+                      value:
+                        context: $inputs.menuItem
+                        selector: $.id
+                        type:
+                          type: jsonpath
+                          version: rfc9535
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
+  it('should not report replacements with literal values of any type in Arazzo 1.1.0', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.1.0
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                requestBody:
+                  contentType: application/json
+                  replacements:
+                    - target: /count
+                      value: 42
+                    - target: /price
+                      value: 12.5
+                    - target: /enabled
+                      value: true
+                    - target: /disabled
+                      value: false
+                    - target: /items
+                      value:
+                        - 1
+                        - two
+                        - null
+                        - nested: true
+                    - target: /metadata
+                      value:
+                        label: example
+                        count: 42
+                    - target: /emptyArray
+                      value: []
+                    - target: /emptyObject
+                      value: {}
+                    - target: /optional
+                      value: null
+                    - target: /status
+                      value: completed
+                    - target: /customerName
+                      value: $inputs.customerName
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
 });

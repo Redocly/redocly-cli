@@ -131,7 +131,7 @@ export interface Replacement {
 
 export interface RequestBody {
   contentType?: string;
-  payload: string | object | any[];
+  payload?: string | object | any[];
   encoding?: string;
   replacements?: Replacement[];
 }

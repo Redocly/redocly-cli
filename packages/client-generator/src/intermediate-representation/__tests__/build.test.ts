@@ -1,4 +1,5 @@
-import { logger, type Oas3Definition, type Oas3Schema } from '@redocly/openapi-core';
+import { logger, parseYaml, type Oas3Definition, type Oas3Schema } from '@redocly/openapi-core';
+import { outdent } from 'outdent';
 
 import { NotSupportedError } from '../../errors.js';
 import { buildApiModel, sseFromResponses } from '../build.js';
@@ -1098,6 +1099,460 @@ describe('buildSchema — every schema kind', () => {
         { kind: 'ref', name: 'Base' },
       ],
     });
+  });
+
+  it('applies the keywords beside a schema $ref together with its target', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Order:
+            type: object
+            required:
+              - customerName
+            properties:
+              customerName:
+                type: string
+          OrderCreate:
+            $ref: '#/components/schemas/Order'
+            description: An order to place.
+            required:
+              - paymentMethod
+            properties:
+              paymentMethod:
+                type: string
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[1]).toMatchInlineSnapshot(`
+      {
+        "description": "An order to place.",
+        "name": "OrderCreate",
+        "schema": {
+          "description": "An order to place.",
+          "kind": "intersection",
+          "members": [
+            {
+              "kind": "object",
+              "properties": [
+                {
+                  "description": undefined,
+                  "name": "paymentMethod",
+                  "required": true,
+                  "schema": {
+                    "description": undefined,
+                    "kind": "scalar",
+                    "scalar": "string",
+                  },
+                },
+              ],
+            },
+            {
+              "kind": "ref",
+              "name": "Order",
+            },
+          ],
+        },
+      }
+    `);
+  });
+
+  it('ignores the keywords beside a schema $ref in OpenAPI 3.0', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.0.4
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Order:
+            type: object
+            required:
+              - customerName
+            properties:
+              customerName:
+                type: string
+          OrderCreate:
+            $ref: '#/components/schemas/Order'
+            description: An order to place.
+            required:
+              - paymentMethod
+            properties:
+              paymentMethod:
+                type: string
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[1]).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "name": "OrderCreate",
+        "schema": {
+          "description": undefined,
+          "kind": "object",
+          "properties": [
+            {
+              "description": undefined,
+              "name": "customerName",
+              "required": true,
+              "schema": {
+                "description": undefined,
+                "kind": "scalar",
+                "scalar": "string",
+              },
+            },
+          ],
+        },
+      }
+    `);
+  });
+
+  it('copies the final target of a named schema $ref that points at another $ref', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Order:
+            type: object
+            properties:
+              customerName:
+                type: string
+          TakeawayOrder:
+            $ref: '#/components/schemas/Order'
+          DeliveryOrder:
+            $ref: '#/components/schemas/TakeawayOrder'
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[2]).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "name": "DeliveryOrder",
+        "schema": {
+          "description": undefined,
+          "kind": "object",
+          "properties": [
+            {
+              "description": undefined,
+              "name": "customerName",
+              "required": false,
+              "schema": {
+                "description": undefined,
+                "kind": "scalar",
+                "scalar": "string",
+              },
+            },
+          ],
+        },
+      }
+    `);
+  });
+
+  it('applies a oneOf and the properties beside a schema $ref together with its target', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          MenuBaseItem:
+            type: object
+            properties:
+              id:
+                type: string
+          Beverage:
+            type: object
+            properties:
+              volume:
+                type: number
+          Dessert:
+            type: object
+            properties:
+              calories:
+                type: number
+          MenuItem:
+            $ref: '#/components/schemas/MenuBaseItem'
+            deprecated: true
+            required:
+              - category
+            properties:
+              category:
+                type: string
+            oneOf:
+              - $ref: '#/components/schemas/Beverage'
+              - $ref: '#/components/schemas/Dessert'
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[3].schema).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "kind": "intersection",
+        "members": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "description": undefined,
+                "name": "category",
+                "required": true,
+                "schema": {
+                  "description": undefined,
+                  "kind": "scalar",
+                  "scalar": "string",
+                },
+              },
+            ],
+          },
+          {
+            "kind": "ref",
+            "name": "MenuBaseItem",
+          },
+          {
+            "description": undefined,
+            "discriminator": undefined,
+            "kind": "union",
+            "members": [
+              {
+                "kind": "ref",
+                "name": "Beverage",
+              },
+              {
+                "kind": "ref",
+                "name": "Dessert",
+              },
+            ],
+          },
+        ],
+        "metadata": {
+          "deprecated": true,
+        },
+      }
+    `);
+  });
+
+  it('leaves a oneOf member that is a $ref with properties out of the discriminator mapping', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Beverage:
+            type: object
+            properties:
+              category:
+                type: string
+          Dessert:
+            type: object
+            properties:
+              category:
+                type: string
+          MenuItem:
+            oneOf:
+              - $ref: '#/components/schemas/Beverage'
+                required:
+                  - volume
+                properties:
+                  volume:
+                    type: number
+              - $ref: '#/components/schemas/Dessert'
+            discriminator:
+              propertyName: category
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[2].schema).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "discriminator": {
+          "mapping": [
+            {
+              "schemaName": "Dessert",
+              "value": "Dessert",
+            },
+          ],
+          "propertyName": "category",
+        },
+        "kind": "union",
+        "members": [
+          {
+            "description": undefined,
+            "kind": "intersection",
+            "members": [
+              {
+                "kind": "object",
+                "properties": [
+                  {
+                    "description": undefined,
+                    "name": "volume",
+                    "required": true,
+                    "schema": {
+                      "description": undefined,
+                      "kind": "scalar",
+                      "scalar": "number",
+                    },
+                  },
+                ],
+              },
+              {
+                "kind": "ref",
+                "name": "Beverage",
+              },
+            ],
+          },
+          {
+            "kind": "ref",
+            "name": "Dessert",
+          },
+        ],
+      }
+    `);
+  });
+
+  it('keeps the explicit discriminator mapping of a union whose members are not plain $refs', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Beverage:
+            type: object
+            properties:
+              category:
+                type: string
+          Dessert:
+            type: object
+            properties:
+              category:
+                type: string
+          Merchandise:
+            type: object
+            properties:
+              category:
+                type: string
+          Food:
+            oneOf:
+              - $ref: '#/components/schemas/Beverage'
+              - $ref: '#/components/schemas/Dessert'
+          MenuItem:
+            oneOf:
+              - $ref: '#/components/schemas/Food'
+              - $ref: '#/components/schemas/Merchandise'
+            discriminator:
+              propertyName: category
+              mapping:
+                beverage: '#/components/schemas/Beverage'
+                dessert: '#/components/schemas/Dessert'
+                merchandise: '#/components/schemas/Merchandise'
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[4].schema).toMatchInlineSnapshot(`
+      {
+        "description": undefined,
+        "discriminator": {
+          "mapping": [
+            {
+              "schemaName": "Beverage",
+              "value": "beverage",
+            },
+            {
+              "schemaName": "Dessert",
+              "value": "dessert",
+            },
+            {
+              "schemaName": "Merchandise",
+              "value": "merchandise",
+            },
+          ],
+          "propertyName": "category",
+        },
+        "kind": "union",
+        "members": [
+          {
+            "kind": "ref",
+            "name": "Food",
+          },
+          {
+            "kind": "ref",
+            "name": "Merchandise",
+          },
+        ],
+      }
+    `);
+  });
+
+  it('copies the target of a named schema $ref and takes the annotations beside it', () => {
+    const document = parseYaml(outdent`
+      openapi: 3.2.0
+      info:
+        title: Redocly Cafe
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Order:
+            type: object
+            description: An order.
+            properties:
+              customerName:
+                type: string
+          TakeawayOrder:
+            $ref: '#/components/schemas/Order'
+            description: An order to take away.
+            deprecated: true
+    `) as Oas3Definition;
+
+    const { schemas } = buildApiModel(document);
+
+    expect(schemas[1]).toMatchInlineSnapshot(`
+      {
+        "description": "An order to take away.",
+        "name": "TakeawayOrder",
+        "schema": {
+          "description": "An order to take away.",
+          "kind": "object",
+          "metadata": {
+            "deprecated": true,
+          },
+          "properties": [
+            {
+              "description": undefined,
+              "name": "customerName",
+              "required": false,
+              "schema": {
+                "description": undefined,
+                "kind": "scalar",
+                "scalar": "string",
+              },
+            },
+          ],
+        },
+      }
+    `);
   });
 
   it('renders a single `type: "null"` schema as null', () => {
