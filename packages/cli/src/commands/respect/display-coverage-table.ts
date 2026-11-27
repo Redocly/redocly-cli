@@ -10,8 +10,6 @@ import {
 import { bold, gray, green, red, yellow } from 'colorette';
 import * as path from 'node:path';
 
-const MAX_LISTED_OPERATIONS = 10;
-
 interface Cell {
   text: string;
   paint: (text: string) => string;
@@ -132,16 +130,7 @@ function formatNotCoveredOperations(label: string, description: SourceDescriptio
     return '';
   }
 
-  const lines = notCovered
-    .slice(0, MAX_LISTED_OPERATIONS)
-    .map((operation) => `    ${formatOperation(operation)}`);
-  if (notCovered.length > MAX_LISTED_OPERATIONS) {
-    lines.push(
-      gray(
-        `    ... and ${notCovered.length - MAX_LISTED_OPERATIONS} more. Use --verbose or --json-output to see all of them.`
-      )
-    );
-  }
+  const lines = notCovered.map((operation) => `    ${formatOperation(operation)}`);
 
   return `\n  Operations of ${bold(label)} that no step called:\n${lines.join('\n')}\n`;
 }

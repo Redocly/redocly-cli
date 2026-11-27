@@ -398,7 +398,7 @@ Respect measures coverage the same way test runners measure code coverage: each 
 
 With `--coverage`, the command prints a table after the summary.
 The table has a row for every OpenAPI source description of every Arazzo file.
-Below the table, the command lists the operations that no step called, up to 10 for each description.
+Below the table, the command lists the operations of each description that no step called.
 
 ```bash
 ┌─────────────────────────┬────────────┬────────────┬───────────────────┬────────────────┐
