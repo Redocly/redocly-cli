@@ -89,7 +89,8 @@ exports[`should list the covered and the not covered items of every operation wi
 │                                                         │                         │ title             │                   │
 │                                                         │                         │ status            │                   │
 │                                                         │                         │ instance          │                   │
-│ x POST /menu (createMenuItem)                           │ No step called it       │                   │                   │
+│ x POST /menu (createMenuItem)                           │ Response codes          │                   │ 201               │
+│                                                         │ Schema properties       │                   │ 2 not covered     │
 │ ✓ GET /menu-item-images/{menuItemId} (getMenuItemPhoto) │ Parameters              │ menuItemId (path) │ photoSize (query) │
 │                                                         │ Response codes          │ 404               │ 200               │
 │                                                         │ Response 404 properties │ type              │ details           │

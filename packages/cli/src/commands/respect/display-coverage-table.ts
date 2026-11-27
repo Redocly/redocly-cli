@@ -20,6 +20,12 @@ interface Cell {
 // a missing cell is rendered empty
 type Row = (Cell | undefined)[];
 
+interface ItemGroup {
+  title: string;
+  // the name of an item that belongs to the group
+  nameOf: (item: CoverageItem) => string | undefined;
+}
+
 export function displayCoverageTable(
   filesResult: RunFileResult[],
   logger: LoggerInterface,
@@ -154,33 +160,31 @@ function formatOperationRows(operation: OperationCoverage): Row[] {
     text: `${isCalled ? '✓' : 'x'} ${formatOperation(operation)}`,
     paint: isCalled ? green : red,
   };
-  // every item of an operation that no step called is missing, so they are not listed
-  if (!isCalled) {
-    return [[operationCell, { text: 'No step called it', paint: gray }]];
-  }
 
   const statuses = [...covered, ...missing]
     .flatMap((item) => (item.kind === 'response' ? [item.status] : []))
     .sort();
-  const groups: { title: string; nameOf: (item: CoverageItem) => string | undefined }[] = [
+  const requestProperties: ItemGroup = {
+    title: 'Request properties',
+    nameOf: (item) =>
+      item.kind === 'property' && item.target === 'request' ? item.path : undefined,
+  };
+  const responseProperties = statuses.map((status): ItemGroup => ({
+    title: `Response ${status} properties`,
+    nameOf: (item) => (item.kind === 'property' && item.status === status ? item.path : undefined),
+  }));
+  // the properties of an operation that no step called are counted below instead of being listed
+  const groups: ItemGroup[] = [
     {
       title: 'Parameters',
       nameOf: (item) => (item.kind === 'parameter' ? `${item.name} (${item.in})` : undefined),
     },
-    {
-      title: 'Request properties',
-      nameOf: (item) =>
-        item.kind === 'property' && item.target === 'request' ? item.path : undefined,
-    },
+    ...(isCalled ? [requestProperties] : []),
     {
       title: 'Response codes',
       nameOf: (item) => (item.kind === 'response' ? item.status : undefined),
     },
-    ...statuses.map((status) => ({
-      title: `Response ${status} properties`,
-      nameOf: (item: CoverageItem) =>
-        item.kind === 'property' && item.status === status ? item.path : undefined,
-    })),
+    ...(isCalled ? responseProperties : []),
   ];
 
   const rows: Row[] = [];
@@ -196,6 +200,16 @@ function formatOperationRows(operation: OperationCoverage): Row[] {
         { text: missingNames[index] ?? '', paint: red },
       ]);
     }
+  }
+
+  const missingProperties = missing.filter((item) => item.kind === 'property').length;
+  if (!isCalled && missingProperties > 0) {
+    rows.push([
+      rows.length === 0 ? operationCell : undefined,
+      { text: 'Schema properties', paint: plain },
+      undefined,
+      { text: `${missingProperties} not covered`, paint: red },
+    ]);
   }
 
   return rows.length > 0 ? rows : [[operationCell]];

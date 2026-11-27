@@ -437,7 +437,8 @@ The requests of different files add up there.
 
 With `--verbose`, the command prints a table for every API description in place of the list of operations.
 The table shows the covered and the not covered parameters, response codes, and schema properties of every operation that a step called.
-An operation that no step called takes one row, because all its items are missing.
+Every item of an operation that no step called is missing.
+For such an operation, the table lists the parameters and the response codes, and gives the number of schema properties.
 
 ```bash
 ┌─────────────────────────────────────────────────────────┬─────────────────────────┬───────────────────┬───────────────────┐
@@ -454,7 +455,8 @@ An operation that no step called takes one row, because all its items are missin
 │                                                         │                         │ title             │                   │
 │                                                         │                         │ status            │                   │
 │                                                         │                         │ instance          │                   │
-│ x POST /menu (createMenuItem)                           │ No step called it       │                   │                   │
+│ x POST /menu (createMenuItem)                           │ Response codes          │                   │ 201               │
+│                                                         │ Schema properties       │                   │ 2 not covered     │
 │ ✓ GET /menu-item-images/{menuItemId} (getMenuItemPhoto) │ Parameters              │ menuItemId (path) │ photoSize (query) │
 │                                                         │ Response codes          │ 404               │ 200               │
 │                                                         │ Response 404 properties │ type              │ details           │
