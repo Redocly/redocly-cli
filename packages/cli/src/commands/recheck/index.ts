@@ -14,8 +14,6 @@ import {
   runLint,
   runReadability,
   type LintOptions,
-  type NormalizedRule,
-  type Problem,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { presets } from '@redocly/recheck/presets';
@@ -80,22 +78,6 @@ function toLintPresentation(argv: RecheckArgv): LintPresentation {
     maxProblems: argv['max-problems'],
     summary: argv.summary,
     summaryPath: argv['summary-path'],
-  };
-}
-
-// True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
-// pointer. The rule key is the full name or the short name the report prints.
-function ignoredBy(config: Config, rules: NormalizedRule[]): (problem: Problem) => boolean {
-  const fullNameByShortName = new Map(rules.map((rule) => [rule.shortName, rule.name]));
-  return (problem) => {
-    const pointer = problem.pointer;
-    if (pointer === undefined) return false;
-    const ignoredRules = config.ignore?.[problem.file];
-    if (ignoredRules === undefined) return false;
-    return Object.entries(ignoredRules).some(
-      ([key, pointers]) =>
-        (fullNameByShortName.get(key) ?? key) === problem.ruleName && pointers.has(pointer)
-    );
   };
 }
 
@@ -204,7 +186,6 @@ async function runAction(
     apiFiles,
     unreadableFiles,
   } = await collectEmbeddedInputs(apiPaths, config, resolver);
-  const isIgnored = ignoredBy(config, resolved.rules);
 
   if (action === 'baseline') {
     // A baseline built from a partial set of descriptions would hide findings.
@@ -215,7 +196,7 @@ async function runAction(
       return 1;
     }
     printBaselineStart(roots, embeddedInputs.length);
-    return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs, isIgnored }));
+    return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs }));
   }
 
   const startedAt = performance.now();
@@ -225,7 +206,6 @@ async function runAction(
     embeddedInputs,
     apiFiles,
     unreadableFiles,
-    isIgnored,
   });
   const exitCode = await printLintRun(result, toLintPresentation(argv), startedAt);
   // An API description that could not be read fails the run, even when lint found nothing.

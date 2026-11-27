@@ -12,6 +12,7 @@ const recheckCases: [dirName: string, args: string[]][] = [
   ['no-config', ['recheck', 'docs']],
   ['no-recheck-config', ['recheck', 'docs']],
   ['config-error', ['recheck', 'docs']],
+  ['pointer-baseline', ['recheck', 'openapi.yaml', '--format=json']],
   ['api-descriptions', ['recheck']],
   ['api-missing-pointer', ['recheck']],
   ['api-rule-off-for-pages', ['recheck', '--rule', 'recheck/line-length']],
@@ -174,13 +175,6 @@ describe('recheck', () => {
   test('api-no-descriptions reports no issues for an API without descriptions', async () => {
     const testPath = join(__dirname, 'api-no-descriptions');
     const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml', '--format=json']);
-    const result = getCommandOutput(args, { testPath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
-  });
-
-  test('ignore-short-name suppresses a finding keyed by the short rule name', async () => {
-    const testPath = join(__dirname, 'ignore-short-name');
-    const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });

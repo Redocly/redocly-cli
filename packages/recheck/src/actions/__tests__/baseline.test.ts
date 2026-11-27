@@ -84,12 +84,8 @@ describe('generateBaseline', () => {
     expect(result.roots).toEqual([dir]);
     expect(result.filesFound).toBe(1);
     const written = await readWrittenBaseline(result.outPath);
-    expect(written.files['page.md']['recheck/line-length']).toBe(2);
-    const writtenTotal = Object.values(written.files['page.md']).reduce(
-      (sum, count) => sum + count,
-      0
-    );
-    expect(writtenTotal).toBe(result.errorCount);
+    expect(written.files['page.md']).toEqual({ 'recheck/line-length': 2 });
+    expect(result.errorCount).toBe(2);
   });
 
   it('counts errors only and baselines no file that has only warnings', async () => {
@@ -151,7 +147,7 @@ describe('generateBaseline', () => {
     }
   );
 
-  it('includes embedded API description findings, keyed by the API file', async () => {
+  it('includes embedded API description findings, keyed by the API file and pointer', async () => {
     const dir = await makeTempDir();
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
     const apiFile = path.join(dir, 'openapi.yaml');
@@ -165,7 +161,9 @@ describe('generateBaseline', () => {
     expect(result.errorCount).toBe(1);
     expect(result.baselinedFileCount).toBe(1);
     const written = await readWrittenBaseline(result.outPath);
-    expect(written.files[baselineKeyMapper(dir)(apiFile)]).toEqual({ 'recheck/line-length': 1 });
+    expect(written.files[baselineKeyMapper(dir)(apiFile)]).toEqual({
+      'recheck/line-length': ['#/info/description'],
+    });
   });
 
   it('leaves out findings the ignore predicate accepts, so no run reports them stale', async () => {

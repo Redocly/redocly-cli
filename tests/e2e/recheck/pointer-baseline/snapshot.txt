@@ -1,0 +1,57 @@
+{
+  "summary": {
+    "filesScanned": 1,
+    "totalIssues": 2,
+    "baseline": {
+      "matched": 2,
+      "new": 1,
+      "stale": 1
+    },
+    "breakdown": {
+      "recheck/line-length": {
+        "errors": 2,
+        "warnings": 0,
+        "info": 0,
+        "total": 2
+      }
+    }
+  },
+  "issues": [
+    {
+      "file": "./tests/e2e/recheck/pointer-baseline/openapi.yaml",
+      "line": 11,
+      "column": 100,
+      "text": "This operation returns all recent orders placed at the Redocly Cafe and includes details about each item.",
+      "match": "",
+      "ruleName": "recheck/line-length",
+      "severity": "error",
+      "message": "Line length (Expected: 80; Actual: 105)",
+      "fixable": false,
+      "pointer": "#/paths/~1orders/get/description"
+    },
+    {
+      "file": "openapi.yaml",
+      "pointer": "#/paths/~1orders/get/responses/200/description",
+      "line": 1,
+      "column": 1,
+      "text": "",
+      "match": "",
+      "ruleName": "recheck/line-length",
+      "severity": "error",
+      "message": "Baseline is stale: no finding of recheck/line-length at #/paths/~1orders/get/responses/200/description. Remove the pointer from the baseline or regenerate it."
+    }
+  ]
+}
+
+🏃 Running recheck on: 3 API description(s)
+
+🔧 Running 53 rule(s)...
+   Found 0 markdown file(s)
+   Baseline: 2 matched, 1 new, 1 stale
+
+   Annotations prepared: 2
+
+❌ Found 2 error(s). Exiting with code 1.
+   Completed in <test>ms
+
+Exit code: 1

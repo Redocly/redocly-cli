@@ -22,7 +22,8 @@ export interface BaselineRunResult {
 
 /**
  * Runs all configured rules and writes the baseline file: the error count for each
- * file and rule. The format is in core/baseline.ts.
+ * page and rule, and the error pointers for each API description file and rule.
+ * The format is in core/baseline.ts.
  */
 export async function generateBaseline(
   paths: string | string[] = '.',
