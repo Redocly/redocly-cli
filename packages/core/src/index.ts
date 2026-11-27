@@ -10,6 +10,11 @@ export { keysOf } from './utils/keys-of.js';
 export { pause } from './utils/pause.js';
 export { pluralize } from './utils/pluralize.js';
 export { isPropertyExcludedFromTarget, toAjvSchema } from './utils/to-ajv-schema.js';
+export {
+  getSchemaPropertyNames,
+  getSchemaPropertyPaths,
+  getValuePropertyPaths,
+} from './utils/schema-property-paths.js';
 export { capitalize } from './utils/capitalize.js';
 export { readFileFromUrl } from './utils/read-file-from-url.js';
 export { slash } from './utils/slash.js';

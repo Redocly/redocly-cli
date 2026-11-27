@@ -1,0 +1,25 @@
+arazzo: 1.0.1
+info:
+  title: List the cafe menu
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-menu
+    type: openapi
+    url: ./cafe-menu.yaml
+  - name: cafe-orders
+    type: openapi
+    url: ./cafe-orders.yaml
+
+workflows:
+  - workflowId: list-menu
+    steps:
+      - stepId: list-menu-items
+        operationId: $sourceDescriptions.cafe-menu.listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: 1
+        successCriteria:
+          - condition: $statusCode == 200

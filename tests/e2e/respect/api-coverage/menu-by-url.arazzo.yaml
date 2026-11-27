@@ -1,0 +1,20 @@
+arazzo: 1.0.1
+info:
+  title: List the cafe menu by its URL
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: menu-workflows
+    type: arazzo
+    url: ./menu.arazzo.yaml
+
+workflows:
+  - workflowId: list-menu-by-url
+    steps:
+      - stepId: list-menu-items
+        x-operation:
+          url: https://api.cafe.redocly.com/menu
+          method: get
+        successCriteria:
+          - condition: $statusCode == 200

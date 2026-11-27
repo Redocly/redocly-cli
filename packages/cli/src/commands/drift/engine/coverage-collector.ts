@@ -1,4 +1,9 @@
-import { isPlainObject, isPropertyExcludedFromTarget } from '@redocly/openapi-core';
+import {
+  getSchemaPropertyPaths,
+  getValuePropertyPaths,
+  isPlainObject,
+  isPropertyExcludedFromTarget,
+} from '@redocly/openapi-core';
 
 import type {
   CoverageCount,
@@ -56,106 +61,6 @@ function markEntry(entries: Map<string, CoverageEntry>, item: CoverageItem): voi
   }
 }
 
-function propertyPath(parentPath: string, name: string): string {
-  return parentPath ? `${parentPath}.${name}` : name;
-}
-
-interface PropertySite {
-  target: 'request' | 'response';
-  status?: string;
-}
-
-/**
- * Register every property reachable from `schema` as a coverage entry. Composed
- * schemas (`allOf`, `oneOf`, `anyOf`) contribute their properties under the same
- * path, so a property declared in several branches is counted once. Dereferenced
- * recursive schemas are circular, so the walk stops when it meets an ancestor.
- */
-function collectPropertySites(
-  schema: unknown,
-  site: PropertySite,
-  path: string,
-  entries: Map<string, CoverageEntry>,
-  ancestors: Set<object>
-): void {
-  if (!isPlainObject(schema) || ancestors.has(schema)) {
-    return;
-  }
-  ancestors.add(schema);
-
-  for (const branches of [schema.allOf, schema.oneOf, schema.anyOf]) {
-    if (Array.isArray(branches)) {
-      for (const branch of branches) {
-        collectPropertySites(branch, site, path, entries, ancestors);
-      }
-    }
-  }
-
-  if (isPlainObject(schema.properties)) {
-    for (const [name, propertySchema] of Object.entries(schema.properties)) {
-      if (isPropertyExcludedFromTarget(propertySchema, site.target)) {
-        continue;
-      }
-      const childPath = propertyPath(path, name);
-      addEntry(entries, { kind: 'property', ...site, path: childPath });
-      collectPropertySites(propertySchema, site, childPath, entries, ancestors);
-    }
-  }
-
-  if (isPlainObject(schema.items)) {
-    collectPropertySites(schema.items, site, `${path}[]`, entries, ancestors);
-  }
-
-  ancestors.delete(schema);
-}
-
-/**
- * Walk a JSON value together with its schema and mark every documented property
- * the value carries. Every `allOf` / `oneOf` / `anyOf` branch is entered: entries
- * are keyed by path and only fields present in the value are marked, so a branch
- * can only credit a documented field the value really carries.
- */
-function observeProperties(
-  value: unknown,
-  schema: unknown,
-  site: PropertySite,
-  path: string,
-  entries: Map<string, CoverageEntry>,
-  ancestors: Set<object>
-): void {
-  if (!isPlainObject(schema) || ancestors.has(schema)) {
-    return;
-  }
-  ancestors.add(schema);
-
-  for (const branches of [schema.allOf, schema.oneOf, schema.anyOf]) {
-    if (Array.isArray(branches)) {
-      for (const branch of branches) {
-        observeProperties(value, branch, site, path, entries, ancestors);
-      }
-    }
-  }
-
-  if (isPlainObject(schema.properties) && isPlainObject(value)) {
-    for (const [name, propertySchema] of Object.entries(schema.properties)) {
-      if (value[name] === undefined) {
-        continue;
-      }
-      const childPath = propertyPath(path, name);
-      markEntry(entries, { kind: 'property', ...site, path: childPath });
-      observeProperties(value[name], propertySchema, site, childPath, entries, ancestors);
-    }
-  }
-
-  if (isPlainObject(schema.items) && Array.isArray(value)) {
-    for (const element of value) {
-      observeProperties(element, schema.items, site, `${path}[]`, entries, ancestors);
-    }
-  }
-
-  ancestors.delete(schema);
-}
-
 function createOperationState(
   operation: OpenApiOperation,
   ignoreCookies: boolean
@@ -179,7 +84,9 @@ function createOperationState(
 
   for (const [mime, schema] of Object.entries(operation.requestBodyContent)) {
     if (isJsonMime(mime)) {
-      collectPropertySites(schema, { target: 'request' }, '', entries, new Set());
+      for (const path of getSchemaPropertyPaths(schema, 'request')) {
+        addEntry(entries, { kind: 'property', target: 'request', path });
+      }
     }
   }
 
@@ -187,7 +94,9 @@ function createOperationState(
     addEntry(entries, { kind: 'response', status });
     for (const [mime, schema] of Object.entries(operation.responseBodyContent[status] ?? {})) {
       if (isJsonMime(mime)) {
-        collectPropertySites(schema, { target: 'response', status }, '', entries, new Set());
+        for (const path of getSchemaPropertyPaths(schema, 'response')) {
+          addEntry(entries, { kind: 'property', target: 'response', status, path });
+        }
       }
     }
   }
@@ -290,14 +199,10 @@ export class CoverageCollector {
         operation.requestBodyContent,
         exchange.request.contentType
       );
-      observeProperties(
-        exchange.request.bodyJson,
-        requestSchema,
-        { target: 'request' },
-        '',
-        entries,
-        new Set()
-      );
+      const { bodyJson } = exchange.request;
+      for (const path of getValuePropertyPaths(bodyJson, requestSchema, 'request')) {
+        markEntry(entries, { kind: 'property', target: 'request', path });
+      }
     }
 
     const response = exchange.response;
@@ -316,14 +221,9 @@ export class CoverageCollector {
         operation.responseBodyContent[status] ?? {},
         response.contentType
       );
-      observeProperties(
-        response.bodyJson,
-        responseSchema,
-        { target: 'response', status },
-        '',
-        entries,
-        new Set()
-      );
+      for (const path of getValuePropertyPaths(response.bodyJson, responseSchema, 'response')) {
+        markEntry(entries, { kind: 'property', target: 'response', status, path });
+      }
     }
   }
 

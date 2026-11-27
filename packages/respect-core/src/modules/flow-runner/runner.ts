@@ -465,7 +465,7 @@ function findSourceDescriptionUrl(
   }
 }
 
-function isWorkflowExecutionResult(
+export function isWorkflowExecutionResult(
   step: Step | WorkflowExecutionResult
 ): step is WorkflowExecutionResult {
   return 'type' in step && step.type === 'workflow';

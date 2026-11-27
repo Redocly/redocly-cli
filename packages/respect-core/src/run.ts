@@ -5,9 +5,15 @@ import {
   type BaseResolver,
 } from '@redocly/openapi-core';
 
+import { calculateCoverage } from './modules/api-coverage/calculate-coverage.js';
 import { runTestFile } from './modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from './modules/logger-output/index.js';
-import { type ExecutedStepsCount, type RunFileResult, type RunOptions } from './types.js';
+import {
+  type ExecutedStepsCount,
+  type RunFileResult,
+  type RunOptions,
+  type SourceDescriptionCoverage,
+} from './types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -30,6 +36,7 @@ export type RespectOptions = {
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
   noSecretsMasking?: boolean;
+  coverage?: boolean;
 };
 
 export async function run(options: RespectOptions): Promise<RunFileResult[]> {
@@ -81,6 +88,17 @@ async function runFile({
 
   displaySummary({ startedAt, workflows: executedWorkflows, options });
 
+  let coverage: SourceDescriptionCoverage[] | undefined;
+  if (options.coverage) {
+    // the coverage is a report on a finished run, so a failure to measure it must not fail the run
+    try {
+      coverage = calculateCoverage([{ ctx, executedWorkflows }]);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      options.logger.warn(`API coverage of ${options.file} is not measured: ${reason}\n`);
+    }
+  }
+
   return {
     hasProblems,
     hasWarnings,
@@ -92,5 +110,6 @@ async function runFile({
     totalRequests: totals.totalRequests,
     globalTimeoutError: hasGlobalTimeoutError,
     ...(ctx.noSecretsMasking && { secretValues: Array.from(ctx.secretsSet) || [] }),
+    ...(coverage && { coverage }),
   };
 }

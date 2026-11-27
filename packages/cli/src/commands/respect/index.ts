@@ -7,6 +7,7 @@ import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-ar
 import { readEnvVariables } from '../../utils/read-env-variables.js';
 import { type CommandArgs } from '../../wrapper.js';
 import { withConnectionClient } from './connection-client.js';
+import { displayCoverageTable } from './display-coverage-table.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
 import { createHarLog } from './har-logs/har-logs.js';
 import { withHar } from './har-logs/index.js';
@@ -36,6 +37,7 @@ export type RespectArgv = {
   'max-fetch-timeout': number;
   'execution-timeout': number;
   'no-secrets-masking': boolean;
+  coverage?: boolean;
 };
 
 export async function handleRespect({
@@ -98,7 +100,14 @@ export async function handleRespect({
       fetch: customFetch as unknown as typeof fetch,
       externalRefResolver,
       noSecretsMasking: argv['no-secrets-masking'],
+      coverage: argv.coverage,
     };
+
+    if (options.files.length === 0) {
+      throw new Error(
+        'No Arazzo files were provided. Specify at least one file as the command argument.'
+      );
+    }
 
     if (options.skip && options.workflow) {
       throw new Error(`Cannot use both --skip and --workflow flags at the same time.`);
@@ -125,6 +134,11 @@ export async function handleRespect({
     logger.printNewLine();
     displayFilesSummaryTable(runAllFilesResult, logger);
     logger.printNewLine();
+
+    if (argv.coverage) {
+      displayCoverageTable(runAllFilesResult, logger, argv.verbose);
+      logger.printNewLine();
+    }
 
     if (argv['json-output']) {
       const jsonOutputData = composeJsonLogs(runAllFilesResult, performance.now() - startedAt);

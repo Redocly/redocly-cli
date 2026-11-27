@@ -212,6 +212,8 @@ The platform builds a preview in a few minutes; `redocly project pr status` then
 Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine the steps and success criteria by hand.
 A step that leaves out `parameters` or `requestBody` takes them from the description's examples, or generates them from the schema.
 Inputs that don't match a workflow's `inputs` schema produce a warning before the workflow runs, and the workflow still runs with the inputs as given.
+Add `--coverage` (experimental) to see, for every OpenAPI source description, how many of its operations, parameters, schema properties, and response codes the executed steps reached, and which operations no step called.
+With `--verbose` as well, it lists the covered and the not covered items of every operation.
 
 ## Workflow
 
