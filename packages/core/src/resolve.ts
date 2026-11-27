@@ -4,6 +4,7 @@ import * as url from 'node:url';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 import type { ResolveConfig } from './config/types.js';
+import { isBrowser } from './env.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import { isGraphqlRef } from './graphql/detect-graphql.js';
 import { parseYaml } from './js-yaml/index.js';
@@ -208,7 +209,8 @@ export class BaseResolver {
 
   // Only a path written in a local file is compared: the caller is responsible for the path it passes.
   async #checkPathCasing(base: string | null, absoluteRef: string) {
-    if (base === null || (isAbsoluteUrl(base) && !isFileUrl(base))) return;
+    // A browser has no file system to compare with.
+    if (isBrowser || base === null || (isAbsoluteUrl(base) && !isFileUrl(base))) return;
     if (isAbsoluteUrl(absoluteRef) && !isFileUrl(absoluteRef)) return;
 
     const casingError = checkPathCasing(
