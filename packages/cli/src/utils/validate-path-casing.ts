@@ -16,8 +16,12 @@ const pathOptionsByCommand: Record<string, string[]> = {
 };
 
 // Fails for a path that opens on macOS and Windows but not on Linux, where file names are case-sensitive.
-export function validatePathCasing(filePath: string): string {
-  const casingError = checkPathCasing(filePath, process.cwd());
+// Pass one `folderEntries` map to a series of calls, so that each folder is listed once.
+export function validatePathCasing(
+  filePath: string,
+  folderEntries?: Map<string, string[]>
+): string {
+  const casingError = checkPathCasing(filePath, process.cwd(), folderEntries);
   if (casingError !== undefined) {
     throw new HandledError(casingError);
   }
@@ -25,7 +29,10 @@ export function validatePathCasing(filePath: string): string {
 }
 
 export function validatePathOptions(argv: Arguments): void {
+  const folderEntries = new Map<string, string[]>();
   for (const option of pathOptionsByCommand[argv._[0]] ?? []) {
-    [argv[option]].flat().filter(isString).forEach(validatePathCasing);
+    for (const filePath of [argv[option]].flat().filter(isString)) {
+      validatePathCasing(filePath, folderEntries);
+    }
   }
 }

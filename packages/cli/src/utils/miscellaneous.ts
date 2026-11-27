@@ -39,8 +39,9 @@ export async function getFallbackApisOrExit(
     ? fallbackToAllDefinitions(config)
     : await expandGlobsInEntrypoints(argsApis!, config);
 
+  const folderEntries = new Map<string, string[]>();
   for (const { path } of res) {
-    if (!isAbsoluteUrl(path)) validatePathCasing(path);
+    if (!isAbsoluteUrl(path)) validatePathCasing(path, folderEntries);
   }
 
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
