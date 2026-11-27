@@ -29,16 +29,22 @@ export function displayCoverageTable(
   logger: LoggerInterface,
   verbose?: boolean
 ) {
-  const sections = filesResult.map(({ file, coverage = [] }) => ({
+  // a file whose coverage could not be measured got a warning during the run, and is left out
+  const measuredFiles = filesResult.filter(({ coverage }) => coverage);
+  if (measuredFiles.length === 0) {
+    return;
+  }
+
+  const sections = measuredFiles.map(({ file, coverage = [] }) => ({
     title: path.basename(file),
     descriptions: coverage.map((description) => ({ label: description.name, description })),
   }));
 
-  if (filesResult.length > 1) {
+  if (measuredFiles.length > 1) {
     // several files can use the same API description, so it is measured again for all of them together
     sections.push({
       title: 'All files',
-      descriptions: calculateCoverage(filesResult).map((description) => ({
+      descriptions: calculateCoverage(measuredFiles).map((description) => ({
         label: isAbsoluteUrl(description.url)
           ? description.url
           : path.relative(process.cwd(), description.url),

@@ -38,6 +38,21 @@ const order = {
   ],
 };
 
+// An order and its customer reference each other, and a receipt carries two orders.
+const customerProperties: Record<string, unknown> = { name: { type: 'string' } };
+const orderProperties = {
+  id: { type: 'string' },
+  customer: { type: 'object', properties: customerProperties },
+};
+customerProperties.lastOrder = { type: 'object', properties: orderProperties };
+const receipt = {
+  type: 'object',
+  properties: {
+    order: { type: 'object', properties: orderProperties },
+    previousOrder: { type: 'object', properties: orderProperties },
+  },
+};
+
 describe('getSchemaPropertyPaths', () => {
   it('lists the properties of composed, nested, and recursive schemas for a request', () => {
     expect(Array.from(getSchemaPropertyPaths(order, 'request'))).toEqual([
@@ -50,6 +65,23 @@ describe('getSchemaPropertyPaths', () => {
       'problem',
       'problem.title',
       'problem.cause',
+    ]);
+  });
+
+  it('follows the schemas that reference each other only where they first appear', () => {
+    expect(Array.from(getSchemaPropertyPaths(receipt, 'response'))).toEqual([
+      'order',
+      'order.id',
+      'order.customer',
+      'order.customer.name',
+      'order.customer.lastOrder',
+      'order.customer.lastOrder.id',
+      'order.customer.lastOrder.customer',
+      'previousOrder',
+      'previousOrder.id',
+      'previousOrder.customer',
+      'previousOrder.customer.name',
+      'previousOrder.customer.lastOrder',
     ]);
   });
 });

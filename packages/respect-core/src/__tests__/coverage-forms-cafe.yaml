@@ -55,10 +55,16 @@ paths:
         '204':
           description: Token issued.
   /orders:
+    parameters:
+      - name: filter
+        in: query
+        schema:
+          type: string
     get:
       summary: List all orders
       operationId: listOrders
       parameters:
+        # overrides the `filter` of the path
         - name: filter
           in: query
           schema:

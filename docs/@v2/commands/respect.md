@@ -482,9 +482,12 @@ Keep the following in mind when you read the numbers:
   A `querystring` parameter with any other media type, or with a schema that documents no keys, counts as one parameter.
 - For a form-urlencoded or multipart request body, only the fields of the form are counted, not the properties nested in them.
   Bodies in other formats, such as XML, are not counted.
+- A schema under a media type range, such as `*/*` or `application/*`, is counted as the schema of a JSON body, because the range describes JSON bodies too.
 - Respect collects schema properties from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
   Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
   A schema that references itself is followed for one level of nesting: `cause.title` is counted, and `cause.cause.title` is not.
+  Schemas that reference each other are followed until one of them repeats, and only where they first appear in a body.
+  Where they appear again, the properties nested in them are not counted.
 
 With `--coverage` and `--json-output` together, the JSON logs of each file get a `coverage` list with an entry for every API description.
 An entry holds the same totals as the table and, for every operation, the items the steps covered and the items they missed.
@@ -523,6 +526,7 @@ The following entry is shortened to one of its three operations and a few of the
 
 A property `path` is relative to the body, and `[]` marks the items of an array.
 Coverage does not affect the exit code.
+When Respect cannot measure the coverage of a file, it prints a warning, leaves the file out of the table, and writes no `coverage` list for it to the JSON logs.
 
 ## Examples
 

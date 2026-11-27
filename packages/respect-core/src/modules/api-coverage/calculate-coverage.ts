@@ -23,6 +23,7 @@ import type {
 import { isJsonContentType } from '../../utils/api-fetcher.js';
 import { isFormUrlencoded } from '../../utils/url-encoding.js';
 import {
+  contentTypeMatchesPattern,
   getOperationFromDescriptionBySource,
   getRequestBodySchema,
   getResponseKeyByStatusCode,
@@ -160,19 +161,21 @@ function createOperationEntries(
   const entries = new Map<string, CoverageEntry>();
   addEntry(entries, { kind: 'operation' });
 
-  for (const parameter of [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]) {
+  // the definition of an operation overrides the one of its path, and the first definition is kept
+  for (const parameter of [...(operation.parameters ?? []), ...(pathItem.parameters ?? [])]) {
     if (!isRef(parameter)) {
       addParameterEntries(entries, parameter);
     }
   }
 
+  // a response or a media type without a value is parsed as `null`
   const requestBodyContent = isRef(operation.requestBody) ? {} : operation.requestBody?.content;
   for (const [mediaType, mediaTypeObject] of Object.entries(requestBodyContent ?? {})) {
     // a form sends its fields flat, so only the properties of the schema itself are counted for it
-    const paths = isJsonContentType(mediaType)
-      ? getSchemaPropertyPaths(mediaTypeObject.schema, 'request')
+    const paths = describesJson(mediaType)
+      ? getSchemaPropertyPaths(mediaTypeObject?.schema, 'request')
       : isFormContentType(mediaType)
-        ? getSchemaPropertyNames(mediaTypeObject.schema, 'request')
+        ? getSchemaPropertyNames(mediaTypeObject?.schema, 'request')
         : [];
     for (const path of paths) {
       addEntry(entries, { kind: 'property', target: 'request', path });
@@ -184,9 +187,9 @@ function createOperationEntries(
       continue;
     }
     addEntry(entries, { kind: 'response', status });
-    for (const [mediaType, mediaTypeObject] of Object.entries(response.content ?? {})) {
-      if (isJsonContentType(mediaType)) {
-        for (const path of getSchemaPropertyPaths(mediaTypeObject.schema, 'response')) {
+    for (const [mediaType, mediaTypeObject] of Object.entries(response?.content ?? {})) {
+      if (describesJson(mediaType)) {
+        for (const path of getSchemaPropertyPaths(mediaTypeObject?.schema, 'response')) {
           addEntry(entries, { kind: 'property', target: 'response', status, path });
         }
       }
@@ -212,7 +215,7 @@ function addParameterEntries(entries: Map<string, CoverageEntry>, parameter: Oas
     const [mediaType, mediaTypeObject] = Object.entries(parameter.content ?? {})[0] ?? [];
     const keys =
       mediaType && isFormUrlencoded(mediaType)
-        ? Array.from(getSchemaPropertyNames(mediaTypeObject.schema, 'request'))
+        ? Array.from(getSchemaPropertyNames(mediaTypeObject?.schema, 'request'))
         : [];
     // each key of a form-urlencoded query string counts as a parameter of its own
     for (const key of keys) {
@@ -345,6 +348,11 @@ function addEntry(
   if (!entries.has(key)) {
     entries.set(key, { item, covered: false, queryKeys });
   }
+}
+
+// A media type range, such as `*/*` or `application/*`, describes the JSON bodies too.
+function describesJson(mediaType: string): boolean {
+  return isJsonContentType(mediaType) || contentTypeMatchesPattern('application/json', mediaType);
 }
 
 function isFormContentType(mediaType: string): boolean {

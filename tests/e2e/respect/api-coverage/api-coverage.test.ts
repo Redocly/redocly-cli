@@ -39,6 +39,17 @@ test('should list the covered and the not covered items of every operation with 
   expect(result).toMatchSnapshot();
 }, 60_000);
 
+test('should keep the result of the run when the coverage cannot be measured', () => {
+  const args = getParams(indexEntryPoint, [
+    'respect',
+    'menu-unnamed-parameter.arazzo.yaml',
+    '--coverage',
+  ]);
+
+  const result = getCommandOutput(args, { testPath: __dirname });
+  expect(result).toMatchSnapshot();
+}, 60_000);
+
 test('should write the coverage of a file to the --json-output file', () => {
   const outputDir = mkdtempSync(join(tmpdir(), 'respect-coverage-'));
   const jsonOutputPath = join(outputDir, 'logs.json');

@@ -1,5 +1,38 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`should keep the result of the run when the coverage cannot be measured 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow menu-unnamed-parameter.arazzo.yaml / list-menu 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for menu-unnamed-parameter.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                   │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ menu-unnamed-parameter.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+ 
+
+API coverage of menu-unnamed-parameter.arazzo.yaml is not measured: Cannot read properties of undefined (reading 'toLowerCase')
+
+Exit code: 0"
+`;
+
 exports[`should list the covered and the not covered items of every operation with --verbose 1`] = `
 "──────────────────────────────────────────────────────────────────────────────── 
  

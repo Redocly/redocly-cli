@@ -65,7 +65,8 @@ paths:
         default:
           description: Any other response.
           content:
-            application/problem+json:
+            # a media type range describes JSON bodies too
+            '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
@@ -80,6 +81,8 @@ paths:
       responses:
         '204':
           description: Order deleted.
+        # a response without a value
+        '404':
 components:
   schemas:
     Order:

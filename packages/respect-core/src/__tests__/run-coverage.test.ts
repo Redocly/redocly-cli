@@ -257,6 +257,10 @@ describe('run with coverage', () => {
                   "kind": "response",
                   "status": "204",
                 },
+                {
+                  "kind": "response",
+                  "status": "404",
+                },
               ],
               "operationId": "deleteOrder",
               "path": "/orders/{orderId}",
@@ -277,7 +281,7 @@ describe('run with coverage', () => {
             },
             "responses": {
               "covered": 3,
-              "total": 5,
+              "total": 6,
             },
           },
         },
@@ -424,7 +428,7 @@ describe('run with coverage', () => {
         name: 'cafe-api',
         totals: {
           operations: { covered: 2, total: 3 },
-          responses: { covered: 3, total: 5 },
+          responses: { covered: 3, total: 6 },
         },
       },
     ]);
