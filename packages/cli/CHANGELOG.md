@@ -1,5 +1,30 @@
 # @redocly/cli
 
+## 2.85.0
+
+### Minor Changes
+
+- Added the `no-step-requestBody-with-workflowId` rule for Arazzo descriptions.
+  It reports the `requestBody` of a step that uses `workflowId`, because a request body is only passed to an operation.
+- Added the `spec-no-invalid-runtime-expressions` rule for Arazzo descriptions.
+  It reports an invalid runtime expression in the `outputs` of a workflow or a step, in the `context` of a criterion or a selector, in the `reference` of a reusable object, and in the `operationPath` or the `channelPath` of a step.
+- Added the `spec-step-dependsOn-defined` rule for Arazzo 1.1.0 descriptions.
+  The rule reports a step whose `dependsOn` list has a value that does not reference a defined step.
+- Added `format` validation to the response schema checks in Respect, using the same formats as the lint rules.
+  For example, a response value with `format: date-time` that is not a valid date-time fails the schema check.
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule did not validate a Selector Object used as the `value` of a parameter in an Arazzo 1.1 description.
+- Fixed an issue where the `drift` and `proxy` commands skipped an OpenAPI description with the `Maximum call stack size exceeded` warning when it shared a file with a recursive schema with another description in the same folder.
+- Fixed an issue where Respect could take a long time to evaluate a string with many unclosed `$faker` calls.
+- Fixed an issue where Respect failed with the `Maximum call stack size exceeded` error when more than one Arazzo file in a run used the same OpenAPI description with a recursive schema.
+- Fixed an issue where Respect failed with the `Maximum call stack size exceeded` error when a workflow `inputs` schema was recursive.
+- Fixed an issue where Respect did not evaluate a runtime expression with a name that starts with a digit, an underscore, or a hyphen, such as `$inputs._token`, or an `$inputs` expression with a JSON Pointer, such as `$inputs.customer#/name`.
+- Fixed an issue where Respect didn't evaluate runtime expressions with characters that the Arazzo specification allows in JSON Pointers or query and path parameter names.
+- Updated @redocly/openapi-core to v2.85.0.
+- Updated @redocly/respect-core to v2.85.0.
+
 ## 2.84.0
 
 ### Minor Changes

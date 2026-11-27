@@ -1,5 +1,21 @@
 # @redocly/openapi-core
 
+## 2.85.0
+
+### Minor Changes
+
+- Added the `no-step-requestBody-with-workflowId` rule for Arazzo descriptions.
+  It reports the `requestBody` of a step that uses `workflowId`, because a request body is only passed to an operation.
+- Added the `spec-no-invalid-runtime-expressions` rule for Arazzo descriptions.
+  It reports an invalid runtime expression in the `outputs` of a workflow or a step, in the `context` of a criterion or a selector, in the `reference` of a reusable object, and in the `operationPath` or the `channelPath` of a step.
+- Added the `spec-step-dependsOn-defined` rule for Arazzo 1.1.0 descriptions.
+  The rule reports a step whose `dependsOn` list has a value that does not reference a defined step.
+
+### Patch Changes
+
+- Fixed an issue where the `struct` rule did not validate a Selector Object used as the `value` of a parameter in an Arazzo 1.1 description.
+- Fixed an issue where Respect failed with the `Maximum call stack size exceeded` error when more than one Arazzo file in a run used the same OpenAPI description with a recursive schema.
+
 ## 2.84.0
 
 ### Minor Changes
