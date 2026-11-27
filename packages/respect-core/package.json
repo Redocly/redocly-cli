@@ -50,6 +50,7 @@
     "@redocly/ajv": "^8.18.3",
     "@redocly/openapi-core": "2.84.0",
     "ajv": "npm:@redocly/ajv@^8.18.3",
+    "ajv-formats": "^3.0.1",
     "better-ajv-errors": "^2.0.3",
     "colorette": "^2.0.20",
     "json-pointer": "^0.6.2",

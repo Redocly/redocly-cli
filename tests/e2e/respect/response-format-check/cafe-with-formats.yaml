@@ -1,0 +1,29 @@
+openapi: 3.2.0
+info:
+  title: Redocly Cafe with a wrong format
+  description: >
+    Part of the Redocly Cafe API description where the menu item photo
+    description is marked as a `date-time`, which the returned text is not.
+  version: 1.0.0
+servers:
+  - url: https://api.cafe.redocly.com
+paths:
+  /menu-item-images/{menuItemId}:
+    get:
+      summary: Retrieve a menu item photo
+      operationId: getMenuItemPhoto
+      security: []
+      parameters:
+        - name: menuItemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Menu item photo retrieved successfully.
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: date-time
