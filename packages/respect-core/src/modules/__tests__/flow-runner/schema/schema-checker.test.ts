@@ -701,6 +701,86 @@ describe('checkSchema', () => {
     });
   });
 
+  describe('response headers', () => {
+    const headersDescriptionOperation = {
+      ...descriptionOperation,
+      responses: {
+        '200': {
+          description: 'successful operation',
+          headers: {
+            'X-Request-ID': { required: true, schema: { type: 'string' } },
+            'X-Rate-Limit-Remaining': { required: false, schema: { type: 'integer' } },
+            'X-Ids': { schema: { type: 'array', items: { type: 'integer' }, minItems: 2 } },
+            'X-Point': { schema: { type: 'object' } },
+            'X-Meta': { content: { 'application/json': { schema: { type: 'object' } } } },
+            'Content-Type': { required: true, schema: { type: 'string' } },
+          },
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        '404': {
+          description: 'not found',
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+      },
+    };
+
+    const checkHeaders = (statusCode: number, header: Record<string, string>) =>
+      checkSchema({
+        stepCallCtx: {
+          ...stepCallCtx,
+          $response: {
+            body: {},
+            statusCode,
+            header,
+            contentType: 'application/json',
+          },
+        } as unknown as StepCallContext,
+        descriptionOperation: headersDescriptionOperation,
+        ctx,
+      }).find((check) => check.name === CHECKS.RESPONSE_HEADER_CHECK);
+
+    it('ignores a Content-Type entry in the response headers', () => {
+      const check = checkHeaders(200, { 'x-request-id': 'abc' });
+      expect(check?.passed).toBe(true);
+      expect(check?.message).not.toContain('Content-Type');
+    });
+
+    it('adds no check when the response describes no required headers', () => {
+      expect(checkHeaders(404, {})).toBeUndefined();
+    });
+
+    it('checks header values against their schema', () => {
+      expect(
+        checkHeaders(200, { 'x-request-id': 'abc', 'x-rate-limit-remaining': '10' })?.passed
+      ).toBe(true);
+
+      const check = checkHeaders(200, { 'x-request-id': 'abc', 'x-rate-limit-remaining': 'many' });
+      expect(check?.passed).toBe(false);
+      expect(check?.message).toContain('X-Rate-Limit-Remaining');
+      expect(check?.message).toContain('must be integer');
+    });
+
+    it('splits an array header on commas', () => {
+      expect(checkHeaders(200, { 'x-request-id': 'abc', 'x-ids': '1, 2,3' })?.passed).toBe(true);
+
+      const check = checkHeaders(200, { 'x-request-id': 'abc', 'x-ids': '1,x' });
+      expect(check?.passed).toBe(false);
+      expect(check?.message).toContain('must be integer');
+      expect(checkHeaders(200, { 'x-request-id': 'abc', 'x-ids': '1' })?.passed).toBe(false);
+    });
+
+    it('checks object and content headers for presence only', () => {
+      const check = checkHeaders(200, {
+        'x-request-id': 'abc',
+        'x-point': 'x,1,y,2',
+        'x-meta': 'not json',
+      });
+      expect(check?.passed).toBe(true);
+      expect(check?.message).toContain('Response headers match the description: X-Request-ID.');
+      expect(check?.message).toContain('with no value check: X-Point, X-Meta.');
+    });
+  });
+
   it('should return empty checks if no response available', () => {
     const stepCtx = {
       $request: {

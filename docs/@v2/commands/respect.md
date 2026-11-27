@@ -133,7 +133,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --severity
 - string
 - Severity of the check.
-  Customize the severity level of validation checks for status codes, schemas, and content types.
+  Customize the severity level of validation checks for status codes, schemas, content types, and response headers.
   Setting the severity level is useful when:
   - You're actively developing your API and want to temporarily relax validation.
   - You're testing new API behavior that doesn't match the current schema.
@@ -145,6 +145,9 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   - `SCHEMA_CHECK`: Verifies if the response body schema matches what is defined in the provided OpenAPI description.
   - `SUCCESS_CRITERIA_CHECK`: Verifies if the success criteria defined in the provided Arazzo description has been met.
   - `CONTENT_TYPE_CHECK`: Verifies if the `Content-Type` matches what is defined in the provided OpenAPI description.
+  - `RESPONSE_HEADER_CHECK`: Verifies if the response includes the headers marked as `required` in the provided OpenAPI description, and if every described header that the response includes matches its schema.
+    A header described as an array is read as a comma-separated list, as the `simple` style serializes it.
+    Headers described as objects or with `content` are checked for presence only.
 
   The following severity values are available:
   - `error`: Validation failures cause the workflow to fail.

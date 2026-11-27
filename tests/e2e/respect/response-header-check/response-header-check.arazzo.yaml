@@ -1,0 +1,29 @@
+arazzo: 1.0.1
+info:
+  title: Test the required response headers
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: ./cafe-with-required-headers.yaml
+
+workflows:
+  - workflowId: get-menu-item-photo
+    steps:
+      - stepId: list-menu-items
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: mermaid-treasure-latte
+      - stepId: get-menu-item-photo
+        operationId: getMenuItemPhoto
+        parameters:
+          - in: path
+            name: menuItemId
+            value: prd_0000000000seedtrams0000000
+          - in: header
+            name: accept
+            value: text/plain

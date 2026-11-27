@@ -1,0 +1,90 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should check that the response includes the required headers 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow response-header-check.arazzo.yaml / get-menu-item-photo 
+ 
+  ✓ GET /menu - step list-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request Headers:
+      accept: application/json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ response header check
+    ✓ schema check
+ 
+  ✗ GET /menu-item-images/{menuItemId} - step get-menu-item-photo 
+
+    Request URL: https://api.cafe.redocly.com/menu-item-images/prd_0000000000seedtrams0000000
+    Request Headers:
+      accept: text/plain 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      A classic Italian tiramisu layered with mascarpone and espresso 
+ 
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✗ response header check
+    ✓ schema check
+ 
+
+  Failed tests info:
+
+  Workflow name: get-menu-item-photo
+ 
+    stepId - get-menu-item-photo 
+    ✗ response header check 
+      Required headers for 200 response are missing: X-Request-ID.
+      
+      MAXIMUM must be <= 10
+      
+      1 | {
+      > 2 |   "Content-Length": 63
+      |                     ^^ 👈🏽  maximum must be <= 10
+      3 | }
+      
+       
+  Summary for response-header-check.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 7 passed, 1 failed, 8 total
+  Time: <test>ms 
+ 
+ 
+┌───────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x response-header-check.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└───────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+
+Exit code: 1"
+`;
