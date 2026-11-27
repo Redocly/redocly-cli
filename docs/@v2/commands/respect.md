@@ -476,6 +476,7 @@ Keep the following in mind when you read the numbers:
 - The operations under `webhooks` and `callbacks` are not counted, because the API sends those requests.
   The `additionalOperations` of a path are not counted either, because Respect cannot call them.
 - An object query parameter in the `form` style is covered when a step sends any of its properties as a query key.
+  With `explode: false`, only a query key with the name of the parameter covers it.
   One in the `deepObject` style is covered when a step sends a `name[property]` key.
 - Each property of a form-urlencoded `querystring` schema counts as its own parameter, named after the parameter and the key, for example `search.status`.
   A `querystring` parameter with any other media type, or with a schema that documents no keys, counts as one parameter.
@@ -485,8 +486,9 @@ Keep the following in mind when you read the numbers:
   Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
   A schema that references itself is followed for one level of nesting: `cause.title` is counted, and `cause.cause.title` is not.
 
-With `--json-output`, the JSON logs of each file get a `coverage` list with an entry for every API description.
-An entry holds the same totals as the table and, for every operation, the items the steps covered and the items they missed:
+With `--coverage` and `--json-output` together, the JSON logs of each file get a `coverage` list with an entry for every API description.
+An entry holds the same totals as the table and, for every operation, the items the steps covered and the items they missed.
+The following entry is shortened to one of its three operations and a few of the items:
 
 ```json
 {
