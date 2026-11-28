@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/recommended
+seo:
+  title: Recommended ruleset (CLI v2)
+  description: See the errors and warnings included in the recommended ruleset for Redocly CLI v2.
 ---
 
 # Recommended ruleset

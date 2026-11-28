@@ -1,3 +1,8 @@
+---
+seo:
+  description: Require the in field on parameters of an Arazzo step that calls an operation.
+---
+
 # spec-step-parameters-in-required
 
 Requires the `in` field on the parameters of a step that calls an operation.
