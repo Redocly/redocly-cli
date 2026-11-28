@@ -86,6 +86,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --json-output
 - string
 - Path for the JSON file for saving logs.
+  The logs include the inputs and outputs of each workflow run, and the outputs of each step that defines `outputs`.
   For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.json` file:
 
   `npx @redocly/cli@latest respect test-file.yaml --json-output='logs.json'`

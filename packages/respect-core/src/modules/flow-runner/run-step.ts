@@ -206,6 +206,7 @@ export async function runStep({
     }
 
     if (step.outputs) {
+      step.outputValues = outputs;
       // save local $steps context
       ctx.$steps[stepId] = {
         outputs,
