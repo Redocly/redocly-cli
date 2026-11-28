@@ -1,3 +1,8 @@
+---
+seo:
+  description: Ensure the workflowId of an Arazzo success or failure action references an existing workflow in the document or a source description.
+---
+
 # spec-action-workflowId-defined
 
 The `workflowId` of a success or failure action must reference an existing workflow.

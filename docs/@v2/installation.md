@@ -1,3 +1,9 @@
+---
+seo:
+  title: Install Redocly CLI v2
+  description: Install Redocly CLI locally with npm, run it with npx, download a standalone binary without Node.js, or use Docker.
+---
+
 # Install Redocly CLI
 
 Choose the most appropriate installation method for your needs:

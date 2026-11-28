@@ -1,3 +1,9 @@
+---
+seo:
+  title: Migrate to Redocly CLI v2 from Spectral
+  description: Compare Spectral and Redocly CLI, replace spectral lint commands with redocly lint, and map ruleset parameters.
+---
+
 # Migrate to Redocly from Spectral
 
 Redocly CLI and the rest of the Redocly toolchain cover the same linting ground as [Spectral](https://stoplight.io/open-source/spectral) — and go further. This guide compares both tools so you can decide whether switching makes sense for your team.

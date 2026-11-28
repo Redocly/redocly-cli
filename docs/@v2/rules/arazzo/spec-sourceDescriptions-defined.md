@@ -1,3 +1,8 @@
+---
+seo:
+  description: Require a $sourceDescriptions.<name> reference in an Arazzo document to use the name of a defined source description.
+---
+
 # spec-sourceDescriptions-defined
 
 Requires a `$sourceDescriptions.<name>` reference to use the `name` of a source description defined in `sourceDescriptions`.

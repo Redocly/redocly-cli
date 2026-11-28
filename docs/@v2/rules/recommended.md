@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/recommended
+seo:
+  title: Recommended ruleset in Redocly CLI v2
+  description: Reference the rules and default severity levels included in the Redocly CLI recommended ruleset.
 ---
 
 # Recommended ruleset
