@@ -1,3 +1,9 @@
+---
+seo:
+  title: join command (CLI v1)
+  description: Combine multiple OpenAPI 3.x description files into a single unified API description using the Redocly CLI v1 join command.
+---
+
 # `join`
 
 ## Introduction

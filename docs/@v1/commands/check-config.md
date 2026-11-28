@@ -1,3 +1,9 @@
+---
+seo:
+  title: check-config command (CLI v1)
+  description: Validate the contents and structure of your Redocly configuration file using the Redocly CLI v1 check-config command.
+---
+
 # `check-config`
 
 ## Introduction

@@ -1,3 +1,9 @@
+---
+seo:
+  title: preview-docs command (CLI v1)
+  description: Preview API reference documentation locally with Redoc or premium Redocly API reference using the CLI v1 preview-docs command.
+---
+
 # `preview-docs`
 
 ## Introduction

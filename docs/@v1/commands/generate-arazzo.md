@@ -1,4 +1,7 @@
 ---
+seo:
+  title: generate-arazzo command (CLI v1)
+  description: Generate an Arazzo description from an OpenAPI description file using the Redocly CLI v1 generate-arazzo command.
 slug:
   - /docs/cli/v1/commands/generate-arazzo
   - /docs/respect/v1/commands/generate-arazzo

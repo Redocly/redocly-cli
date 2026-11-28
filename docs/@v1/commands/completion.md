@@ -1,3 +1,9 @@
+---
+seo:
+  title: completion command (CLI v1)
+  description: Generate shell autocompletion scripts for bash or zsh using the Redocly CLI v1 completion command.
+---
+
 # `completion`
 
 ## Introduction
