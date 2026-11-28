@@ -1,6 +1,7 @@
 ---
 seo:
-  title: API docs
+  title: API documentation in Redocly CLI v1
+  description: Compare Redocly platform API reference docs and open-source Redoc, and preview or build API docs locally with Redocly CLI v1.
 ---
 
 # API documentation
