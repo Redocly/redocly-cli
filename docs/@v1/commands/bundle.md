@@ -1,3 +1,9 @@
+---
+seo:
+  title: bundle command (v1)
+  description: Combine multi-file OpenAPI descriptions into a single resolved JSON or YAML file with Redocly CLI.
+---
+
 # `bundle`
 
 ## Introduction

@@ -1,3 +1,9 @@
+---
+seo:
+  title: logout command (v1)
+  description: Clear your stored API key and credentials from your device using the Redocly CLI logout command.
+---
+
 # `logout`
 
 ## Introduction

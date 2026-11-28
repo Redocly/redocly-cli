@@ -1,3 +1,9 @@
+---
+seo:
+  title: check-config command (v1)
+  description: Validate that your Redocly configuration file is correctly formatted with the check-config command.
+---
+
 # `check-config`
 
 ## Introduction

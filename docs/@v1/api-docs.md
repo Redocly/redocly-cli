@@ -1,6 +1,7 @@
 ---
 seo:
-  title: API docs
+  title: API documentation (CLI v1)
+  description: Compare options for web-based API reference documentation with Redocly CLI, including hosted API reference and open-source Redoc.
 ---
 
 # API documentation

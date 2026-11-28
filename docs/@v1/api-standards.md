@@ -1,6 +1,7 @@
 ---
 seo:
-  title: API standards
+  title: API standards and governance (v1)
+  description: Use Redocly CLI linting and decorators to ensure API standards, validate OpenAPI descriptions, and enforce governance rules.
 ---
 
 # API standards and governance

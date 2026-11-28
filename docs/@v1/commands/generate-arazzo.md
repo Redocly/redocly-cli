@@ -2,6 +2,9 @@
 slug:
   - /docs/cli/v1/commands/generate-arazzo
   - /docs/respect/v1/commands/generate-arazzo
+seo:
+  title: generate-arazzo command (v1)
+  description: Auto-generate an Arazzo workflow description from an OpenAPI description file with Redocly CLI.
 ---
 
 # `generate-arazzo`
