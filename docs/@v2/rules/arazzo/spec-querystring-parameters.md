@@ -1,3 +1,9 @@
+---
+seo:
+  title: spec-querystring-parameters rule for Arazzo
+  description: Enforce valid use of querystring parameters in Arazzo workflow steps with the spec-querystring-parameters rule in Redocly CLI.
+---
+
 # spec-querystring-parameters
 
 Enforces valid use of `querystring` parameters in a step.

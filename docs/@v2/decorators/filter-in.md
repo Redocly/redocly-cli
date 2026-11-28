@@ -1,3 +1,9 @@
+---
+seo:
+  title: filter-in decorator in Redocly CLI
+  description: Preserve matching nodes by property and value while removing others from your API description using the filter-in decorator.
+---
+
 # filter-in
 
 Preserves nodes that have specific `property` set to the specific `value` and removes others.

@@ -1,3 +1,9 @@
+---
+seo:
+  title: Configure API linting rules in Redocly CLI
+  description: Select and adapt built-in rulesets, create reusable rulesets, and configure assertions for your APIs in Redocly CLI.
+---
+
 # Configure API linting
 
 Every API has a different purpose and therefore different standards apply.

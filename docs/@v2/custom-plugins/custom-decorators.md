@@ -1,3 +1,9 @@
+---
+seo:
+  title: Decorators in custom plugins for Redocly CLI
+  description: Build custom decorators in plugins to transform, add, or remove elements in your API descriptions with Redocly CLI.
+---
+
 # Decorators in plugins
 
 Decorators transform API descriptions by adding, removing, or changing elements of the document. Before you build your own decorators:

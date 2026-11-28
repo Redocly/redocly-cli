@@ -1,5 +1,8 @@
 ---
 slug: /docs/cli/rules/configurable-rules
+seo:
+  title: Configurable rules in Redocly CLI
+  description: Create custom assertion rules to validate API descriptions and enforce design standards with Redocly CLI.
 ---
 
 # Configurable rules
