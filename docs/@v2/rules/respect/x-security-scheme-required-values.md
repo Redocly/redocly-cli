@@ -1,4 +1,7 @@
 ---
+seo:
+  title: x-security-scheme-required-values rule
+  description: Validate that the x-security extension defines all required values for the security scheme used in an Arazzo description.
 slug: /docs/cli/rules/respect/x-security-scheme-required-values
 ---
 

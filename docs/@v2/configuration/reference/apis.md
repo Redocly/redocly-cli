@@ -1,3 +1,9 @@
+---
+seo:
+  title: Configure apis in Redocly CLI
+  description: Configure rules, decorators, overlays, and output settings for multiple APIs in your Redocly configuration file.
+---
+
 # `apis`
 
 ## Introduction
